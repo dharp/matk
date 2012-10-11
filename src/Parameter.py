@@ -1,73 +1,93 @@
-class Parameter:
-    def __init__(self):
-        self.__name = ''
-        self.__min = 0
-        self.__max = 0
-        self.__trans = ''
-        self.__initial_value = []
-        self.__value = []
-        self.__scale = []
-        self.__offset = []
-        self.__pargrp = ''
-        self.__parchglim = ''
+class parameter(object):
+    """ pymads parameter class
+    """
+    def __init__(self, name, initial_value, **kwargs):
+        self.name = name
+        self.initial_value = initial_value
+        self.value = []
+        self.value.append( initial_value)
+        self.min = None
+        self.max = None
+        self.trans = 'none'
+        self.scale = 1.0
+        self.offset = 0.0
+        self.parchglim = None
+        self.pargrpnm = 'default'
+        for k,v in kwargs.iteritems():
+            if k == 'min':
+                self.min = float(v)
+            elif k == 'max':
+                self.max = float(v)
+            elif k == 'trans':
+                self.trans = v
+            elif k == 'scale':
+                self.scale = float(v)
+            elif k == 'offset':
+                self.offset = float(v)
+            elif k == 'parchglim':
+                self.parchglim = v
+            elif k == 'pargrpnm':
+                self.pargrpnm = v
+            else:
+                print k + ' is not a valid argument'
     @property
     def name(self):
-        return self.__name
+        return self._name
     @name.setter
     def name(self,value):
-        self.__name = value
+        self._name = value
     @property
     def min(self):
-        return self.__min
+        return self._min
     @min.setter
     def min(self,value):
-        self.__min = value
+        self._min = value
     @property
     def max(self):
-        return self.__max
+        return self._max
     @max.setter
     def max(self,value):
-        self.__max = value
+        self._max = value
     @property
     def trans(self):
-        return self.__trans
+        return self._trans
     @trans.setter
     def trans(self,value):
-        self.__trans = value
+        self._trans = value
     @property
     def initial_value(self):
-        return self.__initial_value
+        return self._initial_value
     @initial_value.setter
     def initial_value(self,value):
-        self.__initial_value = value
+        self._initial_value = value
     @property
     def value(self):
-        return self.__value
+        return self._value
     @value.setter
     def value(self,value):
-        self.__value = value
+        self._value = value
     @property
     def scale(self):
-        return self.__scale
+        return self._scale
     @scale.setter
     def scale(self,value):
-        self.__scale = value
+        self._scale = value
     @property
     def offset(self):
-        return self.__offset
+        return self._offset
     @offset.setter
     def offset(self,value):
-        self.__offset = value
+        self._offset = value
     @property
-    def pargp(self):
-        return self.__pargp
-    @pargp.setter
-    def pargp(self,value):
-        self.__pargp = value
+    def pargrpnm(self):
+        return self._pargrpnm
+    @pargrpnm.setter
+    def pargrpnm(self,value):
+        self._pargrpnm = value
     @property
     def parchglim(self):
-        return self.__parchglim
+        return self._parchglim
     @parchglim.setter
     def parchglim(self,value):
-        self.__parchglim = value
+        self._parchglim = value
         
