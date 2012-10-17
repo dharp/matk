@@ -1,4 +1,4 @@
-class parameter(object):
+class Parameter(object):
     """ pymads parameter class
     """
     def __init__(self, name, initial_value, **kwargs):

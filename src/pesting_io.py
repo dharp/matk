@@ -1,6 +1,8 @@
 from problem import *
+import re
+import numpy
 
-def readpst(filename):
+def readpest(filename):
     """ Read a PEST control file and populate objects
     
     First argument must be a PEST input file
@@ -11,7 +13,7 @@ def readpst(filename):
     if not 'pcf' in f.readline():
         print "%s doesn't appear to be a PEST control file" % filename
         return 0
-    if not 'control data' in f.readline():
+    if not '* ' in f.readline():
         print "%s doesn't appear to be a PEST control file" % filename
         return 0
     
@@ -28,12 +30,12 @@ def readpst(filename):
     values = line.split()
     ntplfile = int( values[0] )
     ninsfile = int( values[1] )
-    pest_prob = problem(npar,nobs,ntplfile,ninsfile,npargrp=mynpargrp,
+    pest_prob = Problem(npar,nobs,ntplfile,ninsfile,npargrp=mynpargrp,
                         nobsgrp=mynobsgrp)
     
     for i in range(5): f.readline()
     
-    if not 'parameter groups' in f.readline():
+    if not '* ' in f.readline():
         print "%s doesn't appear to be a PEST control file" % filename
         return 0
     
@@ -47,7 +49,7 @@ def readpst(filename):
         pest_prob.addpargrp(pargrpnm,derinc=derinc,derinclb=derinclb,
                             derincmul=derincmul,derincmthd=derincmthd)
             
-    if not 'parameter data' in f.readline():
+    if not '* ' in f.readline():
         print "%s doesn't appear to be a PEST control file" % filename
         return 0
  
@@ -75,7 +77,7 @@ def readpst(filename):
                           trans=trans,scale=scale,offset=offset,
                           pargrpnm=pargrpnm,parchglim=parchglim)
             
-    while 'observation groups' not in f.readline():
+    while '* ' not in f.readline():
         pass
     
     for i in range(pest_prob.nobsgrp):
@@ -83,7 +85,7 @@ def readpst(filename):
         obsgrpnm = values[0]
         pest_prob.addobsgrp(obsgrpnm)
          
-    if not 'observation data' in f.readline():
+    if not '* ' in f.readline():
         print "%s doesn't appear to be a PEST control file" % filename
         return 0
   
@@ -98,13 +100,13 @@ def readpst(filename):
                 found = True
                 ogrp.addobservation(name,value,weight=weight,
                                   obsgrpnm=obsgrpnm)
-    if not 'model command line' in f.readline():
+    if not '* ' in f.readline():
         print "%s doesn't appear to be a PEST control file" % filename
         return 0
  
     pest_prob.sim_command = f.readline().strip()
     
-    if not 'model input/output' in f.readline():
+    if not '* ' in f.readline():
         print "%s doesn't appear to be a PEST control file" % filename
         return 0
      
@@ -118,4 +120,53 @@ def readpst(filename):
  
     return pest_prob
 
-    
+
+def write_model_files(prob):
+    """ Write model from pest template file using current values
+    """
+    for tplfl in prob.tplfile:
+        model_file_str = ''
+        for line in tplfl.lines:
+            model_file_str += line
+        for pargp in prob.pargrp:
+            for par in pargp.parameter:
+                pattern = '!.*' + par.name + '.*'
+                model_file_str = re.sub(r'!.*' + par.name + '.*!', 
+                                        str(par.value[-1]), model_file_str)
+        f = open( tplfl.modelflname, 'w')
+        f.write(model_file_str)
+        
+def read_model_files(prob):
+    """ Collect simulated values from model files using
+        pest instruction file
+    """
+    for insfl in prob.insfile:
+        line_index = -1
+        f = open( insfl.modelflname , 'r')
+        model_file_lines = numpy.array(f.readlines())
+        for line in insfl.lines:
+            col_index = 0
+            values = line.split()
+            for val in values:
+                if re.match('l', val):
+                    line_index += int(re.sub("l","", val))
+                if re.match('w', val):
+                    col_index += 1
+                if re.match('!', val):
+                    obsnm = re.sub("!","", val)
+                    for obsgrp in prob.obsgrp:
+                        for obs in obsgrp.observation:
+                            if obs.name == obsnm:
+                                values = model_file_lines[line_index].split()
+                                obs.sim_value = values[col_index]
+                                
+def main(argv=None):
+    import sys
+    if argv is None:
+        argv = sys.argv
+    pest_prob = readpest(argv[1])
+    print pest_prob
+
+if __name__ == "__main__":
+    main()
+ 

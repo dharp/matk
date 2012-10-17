@@ -1,4 +1,4 @@
-class observation(object):
+class Observation(object):
     """ pymads observation class
     """
     def __init__(self, name, value, **kwargs):
@@ -31,4 +31,9 @@ class observation(object):
     @obsgrpnm.setter
     def obsgrpnm(self,value):
         self._obsgrpnm = value
-        
+    @property
+    def sim_value(self):
+        return self._sim_value
+    @sim_value.setter
+    def sim_value(self,value):
+        self._sim_value = value

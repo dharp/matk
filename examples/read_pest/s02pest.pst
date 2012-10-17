@@ -1,0 +1,53 @@
+pcf
+* control data
+restart  estimation
+11    21     1     0   1
+1     1 single point  1  0  0
+5.0   2.0   0.3  0.03    10
+5.0   5.0 0.001
+0.1
+50  0.01     9     9  0.01     9
+1     1     1
+* group definitions and derivative data
+par  relative 0.01  0.01  always_3  2.0 parabolic
+* parameter data
+sx none relative 224 210 1460 par 1 0 1
+sy none relative 1393 1230 1930 par 1 0 1
+dx none relative 258 1 500 par 1 0 1
+dy none relative 273 1 500 par 1 0 1
+cf none relative 16 0.01 100 par 1 0 1
+st none relative 0 0 43 par 1 0 1
+fa none relative 3 -30 30 par 1 0 1
+vx none relative 5 .01 200 par 1 0 1
+ax none relative 70 10 140 par 1 0 1
+ay none relative 15 1 30 par 1 0 1
+az none relative 0.3 0.1 1 par 1 0 1
+* observation groups
+obs
+* observation data
+W-1 0 1 obs
+W-2 0 1 obs
+W-3 0 1 obs
+W-4a 350 1 obs 
+W-4b 432 1 obs 
+W-5 0 1 obs
+W-6 0 1 obs
+W-7 0 1 obs
+W-8 0 1 obs
+W-9 981 1 obs
+W-10#1 1.1 1 obs
+W-10#2 0.1 1 obs
+W-11#1 22 1 obs
+W-11#2 0.3 1 obs
+W-12#1 15 1 obs
+W-12#2 0.17 1 obs
+W-13#1 72 1 obs
+W-13#2 0.26 1 obs
+W-14a 0 0 obs
+W-14b 0 0 obs
+W-14c 0 0 obs
+* model command line
+mads s02pest.mads-input forward >& /dev/null
+* model input/output
+s01pest.tpl s02pest.mads-input
+s01pest.inst s02pest.forward

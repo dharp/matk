@@ -1,6 +1,6 @@
-from observation import *
+from observation import Observation
 
-class obsgrp(object):
+class ObservationGroup(object):
     def __init__(self, name):
         self.name = name
         self.observation = []
@@ -17,5 +17,5 @@ class obsgrp(object):
             problem.addparameter( name, value, weight, obsgrpnm)
         """
         #mypar = parameter(name,value, **kwargs)
-        self.observation.append(observation(name,value,**kwargs))
+        self.observation.append(Observation(name,value,**kwargs))
         

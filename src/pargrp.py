@@ -1,6 +1,6 @@
-from parameter import *
+from parameter import Parameter
 
-class pargrp(object):
+class ParameterGroup(object):
     def __init__(self, name, **kwargs):
         self.name = name
         self.derinc = None
@@ -53,8 +53,10 @@ class pargrp(object):
         """Add a parameter to the problem
         
             [-] - optional parameters
-            problem.addparameter( name, initial_value, min=0.0, max=1.0, offset=0.0, scale=1.0, trans=None, parchglim=None
+            problem.addparameter( name, initial_value, min=0.0, 
+            max=1.0, offset=0.0, scale=1.0, trans=None, parchglim=None)
         """
-        #mypar = parameter(name,initial_value, **kwargs)
-        self.parameter.append(parameter(name,initial_value,**kwargs))
+        self.parameter.append(Parameter(name,initial_value,**kwargs))
         
+    def __iter__(self):
+        return iter(self.parameter)

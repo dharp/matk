@@ -1,9 +1,11 @@
 """ Python module for MADS
 """
-from pargrp import *
-from obsgrp import *
+from pargrp import ParameterGroup
+from obsgrp import ObservationGroup
+from model_template import ModelTemplate
+from model_instruction import ModelInstruction
 
-class problem(object):
+class Problem(object):
     def __init__(self, npar, nobs, ntplfile, ninsfile, **kwargs):
         self.npar = npar
         self.nobs = nobs
@@ -20,8 +22,8 @@ class problem(object):
                 print k + ' is not a valid argument'
         self.pargrp = []
         self.obsgrp = []
-        self.tplfile = {}
-        self.insfile = {}
+        self.tplfile = []
+        self.insfile = []
     @property
     def npar(self):
         return self._npar
@@ -74,29 +76,39 @@ class problem(object):
             [-] - optional parameters
             problem.addpargp( name, [
         """
-        self.pargrp.append(pargrp(name, **kwargs))
+        self.pargrp.append(ParameterGroup(name, **kwargs))
     def addobsgrp(self, name):
         """Add a parameter group to the problem
         
             [-] - optional parameters
             problem.addpargp( name, [
         """
-        self.obsgrp.append(obsgrp(name))
+        self.obsgrp.append(ObservationGroup(name))
     def __iter__(self):
         return self
     def next(self):
-        if isinstance(self, pargrp):
+        if isinstance(self, ParameterGroup):
             if self.npargrp == 0:
                 raise StopIteration
             index = self.npargrp - 1
             return self.pargrp[index]     
-        elif isinstance(self, obsgrp):
+        elif isinstance(self, ObservationGroup):
             if self.nobsgrp == 0:
                 raise StopIteration
             index = self.nobsgrp - 1
             return self.obsgrp[index]     
+        elif isinstance(self, ModelTemplate):
+            if self.ntplfile == 0:
+                raise StopIteration
+            index = self.ntplfile - 1
+            return self.tplfile[index]     
+        elif isinstance(self, ModelInstruction):
+            if self.ninsfile == 0:
+                raise StopIteration
+            index = self.ninsfile - 1
+            return self.insfile[index]      
     def addtpl(self,tplfilenm,model_infile):
-        self.tplfile[tplfilenm] = model_infile
+        self.tplfile.append(ModelTemplate(tplfilenm,model_infile))
     def addins(self,insfilenm,model_outfile):
-        self.insfile[insfilenm] = model_outfile
+        self.insfile.append(ModelInstruction(insfilenm,model_outfile))
     
