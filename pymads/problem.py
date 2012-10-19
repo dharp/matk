@@ -2,8 +2,7 @@
 """
 from pargrp import ParameterGroup
 from obsgrp import ObservationGroup
-from model_template import ModelTemplate
-from model_instruction import ModelInstruction
+from pesting import *
 
 class Problem(object):
     def __init__(self, npar, nobs, ntplfile, ninsfile, **kwargs):

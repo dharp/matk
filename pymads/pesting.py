@@ -2,7 +2,75 @@ from problem import *
 import re
 import numpy
 
-def readpest(filename):
+class ModelInstruction(object):
+    """pymads Templateate file class
+    """
+    def __init__(self,insflname,modelflname):
+        self.insflname = insflname
+        self.modelflname = modelflname
+        f = open( self.insflname, 'r')
+        self.lines = f.readlines()
+        lines = numpy.array(self.lines)
+        values = self.lines[0].split()
+        self.lines = lines[1:]
+        if values[0] != 'pif':
+            print "%s doesn't appear to be a PEST instruction file" % self.insflname
+            return 0
+        self.marker = values[1]
+    @property
+    def insflname(self):
+        return self._insflname
+    @insflname.setter
+    def insflname(self,value):
+        self._insflname = value
+    @property
+    def modelflname(self):
+        return self._modelflname
+    @modelflname.setter
+    def modelflname(self,value):
+        self._modelflname = value
+    @property
+    def marker(self):
+        return self._marker
+    @marker.setter
+    def marker(self,value):
+        self._marker = value 
+        
+class ModelTemplate(object):
+    """pymads Templateate file class
+    """
+    def __init__(self,tplflname,modelflname):
+        self.tplflname = tplflname
+        self.modelflname = modelflname
+        f = open( self.tplflname, 'r')
+        self.lines = f.readlines()
+        lines = numpy.array(self.lines)
+        values = self.lines[0].split()
+        self.lines = lines[1:]
+        if values[0] != 'ptf':
+            print "%s doesn't appear to be a PEST template file" % self.tplflname
+            return 0
+        self.marker = values[1]
+    @property
+    def tplflname(self):
+        return self._tplflname
+    @tplflname.setter
+    def tplflname(self,value):
+        self._tplflname = value
+    @property
+    def modelflname(self):
+        return self._modelflname
+    @modelflname.setter
+    def modelflname(self,value):
+        self._modelflname = value
+    @property
+    def marker(self):
+        return self._marker
+    @marker.setter
+    def marker(self,value):
+        self._marker = value 
+
+def read_pest(filename):
     """ Read a PEST control file and populate objects
     
     First argument must be a PEST input file
@@ -120,22 +188,6 @@ def readpest(filename):
  
     return pest_prob
 
-
-def write_model_files(prob):
-    """ Write model from pest template file using current values
-    """
-    for tplfl in prob.tplfile:
-        model_file_str = ''
-        for line in tplfl.lines:
-            model_file_str += line
-        for pargp in prob.pargrp:
-            for par in pargp.parameter:
-                pattern = '!.*' + par.name + '.*'
-                model_file_str = re.sub(r'!.*' + par.name + '.*!', 
-                                        str(par.value[-1]), model_file_str)
-        f = open( tplfl.modelflname, 'w')
-        f.write(model_file_str)
-        
 def read_model_files(prob):
     """ Collect simulated values from model files using
         pest instruction file
@@ -159,12 +211,28 @@ def read_model_files(prob):
                             if obs.name == obsnm:
                                 values = model_file_lines[line_index].split()
                                 obs.sim_value = values[col_index]
-                                
+
+def write_model_files(prob):
+    """ Write model from pest template file using current values
+    """
+    for tplfl in prob.tplfile:
+        model_file_str = ''
+        for line in tplfl.lines:
+            model_file_str += line
+        for pargp in prob.pargrp:
+            for par in pargp.parameter:
+                pattern = '!.*' + par.name + '.*'
+                model_file_str = re.sub(r'!.*' + par.name + '.*!', 
+                                        str(par.value[-1]), model_file_str)
+        f = open( tplfl.modelflname, 'w')
+        f.write(model_file_str)
+        
+
 def main(argv=None):
     import sys
     if argv is None:
         argv = sys.argv
-    pest_prob = readpest(argv[1])
+    pest_prob = read_pest(argv[1])
     print pest_prob
 
 if __name__ == "__main__":
