@@ -1,10 +1,11 @@
 """ Python module for MADS
 """
+from subprocess import call
+from os import name
 from pargrp import ParameterGroup
 from obsgrp import ObservationGroup
 import pesting
-from subprocess import call
-from os import name
+import calibrate
 
 class Problem(object):
     def __init__(self, npar, nobs, ntplfile, ninsfile, **kwargs):
@@ -127,5 +128,8 @@ class Problem(object):
             call(self.sim_command, shell=True)
         if self.pest == True:
             pesting.read_model_files(self)
+    def calibrate(self):
+        x,cov_x,infodic,mesg,ier = calibrate.least_squares(self)
+        return x,cov_x,infodic,mesg,ier
         
     

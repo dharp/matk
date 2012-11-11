@@ -37,9 +37,12 @@ def internal2external_grad(xi,bounds):
 
 def i2e_cov_x(xi,bounds,cov_x):
 
-    grad = internal2external_grad(xi,bounds)
-    grad = grad = np.atleast_2d(grad)
-    return np.dot(grad.T,grad)*cov_x
+    if cov_x is None:
+        return None
+    else:
+        grad = internal2external_grad(xi,bounds)
+        grad = grad = np.atleast_2d(grad)
+        return np.dot(grad.T,grad)*cov_x
 
 
 def internal2external(xi,bounds):
