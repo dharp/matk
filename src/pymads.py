@@ -6,6 +6,7 @@ from pargrp import ParameterGroup
 from obsgrp import ObservationGroup
 import pesting
 import calibrate
+import forward
 
 class Problem(object):
     def __init__(self, npar, nobs, ntplfile, ninsfile, **kwargs):
@@ -120,15 +121,10 @@ class Problem(object):
     def run_model(self):
         """ Run forward model using current value
         """
-        if self.pest == True:
-            pesting.write_model_files(self)
-        if name == 'posix': # If *nix system
-            call(self.sim_command, shell=True, executable='/bin/tcsh')
-        else: # If Windows, not sure if this works, maybe get rid of shell=True
-            call(self.sim_command, shell=True)
-        if self.pest == True:
-            pesting.read_model_files(self)
+        forward.run_model(self)
     def calibrate(self):
+        """ Calibrate model
+        """
         x,cov_x,infodic,mesg,ier = calibrate.least_squares(self)
         return x,cov_x,infodic,mesg,ier
         

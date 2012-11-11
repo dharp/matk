@@ -1,4 +1,4 @@
-__all__ = ['read_pest', 'read_model_files', 'write_mode_files', 'ModelTemplate', 'ModelInstruction']
+__all__ = ['read_pest', 'read_model_files', 'write_model_files', 'ModelTemplate', 'ModelInstruction']
 
 import pymads
 import re
