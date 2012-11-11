@@ -2,7 +2,7 @@
 """
 from pargrp import ParameterGroup
 from obsgrp import ObservationGroup
-from pesting import *
+import pesting
 
 class Problem(object):
     def __init__(self, npar, nobs, ntplfile, ninsfile, **kwargs):
@@ -12,13 +12,17 @@ class Problem(object):
         self.ninsfile = ninsfile
         self.npargrp = 1
         self.nobsgrp = 1
+        self.sim_command = ''
         for k,v in kwargs.iteritems():
             if 'npargrp' == k:
                 self.npargrp = v
             elif 'nobsgrp' == k:
                 self.nobsgrp = v
+            elif 'sim_command' == k:
+                self.sim_command = v
             else:
                 print k + ' is not a valid argument'
+        self.pest = False
         self.pargrp = []
         self.obsgrp = []
         self.tplfile = []
@@ -96,18 +100,18 @@ class Problem(object):
                 raise StopIteration
             index = self.nobsgrp - 1
             return self.obsgrp[index]     
-        elif isinstance(self, ModelTemplate):
+        elif isinstance(self, pesting.ModelTemplate):
             if self.ntplfile == 0:
                 raise StopIteration
             index = self.ntplfile - 1
             return self.tplfile[index]     
-        elif isinstance(self, ModelInstruction):
+        elif isinstance(self, pesting.ModelInstruction):
             if self.ninsfile == 0:
                 raise StopIteration
             index = self.ninsfile - 1
             return self.insfile[index]      
     def addtpl(self,tplfilenm,model_infile):
-        self.tplfile.append(ModelTemplate(tplfilenm,model_infile))
+        self.tplfile.append(pesting.ModelTemplate(tplfilenm,model_infile))
     def addins(self,insfilenm,model_outfile):
-        self.insfile.append(ModelInstruction(insfilenm,model_outfile))
+        self.insfile.append(pesting.ModelInstruction(insfilenm,model_outfile))
     

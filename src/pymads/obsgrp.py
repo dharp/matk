@@ -18,4 +18,6 @@ class ObservationGroup(object):
         """
         #mypar = parameter(name,value, **kwargs)
         self.observation.append(Observation(name,value,**kwargs))
+    def __iter__(self):
+        return iter(self.observation)
         

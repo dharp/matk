@@ -3,7 +3,7 @@ class Observation(object):
     """
     def __init__(self, name, value, **kwargs):
         self.name = name
-        self.value = value
+        self.value = float(value)
         self.weight = 1.0
         self.obsgrpnm = 'default'
         for k,v in kwargs.iteritems():
@@ -36,4 +36,4 @@ class Observation(object):
         return self._sim_value
     @sim_value.setter
     def sim_value(self,value):
-        self._sim_value = value
+        self._sim_value = float(value)

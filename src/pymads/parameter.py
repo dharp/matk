@@ -3,9 +3,9 @@ class Parameter(object):
     """
     def __init__(self, name, initial_value, **kwargs):
         self.name = name
-        self.initial_value = initial_value
-        self.value = []
-        self.value.append( initial_value)
+        self.initial_value = float( initial_value )
+        self._value = []
+        self.value = self.initial_value
         self.min = None
         self.max = None
         self.trans = 'none'
@@ -62,10 +62,10 @@ class Parameter(object):
         self._initial_value = value
     @property
     def value(self):
-        return self._value
+        return self._value[-1]
     @value.setter
     def value(self,value):
-        self._value = value
+        self._value.append(float(value))
     @property
     def scale(self):
         return self._scale
@@ -90,4 +90,3 @@ class Parameter(object):
     @parchglim.setter
     def parchglim(self,value):
         self._parchglim = value
-        

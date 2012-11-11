@@ -1,74 +1,8 @@
-from problem import *
-import re
-import numpy
+__all__ = ['read_pest', 'read_model_files', 'write_mode_files', 'ModelTemplate', 'ModelInstruction']
 
-class ModelInstruction(object):
-    """pymads Templateate file class
-    """
-    def __init__(self,insflname,modelflname):
-        self.insflname = insflname
-        self.modelflname = modelflname
-        f = open( self.insflname, 'r')
-        self.lines = f.readlines()
-        lines = numpy.array(self.lines)
-        values = self.lines[0].split()
-        self.lines = lines[1:]
-        if values[0] != 'pif':
-            print "%s doesn't appear to be a PEST instruction file" % self.insflname
-            return 0
-        self.marker = values[1]
-    @property
-    def insflname(self):
-        return self._insflname
-    @insflname.setter
-    def insflname(self,value):
-        self._insflname = value
-    @property
-    def modelflname(self):
-        return self._modelflname
-    @modelflname.setter
-    def modelflname(self,value):
-        self._modelflname = value
-    @property
-    def marker(self):
-        return self._marker
-    @marker.setter
-    def marker(self,value):
-        self._marker = value 
-        
-class ModelTemplate(object):
-    """pymads Templateate file class
-    """
-    def __init__(self,tplflname,modelflname):
-        self.tplflname = tplflname
-        self.modelflname = modelflname
-        f = open( self.tplflname, 'r')
-        self.lines = f.readlines()
-        lines = numpy.array(self.lines)
-        values = self.lines[0].split()
-        self.lines = lines[1:]
-        if values[0] != 'ptf':
-            print "%s doesn't appear to be a PEST template file" % self.tplflname
-            return 0
-        self.marker = values[1]
-    @property
-    def tplflname(self):
-        return self._tplflname
-    @tplflname.setter
-    def tplflname(self,value):
-        self._tplflname = value
-    @property
-    def modelflname(self):
-        return self._modelflname
-    @modelflname.setter
-    def modelflname(self,value):
-        self._modelflname = value
-    @property
-    def marker(self):
-        return self._marker
-    @marker.setter
-    def marker(self,value):
-        self._marker = value 
+from Problem import Problem
+import re
+from numpy import array
 
 def read_pest(filename):
     """ Read a PEST control file and populate objects
@@ -186,6 +120,8 @@ def read_pest(filename):
         values = f.readline().split()
         pest_prob.addins(values[0], values[1])
  
+    pest_prob.pest = True
+    
     return pest_prob
 
 def read_model_files(prob):
@@ -195,7 +131,7 @@ def read_model_files(prob):
     for insfl in prob.insfile:
         line_index = -1
         f = open( insfl.modelflname , 'r')
-        model_file_lines = numpy.array(f.readlines())
+        model_file_lines = array(f.readlines())
         for line in insfl.lines:
             col_index = 0
             values = line.split()
@@ -221,13 +157,87 @@ def write_model_files(prob):
             model_file_str += line
         for pargp in prob.pargrp:
             for par in pargp.parameter:
-                pattern = '!.*' + par.name + '.*'
                 model_file_str = re.sub(r'!.*' + par.name + '.*!', 
-                                        str(par.value[-1]), model_file_str)
+                                        str(par.value), model_file_str)
         f = open( tplfl.modelflname, 'w')
         f.write(model_file_str)
         
+class ModelInstruction(object):
+    """pymads PEST instruction file class
+    """
+    def __init__(self,insflname,modelflname):
+        self.insflname = insflname
+        self.modelflname = modelflname
+        f = open( self.insflname, 'r')
+        self.lines = f.readlines()
+        lines = array(self.lines)
+        values = self.lines[0].split()
+        self.lines = lines[1:]
+        if values[0] != 'pif':
+            print "%s doesn't appear to be a PEST instruction file" % self.insflname
+            return 0
+        self.marker = values[1]
+    @property
+    def insflname(self):
+        return self._insflname
+    @insflname.setter
+    def insflname(self,value):
+        self._insflname = value
+    @property
+    def modelflname(self):
+        return self._modelflname
+    @modelflname.setter
+    def modelflname(self,value):
+        self._modelflname = value
+    @property
+    def marker(self):
+        return self._marker
+    @marker.setter
+    def marker(self,value):
+        self._marker = value 
 
+class ModelTemplate(object):
+    """pymads Template file class
+    """
+    def __init__(self,tplflname,modelflname):
+        self.tplflname = tplflname
+        self.modelflname = modelflname
+        f = open( self.tplflname, 'r')
+        self.lines = f.readlines()
+        lines = array(self.lines)
+        values = self.lines[0].split()
+        self.lines = lines[1:]
+        if values[0] != 'ptf':
+            print "%s doesn't appear to be a PEST template file" % self.tplflname
+            return 0
+        self.marker = values[1]
+    @property
+    def tplflname(self):
+        return self._tplflname
+    @tplflname.setter
+    def tplflname(self,value):
+        self._tplflname = value
+    @property
+    def modelflname(self):
+        return self._modelflname
+    @modelflname.setter
+    def modelflname(self,value):
+        self._modelflname = value
+    @property
+    def marker(self):
+        return self._marker
+    @marker.setter
+    def marker(self,value):
+        self._marker = value 
+ 
+def obj_fun(prob):
+    of = 0.0
+    for obsgrp in prob.obsgrp:
+        for obs in obsgrp.observation:
+            of += ( float(obs.value) - float(obs.sim_value) )**2
+    return of
+            
+ 
 def main(argv=None):
     import sys
     if argv is None:
