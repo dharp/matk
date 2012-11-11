@@ -3,6 +3,8 @@
 from pargrp import ParameterGroup
 from obsgrp import ObservationGroup
 import pesting
+from subprocess import call
+from os import name
 
 class Problem(object):
     def __init__(self, npar, nobs, ntplfile, ninsfile, **kwargs):
@@ -114,4 +116,16 @@ class Problem(object):
         self.tplfile.append(pesting.ModelTemplate(tplfilenm,model_infile))
     def addins(self,insfilenm,model_outfile):
         self.insfile.append(pesting.ModelInstruction(insfilenm,model_outfile))
+    def run_model(self):
+        """ Run forward model using current value
+        """
+        if self.pest == True:
+            pesting.write_model_files(self)
+        if name == 'posix': # If *nix system
+            call(self.sim_command, shell=True, executable='/bin/tcsh')
+        else: # If Windows, not sure if this works, maybe get rid of shell=True
+            call(self.sim_command, shell=True)
+        if self.pest == True:
+            pesting.read_model_files(self)
+        
     
