@@ -1,6 +1,6 @@
 __all__ = ['read_pest', 'read_model_files', 'write_mode_files', 'ModelTemplate', 'ModelInstruction']
 
-from Problem import Problem
+import pymads
 import re
 from numpy import array
 
@@ -32,7 +32,7 @@ def read_pest(filename):
     values = line.split()
     ntplfile = int( values[0] )
     ninsfile = int( values[1] )
-    pest_prob = Problem(npar,nobs,ntplfile,ninsfile,npargrp=mynpargrp,
+    pest_prob = pymads.Problem(npar,nobs,ntplfile,ninsfile,npargrp=mynpargrp,
                         nobsgrp=mynobsgrp)
     
     for i in range(5): f.readline()
