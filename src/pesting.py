@@ -157,7 +157,7 @@ def write_model_files(prob):
             model_file_str += line
         for pargp in prob.pargrp:
             for par in pargp.parameter:
-                model_file_str = re.sub(r'!.*' + par.name + '.*!', 
+                model_file_str = re.sub(tplfl.marker + r'.*' + par.name + r'.*' + tplfl.marker, 
                                         str(par.value), model_file_str)
         f = open( tplfl.modelflname, 'w')
         f.write(model_file_str)

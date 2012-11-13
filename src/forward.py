@@ -1,4 +1,3 @@
-__all__ = ['forward']
 from subprocess import call
 from os import name
 import pesting
