@@ -6,7 +6,10 @@ from numpy import array
 def run_model(prob):
     """ Run forward model using current value
     
-    First argument is a pymads problem
+        Parameters:
+        -----------
+        prob : PyMadsProblem object
+        
     """
     if prob.pest == True:
         pesting.write_model_files(prob)

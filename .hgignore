@@ -3,3 +3,5 @@ syntax: glob
 
 *.pyc
 *~
+examples/read_pest/*
+tests/*

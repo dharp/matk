@@ -1,7 +1,5 @@
-__all__ = ['least_squares','leastsq_model']
 from numpy import array,sum,column_stack
 from leastsqbound import leastsqbound
-
 
 def least_squares(myprob):
     mini = []
