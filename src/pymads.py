@@ -5,6 +5,7 @@ from obsgrp import ObservationGroup
 import pesting
 import calibrate
 import forward
+from numpy import array
 
 class PyMadsProblem(object):
     """ Problem class for pymads module
@@ -95,6 +96,53 @@ class PyMadsProblem(object):
         """Add a parameter group to the problem
         """
         self.obsgrp.append(ObservationGroup(name))
+    def getobs(self):
+        """ Get the observation values
+        """
+        try: 
+            self.obsgrp[0].observation[0].value
+        except NameError:
+            print "No observations defined in this problem"
+        obs = []
+        for obsgrp in self.obsgrp:
+            for observation in obsgrp.observation:
+                    obs.append( observation.value )
+        return obs
+    def getsims(self):
+        """ Get the current simulated values
+        """
+        try: 
+            self.obsgrp[0].observation[0]._sim_value
+        except NameError:
+            print "No observations defined in this problem"
+        sims = []
+        for obsgrp in self.obsgrp:
+            for observation in obsgrp.observation:
+                sims.append( observation.sim_value )
+        return sims
+    def set_parameters(self,set_pars):
+        index = 0
+        for pargrp in self.pargrp:
+            for par in pargrp.parameter:
+                par.value = set_pars[index]
+                index += 1 
+    def set_residuals(self):
+        """ Get least squares values
+        """
+        if self.pest:
+            for obsgrp in self.obsgrp:
+                for obs in obsgrp:
+                    obs.residual = obs.value - obs.sim_value
+    def get_residuals(self):
+        """ Get least squares values
+        """
+        if self.pest:
+            self.set_residuals()
+        res = []
+        for obsgrp in self.obsgrp:
+            for obs in obsgrp:
+                res.append(obs.residual)
+        return res 
     def __iter__(self):
         return self
     def next(self):

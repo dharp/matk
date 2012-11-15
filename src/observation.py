@@ -37,3 +37,9 @@ class Observation(object):
     @sim_value.setter
     def sim_value(self,value):
         self._sim_value = float(value)
+    @property
+    def residual(self):
+        return self._residual
+    @residual.setter
+    def residual(self,value):
+        self._residual = value
