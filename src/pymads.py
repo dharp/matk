@@ -121,11 +121,21 @@ class PyMadsProblem(object):
                 sims.append( observation.sim_value )
         return sims
     def set_parameters(self,set_pars):
+        """ Set parameters using values in first argument
+        """
         index = 0
         for pargrp in self.pargrp:
             for par in pargrp.parameter:
                 par.value = set_pars[index]
                 index += 1 
+    def get_parameters(self):
+        """ Get parameter values
+        """
+        pars = []
+        for pargrp in self.pargrp:
+            for par in pargrp.parameter:
+                pars.append( par.value )
+        return pars
     def set_residuals(self):
         """ Get least squares values
         """
@@ -143,6 +153,22 @@ class PyMadsProblem(object):
             for obs in obsgrp:
                 res.append(obs.residual)
         return res 
+    def get_lower_bounds(self):
+        """ Get parameter lower bounds
+        """
+        mini = []
+        for pargrp in self.pargrp:
+            for par in pargrp.parameter:
+                mini.append(par.min)
+        return mini
+    def get_upper_bounds(self):
+        """ Get parameter lower bounds
+        """
+        maxi = []
+        for pargrp in self.pargrp:
+            for par in pargrp.parameter:
+                maxi.append(par.max)
+        return maxi
     def __iter__(self):
         return self
     def next(self):
