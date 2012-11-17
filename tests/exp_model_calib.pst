@@ -1,0 +1,35 @@
+pcf
+* control data
+restart  estimation
+4     10     1     0   1
+1     1 single point  1  0  0
+5.0   2.0   0.3  0.03    10
+5.0   5.0 0.001
+0.1
+50  0.01     9     9  0.01     9
+1     1     1
+* group definitions and derivative data
+par  relative 0.01  0.01  always_3  2.0 parabolic
+* parameter data
+a1 none relative 1.10 0.00 10.0 par 1 0 1
+k1 none relative 0.15 0.01 2.00 par 1 0 1
+a2 none relative 0.90 0.00 10.0 par 1 0 1
+k2 none relative 0.40 0.01 2.00 par 1 0 1
+* observation groups
+obs
+* observation data
+obs1  2.0000000000000 1.0 obs
+obs2  0.7418659429492 1.0 obs
+obs3  0.3861950800602 1.0 obs
+obs4  0.2256089123251 1.0 obs
+obs5  0.1356707458645 1.0 obs
+obs6  0.0821303985537 1.0 obs
+obs7  0.0497932125802 1.0 obs
+obs8  0.0301982149510 1.0 obs
+obs9  0.0183157514239 1.0 obs
+obs10 0.0111090117682 1.0 obs
+* model command line
+python exp_model.py >& /dev/null
+* model input/output
+exp_model.tpl exp_model.in
+exp_model.inst exp_model.out
