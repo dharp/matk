@@ -5,6 +5,7 @@ from obsgrp import ObservationGroup
 import pesting
 import calibrate
 import forward
+from sample import sample
 from numpy import array
 
 class PyMadsProblem(object):
@@ -18,6 +19,7 @@ class PyMadsProblem(object):
         self.npargrp = 1
         self.nobsgrp = 1
         self.sim_command = ''
+        self.sample_size = 100
         for k,v in kwargs.iteritems():
             if 'npargrp' == k:
                 self.npargrp = v
@@ -25,6 +27,8 @@ class PyMadsProblem(object):
                 self.nobsgrp = v
             elif 'sim_command' == k:
                 self.sim_command = v
+            elif 'sample_size' == k:
+                self.sample_size = int(v)
             else:
                 print k + ' is not a valid argument'
         self.pest = False
@@ -87,7 +91,15 @@ class PyMadsProblem(object):
         return self._sim_command
     @sim_command.setter
     def sim_command(self,value):
-        self._sim_command = value
+        self._sim_command = value       
+    @property
+    def sample_size(self):
+        """ Set number of parameter samples to run
+        """
+        return self._sample_size
+    @sample_size.setter
+    def sample_size(self,value):
+        self._sample_size = value
     def addpargrp(self, name, **kwargs):
         """Add a parameter group to the problem
         """
@@ -119,7 +131,7 @@ class PyMadsProblem(object):
         for obsgrp in self.obsgrp:
             for observation in obsgrp.observation:
                 sims.append( observation.sim_value )
-        return sims
+        return array( sims )
     def set_parameters(self,set_pars):
         """ Set parameters using values in first argument
         """
@@ -135,7 +147,7 @@ class PyMadsProblem(object):
         for pargrp in self.pargrp:
             for par in pargrp.parameter:
                 pars.append( par.value )
-        return pars
+        return array( pars )
     def set_residuals(self):
         """ Get least squares values
         """
@@ -152,7 +164,7 @@ class PyMadsProblem(object):
         for obsgrp in self.obsgrp:
             for obs in obsgrp:
                 res.append(obs.residual)
-        return res 
+        return array( res )
     def get_lower_bounds(self):
         """ Get parameter lower bounds
         """
@@ -160,7 +172,7 @@ class PyMadsProblem(object):
         for pargrp in self.pargrp:
             for par in pargrp.parameter:
                 mini.append(par.min)
-        return mini
+        return array( mini )
     def get_upper_bounds(self):
         """ Get parameter lower bounds
         """
@@ -168,7 +180,23 @@ class PyMadsProblem(object):
         for pargrp in self.pargrp:
             for par in pargrp.parameter:
                 maxi.append(par.max)
-        return maxi
+        return array( maxi )
+    def get_dists(self):
+        """ Get parameter probabilistic distributions
+        """
+        dists = []
+        for pargrp in self.pargrp:
+            for par in pargrp.parameter:
+                dists.append(par.dist)
+        return array( dists )
+    def get_dist_pars(self):
+        """ Get parameters needed by parameter distributions
+        """
+        dist_pars = []
+        for pargrp in self.pargrp:
+            for par in pargrp.parameter:
+                dist_pars.append(par.dist_pars)
+        return array( dist_pars )
     def __iter__(self):
         return self
     def next(self):
@@ -209,5 +237,11 @@ class PyMadsProblem(object):
         """
         x,cov_x,infodic,mesg,ier = calibrate.least_squares(self)
         return x,cov_x,infodic,mesg,ier
-        
+    def sample(self, *args):
+        """ Draw lhs samples from scipy.stats module distribution
+        """
+        if len(args) > 0:
+            self.sample_size = args[0]
+        x = sample(self,siz=self.sample_size)
+        return array(x).transpose()
     
