@@ -22,3 +22,5 @@ syntax: glob
 *.mads_output
 *.in
 *.out
+.project
+.pydevproject
