@@ -11,12 +11,12 @@ def run_model(prob):
         prob : PyMadsProblem object
         
     """
-    if prob.pest == True:
+    if prob.flag['pest']:
         pesting.write_model_files(prob)
     if name == 'posix': # If *nix system
         call(prob.sim_command, shell=True, executable='/bin/tcsh')
     else: # If Windows, not sure if this works, maybe get rid of shell=True
         call(prob.sim_command, shell=True)
-    if prob.pest == True:
+    if prob.flag['pest']:
         pesting.read_model_files(prob)
     return 0

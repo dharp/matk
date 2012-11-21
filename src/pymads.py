@@ -5,13 +5,14 @@ from obsgrp import ObservationGroup
 import pesting
 import calibrate
 import forward
-from sample import sample
+from sample import *
 from numpy import array
 
 class PyMadsProblem(object):
     """ Problem class for pymads module
     """
     def __init__(self, npar, nobs, ntplfile, ninsfile, **kwargs):
+        self.flag = {}
         self.npar = npar
         self.nobs = nobs
         self.ntplfile = ntplfile
@@ -31,7 +32,7 @@ class PyMadsProblem(object):
                 self.sample_size = int(v)
             else:
                 print k + ' is not a valid argument'
-        self.pest = False
+        self.flag['pest'] = False
         self.pargrp = []
         self.obsgrp = []
         self.tplfile = []
@@ -151,14 +152,14 @@ class PyMadsProblem(object):
     def set_residuals(self):
         """ Get least squares values
         """
-        if self.pest:
+        if self.flag['pest']:
             for obsgrp in self.obsgrp:
                 for obs in obsgrp:
                     obs.residual = obs.value - obs.sim_value
     def get_residuals(self):
         """ Get least squares values
         """
-        if self.pest:
+        if self.flag['pest']:
             self.set_residuals()
         res = []
         for obsgrp in self.obsgrp:
@@ -237,11 +238,15 @@ class PyMadsProblem(object):
         """
         x,cov_x,infodic,mesg,ier = calibrate.least_squares(self)
         return x,cov_x,infodic,mesg,ier
-    def sample(self, *args):
+    def get_sample(self, *args):
         """ Draw lhs samples from scipy.stats module distribution
         """
+        # If there is an argument, use to set the sample size
         if len(args) > 0:
-            self.sample_size = args[0]
-        x = sample(self,siz=self.sample_size)
+            if isinstance(args[0], int):
+                self.sample_size = args[0]
+            else:
+                print "\nArgument ignored, should be an integer indicating number of samples desired!\n"
+        x = get_sample(self,siz=self.sample_size)
         return array(x).transpose()
     

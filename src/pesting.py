@@ -120,7 +120,7 @@ def read_pest(filename):
         values = f.readline().split()
         pest_prob.addins(values[0], values[1])
  
-    pest_prob.pest = True
+    pest_prob.flag['pest'] = True
     
     return pest_prob
 

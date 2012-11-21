@@ -7,11 +7,11 @@ def least_squares(prob):
     bounds = column_stack([mini,maxi])
     x0 = prob.get_parameters()
     res = leastsq_model(x0, prob)
-    print "\nInitial SSE: ", sum(res**2)
+    #print "\nInitial SSE: ", sum(res**2)
     x,cov_x,infodic,mesg,ier = leastsqbound( leastsq_model,x0,bounds,args=(prob),full_output=True)
     res = leastsq_model(x, prob)
     assert sum( infodic['fvec']**2 ) == sum(res**2), "Calibrated model and current model do not match!"
-    print "Final SSE: ", sum( infodic['fvec']**2 )
+    #print "Final SSE: ", sum( infodic['fvec']**2 )
     return x,cov_x,infodic,mesg,ier
 
 def leastsq_model( set_pars, args):
