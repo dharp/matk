@@ -1,10 +1,8 @@
-from subprocess import call
-from os import name
 from pargrp import ParameterGroup
 from obsgrp import ObservationGroup
 import pesting
 import calibrate
-import forward
+import run_model
 from sample import *
 from numpy import array
 
@@ -21,6 +19,7 @@ class PyMadsProblem(object):
         self.nobsgrp = 1
         self.sim_command = ''
         self.sample_size = 100
+        self.ncpus = 1
         for k,v in kwargs.iteritems():
             if 'npargrp' == k:
                 self.npargrp = v
@@ -30,13 +29,22 @@ class PyMadsProblem(object):
                 self.sim_command = v
             elif 'sample_size' == k:
                 self.sample_size = int(v)
+            elif 'ncpus' == k:
+                self.ncpus == int(v)
             else:
                 print k + ' is not a valid argument'
-        self.flag['pest'] = False
         self.pargrp = []
         self.obsgrp = []
         self.tplfile = []
         self.insfile = []
+        self.flag['sims'] = False
+        self.flag['obs'] = False
+        self.flag['residual'] = False
+        self.flag['pest'] = False
+        if self.ncpus > 1:
+            self.flag['parallel'] = True
+        else:
+            self.flag['parallel'] = False
     @property
     def npar(self):
         """ Number of model parameters
@@ -101,38 +109,89 @@ class PyMadsProblem(object):
     @sample_size.setter
     def sample_size(self,value):
         self._sample_size = value
-    def addpargrp(self, name, **kwargs):
+    @property
+    def ncpus(self):
+        """ Set number of cpus to use for concurrent model evaluations
+        """
+        return self._ncpus
+    @ncpus.setter
+    def ncpus(self,value):
+        self._ncpus = value
+    def add_pargrp(self, name, **kwargs):
         """Add a parameter group to the problem
         """
         self.pargrp.append(ParameterGroup(name, **kwargs))
-    def addobsgrp(self, name):
+    def add_obsgrp(self, name):
         """Add a parameter group to the problem
         """
         self.obsgrp.append(ObservationGroup(name))
-    def getobs(self):
+        self.flag['obs'] = True
+    def get_obs(self):
         """ Get the observation values
         """
-        try: 
-            self.obsgrp[0].observation[0].value
-        except NameError:
-            print "No observations defined in this problem"
+        if not self.flag['obs']:
+            print 'Observations not defined in this problem'
+            return 1
         obs = []
         for obsgrp in self.obsgrp:
             for observation in obsgrp.observation:
                     obs.append( observation.value )
         return obs
-    def getsims(self):
+    def get_sims(self):
         """ Get the current simulated values
         """
-        try: 
-            self.obsgrp[0].observation[0]._sim_value
-        except NameError:
-            print "No observations defined in this problem"
+        if not self.flag['sims']:
+            print 'Simulated values do not exist, use run_model() first'
+            return 1
         sims = []
         for obsgrp in self.obsgrp:
             for observation in obsgrp.observation:
                 sims.append( observation.sim_value )
         return array( sims )
+    def add_parameter(self, name, initial_value, **kwargs):
+        """ Add parameter to problem
+        """
+        # Check if pargrpnm is identified, otherwise set to default
+        pargrpnm = 'default'
+        for k,v in kwargs.iteritems():
+            if 'pargrpnm' == k:
+                pargrpnm = str(v)
+        # Check if pargrpnm has been added yet
+        found = False
+        for pgrp in self.pargrp:
+            if pgrp.name == pargrpnm:
+                found = True
+                pgrp.add_parameter(name,initial_value,**kwargs)
+        if not found:
+            self.add_pargrp(pargrpnm)
+            self.pargrp[-1].add_parameter(name,initial_value,**kwargs)
+    def add_observation(self,name,value,**kwargs):
+        """ Add observation to problem
+        """
+        # Check if pargrp is identified, otherwise set to default
+        obsgrpnm = 'default'
+        for k,v in kwargs.iteritems():
+            if 'obsgrpnm' == k:
+                obsgrpnm = str(v)
+        # Check if obsgrpnm has been added yet
+        found = False
+        for ogrp in self.obsgrp:
+            if ogrp.name == obsgrpnm:
+                found = True
+                ogrp.add_observation(name,value,**kwargs)
+        if not found:
+            self.add_obsgrp(obsgrpnm)
+            self.obsgrp[-1].add_observation(name,value,**kwargs)
+    def set_sim_value(self, obsnm, value):
+        found = False
+        for obsgrp in self.obsgrp:
+            for obs in obsgrp.observation:
+                if obs.name == obsnm:
+                    obs.sim_value = value
+                    found = True
+        if not found:
+            print "%s is not the name of an observation" % obsnm
+            return 1
     def set_parameters(self,set_pars):
         """ Set parameters using values in first argument
         """
@@ -142,23 +201,43 @@ class PyMadsProblem(object):
                 par.value = set_pars[index]
                 index += 1 
     def get_parameters(self):
-        """ Get parameter values
+        """ Get array of parameter objects
         """
         pars = []
         for pargrp in self.pargrp:
             for par in pargrp.parameter:
-                pars.append( par.value )
+                pars.append( par )
         return array( pars )
+    def get_parameter_values(self):
+        """ Get parameter values
+        """
+        values = []
+        for par in self.get_parameters():
+            values.append( par.value )
+        return array( values )
     def set_residuals(self):
         """ Get least squares values
         """
+        if not self.flag['obs']:
+            print 'Observations not defined in this problem'
+            return 1
+        if not self.flag['sims']:
+            print 'Simulated values have not been generated, use run_model() first'
+            return 1
         if self.flag['pest']:
             for obsgrp in self.obsgrp:
                 for obs in obsgrp:
                     obs.residual = obs.value - obs.sim_value
+        self.flag['residual'] = True
     def get_residuals(self):
         """ Get least squares values
         """
+        if not self.flag['obs']:
+            print 'Observations not defined in this problem'
+            return 1
+        if not self.flag['sims']:
+            print 'Simulated values have not been generated, use run_model() first'
+            return 1
         if self.flag['pest']:
             self.set_residuals()
         res = []
@@ -221,24 +300,32 @@ class PyMadsProblem(object):
                 raise StopIteration
             index = self.ninsfile - 1
             return self.insfile[index]      
-    def addtpl(self,tplfilenm,model_infile):
+    def add_tpl(self,tplfilenm,model_infile):
         """ Add a template file to problem
         """
         self.tplfile.append(pesting.ModelTemplate(tplfilenm,model_infile))
-    def addins(self,insfilenm,model_outfile):
+    def add_ins(self,insfilenm,model_outfile):
         """ Add an instruction file to problem
         """
         self.insfile.append(pesting.ModelInstruction(insfilenm,model_outfile))
     def run_model(self):
         """ Run pymads problem forward model using current values
         """
-        forward.run_model(self)
+        run_model.forward(self)
+        self.flag['sims'] = True
+    def run_parallel(self):
+        """ Run models concurrently on multiprocessor machine
+        """
+        if not self.flag['parallel']:
+            print 'Parallel execution not enable, set ncpus to number of processors'
+            return 0
+        #run_model.parallel(self)
     def calibrate(self):
         """ Calibrate pymads problem model
         """
         x,cov_x,infodic,mesg,ier = calibrate.least_squares(self)
         return x,cov_x,infodic,mesg,ier
-    def get_sample(self, *args):
+    def get_samples(self, *args):
         """ Draw lhs samples from scipy.stats module distribution
         """
         # If there is an argument, use to set the sample size
@@ -247,6 +334,13 @@ class PyMadsProblem(object):
                 self.sample_size = args[0]
             else:
                 print "\nArgument ignored, should be an integer indicating number of samples desired!\n"
-        x = get_sample(self,siz=self.sample_size)
+        x = get_samples(self,siz=self.sample_size)
         return array(x).transpose()
+    def run_samples(self, *args):
+        """ Use or generate samples and run models
+            First argument (optional) is an array of samples
+        """
+        runs = self.run_samples(self, *args)
+        return runs
+        
     

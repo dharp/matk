@@ -5,7 +5,7 @@ def least_squares(prob):
     mini = prob.get_lower_bounds()
     maxi = prob.get_upper_bounds()
     bounds = column_stack([mini,maxi])
-    x0 = prob.get_parameters()
+    x0 = prob.get_parameter_values()
     res = leastsq_model(x0, prob)
     #print "\nInitial SSE: ", sum(res**2)
     x,cov_x,infodic,mesg,ier = leastsqbound( leastsq_model,x0,bounds,args=(prob),full_output=True)

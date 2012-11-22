@@ -10,11 +10,11 @@ class ObservationGroup(object):
     @name.setter
     def name(self,value):
         self._name = value
-    def addobservation(self, name, value, **kwargs):
+    def add_observation(self, name, value, **kwargs):
         """Add a parameter to the problem
         
             [-] - optional parameters
-            problem.addparameter( name, value, weight, obsgrpnm)
+            problem.add_parameter( name, value, weight, obsgrpnm)
         """
         #mypar = parameter(name,value, **kwargs)
         self.observation.append(Observation(name,value,**kwargs))

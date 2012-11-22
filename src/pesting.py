@@ -48,7 +48,7 @@ def read_pest(filename):
         derinclb = values[3]
         derincmul = values[5]
         derincmthd = values[6]
-        pest_prob.addpargrp(pargrpnm,derinc=derinc,derinclb=derinclb,
+        pest_prob.add_pargrp(pargrpnm,derinc=derinc,derinclb=derinclb,
                             derincmul=derincmul,derincmthd=derincmthd)
             
     if not '* ' in f.readline():
@@ -66,18 +66,9 @@ def read_pest(filename):
         offset = values[8]
         pargrpnm = values[6]
         parchglim = values[2]
-        found = None
-        for pgrp in pest_prob.pargrp:
-            if pgrp.name == pargrpnm:
-                found = True
-                pgrp.addparameter(name,initial_value,min=mn,max=mx,
-                                  trans=trans,scale=scale,offset=offset,
-                                  pargrpnm=pargrpnm,parchglim=parchglim)
-        if not found:
-            pest_prob.addpargrp(pargrpnm)
-            pest_prob.pargrp[-1].addparameter(name,initial_value,min=mn,max=mx,
-                          trans=trans,scale=scale,offset=offset,
-                          pargrpnm=pargrpnm,parchglim=parchglim)
+        pest_prob.add_parameter(name,initial_value,min=mn,max=mx,
+                                trans=trans,scale=scale,offset=offset,
+                                pargrpnm=pargrpnm,parchglim=parchglim)
             
     while '* ' not in f.readline():
         pass
@@ -85,7 +76,7 @@ def read_pest(filename):
     for i in range(pest_prob.nobsgrp):
         values = f.readline().split()
         obsgrpnm = values[0]
-        pest_prob.addobsgrp(obsgrpnm)
+        pest_prob.add_obsgrp(obsgrpnm)
          
     if not '* ' in f.readline():
         print "%s doesn't appear to be a PEST control file" % filename
@@ -97,10 +88,7 @@ def read_pest(filename):
         value = values[1]
         weight = values[2]
         obsgrpnm = values[3]
-        for ogrp in pest_prob.obsgrp:
-            if ogrp.name == obsgrpnm:
-                found = True
-                ogrp.addobservation(name,value,weight=weight,
+        pest_prob.add_observation(name,value,weight=weight,
                                   obsgrpnm=obsgrpnm)
     if not '* ' in f.readline():
         print "%s doesn't appear to be a PEST control file" % filename
@@ -114,11 +102,11 @@ def read_pest(filename):
      
     for i in range(pest_prob.ntplfile):
         values = f.readline().split()
-        pest_prob.addtpl(values[0], values[1])
+        pest_prob.add_tpl(values[0], values[1])
         
     for i in range(pest_prob.ninsfile):
         values = f.readline().split()
-        pest_prob.addins(values[0], values[1])
+        pest_prob.add_ins(values[0], values[1])
  
     pest_prob.flag['pest'] = True
     
@@ -142,11 +130,8 @@ def read_model_files(prob):
                     col_index += 1
                 if re.match('!', val):
                     obsnm = re.sub("!","", val)
-                    for obsgrp in prob.obsgrp:
-                        for obs in obsgrp.observation:
-                            if obs.name == obsnm:
-                                values = model_file_lines[line_index].split()
-                                obs.sim_value = values[col_index]
+                    values = model_file_lines[line_index].split()
+                    prob.set_sim_value( obsnm, values[col_index])
 
 def write_model_files(prob):
     """ Write model from pest template file using current values
@@ -155,9 +140,8 @@ def write_model_files(prob):
         model_file_str = ''
         for line in tplfl.lines:
             model_file_str += line
-        for pargp in prob.pargrp:
-            for par in pargp.parameter:
-                model_file_str = re.sub(tplfl.marker + r'.*' + par.name + r'.*' + tplfl.marker, 
+        for par in prob.get_parameters():
+            model_file_str = re.sub(tplfl.marker + r'.*' + par.name + r'.*' + tplfl.marker, 
                                         str(par.value), model_file_str)
         f = open( tplfl.modelflname, 'w')
         f.write(model_file_str)
