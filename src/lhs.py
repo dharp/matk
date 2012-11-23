@@ -134,11 +134,15 @@ def rank_restr(nvars=4, smp=100, noCorrRestr=False, Corrmat=None):
             if Corrmat.shape[0] != nvars:
                 raise TypeError('Correlation matrix must be of rank %s'%nvars)
             C=numpy.matrix(Corrmat)
+        if smp <= nvars:
+            raise TypeError('Number of samples must be greater than number '
+             'of variables when using noCorrRestr=False')
         s0=numpy.arange(1.,smp+1)/(smp+1.)
         s=stats.norm().ppf(s0)
         s1 = shuf(s)
         S=numpy.matrix(s1)
         P=cholesky(C)
+        print numpy.corrcoef(S)
         Q=cholesky(numpy.corrcoef(S))
 
         Final=S.transpose()*inv(Q).transpose()*P.transpose()
