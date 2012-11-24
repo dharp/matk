@@ -21,7 +21,7 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(SSE, 0.0, 'Calibration should result in SSE = 0.0!')
 
     def test_sample(self):
-        s = self.prob.get_samples(1)
+        s = self.prob.get_samples(siz=1, noCorrRestr=True)
         lb = self.prob.get_lower_bounds()
         ub = self.prob.get_upper_bounds()
         self.assertTrue( (s >= lb).any() and (s <= ub).any(), 'Sample outside parameter bounds!' )

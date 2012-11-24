@@ -142,7 +142,6 @@ def rank_restr(nvars=4, smp=100, noCorrRestr=False, Corrmat=None):
         s1 = shuf(s)
         S=numpy.matrix(s1)
         P=cholesky(C)
-        print numpy.corrcoef(S)
         Q=cholesky(numpy.corrcoef(S))
 
         Final=S.transpose()*inv(Q).transpose()*P.transpose()

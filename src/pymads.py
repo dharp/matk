@@ -4,7 +4,7 @@ import pesting
 import calibrate
 import run_model
 from sample import *
-from numpy import array
+from numpy import array,transpose
 
 class PyMadsProblem(object):
     """ Problem class for pymads module
@@ -126,7 +126,7 @@ class PyMadsProblem(object):
         """
         self.obsgrp.append(ObservationGroup(name))
         self.flag['obs'] = True
-    def get_obs(self):
+    def get_observations(self):
         """ Get the observation values
         """
         if not self.flag['obs']:
@@ -135,18 +135,19 @@ class PyMadsProblem(object):
         obs = []
         for obsgrp in self.obsgrp:
             for observation in obsgrp.observation:
-                    obs.append( observation.value )
+                    obs.append( observation )
         return obs
-    def get_sims(self):
+    def get_sim_values(self):
         """ Get the current simulated values
         """
         if not self.flag['sims']:
             print 'Simulated values do not exist, use run_model() first'
             return 1
         sims = []
-        for obsgrp in self.obsgrp:
-            for observation in obsgrp.observation:
-                sims.append( observation.sim_value )
+        for obs in self.get_observations():
+        #for obsgrp in self.obsgrp:
+        #    for observation in obsgrp.observation:
+            sims.append( obs.sim_value )
         return array( sims )
     def add_parameter(self, name, initial_value, **kwargs):
         """ Add parameter to problem
@@ -215,6 +216,20 @@ class PyMadsProblem(object):
         for par in self.get_parameters():
             values.append( par.value )
         return array( values )
+    def get_parameter_names(self):
+        """ Get parameter values
+        """
+        names = []
+        for par in self.get_parameters():
+            names.append( par.name )
+        return array( names )
+    def get_observation_names(self):
+        """ Get parameter values
+        """
+        names = []
+        for obs in self.get_observations():
+            names.append( obs.name )
+        return array( names )
     def set_residuals(self):
         """ Get least squares values
         """
@@ -325,22 +340,72 @@ class PyMadsProblem(object):
         """
         x,cov_x,infodic,mesg,ier = calibrate.least_squares(self)
         return x,cov_x,infodic,mesg,ier
-    def get_samples(self, *args):
+    def get_samples(self, siz=100, noCorrRestr=False, corrmat=None):
         """ Draw lhs samples from scipy.stats module distribution
+        
+            Parameter
+            ---------
+            siz : int
+                number of samples to generate, ignored if samples are provided
+            noCorrRestr: bool
+                if True, correlation structure is not enforced on sample
+            corrmat : matrix
+                correlation matrix
+            
+            Returns
+            -------
+            samples : ndarray 
+                Parameter samples
+         
         """
-        # If there is an argument, use to set the sample size
-        if len(args) > 0:
-            if isinstance(args[0], int):
-                self.sample_size = args[0]
-            else:
-                print "\nArgument ignored, should be an integer indicating number of samples desired!\n"
-        x = get_samples(self,siz=self.sample_size)
+        # If siz specified, set sample_size
+        if siz:
+            self.sample_size = siz
+        x = get_samples(self,siz=self.sample_size, noCorrRestr=noCorrRestr, corrmat=corrmat)
         return array(x).transpose()
-    def run_samples(self, *args):
+    def run_samples(self, siz=100, noCorrRestr=False, corrmat=None, samples=None, file=None):
         """ Use or generate samples and run models
             First argument (optional) is an array of samples
+            
+            Parameter
+            ---------
+            siz : int
+                number of samples to generate, ignored if samples are provided
+            noCorrRestr: bool
+                if True, correlation structure is not enforced on sample
+            corrmat : matrix
+                correlation matrix
+            samples : ndarray
+                matrix of samples, npar columns by siz rows
+            file : string
+                name of file to save to write samples and responses. 
+                If file=None, no file is written.
+            
+            Returns
+            -------
+            responses : ndarray 
+                Responses from model runs
+            samples : ndarray 
+                Parameter samples, same as input samples if provided
+            
         """
-        runs = self.run_samples(self, *args)
-        return runs
+        responses, samples = run_samples(self, siz, samples)
+        if file:
+            f = open(file, 'w')
+            f.write( '%-9s '%'id ' )
+            for parnm in self.get_parameter_names():
+                f.write( '%22s '%parnm)
+            for obsnm in self.get_observation_names():
+                f.write( '%22s '%obsnm)
+            f.write( '\n')
+            for id in range(siz):
+                f.write( '%-9d '%(int(id) + 1))
+                for val in samples[id]:
+                    f.write( '%22.16e '% val)
+                for val in responses[id]:
+                    f.write( '%22.16e '% val)
+                f.write( '\n')
+            f.close()
+        return responses, samples
         
     
