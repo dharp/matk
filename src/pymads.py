@@ -340,7 +340,7 @@ class PyMadsProblem(object):
         """
         x,cov_x,infodic,mesg,ier = calibrate.least_squares(self)
         return x,cov_x,infodic,mesg,ier
-    def get_samples(self, siz=100, noCorrRestr=False, corrmat=None):
+    def get_samples(self, siz=100, noCorrRestr=False, corrmat=None, outfile=None):
         """ Draw lhs samples from scipy.stats module distribution
         
             Parameter
@@ -356,14 +356,30 @@ class PyMadsProblem(object):
             -------
             samples : ndarray 
                 Parameter samples
-         
+            outfile : string
+                name of file to write samples in.
+                If outfile=None, no file is written.
+          
         """
         # If siz specified, set sample_size
         if siz:
             self.sample_size = siz
         x = get_samples(self,siz=self.sample_size, noCorrRestr=noCorrRestr, corrmat=corrmat)
-        return array(x).transpose()
-    def run_samples(self, siz=100, noCorrRestr=False, corrmat=None, samples=None, file=None):
+        x =  array(x).transpose()
+        if outfile:
+            f = open(outfile, 'w')
+            f.write( '%-9s '%'id ' )
+            for parnm in self.get_parameter_names():
+                f.write( '%22s '%parnm)
+            f.write( '\n')
+            for sid in range(siz):
+                f.write( '%-9d '%(int(sid) + 1))
+                for val in x[sid]:
+                    f.write( '%22.16e '% val)
+                f.write( '\n')
+            f.close() 
+        return x
+    def run_samples(self, siz=100, noCorrRestr=False, corrmat=None, samples=None, outfile=None):
         """ Use or generate samples and run models
             First argument (optional) is an array of samples
             
@@ -377,9 +393,9 @@ class PyMadsProblem(object):
                 correlation matrix
             samples : ndarray
                 matrix of samples, npar columns by siz rows
-            file : string
-                name of file to save to write samples and responses. 
-                If file=None, no file is written.
+            outfile : string
+                name of file to write samples and responses in. 
+                If outfile=None, no file is written.
             
             Returns
             -------
@@ -390,19 +406,19 @@ class PyMadsProblem(object):
             
         """
         responses, samples = run_samples(self, siz, samples)
-        if file:
-            f = open(file, 'w')
+        if outfile:
+            f = open(outfile, 'w')
             f.write( '%-9s '%'id ' )
             for parnm in self.get_parameter_names():
                 f.write( '%22s '%parnm)
             for obsnm in self.get_observation_names():
                 f.write( '%22s '%obsnm)
             f.write( '\n')
-            for id in range(siz):
-                f.write( '%-9d '%(int(id) + 1))
-                for val in samples[id]:
+            for sid in range(siz):
+                f.write( '%-9d '%(int(sid) + 1))
+                for val in samples[sid]:
                     f.write( '%22.16e '% val)
-                for val in responses[id]:
+                for val in responses[sid]:
                     f.write( '%22.16e '% val)
                 f.write( '\n')
             f.close()
