@@ -2,7 +2,7 @@ from pargrp import ParameterGroup
 from obsgrp import ObservationGroup
 import pesting
 import calibrate
-import run_model
+from run_model import *
 from sample import *
 from numpy import array,transpose
 
@@ -20,6 +20,8 @@ class PyMadsProblem(object):
         self.sim_command = ''
         self.sample_size = 100
         self.ncpus = 1
+        self.workdir_base = 'workdir'
+        self.templatedir = None
         for k,v in kwargs.iteritems():
             if 'npargrp' == k:
                 self.npargrp = v
@@ -31,8 +33,13 @@ class PyMadsProblem(object):
                 self.sample_size = int(v)
             elif 'ncpus' == k:
                 self.ncpus == int(v)
+            elif 'workdir_base' == k:
+                self.workdir_base = v
+            elif 'templatedir' == k:
+                self.templatedir = v
             else:
                 print k + ' is not a valid argument'
+      
         self.pargrp = []
         self.obsgrp = []
         self.tplfile = []
@@ -41,10 +48,9 @@ class PyMadsProblem(object):
         self.flag['obs'] = False
         self.flag['residual'] = False
         self.flag['pest'] = False
-        if self.ncpus > 1:
-            self.flag['parallel'] = True
-        else:
-            self.flag['parallel'] = False
+        # This flag is set to True on individual parallel runs in run_model.py
+        self.flag['parallel'] = False 
+        self.workdir_index = 0
     @property
     def npar(self):
         """ Number of model parameters
@@ -117,6 +123,30 @@ class PyMadsProblem(object):
     @ncpus.setter
     def ncpus(self,value):
         self._ncpus = value
+    @property
+    def workdir_base(self):
+        """ Set the base name for parallel working directories
+        """
+        return self._workdir_base
+    @workdir_base.setter
+    def workdir_base(self,value):
+        self._workdir_base = str(value)    
+    @property
+    def workdir_index(self):
+        """ Set the working directory index for parallel runs    
+        """
+        return self._workdir_index
+    @workdir_index.setter
+    def workdir_index(self,value):
+        self._workdir_index = value
+    @property
+    def templatedir(self):
+        """ Set the name of the templatedir for parallel runs   
+        """
+        return self._templatedir
+    @templatedir.setter
+    def templatedir(self,value):
+        self._templatedir = value
     def add_pargrp(self, name, **kwargs):
         """Add a parameter group to the problem
         """
@@ -217,14 +247,21 @@ class PyMadsProblem(object):
             values.append( par.value )
         return array( values )
     def get_parameter_names(self):
-        """ Get parameter values
+        """ Get parameter names
         """
         names = []
         for par in self.get_parameters():
             names.append( par.name )
         return array( names )
+    def get_observation_values(self):
+        """ Get observation values
+        """
+        names = []
+        for obs in self.get_observations():
+            names.append( obs.value )
+        return array( names )
     def get_observation_names(self):
-        """ Get parameter values
+        """ Get observation names
         """
         names = []
         for obs in self.get_observations():
@@ -326,7 +363,7 @@ class PyMadsProblem(object):
     def run_model(self):
         """ Run pymads problem forward model using current values
         """
-        run_model.forward(self)
+        forward(self)
         self.flag['sims'] = True
     def run_parallel(self):
         """ Run models concurrently on multiprocessor machine
@@ -379,7 +416,9 @@ class PyMadsProblem(object):
                 f.write( '\n')
             f.close() 
         return x
-    def run_samples(self, siz=100, noCorrRestr=False, corrmat=None, samples=None, outfile=None):
+    def run_samples(self, siz=100, noCorrRestr=False, corrmat=None,
+                     samples=None, outfile=None, parallel=False, ncpus=None,
+                      templatedir=None, workdir_base=None):
         """ Use or generate samples and run models
             First argument (optional) is an array of samples
             
@@ -396,6 +435,16 @@ class PyMadsProblem(object):
             outfile : string
                 name of file to write samples and responses in. 
                 If outfile=None, no file is written.
+            parallel : bool
+                if True, models run concurrently with 'ncpus' cpus
+            ncpus : int
+                number of cpus to use to run models concurrently
+            templatedir : string
+                name of folder including files needed to run model
+                (e.g. template files, instruction files, executables, etc.)
+            workdir_base : string
+                base name for model run folders, run index is appended
+                to workdir_base
             
             Returns
             -------
@@ -405,7 +454,9 @@ class PyMadsProblem(object):
                 Parameter samples, same as input samples if provided
             
         """
-        responses, samples = run_samples(self, siz, samples)
+        responses, samples = run_samples(self, siz=siz, samples=samples,
+                 noCorrRestr=noCorrRestr, corrmat=corrmat,outfile=outfile, 
+                 parallel=parallel, ncpus=ncpus, templatedir=templatedir, workdir_base=workdir_base)
         if outfile:
             f = open(outfile, 'w')
             f.write( '%-9s '%'id ' )
@@ -423,5 +474,8 @@ class PyMadsProblem(object):
                 f.write( '\n')
             f.close()
         return responses, samples
-        
+    def parallel(self, ncpus, par_sets, templatedir=None, workdir_base=None ):
+        samples, out = parallel(self, ncpus, par_sets, templatedir=templatedir,
+                            workdir_base=workdir_base)
+        return samples, out
     

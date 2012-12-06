@@ -20,6 +20,12 @@ class Observation(object):
     def name(self,value):
         self._name = value
     @property
+    def value(self):
+        return self._value
+    @value.setter
+    def value(self,value):
+        self._value = value
+    @property
     def weight(self):
         return self._weight
     @weight.setter
