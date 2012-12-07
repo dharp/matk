@@ -377,7 +377,7 @@ class PyMadsProblem(object):
         """
         x,cov_x,infodic,mesg,ier = calibrate.least_squares(self)
         return x,cov_x,infodic,mesg,ier
-    def get_samples(self, siz=100, noCorrRestr=False, corrmat=None, outfile=None):
+    def get_samples(self, siz=100, noCorrRestr=False, corrmat=None, outfile=None, seed=None):
         """ Draw lhs samples from scipy.stats module distribution
         
             Parameter
@@ -388,6 +388,10 @@ class PyMadsProblem(object):
                 if True, correlation structure is not enforced on sample
             corrmat : matrix
                 correlation matrix
+            outfile : string
+                name of file to output samples to
+            seed : int
+                random seed to allow replication of samples
             
             Returns
             -------
@@ -401,7 +405,8 @@ class PyMadsProblem(object):
         # If siz specified, set sample_size
         if siz:
             self.sample_size = siz
-        x = get_samples(self,siz=self.sample_size, noCorrRestr=noCorrRestr, corrmat=corrmat)
+        x = get_samples(self,siz=self.sample_size, noCorrRestr=noCorrRestr,
+                         corrmat=corrmat, seed=seed)
         x =  array(x).transpose()
         if outfile:
             f = open(outfile, 'w')
@@ -418,7 +423,7 @@ class PyMadsProblem(object):
         return x
     def run_samples(self, siz=100, noCorrRestr=False, corrmat=None,
                      samples=None, outfile=None, parallel=False, ncpus=None,
-                      templatedir=None, workdir_base=None):
+                      templatedir=None, workdir_base=None, seed=None):
         """ Use or generate samples and run models
             First argument (optional) is an array of samples
             
@@ -445,6 +450,8 @@ class PyMadsProblem(object):
             workdir_base : string
                 base name for model run folders, run index is appended
                 to workdir_base
+            seed : int
+                random seed to allow replication of samples
             
             Returns
             -------
@@ -456,7 +463,8 @@ class PyMadsProblem(object):
         """
         responses, samples = run_samples(self, siz=siz, samples=samples,
                  noCorrRestr=noCorrRestr, corrmat=corrmat,outfile=outfile, 
-                 parallel=parallel, ncpus=ncpus, templatedir=templatedir, workdir_base=workdir_base)
+                 parallel=parallel, ncpus=ncpus, templatedir=templatedir,
+                workdir_base=workdir_base, seed=seed)
         if outfile:
             f = open(outfile, 'w')
             f.write( '%-9s '%'id ' )
@@ -475,7 +483,10 @@ class PyMadsProblem(object):
             f.close()
         return responses, samples
     def parallel(self, ncpus, par_sets, templatedir=None, workdir_base=None ):
-        samples, out = parallel(self, ncpus, par_sets, templatedir=templatedir,
+        responses, samples, status = parallel(self, ncpus, par_sets, templatedir=templatedir,
                             workdir_base=workdir_base)
-        return samples, out
+        if status:
+            return 0, 0
+        else:
+            return responses, samples
     

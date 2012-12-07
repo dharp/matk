@@ -60,7 +60,7 @@ def lhsFromDensity(kde,siz=100):
     return v
 
 
-def lhs(dist, parms, siz=100, noCorrRestr=False, corrmat=None):
+def lhs(dist, parms, siz=100, noCorrRestr=False, corrmat=None, seed=None):
     '''
     Latin Hypercube sampling of any distribution.
     dist is is a scipy.stats random number generator 
@@ -75,6 +75,8 @@ def lhs(dist, parms, siz=100, noCorrRestr=False, corrmat=None):
         - `noCorrRestr`: if true, does not enforce correlation structure on the sample.
         - `corrmat`: Correlation matrix
     '''
+    if seed:
+        numpy.random.seed( seed )
     if not isinstance(dist,(list,tuple)):
         dists = [dist]
         parms = [parms]

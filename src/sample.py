@@ -1,19 +1,19 @@
 from lhs import *
 from numpy import array
 
-def get_samples(prob, siz=100, noCorrRestr=False, corrmat=None):
+def get_samples(prob, siz=100, noCorrRestr=False, corrmat=None, seed=None):
     # Take distribution keyword and convert to scipy.stats distribution object
     dists = []
     for dist in prob.get_dists():
         eval( 'dists.append(stats.' + dist + ')' )
     dist_pars = prob.get_dist_pars()
-    return lhs(dists, dist_pars, siz, noCorrRestr, corrmat)
+    return lhs(dists, dist_pars, siz=siz, noCorrRestr=noCorrRestr, corrmat=corrmat, seed=seed)
 
 def run_samples(prob, siz=100, noCorrRestr=False, corrmat=None,
                  samples=None, outfile=None, parallel=False, ncpus=None,
-                  templatedir=None, workdir_base=None):
+                  templatedir=None, workdir_base=None, seed=None):
     if samples == None:
-        samples = prob.get_samples(siz)
+        samples = prob.get_samples(siz, noCorrRestr=noCorrRestr, corrmat=corrmat, seed=seed)
     if parallel:
         prob.flag['parallel'] = True
         if not ncpus:
@@ -39,7 +39,7 @@ def run_samples(prob, siz=100, noCorrRestr=False, corrmat=None,
                 responses = prob.get_sim_values()
             out.append( responses )
     else:
-        samples, out = prob.parallel(ncpus, samples, templatedir=templatedir, workdir_base=workdir_base)
+        out, samples = prob.parallel(ncpus, samples, templatedir=templatedir, workdir_base=workdir_base)
         
     return array( out ), array( samples )
                 

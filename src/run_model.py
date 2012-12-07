@@ -73,7 +73,7 @@ def parallel(prob, ncpus, par_sets, templatedir=None, workdir_base=None ):
         workdir = prob.workdir_base + '.' + str( index )
         if os.path.exists( workdir ):
             print '\n' + workdir + " already exists!\n"
-            return 1, 1
+            return None, None, 1
         index += 1
         
     jobs = []
@@ -86,13 +86,15 @@ def parallel(prob, ncpus, par_sets, templatedir=None, workdir_base=None ):
         index += 1
         jobs.append(job_server.submit(child,(par_set, child_probs[-1]), (),("pymads",)))
         
-    out = []
+    responses = []
     for job in jobs:
         prob = job()
         if prob == 1:
             print "\nA child directory already exists\n"
-            return 1
-        out.append(prob.get_sim_values())
+            del child_probs # Clean up pymads problem instances
+            return None, None, 1
+        responses.append(prob.get_sim_values())
     
-    return par_sets, array(out)
+    del child_probs # Clean up pymads problem instances
+    return array(responses), par_sets, 0
         
