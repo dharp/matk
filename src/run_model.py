@@ -51,9 +51,9 @@ def parallel(prob, ncpus, par_sets, templatedir=None, workdir_base=None ):
             return 1
         os.makedirs( child_dir )    
         os.chdir( child_dir )
-        for file in os.listdir( tpldir ):
-            link_file = tpldir + '/' + file
-            link = child_dir + '/' + file
+        for fil in os.listdir( tpldir ):
+            link_file = tpldir + '/' + fil
+            link = child_dir + '/' + fil
             os.symlink( link_file, link )
         prob.set_parameters( pars )
         prob.run_model()
@@ -66,6 +66,16 @@ def parallel(prob, ncpus, par_sets, templatedir=None, workdir_base=None ):
 
     print "Starting pp with", job_server.get_ncpus(), "workers"
     
+    
+    # Check if a working directory exists
+    index = 1
+    for par_set in par_sets:
+        workdir = prob.workdir_base + '.' + str( index )
+        if os.path.exists( workdir ):
+            print '\n' + workdir + " already exists!\n"
+            return 1, 1
+        index += 1
+        
     jobs = []
     child_probs = []
     index = 1
@@ -80,7 +90,7 @@ def parallel(prob, ncpus, par_sets, templatedir=None, workdir_base=None ):
     for job in jobs:
         prob = job()
         if prob == 1:
-            print "\nA child directory already exists; Exiting\n"
+            print "\nA child directory already exists\n"
             return 1
         out.append(prob.get_sim_values())
     
