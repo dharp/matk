@@ -11,7 +11,7 @@ def get_samples(prob, siz=100, noCorrRestr=False, corrmat=None, seed=None):
 
 def run_samples(prob, siz=100, noCorrRestr=False, corrmat=None,
                  samples=None, outfile=None, parallel=False, ncpus=None,
-                  templatedir=None, workdir_base=None, seed=None):
+                  templatedir=None, workdir_base=None, seed=None, save_dirs=True):
     if samples == None:
         samples = prob.get_samples(siz, noCorrRestr=noCorrRestr, corrmat=corrmat, seed=seed)
     if parallel:
@@ -39,7 +39,8 @@ def run_samples(prob, siz=100, noCorrRestr=False, corrmat=None,
                 responses = prob.get_sim_values()
             out.append( responses )
     else:
-        out, samples = prob.parallel(ncpus, samples, templatedir=templatedir, workdir_base=workdir_base)
+        out, samples = prob.parallel(ncpus, samples, templatedir=templatedir, workdir_base=workdir_base,
+                                    save_dirs=save_dirs)
         
     return array( out ), array( samples )
                 

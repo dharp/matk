@@ -9,8 +9,8 @@ class TestSequenceFunctions(unittest.TestCase):
     def setUp(self):
         self.prob = read_pest('exp_model.pst')
 
-    def test_run_model(self):
-        self.prob.run_model()
+    def test_forward(self):
+        self.prob.forward()
         SSE =  sum( array(self.prob.get_residuals())**2 )
         self.assertEqual(SSE,0.0, 'SSE should be zero!')
 
@@ -28,3 +28,4 @@ class TestSequenceFunctions(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+

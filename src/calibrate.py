@@ -18,6 +18,6 @@ def leastsq_model( set_pars, args):
     prob = args 
     # set current parameters
     prob.set_parameters(set_pars)
-    prob.run_model()
+    prob.forward()
     return array(prob.get_residuals())
     

@@ -360,7 +360,18 @@ class PyMadsProblem(object):
         """ Add an instruction file to problem
         """
         self.insfile.append(pesting.ModelInstruction(insfilenm,model_outfile))
+    def write_model_files(self, workdir=None):
+        """ Write model files with current parameters"""
+        if self.flag['pest']:
+            pesting.write_model_files(self, workdir)
+    def read_model_files(self, workdir=None):
+        """ Write model files with current parameters"""
+        if self.flag['pest']:
+            pesting.read_model_files(self,workdir)
     def run_model(self):
+        """ Run simulation command on system"""
+        run_model(self.sim_command)
+    def forward(self):
         """ Run pymads problem forward model using current values
         """
         forward(self)
@@ -422,8 +433,9 @@ class PyMadsProblem(object):
             f.close() 
         return x
     def run_samples(self, siz=100, noCorrRestr=False, corrmat=None,
-                     samples=None, outfile=None, parallel=False, ncpus=None,
-                      templatedir=None, workdir_base=None, seed=None):
+                    samples=None, outfile=None, parallel=False, ncpus=None,
+                    templatedir=None, workdir_base=None, seed=None,
+                    save_dirs=True ):
         """ Use or generate samples and run models
             First argument (optional) is an array of samples
             
@@ -452,6 +464,9 @@ class PyMadsProblem(object):
                 to workdir_base
             seed : int
                 random seed to allow replication of samples
+            save_dirs : bool
+                if True, working directories during parallel model execution
+                will not be deleted
             
             Returns
             -------
@@ -464,7 +479,7 @@ class PyMadsProblem(object):
         responses, samples = run_samples(self, siz=siz, samples=samples,
                  noCorrRestr=noCorrRestr, corrmat=corrmat,outfile=outfile, 
                  parallel=parallel, ncpus=ncpus, templatedir=templatedir,
-                workdir_base=workdir_base, seed=seed)
+                workdir_base=workdir_base, seed=seed, save_dirs=save_dirs)
         if outfile:
             f = open(outfile, 'w')
             f.write( '%-9s '%'id ' )
@@ -482,9 +497,9 @@ class PyMadsProblem(object):
                 f.write( '\n')
             f.close()
         return responses, samples
-    def parallel(self, ncpus, par_sets, templatedir=None, workdir_base=None ):
+    def parallel(self, ncpus, par_sets, templatedir=None, workdir_base=None, save_dirs=True ):
         responses, samples, status = parallel(self, ncpus, par_sets, templatedir=templatedir,
-                            workdir_base=workdir_base)
+                            workdir_base=workdir_base, save_dirs=save_dirs)
         if status:
             return 0, 0
         else:

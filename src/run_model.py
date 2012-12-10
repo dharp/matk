@@ -3,7 +3,21 @@ import os
 import pesting
 from numpy import array
 from copy import deepcopy
+from shutil import rmtree
 
+# Keep in sync with child function in parallel below!
+def run_model(command):
+    """ Make system call to run model
+        
+        Parameters
+        ----------
+        command : string
+            command line string that runs model
+    """
+    if os.name == 'posix': # If *nix system
+        call(command, shell=True, executable='/bin/tcsh')
+    else: # If Windows, not sure if this works, maybe get rid of shell=True
+        call(command, shell=True)
 
 def forward(prob):
     """ Run forward model using current value
@@ -13,17 +27,11 @@ def forward(prob):
         prob : PyMadsProblem object
         
     """
-    if prob.flag['pest']:
-        pesting.write_model_files(prob)
-    if os.name == 'posix': # If *nix system
-        call(prob.sim_command, shell=True, executable='/bin/tcsh')
-    else: # If Windows, not sure if this works, maybe get rid of shell=True
-        call(prob.sim_command, shell=True)
-    if prob.flag['pest']:
-        pesting.read_model_files(prob)
-    return 0
+    prob.write_model_files()
+    prob.run_model()
+    prob.read_model_files()
 
-def parallel(prob, ncpus, par_sets, templatedir=None, workdir_base=None ):
+def parallel(prob, ncpus, par_sets, templatedir=None, workdir_base=None, save_dirs=True ):
     
     try:
         import pp
@@ -43,10 +51,11 @@ def parallel(prob, ncpus, par_sets, templatedir=None, workdir_base=None ):
         print 'Working directory base not designated, use optional argument "workdir_base"'
         return
     
-    def child(pars, prob):
+    def set_child(tpldir, workdir):
+        """ Create working directory for child """
         curdir = os.getcwd()
         tpldir = curdir + '/' + prob.templatedir
-        child_dir = curdir + '/' + prob.workdir_base + '.' + str( int(prob.workdir_index) )
+        child_dir = curdir + '/' + workdir
         if os.path.exists( child_dir ):
             return 1
         os.makedirs( child_dir )    
@@ -55,17 +64,18 @@ def parallel(prob, ncpus, par_sets, templatedir=None, workdir_base=None ):
             link_file = tpldir + '/' + fil
             link = child_dir + '/' + fil
             os.symlink( link_file, link )
-        prob.set_parameters( pars )
-        prob.run_model()
         os.chdir( curdir )
-        return prob
     
-    ppservers = ()
-    
-    job_server = pp.Server( ncpus, ppservers=ppservers)
-
-    print "Starting pp with", job_server.get_ncpus(), "workers"
-    
+    def child( command, child_dir ):
+        curdir = os.getcwd()
+        os.chdir( child_dir )
+        # coped from run_model(command) above, keep in sync!
+        if os.name == 'posix': # If *nix system
+            subprocess.call(command, shell=True, executable='/bin/tcsh')
+        else: # If Windows, not sure if this works, maybe get rid of shell=True
+            subprocess.call(command, shell=True)
+        os.chdir( curdir )
+        return child_dir
     
     # Check if a working directory exists
     index = 1
@@ -76,25 +86,34 @@ def parallel(prob, ncpus, par_sets, templatedir=None, workdir_base=None ):
             return None, None, 1
         index += 1
         
+    # Start Parallel Python server
+    ppservers = ()
+    job_server = pp.Server( ncpus, ppservers=ppservers)
+    print "Starting pp with", job_server.get_ncpus(), "workers"
+
+    # Queue model runs
     jobs = []
-    child_probs = []
     index = 1
     for par_set in par_sets:
-        # Copy prob to child_prob[] using deep copy so that it is its own instance
-        child_probs.append(deepcopy(prob))
-        child_probs[-1].workdir_index = index
+        prob.set_parameters(par_set)
+        child_dir = prob.workdir_base + '.' + str( index )
+        st = set_child( prob.templatedir, child_dir ) 
+        if st == 1:
+            print "\nA child directory already exists\n"
+            return None, None, 1
+        prob.write_model_files( workdir=child_dir )
+        jobs.append(job_server.submit(child,(prob.sim_command, child_dir,), (),("os","subprocess",)))
         index += 1
-        jobs.append(job_server.submit(child,(par_set, child_probs[-1]), (),("pymads",)))
         
+    # Wait for jobs and collect results
+    prob.flag['sims'] = True
     responses = []
     for job in jobs:
-        prob = job()
-        if prob == 1:
-            print "\nA child directory already exists\n"
-            del child_probs # Clean up pymads problem instances
-            return None, None, 1
+        child_dir = job()
+        prob.read_model_files( workdir=str(child_dir) )
+        if not save_dirs:
+            rmtree( child_dir )
         responses.append(prob.get_sim_values())
     
-    del child_probs # Clean up pymads problem instances
     return array(responses), par_sets, 0
         

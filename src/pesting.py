@@ -112,13 +112,22 @@ def read_pest(filename):
     
     return pest_prob
 
-def read_model_files(prob):
+def read_model_files(prob, workdir=None):
     """ Collect simulated values from model files using
         pest instruction file
+
+            Parameter
+            ---------
+            workdir : string
+                name of directory where model output files exist            
     """
     for insfl in prob.insfile:
         line_index = -1
-        f = open( insfl.modelflname , 'r')
+        if workdir:
+            filename = workdir + '/' + insfl.modelflname
+        else:
+            filename = insfl.modelflname
+        f = open( filename , 'r')
         model_file_lines = array(f.readlines())
         for line in insfl.lines:
             col_index = 0
@@ -133,8 +142,13 @@ def read_model_files(prob):
                     values = model_file_lines[line_index].split()
                     prob.set_sim_value( obsnm, values[col_index])
 
-def write_model_files(prob):
+def write_model_files(prob, workdir=None):
     """ Write model from pest template file using current values
+
+            Parameter
+            ---------
+            workdir : string
+                name of directory to write model files to           
     """
     for tplfl in prob.tplfile:
         model_file_str = ''
@@ -143,7 +157,11 @@ def write_model_files(prob):
         for par in prob.get_parameters():
             model_file_str = re.sub(tplfl.marker + r'.*' + par.name + r'.*' + tplfl.marker, 
                                         str(par.value), model_file_str)
-        f = open( tplfl.modelflname, 'w')
+        if workdir:
+            filename = workdir + '/' + tplfl.modelflname
+        else:
+            filename = tplfl.modelflname
+        f = open( filename, 'w')
         f.write(model_file_str)
         
 class ModelInstruction(object):
