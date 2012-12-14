@@ -29,12 +29,14 @@ def run_samples(prob, siz=100, noCorrRestr=False, corrmat=None,
         elif not prob.workdir_base:
             print 'Working directory base name not designated, use option workdir_base'
             return 1
+    else:
+        prob.flag['parallel'] = False
             
     if not prob.flag['parallel']:
         out = []
         for sample in samples:
             prob.set_parameters(sample)
-            prob.run_model()
+            prob.forward()
             if prob.flag['pest']:
                 responses = prob.get_sim_values()
             out.append( responses )

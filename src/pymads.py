@@ -433,7 +433,7 @@ class PyMadsProblem(object):
             f.close() 
         return x
     def run_samples(self, siz=100, noCorrRestr=False, corrmat=None,
-                    samples=None, outfile=None, parallel=False, ncpus=None,
+                    samples=None, outfile=None, parallel=False, ncpus=1,
                     templatedir=None, workdir_base=None, seed=None,
                     save_dirs=True ):
         """ Use or generate samples and run models
@@ -477,9 +477,9 @@ class PyMadsProblem(object):
             
         """
         responses, samples = run_samples(self, siz=siz, samples=samples,
-                 noCorrRestr=noCorrRestr, corrmat=corrmat,outfile=outfile, 
-                 parallel=parallel, ncpus=ncpus, templatedir=templatedir,
-                workdir_base=workdir_base, seed=seed, save_dirs=save_dirs)
+                                         noCorrRestr=noCorrRestr, corrmat=corrmat,outfile=outfile,
+                                         parallel=parallel, ncpus=ncpus, templatedir=templatedir,
+                                         workdir_base=workdir_base, seed=seed, save_dirs=save_dirs)
         if outfile:
             f = open(outfile, 'w')
             f.write( '%-9s '%'id ' )
