@@ -368,7 +368,7 @@ class PyMadsProblem(object):
         """ Write model files with current parameters"""
         if self.flag['pest']:
             pesting.read_model_files(self,workdir)
-    def run_model(self):
+    def _run_model(self):
         """ Run simulation command on system"""
         run_model(self.sim_command)
     def forward(self):

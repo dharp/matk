@@ -7,7 +7,7 @@ from shutil import rmtree
 
 # Keep in sync with child function in parallel below!
 def run_model(command):
-    """ Make system call to run model
+    """ Make system call to run model, does not write or read model files
         
         Parameters
         ----------
@@ -28,7 +28,7 @@ def forward(prob):
         
     """
     prob.write_model_files()
-    prob.run_model()
+    prob._run_model()
     prob.read_model_files()
 
 def parallel(prob, ncpus, par_sets, templatedir=None, workdir_base=None, save_dirs=True ):
