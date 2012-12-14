@@ -3,6 +3,8 @@ from pesting import *
 from pymads import *
 import exp_model
 from numpy import array
+import shutil
+
 
 class TestSequenceFunctions(unittest.TestCase):
 
@@ -25,6 +27,12 @@ class TestSequenceFunctions(unittest.TestCase):
         lb = self.prob.get_lower_bounds()
         ub = self.prob.get_upper_bounds()
         self.assertTrue( (s >= lb).any() and (s <= ub).any(), 'Sample outside parameter bounds!' )
+
+    def test_parallel(self):
+        par_out, par_in = self.prob.run_samples(siz=10, seed=1000, templatedir='templatedir', workdir_base='workdir', parallel=True)
+        ser_out, ser_in = self.prob.run_samples(siz=10, seed=1000)
+        self.assertTrue( (par_in == ser_in).any(), 'Parallel and serial samples not the same!' )
+        self.assertTrue( (par_out == ser_out).any(), 'Parallel and serial samples outputs not the same!' )
 
 if __name__ == '__main__':
     unittest.main()
