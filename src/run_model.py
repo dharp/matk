@@ -6,7 +6,7 @@ from copy import deepcopy
 from shutil import rmtree
 
 # Keep in sync with child function in parallel below!
-def run_model(command):
+def run_model(command, internal=False):
     """ Make system call to run model, does not write or read model files
         
         Parameters
@@ -27,9 +27,12 @@ def forward(prob):
         prob : PyMadsProblem object
         
     """
-    prob.write_model_files()
-    prob._run_model()
-    prob.read_model_files()
+    if not prob.flag['internal']:
+        prob.write_model_files()
+        prob._run_model()
+        prob.read_model_files()
+    else:
+        prob._run_model()
 
 def parallel(prob, ncpus, par_sets, templatedir=None, workdir_base=None, save_dirs=True ):
     

@@ -3,6 +3,8 @@ from pesting import *
 from pymads import *
 import exp_model
 from numpy import array
+import pymc
+import mcmc 
 
 
 class TestSequenceFunctions(unittest.TestCase):
@@ -32,6 +34,11 @@ class TestSequenceFunctions(unittest.TestCase):
         ser_out, ser_in = self.prob.run_samples(siz=10, seed=1000)
         self.assertTrue( (par_in == ser_in).any(), 'Parallel and serial samples not the same!' )
         self.assertTrue( (par_out == ser_out).any(), 'Parallel and serial samples outputs not the same!' )
+
+    def test_mcmc(self):
+        mcmc.create_pymc_model(self.prob)
+        M = mcmc.mcmc(self.prob, nsample=10)
+        #TODO: add test criteria
 
 if __name__ == '__main__':
     unittest.main()

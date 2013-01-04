@@ -29,6 +29,8 @@ class PyMadsProblem(object):
                 self.nobsgrp = v
             elif 'sim_command' == k:
                 self.sim_command = v
+            elif 'sim_function' == k:
+                self.sim_function = v
             elif 'sample_size' == k:
                 self.sample_size = int(v)
             elif 'ncpus' == k:
@@ -37,6 +39,8 @@ class PyMadsProblem(object):
                 self.workdir_base = v
             elif 'templatedir' == k:
                 self.templatedir = v
+            elif 'internal' == k:
+                self.flag['internal'] = v
             else:
                 print k + ' is not a valid argument'
       
@@ -50,6 +54,7 @@ class PyMadsProblem(object):
         self.flag['pest'] = False
         # This flag is set to True on individual parallel runs in run_model.py
         self.flag['parallel'] = False 
+        self.flag['internal'] = False 
         self.workdir_index = 0
     @property
     def npar(self):
@@ -214,6 +219,8 @@ class PyMadsProblem(object):
             self.add_obsgrp(obsgrpnm)
             self.obsgrp[-1].add_observation(name,value,**kwargs)
     def set_sim_value(self, obsnm, value):
+        """ Set obsnm simulated value by searching through obsnm
+        """
         found = False
         for obsgrp in self.obsgrp:
             for obs in obsgrp.observation:
@@ -223,6 +230,15 @@ class PyMadsProblem(object):
         if not found:
             print "%s is not the name of an observation" % obsnm
             return 1
+    def set_sim_values(self, values):
+        """ Set simulated values assuming that values is an array of values
+            in the order of observations in obsgrps
+        """
+        count = 0
+        for obsgrp in self.obsgrp:
+            for obs in obsgrp.observation:
+                obs.sim_value = values[ count ]
+                count += 1
     def set_parameters(self,set_pars):
         """ Set parameters using values in first argument
         """
@@ -370,7 +386,12 @@ class PyMadsProblem(object):
             pesting.read_model_files(self,workdir)
     def _run_model(self):
         """ Run simulation command on system"""
-        run_model(self.sim_command)
+        if not self.flag['internal']:
+            run_model(self.sim_command)
+        else:
+            pars = self.get_parameter_values()
+            sims = self.sim_function( pars )
+            self.set_sim_values(sims)
     def forward(self):
         """ Run pymads problem forward model using current values
         """

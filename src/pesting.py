@@ -133,11 +133,11 @@ def read_model_files(prob, workdir=None):
             col_index = 0
             values = line.split()
             for val in values:
-                if re.match('l', val):
+                if 'l' in val:
                     line_index += int(re.sub("l","", val))
-                if re.match('w', val):
+                if 'w' in val:
                     col_index += 1
-                if re.match('!', val):
+                if '!' in val:
                     obsnm = re.sub("!","", val)
                     values = model_file_lines[line_index].split()
                     prob.set_sim_value( obsnm, values[col_index])
