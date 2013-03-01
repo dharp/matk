@@ -32,8 +32,8 @@ def read_pest(filename):
     values = line.split()
     ntplfile = int( values[0] )
     ninsfile = int( values[1] )
-    pest_prob = pymads.PyMadsProblem(npar,nobs,ntplfile,ninsfile,npargrp=mynpargrp,
-                        nobsgrp=mynobsgrp)
+    pest_prob = pymads.PyMadsProblem(npar,nobs,ntplfile=ntplfile,ninsfile=ninsfile,npargrp=mynpargrp,
+                        nobsgrp=mynobsgrp,pest=True)
     
     for i in range(5): f.readline()
     
@@ -66,7 +66,7 @@ def read_pest(filename):
         offset = values[8]
         pargrpnm = values[6]
         parchglim = values[2]
-        pest_prob.add_parameter(name,initial_value,min=mn,max=mx,
+        pest_prob.add_parameter(name,initial_value=initial_value,min=mn,max=mx,
                                 trans=trans,scale=scale,offset=offset,
                                 pargrpnm=pargrpnm,parchglim=parchglim)
             
@@ -108,8 +108,6 @@ def read_pest(filename):
         values = f.readline().split()
         pest_prob.add_ins(values[0], values[1])
  
-    pest_prob.flag['pest'] = True
-    
     return pest_prob
 
 def read_model_files(prob, workdir=None):

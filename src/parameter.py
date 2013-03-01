@@ -1,11 +1,9 @@
 class Parameter(object):
     """ pymads parameter class
     """
-    def __init__(self, name, initial_value, **kwargs):
+    def __init__(self, name, **kwargs):
         self.name = name
-        self.initial_value = float( initial_value )
         self._value = []
-        self.value = self.initial_value
         self.min = None
         self.max = None
         self.trans = 'none'
@@ -15,7 +13,10 @@ class Parameter(object):
         self.pargrpnm = 'default'
         self.dist = 'uniform'
         for k,v in kwargs.iteritems():
-            if k == 'min':
+            if k == 'initial_value':
+                self.initial_value = float(v)
+                self.value = self.initial_value
+            elif k == 'min':
                 self.min = float(v)
             elif k == 'max':
                 self.max = float(v)

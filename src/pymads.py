@@ -1,6 +1,7 @@
 from pargrp import ParameterGroup
 from obsgrp import ObservationGroup
 import pesting
+import dakoting
 import calibrate
 from run_model import *
 from sample import *
@@ -9,12 +10,20 @@ from numpy import array,transpose
 class PyMadsProblem(object):
     """ Problem class for pymads module
     """
-    def __init__(self, npar, nobs, ntplfile, ninsfile, **kwargs):
+    def __init__(self, npar, nobs, **kwargs):
         self.flag = {}
+        # Preset some flags
+        self.flag['internal'] = False 
+        self.flag['file_save'] = True
+        self.flag['sims'] = False
+        self.flag['obs'] = False
+        self.flag['residual'] = False
+        self.flag['pest'] = False
+        self.flag['dakota'] = False
+        # This flag is set to True on individual parallel runs in run_model.py
+        self.flag['parallel'] = False 
         self.npar = npar
         self.nobs = nobs
-        self.ntplfile = ntplfile
-        self.ninsfile = ninsfile
         self.npargrp = 1
         self.nobsgrp = 1
         self.sim_command = ''
@@ -23,7 +32,11 @@ class PyMadsProblem(object):
         self.workdir_base = 'workdir'
         self.templatedir = None
         for k,v in kwargs.iteritems():
-            if 'npargrp' == k:
+            if 'ntplfile' == k:
+                self.ntplfile = v
+            elif 'ninsfile' == k:
+                self.ninsfile = v
+            elif 'npargrp' == k:
                 self.npargrp = v
             elif 'nobsgrp' == k:
                 self.nobsgrp = v
@@ -41,6 +54,20 @@ class PyMadsProblem(object):
                 self.templatedir = v
             elif 'internal' == k:
                 self.flag['internal'] = v
+            elif 'analysis_driver' == k:
+                self.analysis_driver = v
+            elif 'parameters_file' == k:
+                self.parameters_file = v
+            elif 'results_file' == k:
+                self.results_file = v
+            elif 'templatedir' == k:
+                self.templatedir = v
+            elif 'file_save' == k:
+                self.flag['file_save'] = v
+            elif 'pest' == k:
+                self.flag['pest'] = v
+            elif 'dakota' == k:
+                self.flag['dakota'] = v
             else:
                 print k + ' is not a valid argument'
       
@@ -48,14 +75,9 @@ class PyMadsProblem(object):
         self.obsgrp = []
         self.tplfile = []
         self.insfile = []
-        self.flag['sims'] = False
-        self.flag['obs'] = False
-        self.flag['residual'] = False
-        self.flag['pest'] = False
-        # This flag is set to True on individual parallel runs in run_model.py
-        self.flag['parallel'] = False 
-        self.flag['internal'] = False 
         self.workdir_index = 0
+        if self.flag['dakota'] and self.flag['pest']:
+            print 'Warning: Problem cannot be a Dakota and PEST problem!'
     @property
     def npar(self):
         """ Number of model parameters
@@ -152,6 +174,38 @@ class PyMadsProblem(object):
     @templatedir.setter
     def templatedir(self,value):
         self._templatedir = value
+    @property
+    def analysis_driver(self):
+        """ Set the name of the analysis_driver for parallel runs   
+        """
+        return self._analysis_driver
+    @analysis_driver.setter
+    def analysis_driver(self,value):
+        self._analysis_driver = value
+    @property
+    def parameters_file(self):
+        """ Set the name of the parameters_file for parallel runs   
+        """
+        return self._parameters_file
+    @parameters_file.setter
+    def parameters_file(self,value):
+        self._parameters_file = value
+    @property
+    def results_file(self):
+        """ Set the name of the results_file for parallel runs   
+        """
+        return self._results_file
+    @results_file.setter
+    def results_file(self,value):
+        self._results_file = value
+    @property
+    def templatedir(self):
+        """ Set the name of the templatedir for parallel runs   
+        """
+        return self._templatedir
+    @templatedir.setter
+    def templatedir(self,value):
+        self._templatedir = value
     def add_pargrp(self, name, **kwargs):
         """Add a parameter group to the problem
         """
@@ -184,7 +238,7 @@ class PyMadsProblem(object):
         #    for observation in obsgrp.observation:
             sims.append( obs.sim_value )
         return array( sims )
-    def add_parameter(self, name, initial_value, **kwargs):
+    def add_parameter(self, name, **kwargs):
         """ Add parameter to problem
         """
         # Check if pargrpnm is identified, otherwise set to default
@@ -197,10 +251,10 @@ class PyMadsProblem(object):
         for pgrp in self.pargrp:
             if pgrp.name == pargrpnm:
                 found = True
-                pgrp.add_parameter(name,initial_value,**kwargs)
+                pgrp.add_parameter(name,**kwargs)
         if not found:
             self.add_pargrp(pargrpnm)
-            self.pargrp[-1].add_parameter(name,initial_value,**kwargs)
+            self.pargrp[-1].add_parameter(name,**kwargs)
     def add_observation(self,name,value,**kwargs):
         """ Add observation to problem
         """

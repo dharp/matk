@@ -49,14 +49,14 @@ class ParameterGroup(object):
     @derincmthd.setter
     def derincmthd(self,value):
         self._derincmth = value
-    def add_parameter(self, name, initial_value, **kwargs):
+    def add_parameter(self, name, **kwargs):
         """Add a parameter to the problem
         
             [-] - optional parameters
-            problem.add_parameter( name, initial_value, min=0.0, 
+            problem.add_parameter( name, min=0.0, 
             max=1.0, offset=0.0, scale=1.0, trans=None, parchglim=None)
         """
-        self.parameter.append(Parameter(name,initial_value,**kwargs))
+        self.parameter.append(Parameter(name,**kwargs))
         
     def __iter__(self):
         return iter(self.parameter)
