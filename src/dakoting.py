@@ -1,4 +1,4 @@
-__all__ = ['read_dakota', 'read_model_files', 'write_model_files', 'ModelTemplate', 'ModelInstruction']
+__all__ = ['read_dakota', 'read_dakota_files', 'write_dakota_files']
 
 import pymads
 import re
@@ -12,7 +12,7 @@ def read_dakota(filename):
     """
     f = open(filename, 'r')
     lines = array(f.readlines())
-
+    f.close()
     i = 0
     while i < lines.size:
         values = lines[i].split('#') # Remove any comment section of line
@@ -82,152 +82,68 @@ def read_dakota(filename):
                    value = values[0].split('=')
                    nobs = int(value[1].strip()) 
         i+=1
-
-    f.close()
-
     # Create dakota pymads problem
     dakota_prob = pymads.PyMadsProblem(npar,nobs,analysis_driver=analysis_driver,parameters_file=parameters_file,results_file=results_file,templatedir=template_directory,file_save=file_save,dakota=True)
-
     # Create parameters
     for i in range(len(par_names)):
-        dakota_prob.add_parameter( par_names[i], min=min[i], max=max[i] )
+        initial_value = ( float(max[i]) + float(min[i]) ) / 2 # Set initial value to midpoint of range
+        dakota_prob.add_parameter( par_names[i], min=min[i], max=max[i], initial_value=initial_value )
+    for i in range(nobs):
+        obs_name = 'response_' + str(i+1)
+        dakota_prob.add_observation( obs_name )
 
     return dakota_prob
 
-def read_model_files(prob, workdir=None):
-    """ Collect simulated values from model files using
-        pest instruction file
+def read_dakota_files(prob, workdir=None):
+    """ Read responses from simulation files
 
             Parameter
             ---------
             workdir : string
                 name of directory where model output files exist            
     """
-    for insfl in prob.insfile:
-        line_index = -1
-        if workdir:
-            filename = workdir + '/' + insfl.modelflname
-        else:
-            filename = insfl.modelflname
-        f = open( filename , 'r')
-        model_file_lines = array(f.readlines())
-        for line in insfl.lines:
-            col_index = 0
-            values = line.split()
-            for val in values:
-                if 'l' in val:
-                    line_index += int(re.sub("l","", val))
-                if 'w' in val:
-                    col_index += 1
-                if '!' in val:
-                    obsnm = re.sub("!","", val)
-                    values = model_file_lines[line_index].split()
-                    prob.set_sim_value( obsnm, values[col_index])
+    results = []
+    with open( prob.results_file, 'r' ) as f:
+        results.append( f.readline().strip() )
 
-def write_model_files(prob, workdir=None):
-    """ Write model from pest template file using current values
+    results = array(results)
+    prob.set_sim_values( results )
+
+def write_dakota_files(prob, workdir=None):
+    """ Write parameter file in aprepro format (dprepro utility provided free with DAKOTA)
 
             Parameter
             ---------
             workdir : string
                 name of directory to write model files to           
     """
-    for tplfl in prob.tplfile:
-        model_file_str = ''
-        for line in tplfl.lines:
-            model_file_str += line
-        for par in prob.get_parameters():
-            model_file_str = re.sub(tplfl.marker + r'.*' + par.name + r'.*' + tplfl.marker, 
-                                        str(par.value), model_file_str)
-        if workdir:
-            filename = workdir + '/' + tplfl.modelflname
-        else:
-            filename = tplfl.modelflname
-        f = open( filename, 'w')
-        f.write(model_file_str)
-        
-class ModelInstruction(object):
-    """pymads PEST instruction file class
-    """
-    def __init__(self,insflname,modelflname):
-        self.insflname = insflname
-        self.modelflname = modelflname
-        f = open( self.insflname, 'r')
-        self.lines = f.readlines()
-        lines = array(self.lines)
-        values = self.lines[0].split()
-        self.lines = lines[1:]
-        if values[0] != 'pif':
-            print "%s doesn't appear to be a PEST instruction file" % self.insflname
-            return 0
-        self.marker = values[1]
-    @property
-    def insflname(self):
-        return self._insflname
-    @insflname.setter
-    def insflname(self,value):
-        self._insflname = value
-    @property
-    def modelflname(self):
-        return self._modelflname
-    @modelflname.setter
-    def modelflname(self,value):
-        self._modelflname = value
-    @property
-    def marker(self):
-        return self._marker
-    @marker.setter
-    def marker(self,value):
-        self._marker = value 
 
-class ModelTemplate(object):
-    """pymads Template file class
-    """
-    def __init__(self,tplflname,modelflname):
-        self.tplflname = tplflname
-        self.modelflname = modelflname
-        f = open( self.tplflname, 'r')
-        self.lines = f.readlines()
-        lines = array(self.lines)
-        values = self.lines[0].split()
-        self.lines = lines[1:]
-        if values[0] != 'ptf':
-            print "%s doesn't appear to be a PEST template file" % self.tplflname
-            return 0
-        self.marker = values[1]
-    @property
-    def tplflname(self):
-        return self._tplflname
-    @tplflname.setter
-    def tplflname(self,value):
-        self._tplflname = value
-    @property
-    def modelflname(self):
-        return self._modelflname
-    @modelflname.setter
-    def modelflname(self,value):
-        self._modelflname = value
-    @property
-    def marker(self):
-        return self._marker
-    @marker.setter
-    def marker(self,value):
-        self._marker = value 
- 
-def obj_fun(prob):
-    of = 0.0
-    for obsgrp in prob.obsgrp:
-        for obs in obsgrp.observation:
-            of += ( float(obs.value) - float(obs.sim_value) )**2
-    return of
-            
+    if workdir:
+        filename = workdir + '/' + prob.parameters_file
+    else:
+        filename = prob.parameters_file
+    
+    f = open( filename, 'w')
+    
+    for par in prob.get_parameters():
+        f.write( " { " + par.name + ' = ' + str(par.value) + ' }\n'  ) 
+    
+    f.close()
+    
+#def obj_fun(prob):
+#    of = 0.0
+#    for obsgrp in prob.obsgrp:
+#        for obs in obsgrp.observation:
+#            of += ( float(obs.value) - float(obs.sim_value) )**2
+#    return of
+#            
  
 def main(argv=None):
     import sys
     if argv is None:
         argv = sys.argv
-    pest_prob = read_pest(argv[1])
-    print pest_prob
+    dakota_prob = read_dakota(argv[1])
+    print dakota_prob
 
 if __name__ == "__main__":
     main()

@@ -255,7 +255,7 @@ class PyMadsProblem(object):
         if not found:
             self.add_pargrp(pargrpnm)
             self.pargrp[-1].add_parameter(name,**kwargs)
-    def add_observation(self,name,value,**kwargs):
+    def add_observation(self,name,**kwargs):
         """ Add observation to problem
         """
         # Check if pargrp is identified, otherwise set to default
@@ -268,10 +268,10 @@ class PyMadsProblem(object):
         for ogrp in self.obsgrp:
             if ogrp.name == obsgrpnm:
                 found = True
-                ogrp.add_observation(name,value,**kwargs)
+                ogrp.add_observation(name,**kwargs)
         if not found:
             self.add_obsgrp(obsgrpnm)
-            self.obsgrp[-1].add_observation(name,value,**kwargs)
+            self.obsgrp[-1].add_observation(name,**kwargs)
     def set_sim_value(self, obsnm, value):
         """ Set obsnm simulated value by searching through obsnm
         """
@@ -433,11 +433,15 @@ class PyMadsProblem(object):
     def write_model_files(self, workdir=None):
         """ Write model files with current parameters"""
         if self.flag['pest']:
-            pesting.write_model_files(self, workdir)
+            pesting.write_pest_files(self, workdir)
+        if self.flag['dakota']:
+            dakoting.write_dakota_files(self, workdir)
     def read_model_files(self, workdir=None):
         """ Write model files with current parameters"""
         if self.flag['pest']:
-            pesting.read_model_files(self,workdir)
+            pesting.read_pest_files(self,workdir)
+        if self.flag['dakota']:
+            dakoting.read_dakota_files(self,workdir)
     def _run_model(self):
         """ Run simulation command on system"""
         if not self.flag['internal']:

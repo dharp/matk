@@ -1,9 +1,8 @@
 class Observation(object):
     """ pymads observation class
     """
-    def __init__(self, name, value, **kwargs):
+    def __init__(self, name, **kwargs):
         self.name = name
-        self.value = float(value)
         self.weight = 1.0
         self.obsgrpnm = 'default'
         for k,v in kwargs.iteritems():
@@ -11,6 +10,8 @@ class Observation(object):
                 self.weight = float(v)
             elif k == 'obsgrpnm':
                 self.obsgrpnm = v
+            elif k == 'value':
+                self.value = float(v)
             else:
                 print k + ' is not a valid argument'
     @property

@@ -1,4 +1,4 @@
-__all__ = ['read_pest', 'read_model_files', 'write_model_files', 'ModelTemplate', 'ModelInstruction']
+__all__ = ['read_pest', 'read_pest_files', 'write_pest_files', 'ModelTemplate', 'ModelInstruction']
 
 import pymads
 import re
@@ -88,8 +88,8 @@ def read_pest(filename):
         value = values[1]
         weight = values[2]
         obsgrpnm = values[3]
-        pest_prob.add_observation(name,value,weight=weight,
-                                  obsgrpnm=obsgrpnm)
+        pest_prob.add_observation(name,weight=weight,
+                                  obsgrpnm=obsgrpnm,value=value)
     if not '* ' in f.readline():
         print "%s doesn't appear to be a PEST control file" % filename
         return 0
@@ -110,7 +110,7 @@ def read_pest(filename):
  
     return pest_prob
 
-def read_model_files(prob, workdir=None):
+def read_pest_files(prob, workdir=None):
     """ Collect simulated values from model files using
         pest instruction file
 
@@ -127,6 +127,7 @@ def read_model_files(prob, workdir=None):
             filename = insfl.modelflname
         f = open( filename , 'r')
         model_file_lines = array(f.readlines())
+        f.close()
         for line in insfl.lines:
             col_index = 0
             values = line.split()
@@ -140,7 +141,7 @@ def read_model_files(prob, workdir=None):
                     values = model_file_lines[line_index].split()
                     prob.set_sim_value( obsnm, values[col_index])
 
-def write_model_files(prob, workdir=None):
+def write_pest_files(prob, workdir=None):
     """ Write model from pest template file using current values
 
             Parameter
@@ -161,6 +162,7 @@ def write_model_files(prob, workdir=None):
             filename = tplfl.modelflname
         f = open( filename, 'w')
         f.write(model_file_str)
+        f.close()
         
 class ModelInstruction(object):
     """pymads PEST instruction file class
@@ -170,6 +172,7 @@ class ModelInstruction(object):
         self.modelflname = modelflname
         f = open( self.insflname, 'r')
         self.lines = f.readlines()
+        f.close()
         lines = array(self.lines)
         values = self.lines[0].split()
         self.lines = lines[1:]
@@ -204,6 +207,7 @@ class ModelTemplate(object):
         self.modelflname = modelflname
         f = open( self.tplflname, 'r')
         self.lines = f.readlines()
+        f.close()
         lines = array(self.lines)
         values = self.lines[0].split()
         self.lines = lines[1:]
