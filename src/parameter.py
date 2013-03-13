@@ -36,7 +36,8 @@ class Parameter(object):
                 self.dist_pars = v
             else:
                 print k + ' is not a valid argument'
-        self.dist_pars = (self.min, self.max)
+        if self.dist == 'uniform':
+            self.dist_pars = (self.min, self.max - self.min)
     @property
     def name(self):
         """ Parameter name
@@ -123,7 +124,7 @@ class Parameter(object):
     @property
     def dist_pars(self):
         """ Distribution parameters required by self.dist 
-        (e.g. if dist == uniform, dist_pars = (min,max))
+        (e.g. if dist == uniform, dist_pars = (min,max-min))
         """
         return self._dist_pars
     @dist_pars.setter

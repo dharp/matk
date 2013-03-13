@@ -1,4 +1,4 @@
-#!/usr/bin/python
+##!/usr/bin/python
 # -*- coding:utf-8 -*-
 #-----------------------------------------------------------------------------
 # Name:        lhs.py
@@ -11,12 +11,12 @@
 # Copyright:   (c) 2008 by the Author
 # Licence:     GPL
 #-----------------------------------------------------------------------------
-__docformat__ = "restructuredtext en"
+#__docformat__ = "restructuredtext en"
 #from pylab import plot, figure,hist,show, savefig, legend
 import scipy.stats as stats
 import numpy
 from numpy.linalg import cholesky,inv
-from numpy.random import uniform
+from numpy.random import uniform, shuffle
 
 def lhsFromSample(sample,siz=100):
     """
@@ -34,7 +34,7 @@ def lhsFromSample(sample,siz=100):
     if isinstance(siz,(tuple,list)):
         n=numpy.product(siz)
     perc = numpy.arange(0,100.,100./n)
-    numpy.random.shuffle(perc)
+    shuffle(perc)
     smp = [stats.uniform(i,100./n).rvs() for i in perc]
     v = numpy.array([stats.scoreatpercentile(sample,p) for p in smp])
     if isinstance(siz,(tuple,list)):
@@ -42,13 +42,13 @@ def lhsFromSample(sample,siz=100):
     return v
 
 def lhsFromDensity(kde,siz=100):
-    '''
+    """
     LHS sampling from a variable's Kernel density estimate.
 
     :Parameters:
         - `kde`: scipy.stats.kde.gaussian_kde object
         - `siz`: Number or shape tuple for the output sample
-    '''
+    """
     if not isinstance(kde,scipy.stats.kde.gaussian_kde):
         raise TypeError("kde is not a density object")
     if isinstance(siz,(tuple,list)):
@@ -122,13 +122,19 @@ def rank_restr(nvars=4, smp=100, noCorrRestr=False, Corrmat=None):
     if isinstance(smp,(tuple,list)):
             smp=numpy.product(smp)
     def shuf(s):
+        """
+        Shuffle a vector, making shure to make a copy of the original
+        :param s: A vector of values
+        :return: a list of arrays
+        """
         s1=[]
         for i in xrange(nvars):
-            numpy.random.shuffle(s)
+            shuffle(s)
             s1.append(s.copy())
         return s1
     if noCorrRestr or nvars ==1:
-        x = [stats.randint.rvs(0,smp+0,size=smp) for i in xrange(nvars)]
+        inds = numpy.arange(smp)
+        x = shuf(inds)
     else:
         if Corrmat == None:
             C=numpy.core.numeric.identity(nvars)
@@ -136,9 +142,6 @@ def rank_restr(nvars=4, smp=100, noCorrRestr=False, Corrmat=None):
             if Corrmat.shape[0] != nvars:
                 raise TypeError('Correlation matrix must be of rank %s'%nvars)
             C=numpy.matrix(Corrmat)
-        if smp <= nvars:
-            raise TypeError('Number of samples must be greater than number '
-             'of variables when using noCorrRestr=False')
         s0=numpy.arange(1.,smp+1)/(smp+1.)
         s=stats.norm().ppf(s0)
         s1 = shuf(s)

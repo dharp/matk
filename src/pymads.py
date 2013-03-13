@@ -55,7 +55,7 @@ class PyMadsProblem(object):
             elif 'internal' == k:
                 self.flag['internal'] = v
             elif 'analysis_driver' == k:
-                self.analysis_driver = v
+                self.sim_command = v
             elif 'parameters_file' == k:
                 self.parameters_file = v
             elif 'results_file' == k:
@@ -174,14 +174,6 @@ class PyMadsProblem(object):
     @templatedir.setter
     def templatedir(self,value):
         self._templatedir = value
-    @property
-    def analysis_driver(self):
-        """ Set the name of the analysis_driver for parallel runs   
-        """
-        return self._analysis_driver
-    @analysis_driver.setter
-    def analysis_driver(self,value):
-        self._analysis_driver = value
     @property
     def parameters_file(self):
         """ Set the name of the parameters_file for parallel runs   
@@ -459,7 +451,7 @@ class PyMadsProblem(object):
         """ Run models concurrently on multiprocessor machine
         """
         if not self.flag['parallel']:
-            print 'Parallel execution not enable, set ncpus to number of processors'
+            print 'Parallel execution not enabled, set ncpus to number of processors'
             return 0
         #run_model.parallel(self)
     def calibrate(self):
