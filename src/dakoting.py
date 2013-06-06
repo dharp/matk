@@ -14,6 +14,9 @@ def read_dakota(filename):
     lines = array(f.readlines())
     f.close()
     i = 0
+    analysis_driver = ''
+    parameters_file = ''
+    results_file = ''
     while i < lines.size:
         values = lines[i].split('#') # Remove any comment section of line
         values = values[0].split()
@@ -83,7 +86,8 @@ def read_dakota(filename):
                    nobs = int(value[1].strip()) 
         i+=1
     # Create dakota pymads problem
-    dakota_prob = pymads.PyMadsProblem(npar,nobs,analysis_driver=analysis_driver,parameters_file=parameters_file,results_file=results_file,templatedir=template_directory,file_save=file_save,dakota=True)
+	run_command = analysis_driver + ' ' + parameters_file + ' ' + results_file
+    dakota_prob = pymads.PyMadsProblem(npar,nobs,analysis_driver=run_command,parameters_file=parameters_file,results_file=results_file,templatedir=template_directory,file_save=file_save,dakota=True)
     # Create parameters
     for i in range(len(par_names)):
         initial_value = ( float(max[i]) + float(min[i]) ) / 2 # Set initial value to midpoint of range
