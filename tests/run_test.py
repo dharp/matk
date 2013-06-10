@@ -5,6 +5,8 @@ import exp_model
 from numpy import array
 import pymc
 import mcmc 
+from glob import glob
+from shutil import rmtree
 
 
 class TestSequenceFunctions(unittest.TestCase):
@@ -32,6 +34,8 @@ class TestSequenceFunctions(unittest.TestCase):
     def test_parallel(self):
         par_out, par_in = self.prob.run_samples(siz=10, seed=1000, templatedir='templatedir', workdir_base='workdir', parallel=True, save_dirs=False)
         ser_out, ser_in = self.prob.run_samples(siz=10, seed=1000)
+        for dir in glob('workdir.*'):
+            rmtree(dir)
         self.assertTrue( (par_in == ser_in).any(), 'Parallel and serial samples not the same!' )
         self.assertTrue( (par_out == ser_out).any(), 'Parallel and serial samples outputs not the same!' )
 
@@ -39,6 +43,15 @@ class TestSequenceFunctions(unittest.TestCase):
         mcmc.create_pymc_model(self.prob)
         M = mcmc.mcmc(self.prob, nsample=10)
         #TODO: add test criteria
+
+    def test_dakoting(self):
+        self.prob = dakoting.read_dakota('exp_model.dkt')
+        data,samples = self.prob.run_samples(siz=10,parallel=True,ncpus=4)
+        for dir in glob('workdir.*'):
+            rmtree(dir)
+        self.assertEqual(self.prob.nobs,4, 'nobs should be 4!')
+        self.assertEqual(self.prob.npar,4, 'npar should be 4!')
+
 
 if __name__ == '__main__':
     unittest.main()

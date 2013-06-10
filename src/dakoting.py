@@ -2,6 +2,8 @@ __all__ = ['read_dakota', 'read_dakota_files', 'write_dakota_files']
 
 import pymads
 import re
+from os import getcwd
+from os.path import join
 from numpy import array, where, zeros
 
 def read_dakota(filename):
@@ -36,6 +38,7 @@ def read_dakota(filename):
                             elif 'analysis_driver' in values[0]:
                                 values = values[0].split('=')
                                 analysis_driver = re.sub("'","", values[1].strip() ) 
+                                analysis_driver = join(getcwd(), analysis_driver)
                             elif 'parameters_file' in values[0]:
                                 values = values[0].split('=')
                                 parameters_file = re.sub("'","", values[1].strip() )
@@ -77,17 +80,30 @@ def read_dakota(filename):
                                 par_names = re.sub("'","", values[1])
                                 par_names = par_names.split()
                             i+=1
-            #if 'method,' in values[0]:
+            if 'method,' in values[0]:
+               i+=1
+               while lines[i].strip(): # Check if line is blank
+                   values = lines[i].split('#') # Remove any comment section of line
+                   if 'samples' in values[0]:
+                       value = values[0].split('=')
+                       sample_size = int(value[1].strip())
+                   if 'seed' in values[0]:
+                       value = values[0].split('=')
+                       value = value[1].split()
+                       seed = int(value[0].strip())
+                   i+=1
             if 'responses,' in values[0]:
                i+=1
-               values = lines[i].split('#') # Remove any comment section of line
-               if 'num_response_functions' in values[0]:
-                   value = values[0].split('=')
-                   nobs = int(value[1].strip()) 
+               while lines[i].strip(): # Check if line is blank
+                   values = lines[i].split('#') # Remove any comment section of line
+                   if 'num_response_functions' in values[0]:
+                       value = values[0].split('=')
+                       nobs = int(value[1].strip()) 
+                   i+=1
         i+=1
     # Create dakota pymads problem
 	run_command = analysis_driver + ' ' + parameters_file + ' ' + results_file
-    dakota_prob = pymads.PyMadsProblem(npar,nobs,analysis_driver=run_command,parameters_file=parameters_file,results_file=results_file,templatedir=template_directory,file_save=file_save,dakota=True)
+    dakota_prob = pymads.PyMadsProblem(npar,nobs,sample_size=sample_size,seed=seed,analysis_driver=run_command,parameters_file=parameters_file,results_file=results_file,templatedir=template_directory,file_save=file_save,dakota=True)
     # Create parameters
     for i in range(len(par_names)):
         initial_value = ( float(max[i]) + float(min[i]) ) / 2 # Set initial value to midpoint of range
@@ -107,8 +123,15 @@ def read_dakota_files(prob, workdir=None):
                 name of directory where model output files exist            
     """
     results = []
-    with open( prob.results_file, 'r' ) as f:
-        results.append( f.readline().strip() )
+
+    if workdir:
+        results_file = join( workdir, prob.results_file )
+    else:
+        results_file = prob.results_file
+
+    with open( results_file, 'r' ) as f:
+        for k in range(prob.nobs):
+            results.append( f.readline().strip() )
 
     results = array(results)
     prob.set_sim_values( results )
@@ -123,7 +146,7 @@ def write_dakota_files(prob, workdir=None):
     """
 
     if workdir:
-        filename = workdir + '/' + prob.parameters_file
+        filename = join( workdir, prob.parameters_file )
     else:
         filename = prob.parameters_file
     

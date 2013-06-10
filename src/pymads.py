@@ -31,6 +31,7 @@ class PyMadsProblem(object):
         self.ncpus = 1
         self.workdir_base = 'workdir'
         self.templatedir = None
+        self.seed = None
         for k,v in kwargs.iteritems():
             if 'ntplfile' == k:
                 self.ntplfile = v
@@ -68,6 +69,8 @@ class PyMadsProblem(object):
                 self.flag['pest'] = v
             elif 'dakota' == k:
                 self.flag['dakota'] = v
+            elif 'seed' == k:
+                self.seed = int(v)
             else:
                 print k + ' is not a valid argument'
       
@@ -198,6 +201,14 @@ class PyMadsProblem(object):
     @templatedir.setter
     def templatedir(self,value):
         self._templatedir = value
+    @property
+    def seed(self):
+        """ Set the name of the templatedir for parallel runs   
+        """
+        return self._seed
+    @seed.setter
+    def seed(self,value):
+        self._seed = value
     def add_pargrp(self, name, **kwargs):
         """Add a parameter group to the problem
         """
@@ -459,7 +470,7 @@ class PyMadsProblem(object):
         """
         x,cov_x,infodic,mesg,ier = calibrate.least_squares(self)
         return x,cov_x,infodic,mesg,ier
-    def get_samples(self, siz=100, noCorrRestr=False, corrmat=None, outfile=None, seed=None):
+    def get_samples(self, siz=None, noCorrRestr=False, corrmat=None, outfile=None, seed=None):
         """ Draw lhs samples from scipy.stats module distribution
         
             Parameter
@@ -484,11 +495,13 @@ class PyMadsProblem(object):
                 If outfile=None, no file is written.
           
         """
+        if seed:
+            self.seed = seed
         # If siz specified, set sample_size
         if siz:
             self.sample_size = siz
         x = get_samples(self,siz=self.sample_size, noCorrRestr=noCorrRestr,
-                         corrmat=corrmat, seed=seed)
+                         corrmat=corrmat, seed=self.seed)
         x =  array(x).transpose()
         if outfile:
             f = open(outfile, 'w')
@@ -503,7 +516,7 @@ class PyMadsProblem(object):
                 f.write( '\n')
             f.close() 
         return x
-    def run_samples(self, siz=100, noCorrRestr=False, corrmat=None,
+    def run_samples(self, siz=None, noCorrRestr=False, corrmat=None,
                     samples=None, outfile=None, parallel=False, ncpus=1,
                     templatedir=None, workdir_base=None, seed=None,
                     save_dirs=True ):
@@ -547,10 +560,14 @@ class PyMadsProblem(object):
                 Parameter samples, same as input samples if provided
             
         """
+        if seed:
+            self.seed = seed
+        if siz:
+            self.sample_size = siz
         responses, samples = run_samples(self, siz=siz, samples=samples,
                                          noCorrRestr=noCorrRestr, corrmat=corrmat,outfile=outfile,
                                          parallel=parallel, ncpus=ncpus, templatedir=templatedir,
-                                         workdir_base=workdir_base, seed=seed, save_dirs=save_dirs)
+                                         workdir_base=workdir_base, seed=self.seed, save_dirs=save_dirs)
         if outfile:
             f = open(outfile, 'w')
             f.write( '%-9s '%'id ' )
