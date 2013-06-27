@@ -117,6 +117,7 @@ def parallel(prob, ncpus, par_sets, templatedir=None, workdir_base=None, save_di
         if not save_dirs:
             rmtree( child_dir )
         responses.append(prob.get_sim_values())
+        print "Job in ", child_dir, " finished"
     
     return array(responses), par_sets, 0
         
