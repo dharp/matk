@@ -509,7 +509,7 @@ class PyMadsProblem(object):
             for parnm in self.get_parameter_names():
                 f.write( '%22s '%parnm)
             f.write( '\n')
-            for sid in range(siz):
+            for sid in range(self.sample_size):
                 f.write( '%-9d '%(int(sid) + 1))
                 for val in x[sid]:
                     f.write( '%22.16e '% val)
@@ -564,7 +564,7 @@ class PyMadsProblem(object):
             self.seed = seed
         if siz:
             self.sample_size = siz
-        responses, samples = run_samples(self, siz=siz, samples=samples,
+        responses, samples = run_samples(self, siz=self.sample_size, samples=samples,
                                          noCorrRestr=noCorrRestr, corrmat=corrmat,outfile=outfile,
                                          parallel=parallel, ncpus=ncpus, templatedir=templatedir,
                                          workdir_base=workdir_base, seed=self.seed, save_dirs=save_dirs)
@@ -576,7 +576,7 @@ class PyMadsProblem(object):
             for obsnm in self.get_observation_names():
                 f.write( '%22s '%obsnm)
             f.write( '\n')
-            for sid in range(siz):
+            for sid in range(self.sample_size):
                 f.write( '%-9d '%(int(sid) + 1))
                 for val in samples[sid]:
                     f.write( '%22.16e '% val)
