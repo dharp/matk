@@ -1,0 +1,35 @@
+strategy
+	single_method
+	  tabular_graphics_data
+          method_pointer = 'UQ'
+
+method,
+	id_method = 'UQ'
+	sampling,
+		samples = 4
+		seed = 98765 rng rnum2
+
+variables,
+	uniform_uncertain = 4
+	  lower_bounds = 0.     0.1    0.   0.1
+	  upper_bounds = 5.     2.     5.   2.
+	  descriptors  = 'a1' 'k1' 'a2'  'k2'
+
+interface,
+  fork
+    asynchronous evaluation_concurrency = 4 # number of processors
+    analysis_driver = './run_model.sh' # command to run the model
+    parameters_file = 'params.in' # dakota creates this with current parameters
+    results_file    = 'exp_model.out' # dakota is expecting to be created
+    work_directory directory_tag
+    template_directory = 'templatedir' # where is the templatedir
+# uncomment to leave params.in and results.out files in work_dir subdirectories
+    named 'workdir' file_save  directory_save
+    aprepro
+
+
+responses,
+	num_response_functions = 4
+	no_gradients
+	no_hessians
+
