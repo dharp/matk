@@ -4,6 +4,7 @@ import pesting
 from numpy import array
 from copy import deepcopy
 from shutil import rmtree
+from sys import stdout
 
 # Keep in sync with child function in parallel below!
 def run_model(command, internal=False):
@@ -118,6 +119,7 @@ def parallel(prob, ncpus, par_sets, templatedir=None, workdir_base=None, save_di
             rmtree( child_dir )
         responses.append(prob.get_sim_values())
         print "Job in ", child_dir, " finished"
+        stdout.flush()
     
     return array(responses), par_sets, 0
         
