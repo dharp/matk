@@ -70,7 +70,8 @@ def parallel(prob, ncpus, par_sets, templatedir=None, workdir_base=None, save_di
             os.symlink( link_file, link )
         os.chdir( curdir )
     
-    def child( command, child_dir ):
+    def child( command, child_dir, index ):
+        print "Job ", str(index), " started"
         curdir = os.getcwd()
         os.chdir( child_dir )
         # coped from run_model(command) above, keep in sync!
@@ -79,6 +80,7 @@ def parallel(prob, ncpus, par_sets, templatedir=None, workdir_base=None, save_di
         else: # If Windows, not sure if this works, maybe get rid of shell=True
             subprocess.call(command, shell=True)
         os.chdir( curdir )
+        print "Job ", str(index), " finished"
         return child_dir
     
     # Check if a working directory exists
@@ -106,7 +108,7 @@ def parallel(prob, ncpus, par_sets, templatedir=None, workdir_base=None, save_di
             print "\nA child directory already exists\n"
             return None, None, 1
         prob.write_model_files( workdir=child_dir )
-        jobs.append(job_server.submit(child,(prob.sim_command, child_dir,), (),("os","subprocess",)))
+        jobs.append(job_server.submit(child,(prob.sim_command, child_dir, index), (),("os","subprocess",)))
         index += 1
         
     # Wait for jobs and collect results
@@ -118,7 +120,6 @@ def parallel(prob, ncpus, par_sets, templatedir=None, workdir_base=None, save_di
         if not save_dirs:
             rmtree( child_dir )
         responses.append(prob.get_sim_values())
-        print "Job in ", child_dir, " finished"
         stdout.flush()
     
     return array(responses), par_sets, 0
