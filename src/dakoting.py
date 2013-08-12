@@ -19,6 +19,8 @@ def read_dakota(filename):
     analysis_driver = ''
     parameters_file = ''
     results_file = ''
+    sample_size = 10
+    seed = 1000
     while i < lines.size:
         values = lines[i].split('#') # Remove any comment section of line
         values = values[0].split()
