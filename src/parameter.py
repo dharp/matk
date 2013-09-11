@@ -6,6 +6,8 @@ class Parameter(object):
         self._value = []
         self.min = None
         self.max = None
+        self.mean = None
+        self.std = None
         self.trans = 'none'
         self.scale = 1.0
         self.offset = 0.0
@@ -20,6 +22,10 @@ class Parameter(object):
                 self.min = float(v)
             elif k == 'max':
                 self.max = float(v)
+            elif k == 'mean':
+                self.mean = float(v)
+            elif k == 'std':
+                self.std = float(v)
             elif k == 'trans':
                 self.trans = v
             elif k == 'scale':
@@ -37,7 +43,11 @@ class Parameter(object):
             else:
                 print k + ' is not a valid argument'
         if self.dist == 'uniform':
-            self.dist_pars = (self.min, self.max - self.min)
+            range = self.max - self.min
+            self.dist_pars = (self.min, range)
+        elif self.dist == 'norm':
+            self.dist_pars = (self.mean, self.std)
+
     @property
     def name(self):
         """ Parameter name
@@ -62,6 +72,22 @@ class Parameter(object):
     @max.setter
     def max(self,value):
         self._max = value
+    @property
+    def mean(self):
+        """ Parameter mean
+        """
+        return self._mean
+    @mean.setter
+    def mean(self,value):
+        self._mean = value
+    @property
+    def std(self):
+        """ Parameter st. dev.
+        """
+        return self._std
+    @std.setter
+    def std(self,value):
+        self._std = value
     @property
     def trans(self):
         return self._trans
