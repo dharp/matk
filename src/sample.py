@@ -4,9 +4,9 @@ from numpy import array
 def get_samples(prob, siz=100, noCorrRestr=False, corrmat=None, seed=None):
     # Take distribution keyword and convert to scipy.stats distribution object
     dists = []
-    for dist in prob.get_dists():
+    for dist in prob.get_par_dists():
         eval( 'dists.append(stats.' + dist + ')' )
-    dist_pars = prob.get_dist_pars()
+    dist_pars = prob.get_par_dist_pars()
     return lhs(dists, dist_pars, siz=siz, noCorrRestr=noCorrRestr, corrmat=corrmat, seed=seed)
 
 def run_samples(prob, siz=100, noCorrRestr=False, corrmat=None,

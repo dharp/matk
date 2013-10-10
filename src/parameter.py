@@ -1,11 +1,12 @@
 class Parameter(object):
-    """ pymads parameter class
+    """ pyma parameter class
     """
     def __init__(self, name, **kwargs):
         self.name = name
         self._value = []
         self.min = None
         self.max = None
+        self.initial_value = None
         self.mean = None
         self.std = None
         self.trans = 'none'
@@ -17,7 +18,7 @@ class Parameter(object):
         for k,v in kwargs.iteritems():
             if k == 'initial_value':
                 self.initial_value = float(v)
-                self.value = self.initial_value
+                self._value[0] = self.initial_value
             elif k == 'min':
                 self.min = float(v)
             elif k == 'max':
@@ -34,20 +35,28 @@ class Parameter(object):
                 self.offset = float(v)
             elif k == 'parchglim':
                 self.parchglim = v
-            elif k == 'pargrpnm':
-                self.pargrpnm = v
             elif k == 'dist':
                 self.dist = v
             elif k == 'dist_pars':
                 self.dist_pars = v
             else:
                 print k + ' is not a valid argument'
+        if not self.initial_value is None:
+            self.value = self.initial_value
         if self.dist == 'uniform':
+            if self.min is None or self.max is None: 
+                print "Error: Max and min parameter value must be specified for uniform distribution"
+                return
+            if self.initial_value is None:
+                if self.min <= self.initial_value <= self.max:
+                    print "Error: Initial value is not within min and max values:"
+                    return
+            self.initial_value = (self.max + self.min)/2
+            self.value = self.initial_value
             range = self.max - self.min
             self.dist_pars = (self.min, range)
         elif self.dist == 'norm':
             self.dist_pars = (self.mean, self.std)
-
     @property
     def name(self):
         """ Parameter name
@@ -124,14 +133,6 @@ class Parameter(object):
     @offset.setter
     def offset(self,value):
         self._offset = value
-    @property
-    def pargrpnm(self):
-        """ Group that parameter belongs to
-        """
-        return self._pargrpnm
-    @pargrpnm.setter
-    def pargrpnm(self,value):
-        self._pargrpnm = value
     @property
     def parchglim(self):
         return self._parchglim

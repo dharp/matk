@@ -3,15 +3,16 @@ class Observation(object):
     """
     def __init__(self, name, **kwargs):
         self.name = name
-        self.weight = 1.0
-        self.obsgrpnm = 'default'
+        self.value = None
+        self.sim = None
+        self.residual = None
         for k,v in kwargs.iteritems():
             if k == 'weight':
                 self.weight = float(v)
-            elif k == 'obsgrpnm':
-                self.obsgrpnm = v
             elif k == 'value':
                 self.value = float(v)
+            elif k == 'sim':
+                self.sim = float(v)
             else:
                 print k + ' is not a valid argument'
     @property
@@ -33,19 +34,17 @@ class Observation(object):
     def weight(self,value):
         self._weight = value
     @property
-    def obsgrpnm(self):
-        return self._obsgrpnm
-    @obsgrpnm.setter
-    def obsgrpnm(self,value):
-        self._obsgrpnm = value
-    @property
-    def sim_value(self):
-        return self._sim_value
-    @sim_value.setter
-    def sim_value(self,value):
-        self._sim_value = float(value)
+    def sim(self):
+        return self._sim
+    @sim.setter
+    def sim(self,value):
+        if value is not None:
+            self._sim = float(value)
+        else:
+            self._sim = None
     @property
     def residual(self):
+        self.residual = self.value - self.sim
         return self._residual
     @residual.setter
     def residual(self,value):
