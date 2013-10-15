@@ -408,7 +408,7 @@ class matk(object):
     def run_samples(self, siz=None, noCorrRestr=False, corrmat=None,
                     samples=None, outfile=None, parallel=False, ncpus=1,
                     templatedir=None, workdir_base=None, seed=None,
-                    save_dirs=True ):
+                    save=True ):
         """ Use or generate samples and run models
             First argument (optional) is an array of samples
             
@@ -473,7 +473,7 @@ class matk(object):
                 out.append( responses )
         else:
             out, samples = self.parallel(ncpus, samples, templatedir=templatedir, workdir_base=workdir_base,
-                                        save_dirs=save_dirs)
+                                        save=save)
         if outfile:
             f = open(outfile, 'w')
             f.write( '%-9s '%'id ' )
@@ -491,13 +491,16 @@ class matk(object):
                 f.write( '\n')
             f.close()
         return out, samples
-    def parallel(self, ncpus, par_sets, templatedir=None, workdir_base=None, save_dirs=True ):
+    def parallel(self, ncpus, par_sets, templatedir=None, workdir_base=None, save=True ):
  
         def child( prob ):
             if hasattr( prob.model, '__call__' ):
                 prob.forward()
                 out = prob.get_sims()
-                pickle.dump( out, open(self.results_file, "wb"))
+                if self.workdir is None:
+                    pickle.dump( out, open(self.results_file, "wb"))
+                else:
+                    pickle.dump( out, open(os.path.join(self.workdir,self.results_file), "wb"))
             os._exit( 0 )
 
         def set_child( prob ):
@@ -552,12 +555,12 @@ class matk(object):
                     wkdir_dict = dict(zip(pids,workdirs))
                     # Load results from completed job
                     if not wkdir_dict[rpid] is None:
-                        out = pickle.load( open( os.path.join(wkdir_dict[rpid],resfl_dict[rpid]), "rb" ))
-                        if save_dirs is False:
+                        out = pickle.load( open( os.path.join(wkdir_dict[rpid],resfl_dict[rpid]), "rb" ) )
+                        if save is False:
                             rmtree( wkdir_dict[rpid] )
                     else:
                         out = pickle.load( open( resfl_dict[rpid], "rb" ))
-                        if save_dirs is False:
+                        if save is False:
                             os.remove( resfl_dict[rpid] )
                     responses.append(out)
                     njobs_finished += 1
@@ -575,7 +578,7 @@ class matk(object):
                             workdirs.append( self.workdir)
                             results_files.append(self.results_file)
                         else:
-                            parent = True
+                            parent = False
                             child( self )
                             os._exit( 0 )
         
@@ -595,13 +598,13 @@ class matk(object):
         #    child_dir, index = job()
         #    print "Job ", str(index), " finished"
         #    self.read_model_files( workdir=str(child_dir) )
-        #    if not save_dirs:
+        #    if not save:
         #        rmtree( child_dir )
         #    responses.append(self.get_sims())
         #    stdout.flush()
 
         #responses, samples, status = parallel(self, ncpus, par_sets, templatedir=templatedir,
-        #                    workdir_base=workdir_base, save_dirs=save_dirs)
+        #                    workdir_base=workdir_base, save=save)
         #if status:
         #    return 0, 0
         #else:
