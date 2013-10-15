@@ -408,7 +408,7 @@ class matk(object):
     def run_samples(self, siz=None, noCorrRestr=False, corrmat=None,
                     samples=None, outfile=None, parallel=False, ncpus=1,
                     templatedir=None, workdir_base=None, seed=None,
-                    save=True ):
+                    save=True, index_start=1 ):
         """ Use or generate samples and run models
             First argument (optional) is an array of samples
             
@@ -438,9 +438,12 @@ class matk(object):
             seed : int
                 random seed to allow replication of samples
             save : bool
-                if True, working directories during parallel model execution
-                will not be deleted
-            
+                if True, model files and folders will not be deleted
+                during parallel model execution
+            index_start : int
+                The initial index to be appended to working directories
+                and output files
+
             Returns
             -------
             responses : ndarray 
@@ -473,7 +476,7 @@ class matk(object):
                 out.append( responses )
         else:
             out, samples = self.parallel(ncpus, samples, templatedir=templatedir, workdir_base=workdir_base,
-                                        save=save)
+                                        save=save, index_start=index_start)
         if outfile:
             f = open(outfile, 'w')
             f.write( '%-9s '%'id ' )
@@ -491,7 +494,7 @@ class matk(object):
                 f.write( '\n')
             f.close()
         return out, samples
-    def parallel(self, ncpus, par_sets, templatedir=None, workdir_base=None, save=True ):
+    def parallel(self, ncpus, par_sets, templatedir=None, workdir_base=None, save=True, index_start=1 ):
  
         def child( prob ):
             if hasattr( prob.model, '__call__' ):
@@ -519,14 +522,13 @@ class matk(object):
 
         # Start ncpus model runs
         jobs = []
-        index = 1
         pids = []
         workdirs = []
         results_files = []
-        for i in range(1,ncpus+1):
-            self.workdir_index = i
+        for i in range(ncpus):
+            self.workdir_index = index_start + i
             set_child( self )
-            pardict = dict(zip(self.get_par_names(), par_sets[i-1] ) )
+            pardict = dict(zip(self.get_par_names(), par_sets[i] ) )
             self.set_par_values(pardict)
             pid = os.fork()
             if pid:
@@ -567,7 +569,7 @@ class matk(object):
                     # Start new jobs
                     if njobs_started < n:
                         njobs_started += 1
-                        self.workdir_index = njobs_started
+                        self.workdir_index = index_start + njobs_started - 1
                         set_child( self )
                         pardict = dict(zip(self.get_par_names(), par_sets[njobs_started-1] ) )
                         self.set_par_values(pardict)
