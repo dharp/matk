@@ -1,16 +1,17 @@
 # Model Analysis ToolKit (MATK) - Python toolkit for model analysis
 
-MATK provides basic functionality to facilitate model analysis within the Python computational environment. Model analysis setup within MATK includes:
-- define parameters
-- define observations
-- define model (python function or system command)
+MATK provides basic functionality to facilitate model analysis within the
+Python computational environment. Model analysis setup within MATK includes:
+	- define parameters
+	- define observations
+	- define model (python function or system command)
 
 Currently supported functionality includes:
-- forward model runs
-- Latin-Hypercube sampling of parameters
-- parallel execution of parameter samples
+	- forward model runs
+	- Latin-Hypercube sampling of parameters
+	- parallel execution of parameter samples
 
 MATK facilitates model analysis using:
-- scipy - calibration (scipy.optimize)
-- rpy2 - Python interface to R
+	- scipy - calibration (scipy.optimize)
+	- rpy2 - Python interface to R
 
