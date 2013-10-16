@@ -1,11 +1,10 @@
 import sys, os
 from parameter import Parameter
 from observation import Observation
-import pesting
-import dakoting
-import calibrate
-#from run_model import *
-from sample import *
+#import pesting
+#import dakoting
+#import calibrate
+#from sample import *
 from numpy import array,transpose
 from lhs import *
 import cPickle as pickle
