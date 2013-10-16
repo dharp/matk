@@ -332,6 +332,9 @@ class matk(object):
             curdir = os.getcwd()
             if not os.path.isdir( self.workdir ):
                 os.makedirs( self.workdir )
+            else:
+                print "Error: " + self.workdir + " already exists"
+                return 1
             os.chdir( self.workdir )
         if hasattr( self.model, '__call__' ):
             pardict = dict([(par.name,par.value) for par in self.parlist])
@@ -341,6 +344,7 @@ class matk(object):
             run_model(self.sim_command)
         if not self.workdir is None:
             os.chdir( curdir )
+        return 0
     def run_parallel(self):
         """ Run models concurrently on multiprocessor machine
         """
@@ -498,7 +502,10 @@ class matk(object):
  
         def child( prob ):
             if hasattr( prob.model, '__call__' ):
-                prob.forward()
+                status = prob.forward()
+                if status:
+                    print "Error running forward model for parallel job " + str(prob.workdir_index)
+                    os._exit( 1 )
                 out = prob.get_sims()
                 if self.workdir is None:
                     pickle.dump( out, open(self.results_file, "wb"))
@@ -512,6 +519,7 @@ class matk(object):
             prob.results_file = 'output' + '.' + str(prob.workdir_index)
 
         # Determine if using working directories or not
+        saved_workdir = self.workdir # Save workdir to reset after parallel run
         if not workdir_base is None: self.workdir_base = workdir_base
         if self.workdir_base is None: self.workdir = None
 
@@ -552,6 +560,9 @@ class matk(object):
             responses = []
             while njobs_finished < n and parent:
                     rpid,status = os.wait() # Wait for jobs
+                    if status:
+                        #print os.strerror( status )
+                        return 1
                     # Update dictionaries to include any new jobs
                     resfl_dict = dict(zip(pids,results_files))
                     wkdir_dict = dict(zip(pids,workdirs))
@@ -584,6 +595,9 @@ class matk(object):
                             child( self )
                             os._exit( 0 )
         
+        # Clean parent
+        self.workdir = saved_workdir
+
         #for par_set in par_sets:
         #    pardict = dict(zip(self.get_par_names(), par_set ) )
         #    self.set_par_values(par_set)
