@@ -622,7 +622,7 @@ class matk(object):
         #    return 0, 0
         #else:
         return responses, par_sets   
-    def get_parstudy(self, outfile=None, *args, **kwargs):
+    def get_parstudy(self, *args, **kwargs):
         """ Generate parameter study samples
         
             Parameter
@@ -632,36 +632,42 @@ class matk(object):
                 If outfile=None, no file is written.
             *args : tuple, list, or ndarray of number of values for each parameter
                     The order is expected to match that produced by prob.par
-            
+            **kargs : keyword arguments where keyword is parameter name and 
+                      argument is the number of desired values
             Returns
             -------
             samples : ndarray 
                 Parameter samples
           
         """
+        outfile = None
+        for k,v in kwargs.iteritems():
+            if k == 'outfile':
+                outfile = v
 
         if len(args) > 0 and len(kwargs) > 0:
             print "Warning: dictionary arg will overide keyword args"
-            if len(args[0]) > 0:
-                if isinstance( args[0], dict ):
-                    pardict = self.par
-                    for k,v in args[0].iteritems():
-                        pardict[k].nvals = v
-                elif isinstance( args[0], (list,tuple,numpy.ndarray)):
-                    if isinstance( args[0], (list,tuple)):
-                        if not len(args[0]) == len(self.parlist): 
-                            print "Error: Number of values in list or tuple does not match created parameters"
-                            return
-                    elif isinstance( args[0], numpy.ndarray ):
-                        if not args[0].shape[0] == len(self.parlist): 
-                            print "Error: Number of values in ndarray does not match created parameters"
-                            return
-                    i = 0
-                    for v in args[0]:
-                        self.parlist[i].nvals = v
-                        i += 1
-            else:
-                for k,v in kwargs.iteritems():
+        if len(args) > 0:
+            if isinstance( args[0], dict ):
+                pardict = self.par
+                for k,v in args[0].iteritems():
+                    pardict[k].nvals = v
+            elif isinstance( args[0], (list,tuple,numpy.ndarray)):
+                if isinstance( args[0], (list,tuple)):
+                    if not len(args[0]) == len(self.parlist): 
+                        print "Error: Number of values in list or tuple does not match created parameters"
+                        return
+                elif isinstance( args[0], numpy.ndarray ):
+                    if not args[0].shape[0] == len(self.parlist): 
+                        print "Error: Number of values in ndarray does not match created parameters"
+                        return
+                i = 0
+                for v in args[0]:
+                    self.parlist[i].nvals = v
+                    i += 1
+        else:
+            for k,v in kwargs.iteritems():
+                if not k == 'outfile':
                     self.par[k].nvals = v
 
 
@@ -682,6 +688,7 @@ class matk(object):
                 f.write("%16s" % nm )
             f.write('\n')
             numpy.savetxt(f, x, fmt='%16lf')
+            f.close()
 
         return x
 

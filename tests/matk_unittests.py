@@ -43,9 +43,17 @@ class Tests(unittest.TestCase):
             self.assertTrue( sum(self.p.get_residuals()) == 0., 'A parallel run with a working directory does not match a forward run' )
 
     def parstudy(self):
-        s = self.p.get_parstudy( par1=2, par2=2, par3=2, par4=2)
         lb = self.p.get_par_mins()
         ub = self.p.get_par_maxs()
+        # Test keyword args
+        s = self.p.get_parstudy( par1=2, par2=2, par3=2, par4=2, outfile=None )
+        self.assertTrue( (s >= lb).any() and (s <= ub).any(), 'Parstudy outside parameter bounds' )
+        # Test dictionary
+        pardict = {'par1':2,'par2':2,'par3':2,'par4':2}
+        s = self.p.get_parstudy( pardict )
+        self.assertTrue( (s >= lb).any() and (s <= ub).any(), 'Parstudy outside parameter bounds' )
+        # Test list
+        s = self.p.get_parstudy( (2,2,2,2) )
         self.assertTrue( (s >= lb).any() and (s <= ub).any(), 'Parstudy outside parameter bounds' )
 
 def suite(case):
