@@ -397,16 +397,11 @@ class matk(object):
         x =  numpy.array(x).transpose()
         if outfile:
             f = open(outfile, 'w')
-            f.write( '%-9s '%'id ' )
-            for parnm in self.get_par_names():
-                f.write( '%22s '%parnm)
-            f.write( '\n')
-            for sid in range(self.sample_size):
-                f.write( '%-9d '%(int(sid) + 1))
-                for val in x[sid]:
-                    f.write( '%22.16e '% val)
-                f.write( '\n')
-            f.close() 
+            for nm in self.get_par_names():
+                f.write(" ")
+                f.write("%16s" % nm )
+            f.write('\n')
+            numpy.savetxt(f, x, fmt='%16lf')
         return x
     def run_samples(self, siz=None, noCorrRestr=False, corrmat=None,
                     samples=None, outfile=None, parallel=False, ncpus=1,
