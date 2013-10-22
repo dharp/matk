@@ -42,12 +42,19 @@ class Tests(unittest.TestCase):
             self.p.set_obs_values( out )
             self.assertTrue( sum(self.p.get_residuals()) == 0., 'A parallel run with a working directory does not match a forward run' )
 
+    def parstudy(self):
+        s = self.p.get_parstudy( par1=2, par2=2, par3=2, par4=2)
+        lb = self.p.get_par_mins()
+        ub = self.p.get_par_maxs()
+        self.assertTrue( (s >= lb).any() and (s <= ub).any(), 'Parstudy outside parameter bounds' )
+
 def suite(case):
     suite = unittest.TestSuite()
     suite.addTest( Tests('setUp') )
     if case == 'base' or case == 'all':
         suite.addTest( Tests('forward') )
         suite.addTest( Tests('sample') )
+        suite.addTest( Tests('parstudy') )
     if case == 'parallel' or case == 'all':
         suite.addTest( Tests('parallel') )
         suite.addTest( Tests('parallel_workdir') )

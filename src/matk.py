@@ -9,6 +9,7 @@ import numpy
 from lhs import *
 import cPickle as pickle
 from shutil import rmtree
+import itertools
 
 class matk(object):
     """ Class for Model Analysis ToolKit module
@@ -227,7 +228,7 @@ class matk(object):
                         return
                 elif isinstance( args[0], numpy.ndarray ):
                     if not args[0].shape[0] == len(self.parlist): 
-                        print "Error: Number of parameter values in ndarray does not match created observations"
+                        print "Error: Number of parameter values in ndarray does not match created parameters"
                         return
                 i = 0
                 for v in args[0]:
@@ -244,6 +245,10 @@ class matk(object):
         """ Get parameter names
         """
         return [par.name for par in self.parlist]
+    def get_par_nvals(self):
+        """ Get parameter nvals (number of values for parameter studies)
+        """
+        return [par.nval for par in self.parlist]
     def get_obs_values(self):
         """ Get observation values
         """
@@ -369,6 +374,7 @@ class matk(object):
                 correlation matrix
             outfile : string
                 name of file to output samples to
+                If outfile=None, no file is written.
             seed : int
                 random seed to allow replication of samples
             
@@ -376,9 +382,6 @@ class matk(object):
             -------
             samples : ndarray 
                 Parameter samples
-            outfile : string
-                name of file to write samples in.
-                If outfile=None, no file is written.
           
         """
         if seed:
@@ -619,3 +622,66 @@ class matk(object):
         #    return 0, 0
         #else:
         return responses, par_sets   
+    def get_parstudy(self, outfile=None, *args, **kwargs):
+        """ Generate parameter study samples
+        
+            Parameter
+            ---------
+            outfile : string
+                name of file to output samples to
+                If outfile=None, no file is written.
+            *args : tuple, list, or ndarray of number of values for each parameter
+                    The order is expected to match that produced by prob.par
+            
+            Returns
+            -------
+            samples : ndarray 
+                Parameter samples
+          
+        """
+
+        if len(args) > 0 and len(kwargs) > 0:
+            print "Warning: dictionary arg will overide keyword args"
+            if len(args[0]) > 0:
+                if isinstance( args[0], dict ):
+                    pardict = self.par
+                    for k,v in args[0].iteritems():
+                        pardict[k].nvals = v
+                elif isinstance( args[0], (list,tuple,numpy.ndarray)):
+                    if isinstance( args[0], (list,tuple)):
+                        if not len(args[0]) == len(self.parlist): 
+                            print "Error: Number of values in list or tuple does not match created parameters"
+                            return
+                    elif isinstance( args[0], numpy.ndarray ):
+                        if not args[0].shape[0] == len(self.parlist): 
+                            print "Error: Number of values in ndarray does not match created parameters"
+                            return
+                    i = 0
+                    for v in args[0]:
+                        self.parlist[i].nvals = v
+                        i += 1
+            else:
+                for k,v in kwargs.iteritems():
+                    self.par[k].nvals = v
+
+
+        x = []
+        for p in self.parlist:
+            if p.nvals == 1:
+                x.append(numpy.linspace(p.value, p.max, p.nvals))
+            if p.nvals > 1:
+                x.append(numpy.linspace(p.min, p.max, p.nvals))
+
+        x = list(itertools.product(*x))
+        x = numpy.array(x)
+
+        if outfile:
+            f = open(outfile, 'w')
+            for nm in self.get_par_names():
+                f.write(" ")
+                f.write("%16s" % nm )
+            f.write('\n')
+            numpy.savetxt(f, x, fmt='%16lf')
+
+        return x
+

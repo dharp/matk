@@ -15,6 +15,7 @@ class Parameter(object):
         self.parchglim = None
         self.pargrpnm = 'default'
         self.dist = 'uniform'
+        self.nvals = 1
         for k,v in kwargs.iteritems():
             if k == 'initial_value':
                 self.initial_value = float(v)
@@ -39,6 +40,8 @@ class Parameter(object):
                 self.dist = v
             elif k == 'dist_pars':
                 self.dist_pars = v
+            elif k == 'nvals':
+                self.nvals = v
             else:
                 print k + ' is not a valid argument'
         if not self.initial_value is None:
@@ -157,3 +160,11 @@ class Parameter(object):
     @dist_pars.setter
     def dist_pars(self,value):
         self._dist_pars = value              
+    @property
+    def nvals(self):
+        """ Number of values the paramter will take for parameter studies
+        """
+        return self._nvals
+    @nvals.setter
+    def nvals(self,value):
+        self._nvals = value              
