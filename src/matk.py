@@ -5,7 +5,7 @@ from observation import Observation
 #import dakoting
 #import calibrate
 #from sample import *
-from numpy import array,transpose
+import numpy 
 from lhs import *
 import cPickle as pickle
 from shutil import rmtree
@@ -394,7 +394,7 @@ class matk(object):
             eval( 'dists.append(stats.' + dist + ')' )
         dist_pars = self.get_par_dist_pars()
         x = lhs(dists, dist_pars, siz=siz, noCorrRestr=noCorrRestr, corrmat=corrmat, seed=seed)
-        x =  array(x).transpose()
+        x =  numpy.array(x).transpose()
         if outfile:
             f = open(outfile, 'w')
             f.write( '%-9s '%'id ' )
