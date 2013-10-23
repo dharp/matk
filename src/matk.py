@@ -136,10 +136,20 @@ class matk(object):
     def add_par(self, name, **kwargs):
         """ Add parameter to problem
         """
+        if name in self.par: 
+            for i in range(len(self.parlist)):
+                if self.parlist[i].name == name:
+                    del self.parlist[i]
+                    break
         self.parlist.append(Parameter(name,**kwargs))
     def add_obs(self,name,**kwargs):
         """ Add observation to problem
         """
+        if name in self.obs: 
+            for i in range(len(self.obslist)):
+                if self.obslist[i].name == name:
+                    del self.obslist[i]
+                    break
         self.obslist.append(Observation(name,**kwargs))
     def get_sims(self):
         """ Get the current simulated values
