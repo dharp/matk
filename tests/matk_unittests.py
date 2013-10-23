@@ -36,7 +36,9 @@ class Tests(unittest.TestCase):
 
     def parallel_workdir(self):
         # With working directories
-        o,s = self.p.run_samples(siz=10, ncpus=2, parallel=True, workdir_base='workdir', save=False)
+        o,s = self.p.run_samples(siz=10, ncpus=2, parallel=True, workdir_base='workdir', save=True)
+        # Test to make sure reusing directories works
+        o,s = self.p.run_samples(siz=10, ncpus=2, parallel=True, workdir_base='workdir', save=False, reuse_dirs=True)
         for smp,out in zip(s,o):
             self.p.set_par_values( smp )
             self.p.forward()

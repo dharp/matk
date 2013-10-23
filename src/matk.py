@@ -338,14 +338,19 @@ class matk(object):
             self.set_sims(sims)
         else:
             run_model(self.sim_command)
-    def forward(self, workdir=None):
+    def forward(self, workdir=None, reuse_dirs=False):
         """ Run pymads problem forward model using current values
         """
         if not workdir is None: self.workdir = workdir
         if not self.workdir is None:
             curdir = os.getcwd()
+            # If folder doesn't exist
             if not os.path.isdir( self.workdir ):
                 os.makedirs( self.workdir )
+            # or if reusing directories
+            elif reuse_dirs:
+                pass
+            # or throw error
             else:
                 print "Error: " + self.workdir + " already exists"
                 return 1
@@ -419,7 +424,7 @@ class matk(object):
     def run_samples(self, siz=None, noCorrRestr=False, corrmat=None,
                     samples=None, outfile=None, parallel=False, ncpus=1,
                     templatedir=None, workdir_base=None, seed=None,
-                    save=True, index_start=1 ):
+                    save=True, index_start=1, reuse_dirs=False ):
         """ Use or generate samples and run models
             First argument (optional) is an array of samples
             
@@ -454,6 +459,9 @@ class matk(object):
             index_start : int
                 The initial index to be appended to working directories
                 and output files
+            reuse_dirs : bool
+                Will use existing directories if True, will return an error 
+                if False and directory exists
 
             Returns
             -------
@@ -482,12 +490,12 @@ class matk(object):
             out = []
             for sample in samples:
                 self.set_par_values(sample)
-                self.forward()
+                self.forward(reuse_dirs=reuse_dirs)
                 responses = self.get_sims()
                 out.append( responses )
         else:
             out, samples = self.parallel(ncpus, samples, templatedir=templatedir, workdir_base=workdir_base,
-                                        save=save, index_start=index_start)
+                                        save=save, index_start=index_start, reuse_dirs=reuse_dirs)
         if outfile:
             f = open(outfile, 'w')
             f.write( '%-9s '%'id ' )
@@ -505,11 +513,12 @@ class matk(object):
                 f.write( '\n')
             f.close()
         return out, samples
-    def parallel(self, ncpus, par_sets, templatedir=None, workdir_base=None, save=True, index_start=1 ):
+    def parallel(self, ncpus, par_sets, templatedir=None, workdir_base=None, save=True, index_start=1,
+                reuse_dirs=False):
  
         def child( prob ):
             if hasattr( prob.model, '__call__' ):
-                status = prob.forward()
+                status = prob.forward(reuse_dirs=reuse_dirs)
                 if status:
                     print "Error running forward model for parallel job " + str(prob.workdir_index)
                     os._exit( 1 )
