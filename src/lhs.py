@@ -106,7 +106,7 @@ def lhs(dist, parms, siz=100, noCorrRestr=False, corrmat=None, seed=None):
         smplist.append(v)
     if len(dists) == 1:
         return smplist[0]
-    return smplist
+    return numpy.array(smplist).transpose()
 
 def rank_restr(nvars=4, smp=100, noCorrRestr=False, Corrmat=None):
     """

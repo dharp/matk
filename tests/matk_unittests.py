@@ -2,15 +2,16 @@ import sys
 import unittest
 import matk
 from exp_model_int import dbexpl
+import numpy
 
 class Tests(unittest.TestCase):
 
     def setUp(self):
         self.p = matk.matk(model=dbexpl)
         self.p.add_par('par1',min=0,max=1)
-        self.p.add_par('par2',min=0,max=1)
+        self.p.add_par('par2',min=0,max=0.2)
         self.p.add_par('par3',min=0,max=1)
-        self.p.add_par('par4',min=0,max=1)
+        self.p.add_par('par4',min=0,max=0.2)
 
     def forward(self):
         self.p.forward()

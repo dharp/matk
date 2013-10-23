@@ -397,7 +397,7 @@ class matk(object):
             eval( 'dists.append(stats.' + dist + ')' )
         dist_pars = self.get_par_dist_pars()
         x = lhs(dists, dist_pars, siz=siz, noCorrRestr=noCorrRestr, corrmat=corrmat, seed=seed)
-        x =  numpy.array(x).transpose()
+        #x =  numpy.array(x).transpose()
         if outfile:
             f = open(outfile, 'w')
             for nm in self.get_par_names():
@@ -529,6 +529,7 @@ class matk(object):
         jobs = []
         pids = []
         workdirs = []
+        indices = []
         results_files = []
         for i in range(ncpus):
             self.workdir_index = index_start + i
@@ -540,6 +541,7 @@ class matk(object):
                 parent = True
                 pids.append(pid)
                 workdirs.append( self.workdir )
+                indices.append( self.workdir_index )
                 results_files.append(self.results_file)
             else:
                 parent = False
@@ -552,9 +554,11 @@ class matk(object):
             # Create dictionaries of results_file names and working directories for reference below
             resfl_dict = dict(zip(pids,results_files)) 
             wkdir_dict = dict(zip(pids,workdirs))
+            index_dict = dict(zip(pids,indices))
+            res_index = []
+            responses = []
             njobs_started = ncpus
             njobs_finished = 0
-            responses = []
             while njobs_finished < n and parent:
                     rpid,status = os.wait() # Wait for jobs
                     if status:
@@ -563,6 +567,7 @@ class matk(object):
                     # Update dictionaries to include any new jobs
                     resfl_dict = dict(zip(pids,results_files))
                     wkdir_dict = dict(zip(pids,workdirs))
+                    index_dict = dict(zip(pids,indices))
                     # Load results from completed job
                     if not wkdir_dict[rpid] is None:
                         out = pickle.load( open( os.path.join(wkdir_dict[rpid],resfl_dict[rpid]), "rb" ) )
@@ -572,7 +577,8 @@ class matk(object):
                         out = pickle.load( open( resfl_dict[rpid], "rb" ))
                         if save is False:
                             os.remove( resfl_dict[rpid] )
-                    responses.append(out)
+                    responses.append( out )
+                    res_index.append( index_dict[rpid] )
                     njobs_finished += 1
                     # Start new jobs
                     if njobs_started < n:
@@ -587,11 +593,18 @@ class matk(object):
                             pids.append(pid)
                             workdirs.append( self.workdir)
                             results_files.append(self.results_file)
+                            indices.append( self.workdir_index )
                         else:
                             parent = False
                             child( self )
                             os._exit( 0 )
         
+        # Rearrange responses to correspond with par_sets
+        res = []
+        for i in range(n):
+            res.append( responses[res_index[i]-1] ) 
+        responses = numpy.array(res)
+
         # Clean parent
         self.workdir = saved_workdir
 
