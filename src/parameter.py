@@ -3,10 +3,10 @@ class Parameter(object):
     """
     def __init__(self, name, **kwargs):
         self.name = name
-        self._value = []
+        self.valuelist = []
+        self.value = None
         self.min = None
         self.max = None
-        self.initial_value = None
         self.mean = None
         self.std = None
         self.trans = 'none'
@@ -17,9 +17,8 @@ class Parameter(object):
         self.dist = 'uniform'
         self.nvals = 1
         for k,v in kwargs.iteritems():
-            if k == 'initial_value':
-                self.initial_value = float(v)
-                self._value[0] = self.initial_value
+            if k == 'value':
+                self.value = float(v)
             elif k == 'min':
                 self.min = float(v)
             elif k == 'max':
@@ -44,22 +43,23 @@ class Parameter(object):
                 self.nvals = v
             else:
                 print k + ' is not a valid argument'
-        if not self.initial_value is None:
-            self.value = self.initial_value
         if self.dist == 'uniform':
             if self.min is None or self.max is None: 
                 print "Error: Max and min parameter value must be specified for uniform distribution"
                 return
-            if self.initial_value is None:
-                if self.min <= self.initial_value <= self.max:
-                    print "Error: Initial value is not within min and max values:"
+            if not self.value is None:
+                if not self.min <= self.value <= self.max:
+                    print "Error: Value is not within min and max values"
                     return
-            self.initial_value = (self.max + self.min)/2
-            self.value = self.initial_value
+            else:
+                self.value = (self.max + self.min)/2.
             range = self.max - self.min
             self.dist_pars = (self.min, range)
         elif self.dist == 'norm':
-            self.dist_pars = (self.mean, self.std)
+            if self.mean is None or self.std is None:
+                print "Error: Mean and std. dev. required for normal distribution"
+            else:
+                self.dist_pars = (self.mean, self.std)
     @property
     def name(self):
         """ Parameter name
@@ -107,19 +107,15 @@ class Parameter(object):
     def trans(self,value):
         self._trans = value
     @property
-    def initial_value(self):
-        return self._initial_value
-    @initial_value.setter
-    def initial_value(self,value):
-        self._initial_value = value
-    @property
     def value(self):
         """ Parameter value
         """
-        return self._value[-1]
+        return self._value
     @value.setter
     def value(self,value):
-        self._value.append(float(value))
+        self._value = value
+        if not self.value is None:
+            self.valuelist.append(self.value)
     @property
     def scale(self):
         """ Scale factor to multiply parameter by
