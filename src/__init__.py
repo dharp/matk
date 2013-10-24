@@ -1,1 +1,1 @@
-__all__ = ['pymads']
+__all__ = ['matk']

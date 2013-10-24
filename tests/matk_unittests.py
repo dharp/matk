@@ -20,15 +20,20 @@ class Tests(unittest.TestCase):
         self.assertEqual(sum(self.p.get_residuals()),0.0, 'Residual from forward run is not zero')
 
     def sample(self):
-        s = self.p.get_samples(siz=1, noCorrRestr=True)
+        # Create 100 lhs samples and make sure they are within parameter bounds
+        self.p.set_lhs_samples('lhs', siz=10)
+        s = self.p.sampleset['lhs'].samples
+        mins = s.min(axis=0)
+        maxs = s.max(axis=0)
         lb = self.p.get_par_mins()
         ub = self.p.get_par_maxs()
-        self.assertTrue( (s >= lb).any() and (s <= ub).any(), 'Sample outside parameter bounds' )
+        self.assertTrue( (maxs >= lb).any() and (mins <= ub).any(), 'Sample outside parameter bounds' )
 
     def parallel(self):
         # Without working directories
-        o,s = self.p.run_samples(siz=10, ncpus=2, parallel=True, save=False)
-        for smp,out in zip(s,o):
+        self.p.set_lhs_samples('lhs', siz=10 )
+        self.p.run_samples('lhs', ncpus=2, save=False)
+        for smp,out in zip(self.p.sampleset['lhs'].samples,self.p.sampleset['lhs'].responses):
             self.p.set_par_values( smp )
             self.p.forward()
             self.p.set_obs_values( out )
@@ -36,10 +41,11 @@ class Tests(unittest.TestCase):
 
     def parallel_workdir(self):
         # With working directories
-        o,s = self.p.run_samples(siz=10, ncpus=2, parallel=True, workdir_base='workdir', save=True)
+        self.p.set_lhs_samples('lhs', siz=10 )
+        self.p.run_samples('lhs', ncpus=2, save=True, workdir_base='workdir')
         # Test to make sure reusing directories works
-        o,s = self.p.run_samples(siz=10, ncpus=2, parallel=True, workdir_base='workdir', save=False, reuse_dirs=True)
-        for smp,out in zip(s,o):
+        self.p.run_samples('lhs', ncpus=2, workdir_base='workdir', save=False, reuse_dirs=True)
+        for smp,out in zip(self.p.sampleset['lhs'].samples,self.p.sampleset['lhs'].responses):
             self.p.set_par_values( smp )
             self.p.forward()
             self.p.set_obs_values( out )
@@ -49,15 +55,24 @@ class Tests(unittest.TestCase):
         lb = self.p.get_par_mins()
         ub = self.p.get_par_maxs()
         # Test keyword args
-        s = self.p.get_parstudy( par1=2, par2=2, par3=2, par4=2, outfile=None )
-        self.assertTrue( (s >= lb).any() and (s <= ub).any(), 'Parstudy outside parameter bounds' )
+        self.p.set_parstudy_samples( 'ps', par1=2, par2=2, par3=2, par4=2, outfile=None )
+        s = self.p.sampleset['ps'].samples
+        mins = s.min(axis=0)
+        maxs = s.max(axis=0)
+        self.assertTrue( (maxs >= lb).any() and (mins <= ub).any(), 'Parstudy outside parameter bounds' )
         # Test dictionary
         pardict = {'par1':2,'par2':2,'par3':2,'par4':2}
-        s = self.p.get_parstudy( pardict )
-        self.assertTrue( (s >= lb).any() and (s <= ub).any(), 'Parstudy outside parameter bounds' )
+        self.p.set_parstudy_samples( 'ps', pardict )
+        s = self.p.sampleset['ps'].samples
+        mins = s.min(axis=0)
+        maxs = s.max(axis=0)
+        self.assertTrue( (maxs >= lb).any() and (mins <= ub).any(), 'Parstudy outside parameter bounds' )
         # Test list
-        s = self.p.get_parstudy( (2,2,2,2) )
-        self.assertTrue( (s >= lb).any() and (s <= ub).any(), 'Parstudy outside parameter bounds' )
+        s = self.p.set_parstudy_samples( 'ps', (2,2,2,2) )
+        s = self.p.sampleset['ps'].samples
+        mins = s.min(axis=0)
+        maxs = s.max(axis=0)
+        self.assertTrue( (maxs >= lb).any() and (mins <= ub).any(), 'Parstudy outside parameter bounds' )
 
 def suite(case):
     suite = unittest.TestSuite()

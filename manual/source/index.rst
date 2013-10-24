@@ -22,6 +22,9 @@ Contents:
 .. autoclass:: Observation
     :members:
 
+.. autoclass:: SampleSet
+    :members:
+
 Indices and tables
 ==================
 

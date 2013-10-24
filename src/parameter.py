@@ -15,7 +15,7 @@ class Parameter(object):
         self.parchglim = None
         self.pargrpnm = 'default'
         self.dist = 'uniform'
-        self.nvals = 1
+        self.nvals = 2
         for k,v in kwargs.iteritems():
             if k == 'value':
                 self.value = float(v)

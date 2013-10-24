@@ -1,6 +1,7 @@
 import sys, os
 from parameter import Parameter
 from observation import Observation
+from sampleset import SampleSet
 #import pesting
 #import dakoting
 #import calibrate
@@ -51,6 +52,7 @@ class matk(object):
       
         self._parlist = []
         self._obslist = []
+        self._samplesetlist = []
         self.workdir_index = 0
     @property
     def model(self):
@@ -136,6 +138,12 @@ class matk(object):
     @property
     def obs(self):
         return dict([[o.name,o] for o in self.obslist if o.name])
+    @property
+    def samplesetlist(self):
+        return self._samplesetlist
+    @property
+    def sampleset(self):
+        return dict([[s.name,s] for s in self.samplesetlist if s.name])
     def add_par(self, name, **kwargs):
         """ Add parameter to problem
 
@@ -162,6 +170,35 @@ class matk(object):
                     del self.obslist[i]
                     break
         self.obslist.append(Observation(name,**kwargs))
+    def add_sampleset(self,name,samples,responses=None,indices=None):
+        """ Add sample set to problem
+            
+            :param name: Name of sample set
+            :type name: str
+            :param samples: Matrix of parameter samples with npar columns in order of [p.name for p in matkobj.parlist] 
+            :type samples: list(fl64),ndarray(fl64)
+            :param responses: Matrix of associated responses with nobs columns in order of [o.name for o in matkobj.obslist] if observation exists (existence of observations is not required) 
+            :type responses: list(fl64),ndarray(fl64)
+            :param indices: Sample indices to use when creating working directories and output files
+            :type indices: list(int),ndarray(int)
+        """
+        if not isinstance( samples, (list,numpy.ndarray)):
+            print "Error: Parameter samples are not a list or ndarray"
+            return 1
+        npar = len(self.parlist)
+        # If list, convert to ndarray
+        if isinstance( samples, list ):
+            samples = numpy.array(samples)
+        if not samples.shape[1] == npar:
+            print "Error: The number of columns in sample is not equal to the number of parameters in the problem"
+            return 1
+        # Delete old sampleset with same name if it exists
+        if name in self.sampleset: 
+            for i in range(len(self.samplesetlist)):
+                if self.samplesetlist[i].name == name:
+                    del self.samplesetlist[i]
+                    break
+        self.samplesetlist.append(SampleSet(name,samples=samples,responses=responses,indices=indices))
     def get_sims(self):
         """ Get the current simulated values
             :returns: lst(fl64) -- simulated values in order of matk.obslist
@@ -301,55 +338,6 @@ class matk(object):
         return [par.dist_pars for par in self.parlist]
     def __iter__(self):
         return self
-    def next(self):
-        if isinstance(self, ParameterGroup):
-            if self.npargrp == 0:
-                raise StopIteration
-            index = self.npargrp - 1
-            return self.pargrp[index]     
-        elif isinstance(self, ObservationGroup):
-            if self.nobsgrp == 0:
-                raise StopIteration
-            index = self.nobsgrp - 1
-            return self.obsgrp[index]     
-        elif isinstance(self, pesting.ModelTemplate):
-            if self.ntplfile == 0:
-                raise StopIteration
-            index = self.ntplfile - 1
-            return self.tplfile[index]     
-        elif isinstance(self, pesting.ModelInstruction):
-            if self.ninsfile == 0:
-                raise StopIteration
-            index = self.ninsfile - 1
-            return self.insfile[index]      
-    def add_tpl(self,tplfilenm,model_infile):
-        """ Add a template file to problem
-        """
-        self.tplfile.append(pesting.ModelTemplate(tplfilenm,model_infile))
-    def add_ins(self,insfilenm,model_outfile):
-        """ Add an instruction file to problem
-        """
-        self.insfile.append(pesting.ModelInstruction(insfilenm,model_outfile))
-    def write_model_files(self, workdir=None):
-        """ Write model files with current parameters"""
-        if self.flag['pest']:
-            pesting.write_pest_files(self, workdir)
-        if self.flag['dakota']:
-            dakoting.write_dakota_files(self, workdir)
-    def read_model_files(self, workdir=None):
-        """ Write model files with current parameters"""
-        if self.flag['pest']:
-            pesting.read_pest_files(self,workdir)
-        if self.flag['dakota']:
-            dakoting.read_dakota_files(self,workdir)
-    def _run_model(self):
-        """ Run simulation command on system"""
-        if hasattr( self.model, '__call__' ):
-            pardict = self.par
-            sims = self.model( pars.dict )
-            self.set_sims(sims)
-        else:
-            run_model(self.sim_command)
     def forward(self, workdir=None, reuse_dirs=False):
         """ Run MATK model using current values
 
@@ -377,33 +365,26 @@ class matk(object):
             sims = self.model( pardict )
             self._set_sims(sims)
         else:
-            run_model(self.sim_command)
+            pass # TODO: add external simulator capability
         if not self.workdir is None:
             os.chdir( curdir )
         return 0
-    def run_parallel(self):
-        """ Run models concurrently on multiprocessor machine
-        """
-        if not self.flag['parallel']:
-            print 'Parallel execution not enabled, set ncpus to number of processors'
-            return 0
-        #run_model.parallel(self)
     def calibrate(self):
         """ Calibrate MATK model
         """
         x,cov_x,infodic,mesg,ier = calibrate.least_squares(self)
         return x,cov_x,infodic,mesg,ier
-    def get_samples(self, siz=None, noCorrRestr=False, corrmat=None, outfile=None, seed=None):
+    def set_lhs_samples(self, name, siz=None, noCorrRestr=False, corrmat=None, seed=None):
         """ Draw lhs samples of parameter values from scipy.stats module distribution
         
+            :param name: Name of sample set to be created
+            :type name: str
             :param siz: Number of samples to generate, ignored if samples are provided
             :type siz: int
-            :param noCorrRestr: If True, correlation structure is not enforced on sample
+            :param noCorrRestr: If True, correlation structure is not enforced on sample, use if siz is less than number of parameters
             :type noCorrRestr: bool
             :param corrmat: Correlation matrix
             :type corrmat: matrix
-            :param outfile: Name of file where samples will be written. If outfile=None, no file is written.
-            :type outfile: string
             :param seed: Random seed to allow replication of samples
             :type seed: int
             :returns: matrix -- Parameter samples
@@ -422,92 +403,50 @@ class matk(object):
             eval( 'dists.append(stats.' + dist + ')' )
         dist_pars = self.get_par_dist_pars()
         x = lhs(dists, dist_pars, siz=siz, noCorrRestr=noCorrRestr, corrmat=corrmat, seed=seed)
-        #x =  numpy.array(x).transpose()
-        if outfile:
-            f = open(outfile, 'w')
-            for nm in self.get_par_names():
-                f.write(" ")
-                f.write("%16s" % nm )
-            f.write('\n')
-            numpy.savetxt(f, x, fmt='%16lf')
-        return x
-    def run_samples(self, siz=None, noCorrRestr=False, corrmat=None,
-                    samples=None, outfile=None, parallel=False, ncpus=1,
-                    templatedir=None, workdir_base=None, seed=None,
-                    save=True, index_start=1, reuse_dirs=False ):
+        self.add_sampleset( name, samples=x )
+    def run_samples(self, name=None, ncpus=1, templatedir=None, workdir_base=None,
+                    save=True, reuse_dirs=False ):
         """ Run model using values in samples for parameter values
             If samples are not specified, LHS samples are produced
             
-            :param siz: Number of samples to generate, ignored if samples are provided
-            :type size: int
-            :param noCorrRestr: If True, correlation structure is not enforced on sample
-            :type noCorrRestr: bool
-            :param corrmat: Correlation matrix npar by npar
-            :type corrmat: matrix
             :param samples: Matrix of samples npar columns by siz rows
             :type samples: matrix
             :param outfile: name of file where samples and responses will be written. If outfile=None, no file is written.
             :type outfile: str
-            :param parallel: If True, models run concurrently with 'ncpus' cpus
-            :type parallel: bool
             :param ncpus: number of cpus to use to run models concurrently
             :type ncpus: int
             :param templatedir: Name of folder including files needed to run model (e.g. template files, instruction files, executables, etc.)
             :type templatedir: str
             :param workdir_base: Base name for model run folders, run index is appended to workdir_base
             :type workdir_base: str
-            :param seed: Random seed to allow replication of samples
-            :type seed: int
             :param save: If True, model files and folders will not be deleted during parallel model execution
             :type save: bool
-            :param index_start: The initial index to be appended to working directories and output files
-            :type index_start: int
             :param reuse_dirs: Will use existing directories if True, will return an error if False and directory exists
             :returns: tuple(ndarray(fl64),ndarray(fl64)) - (Matrix of responses from sampled model runs siz rows by npar columns, Parameter samples, same as input samples if provided)
             
         """
-        if seed:
-            self.seed = seed
-        if siz:
-            self.sample_size = siz
-        if samples == None:
-            samples = self.get_samples(siz, noCorrRestr=noCorrRestr, corrmat=corrmat, seed=seed)
-        if parallel:
-            if not ncpus:
-                print 'Number of cpus is not set for parallel model runs, use option ncpus'
-                return 1
-            if templatedir:
-                self.templatedir = templatedir
-            if workdir_base:
-                self.workdir_base = workdir_base
+        if name == None and len(self.sampleset) == 1:
+            name = self.sampleset[0].name
+        if templatedir:
+            self.templatedir = templatedir
+        if workdir_base:
+            self.workdir_base = workdir_base
                 
-        if not parallel:
+        if ncpus == 1:
             out = []
-            for sample in samples:
+            for sample in self.sampleset[name].samples:
                 self.set_par_values(sample)
                 self.forward(reuse_dirs=reuse_dirs)
                 responses = self.get_sims()
                 out.append( responses )
+            out = numpy.array(out)
+        elif ncpus > 1:
+            out, samples = self.parallel(ncpus, self.sampleset[name].samples, templatedir=templatedir, workdir_base=workdir_base,
+                                        save=save, reuse_dirs=reuse_dirs)
         else:
-            out, samples = self.parallel(ncpus, samples, templatedir=templatedir, workdir_base=workdir_base,
-                                        save=save, index_start=index_start, reuse_dirs=reuse_dirs)
-        if outfile:
-            f = open(outfile, 'w')
-            f.write( '%-9s '%'id ' )
-            for parnm in self.get_par_names():
-                f.write( '%22s '%parnm)
-            for obsnm in self.get_obs_names():
-                f.write( '%22s '%obsnm)
-            f.write( '\n')
-            for sid in range(self.sample_size):
-                f.write( '%-9d '%(int(sid) + 1))
-                for val in samples[sid]:
-                    f.write( '%22.16e '% val)
-                for val in responses[sid]:
-                    f.write( '%22.16e '% val)
-                f.write( '\n')
-            f.close()
-        return out, samples
+            print 'Error: number of cpus (ncpus) must be greater than zero'
+            return
+        self.sampleset[name].responses = out 
     def parallel(self, ncpus, par_sets, templatedir=None, workdir_base=None, save=True, index_start=1,
                 reuse_dirs=False):
  
@@ -649,9 +588,11 @@ class matk(object):
         #    return 0, 0
         #else:
         return responses, par_sets   
-    def get_parstudy(self, *args, **kwargs):
+    def set_parstudy_samples(self, name, *args, **kwargs):
         ''' Generate parameter study samples
         
+        :param name: Name of sample set to be created
+        :type name: str
         :param outfile: Name of file where samples will be written. If outfile=None, no file is written.
         :type outfile: str
         :param *args: Number of values for each parameter. The order is expected to match order of matk.parlist (e.g. [p.name for p in matk.parlist])
@@ -701,14 +642,46 @@ class matk(object):
         x = list(itertools.product(*x))
         x = numpy.array(x)
 
+        self.add_sampleset( name, samples=x )
+
+    def save_sampleset( self, outfile, sampleset ):
+        ''' Save sampleset to file
+
+            :param outfile: Name of file where sampleset will be written
+            :type outfile: str
+            :param sampleset: Sampleset name
+            :type sampleset: str
+        '''
+
+        if isinstance( sampleset, str ):
+            x = numpy.column_stack([self.sampleset[sampleset].indices,self.sampleset[sampleset].samples])
+            if not self.sampleset[sampleset].responses is None:
+                x = numpy.column_stack([x,self.sampleset[sampleset].responses])
+        else:
+            print 'Error: sampleset is not a string'
+            return
+
         if outfile:
             f = open(outfile, 'w')
+            f.write("%-8s" % 'index' )
+            # Print par names
             for nm in self.get_par_names():
                 f.write(" ")
-                f.write("%16s" % nm )
+                f.write("%15s" % nm )
+            # Print obs names if responses exist
+            if not self.sampleset[sampleset].responses is None:
+                for nm in self.get_obs_names():
+                    f.write(" ")
+                    f.write("%15s" % nm )
             f.write('\n')
-            numpy.savetxt(f, x, fmt='%16lf')
+            for row in x:
+                f.write("%-8d" % row[0] )
+                for i in range(1,len(row)):
+                    f.write("%16lf" % row[i] )
+                f.write('\n')
+
+
+            #numpy.savetxt(f, x, fmt='%16lf')
             f.close()
 
-        return x
 
