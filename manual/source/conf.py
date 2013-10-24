@@ -40,7 +40,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'matk'
+project = u'MATK'
 copyright = u'2013, Dylan R. Harp'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -213,7 +213,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'matk', u'matk Documentation',
+    ('index', 'MATK', u'MATK Documentation',
      [u'Dylan R. Harp'], 1)
 ]
 
@@ -227,8 +227,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'matk', u'matk Documentation',
-   u'Dylan R. Harp', 'matk', 'One line description of project.',
+  ('index', 'MATK', u'MATK Documentation',
+   u'Dylan R. Harp', 'MATK', 'One line description of project.',
    'Miscellaneous'),
 ]
 

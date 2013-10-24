@@ -16,6 +16,11 @@ Contents:
 .. autoclass:: matk
     :members:
 
+.. autoclass:: Parameter
+    :members:
+
+.. autoclass:: Observation
+    :members:
 
 Indices and tables
 ==================

@@ -12,9 +12,12 @@ from shutil import rmtree
 import itertools
 
 class matk(object):
-    """ Class for Model Analysis ToolKit module
+    """ Class for Model Analysis ToolKit (MATK) module
     """
     def __init__(self, **kwargs):
+        '''Initialize MATK object
+        :returns: object -- MATK object
+        '''
         self.model = ''
         self.ncpus = 1
         self.workdir_base = None
@@ -115,7 +118,7 @@ class matk(object):
         self._results_file = value
     @property
     def seed(self):
-        """ Set the name of the templatedir for parallel runs   
+        """ Set the seed for random sampling
         """
         return self._seed
     @seed.setter
@@ -135,6 +138,10 @@ class matk(object):
         return dict([[o.name,o] for o in self.obslist if o.name])
     def add_par(self, name, **kwargs):
         """ Add parameter to problem
+
+            :param name: Name of parameter
+            :type name: str
+            :param kwargs: keyword arguments passed to parameter class
         """
         if name in self.par: 
             for i in range(len(self.parlist)):
@@ -144,6 +151,10 @@ class matk(object):
         self.parlist.append(Parameter(name,**kwargs))
     def add_obs(self,name,**kwargs):
         """ Add observation to problem
+            
+            :param name: Name of observation
+            :type name: str
+            :param kwargs: keyword arguments passed to observation class
         """
         if name in self.obs: 
             for i in range(len(self.obslist)):
@@ -153,6 +164,7 @@ class matk(object):
         self.obslist.append(Observation(name,**kwargs))
     def get_sims(self):
         """ Get the current simulated values
+            :returns: lst(fl64) -- simulated values in order of matk.obslist
         """
         return [obs.sim for obs in self.obslist]
     def set_obs_values(self, *args, **kwargs):
@@ -339,7 +351,12 @@ class matk(object):
         else:
             run_model(self.sim_command)
     def forward(self, workdir=None, reuse_dirs=False):
-        """ Run pymads problem forward model using current values
+        """ Run MATK model using current values
+
+            :param workdir: Name of directory where model will be run. It will be created if it does not exist
+            :type workdir: str
+            :param reuse_dirs: If True and workdir exists, the model will reuse the directory
+            :returns: int -- 0: Successful run, 1: workdir exists 
         """
         if not workdir is None: self.workdir = workdir
         if not self.workdir is None:
@@ -372,31 +389,24 @@ class matk(object):
             return 0
         #run_model.parallel(self)
     def calibrate(self):
-        """ Calibrate pymads problem model
+        """ Calibrate MATK model
         """
         x,cov_x,infodic,mesg,ier = calibrate.least_squares(self)
         return x,cov_x,infodic,mesg,ier
     def get_samples(self, siz=None, noCorrRestr=False, corrmat=None, outfile=None, seed=None):
-        """ Draw lhs samples from scipy.stats module distribution
+        """ Draw lhs samples of parameter values from scipy.stats module distribution
         
-            Parameter
-            ---------
-            siz : int
-                number of samples to generate, ignored if samples are provided
-            noCorrRestr: bool
-                if True, correlation structure is not enforced on sample
-            corrmat : matrix
-                correlation matrix
-            outfile : string
-                name of file to output samples to
-                If outfile=None, no file is written.
-            seed : int
-                random seed to allow replication of samples
-            
-            Returns
-            -------
-            samples : ndarray 
-                Parameter samples
+            :param siz: Number of samples to generate, ignored if samples are provided
+            :type siz: int
+            :param noCorrRestr: If True, correlation structure is not enforced on sample
+            :type noCorrRestr: bool
+            :param corrmat: Correlation matrix
+            :type corrmat: matrix
+            :param outfile: Name of file where samples will be written. If outfile=None, no file is written.
+            :type outfile: string
+            :param seed: Random seed to allow replication of samples
+            :type seed: int
+            :returns: matrix -- Parameter samples
           
         """
         if seed:
@@ -425,50 +435,35 @@ class matk(object):
                     samples=None, outfile=None, parallel=False, ncpus=1,
                     templatedir=None, workdir_base=None, seed=None,
                     save=True, index_start=1, reuse_dirs=False ):
-        """ Use or generate samples and run models
-            First argument (optional) is an array of samples
+        """ Run model using values in samples for parameter values
+            If samples are not specified, LHS samples are produced
             
-            Parameter
-            ---------
-            siz : int
-                number of samples to generate, ignored if samples are provided
-            noCorrRestr: bool
-                if True, correlation structure is not enforced on sample
-            corrmat : matrix
-                correlation matrix
-            samples : ndarray
-                matrix of samples, npar columns by siz rows
-            outfile : string
-                name of file to write samples and responses in. 
-                If outfile=None, no file is written.
-            parallel : bool
-                if True, models run concurrently with 'ncpus' cpus
-            ncpus : int
-                number of cpus to use to run models concurrently
-            templatedir : string
-                name of folder including files needed to run model
-                (e.g. template files, instruction files, executables, etc.)
-            workdir_base : string
-                base name for model run folders, run index is appended
-                to workdir_base
-            seed : int
-                random seed to allow replication of samples
-            save : bool
-                if True, model files and folders will not be deleted
-                during parallel model execution
-            index_start : int
-                The initial index to be appended to working directories
-                and output files
-            reuse_dirs : bool
-                Will use existing directories if True, will return an error 
-                if False and directory exists
-
-            Returns
-            -------
-            responses : ndarray 
-                Responses from model runs
-            samples : ndarray 
-                Parameter samples, same as input samples if provided
+            :param siz: Number of samples to generate, ignored if samples are provided
+            :type size: int
+            :param noCorrRestr: If True, correlation structure is not enforced on sample
+            :type noCorrRestr: bool
+            :param corrmat: Correlation matrix npar by npar
+            :type corrmat: matrix
+            :param samples: Matrix of samples npar columns by siz rows
+            :type samples: matrix
+            :param outfile: name of file where samples and responses will be written. If outfile=None, no file is written.
+            :type outfile: str
+            :param parallel: If True, models run concurrently with 'ncpus' cpus
+            :type parallel: bool
+            :param ncpus: number of cpus to use to run models concurrently
+            :type ncpus: int
+            :param templatedir: Name of folder including files needed to run model (e.g. template files, instruction files, executables, etc.)
+            :type templatedir: str
+            :param workdir_base: Base name for model run folders, run index is appended to workdir_base
+            :type workdir_base: str
+            :param seed: Random seed to allow replication of samples
+            :type seed: int
+            :param save: If True, model files and folders will not be deleted during parallel model execution
+            :type save: bool
+            :param index_start: The initial index to be appended to working directories and output files
+            :type index_start: int
+            :param reuse_dirs: Will use existing directories if True, will return an error if False and directory exists
+            :returns: tuple(ndarray(fl64),ndarray(fl64)) - (Matrix of responses from sampled model runs siz rows by npar columns, Parameter samples, same as input samples if provided)
             
         """
         if seed:
@@ -655,23 +650,16 @@ class matk(object):
         #else:
         return responses, par_sets   
     def get_parstudy(self, *args, **kwargs):
-        """ Generate parameter study samples
+        ''' Generate parameter study samples
         
-            Parameter
-            ---------
-            outfile : string
-                name of file to output samples to
-                If outfile=None, no file is written.
-            *args : tuple, list, or ndarray of number of values for each parameter
-                    The order is expected to match that produced by prob.par
-            **kargs : keyword arguments where keyword is parameter name and 
-                      argument is the number of desired values
-            Returns
-            -------
-            samples : ndarray 
-                Parameter samples
-          
-        """
+        :param outfile: Name of file where samples will be written. If outfile=None, no file is written.
+        :type outfile: str
+        :param *args: Number of values for each parameter. The order is expected to match order of matk.parlist (e.g. [p.name for p in matk.parlist])
+        :type *args: tuple(fl64), list(fl64), or ndarray(fl64)
+        :param **kwargs: keyword arguments where keyword is the parameter name and argument is the number of desired values
+        :type **kwargs: dict(fl64)
+        :returns: ndarray(fl64) -- Array of samples
+        '''
         outfile = None
         for k,v in kwargs.iteritems():
             if k == 'outfile':

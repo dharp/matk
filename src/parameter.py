@@ -1,5 +1,5 @@
 class Parameter(object):
-    """ pyma parameter class
+    """ MATK parameter class
     """
     def __init__(self, name, **kwargs):
         self.name = name
