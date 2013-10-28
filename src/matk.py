@@ -532,7 +532,7 @@ class matk(object):
                         if save is False:
                             os.remove( resfl_dict[rpid] )
                     self._set_sims( out )
-                    responses.append( out )
+                    responses.append( self.get_sims() )
                     res_index.append( ps_index_dict[rpid] )
                     njobs_finished += 1
                     # Start new jobs
