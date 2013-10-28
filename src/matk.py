@@ -198,7 +198,16 @@ class matk(object):
                 if self.samplesetlist[i].name == name:
                     del self.samplesetlist[i]
                     break
-        self.samplesetlist.append(SampleSet(name,samples=samples,responses=responses,indices=indices,index_start=index_start))
+        if len(self.parlist) > 0:
+            parnames = self.get_par_names()
+        else:
+            parnames = None
+        if len(self.obslist) > 0:
+            obsnames = self.get_obs_names()
+        else:
+            obsnames = None
+        self.samplesetlist.append(SampleSet(name,samples,responses=responses,indices=indices,index_start=index_start,
+                                           parnames=parnames, obsnames=obsnames))
     def get_sims(self):
         """ Get the current simulated values
             :returns: lst(fl64) -- simulated values in order of matk.obslist
@@ -405,7 +414,7 @@ class matk(object):
             eval( 'dists.append(stats.' + dist + ')' )
         dist_pars = self.get_par_dist_pars()
         x = lhs(dists, dist_pars, siz=siz, noCorrRestr=noCorrRestr, corrmat=corrmat, seed=seed)
-        self.add_sampleset( name, samples=x, index_start=index_start )
+        self.add_sampleset( name, x, index_start=index_start )
     def run_samples(self, name=None, ncpus=1, templatedir=None, workdir_base=None,
                     save=True, reuse_dirs=False ):
         """ Run model using values in samples for parameter values
@@ -644,7 +653,7 @@ class matk(object):
         x = list(itertools.product(*x))
         x = numpy.array(x)
 
-        self.add_sampleset( name, samples=x )
+        self.add_sampleset( name, x )
 
     def save_sampleset( self, outfile, sampleset ):
         ''' Save sampleset to file

@@ -1,26 +1,21 @@
 import numpy
+import string
+from scipy import stats
 
 class SampleSet(object):
     """ MATK samples class - Stores information related to a sample
         includeing parameter samples, associated responses, and sample indices
     """
-    def __init__(self, name, index_start=1, **kwargs):
+    def __init__(self, name, samples, index_start=1, **kwargs):
         self.name = name
-        self._samples = None
+        self._samples = samples
         self._responses = None
         self._indices = None
+        self._parnames = None
+        self._obsnames = None
         self._index_start = index_start
         for k,v in kwargs.iteritems():
-            if k == 'samples':
-                if not v is None:
-                    if isinstance( v, list):
-                        self.samples = numpy.array(v)
-                    elif isinstance( v, numpy.ndarray ):
-                        self.samples = v
-                    else:
-                        print "Error: Samples are not a list or ndarray"
-                        return
-            elif k == 'responses':
+            if k == 'responses':
                 if not v is None:
                     if isinstance( v, (list,numpy.ndarray)):
                         self.responses = v
@@ -33,6 +28,20 @@ class SampleSet(object):
                         self.indices = v
                     else:
                         print "Error: Indices are not a list or ndarray"
+                        return
+            elif k == 'parnames':
+                if not v is None:
+                    if isinstance( v, (tuple,list,numpy.ndarray)):
+                        self.parnames = v
+                    else:
+                        print "Error: Parnames are not a tuple, list or ndarray"
+                        return
+            elif k == 'obsnames':
+                if not v is None:
+                    if isinstance( v, (tuple,list,numpy.ndarray)):
+                        self.obsnames = v
+                    else:
+                        print "Error: Obsnames are not a tuple, list or ndarray"
                         return
             else:
                 print k + ' is not a valid argument'
@@ -114,6 +123,41 @@ class SampleSet(object):
         else:
             self._indices = value
     @property
+    def parnames(self):
+        """ Array of parameter names
+        """ 
+        return self._parnames
+    @parnames.setter
+    def parnames(self,value):
+        if self.samples is None and value is None:
+            self._parnames = value
+        elif self.samples is None and not value is None:
+            print "Error: Samples are not defined"
+            return
+        elif value is None:
+            self._parnames = value
+        elif not len(value) == self.samples.shape[1]:
+            print "Error: number of parnames does not equal number of samples"
+            return
+        else:
+            self._parnames = value
+    @property
+    def obsnames(self):
+        """ Array of observation names
+        """ 
+        return self._obsnames
+    @obsnames.setter
+    def obsnames(self,value):
+        if self.samples is None and value is None:
+            self._obsnames = value
+        elif self.samples is None and not value is None:
+            print "Error: Samples are not defined"
+            return
+        elif value is None:
+            self._obsnames = value
+        else:
+            self._obsnames = value
+    @property
     def index_start(self):
         """ Starting integer value for sample indices
         """
@@ -126,6 +170,38 @@ class SampleSet(object):
         self._index_start = value
         if not self.samples is None:
             self.indices = numpy.arange(self.index_start,self.index_start+self.samples.shape[0])
+    def corr(self, type='pearson'):
+        """ Calculate correlation coefficients of parameters and responses
+
+            :param type: Type of correlation coefficient (pearson by default, spearman also avaialable)
+            :type type: str
+            :returns: ndarray(fl64) -- Correlation coefficients
+        """
+        corrlist = []
+        if type is 'pearson':
+            for i in range(self.samples.shape[1]):
+                corrlist.append([stats.pearsonr(self.samples[:,i],self.responses[:,j])[0] for j in range(self.responses.shape[1])])
+        elif type is 'spearman':
+            for i in range(self.samples.shape[1]):
+                corrlist.append([stats.spearmanr(self.samples[:,i],self.responses[:,j])[0] for j in range(self.responses.shape[1])])
+        else:
+            print "Error: type not recognized"
+            return
+        corrcoef = numpy.array(corrlist)
+        # Print 
+        dum = ' '
+        print string.rjust(`dum`, 8),
+        for nm in self.obsnames:
+            print string.rjust(`nm`, 20),
+        print ''
+        for i in range(corrcoef.shape[0]):
+            print string.ljust(`self.parnames[i]`, 8),
+            for c in corrcoef[i]:
+                print string.rjust(`c`, 20),
+            print ''
+
+        return corrcoef
+            
 
 
 
