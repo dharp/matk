@@ -457,7 +457,7 @@ class matk(object):
                 if status:
                     print "Error running forward model for parallel job " + str(prob.workdir_index)
                     os._exit( 0 )
-                out = prob.get_sims()
+                out = dict( zip(prob.get_obs_names(),prob.get_sims()) )
                 if self.workdir is None:
                     pickle.dump( out, open(self.results_file, "wb"))
                 else:
@@ -531,6 +531,7 @@ class matk(object):
                         out = pickle.load( open( resfl_dict[rpid], "rb" ))
                         if save is False:
                             os.remove( resfl_dict[rpid] )
+                    self._set_sims( out )
                     responses.append( out )
                     res_index.append( ps_index_dict[rpid] )
                     njobs_finished += 1
