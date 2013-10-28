@@ -170,7 +170,7 @@ class matk(object):
                     del self.obslist[i]
                     break
         self.obslist.append(Observation(name,**kwargs))
-    def add_sampleset(self,name,samples,responses=None,indices=None):
+    def add_sampleset(self,name,samples,responses=None,indices=None,index_start=1):
         """ Add sample set to problem
             
             :param name: Name of sample set
@@ -198,7 +198,7 @@ class matk(object):
                 if self.samplesetlist[i].name == name:
                     del self.samplesetlist[i]
                     break
-        self.samplesetlist.append(SampleSet(name,samples=samples,responses=responses,indices=indices))
+        self.samplesetlist.append(SampleSet(name,samples=samples,responses=responses,indices=indices,index_start=index_start))
     def get_sims(self):
         """ Get the current simulated values
             :returns: lst(fl64) -- simulated values in order of matk.obslist
@@ -374,7 +374,7 @@ class matk(object):
         """
         x,cov_x,infodic,mesg,ier = calibrate.least_squares(self)
         return x,cov_x,infodic,mesg,ier
-    def set_lhs_samples(self, name, siz=None, noCorrRestr=False, corrmat=None, seed=None):
+    def set_lhs_samples(self, name, siz=None, noCorrRestr=False, corrmat=None, seed=None, index_start=1):
         """ Draw lhs samples of parameter values from scipy.stats module distribution
         
             :param name: Name of sample set to be created
@@ -387,6 +387,8 @@ class matk(object):
             :type corrmat: matrix
             :param seed: Random seed to allow replication of samples
             :type seed: int
+            :param index_start: Starting value for sample indices
+            :type: int
             :returns: matrix -- Parameter samples
           
         """
@@ -403,16 +405,14 @@ class matk(object):
             eval( 'dists.append(stats.' + dist + ')' )
         dist_pars = self.get_par_dist_pars()
         x = lhs(dists, dist_pars, siz=siz, noCorrRestr=noCorrRestr, corrmat=corrmat, seed=seed)
-        self.add_sampleset( name, samples=x )
+        self.add_sampleset( name, samples=x, index_start=index_start )
     def run_samples(self, name=None, ncpus=1, templatedir=None, workdir_base=None,
                     save=True, reuse_dirs=False ):
         """ Run model using values in samples for parameter values
             If samples are not specified, LHS samples are produced
             
-            :param samples: Matrix of samples npar columns by siz rows
-            :type samples: matrix
-            :param outfile: name of file where samples and responses will be written. If outfile=None, no file is written.
-            :type outfile: str
+            :param name: Name of MATK sample set object
+            :type samples: str
             :param ncpus: number of cpus to use to run models concurrently
             :type ncpus: int
             :param templatedir: Name of folder including files needed to run model (e.g. template files, instruction files, executables, etc.)
@@ -441,21 +441,22 @@ class matk(object):
                 out.append( responses )
             out = numpy.array(out)
         elif ncpus > 1:
-            out, samples = self.parallel(ncpus, self.sampleset[name].samples, templatedir=templatedir, workdir_base=workdir_base,
-                                        save=save, reuse_dirs=reuse_dirs)
+            out, samples = self.parallel(ncpus, self.sampleset[name].samples, indices=self.sampleset[name].indices,
+                                         templatedir=templatedir, workdir_base=workdir_base, 
+                                         save=save, reuse_dirs=reuse_dirs)
         else:
             print 'Error: number of cpus (ncpus) must be greater than zero'
             return
         self.sampleset[name].responses = out 
-    def parallel(self, ncpus, par_sets, templatedir=None, workdir_base=None, save=True, index_start=1,
-                reuse_dirs=False):
+    def parallel(self, ncpus, par_sets, templatedir=None, workdir_base=None, save=True,
+                reuse_dirs=False, indices=None):
  
         def child( prob ):
             if hasattr( prob.model, '__call__' ):
                 status = prob.forward(reuse_dirs=reuse_dirs)
                 if status:
                     print "Error running forward model for parallel job " + str(prob.workdir_index)
-                    os._exit( 1 )
+                    os._exit( 0 )
                 out = prob.get_sims()
                 if self.workdir is None:
                     pickle.dump( out, open(self.results_file, "wb"))
@@ -482,10 +483,10 @@ class matk(object):
         jobs = []
         pids = []
         workdirs = []
-        indices = []
+        ps_index = [] # Parset index used for reordering
         results_files = []
         for i in range(ncpus):
-            self.workdir_index = index_start + i
+            self.workdir_index = indices[i]
             set_child( self )
             pardict = dict(zip(self.get_par_names(), par_sets[i] ) )
             self.set_par_values(pardict)
@@ -494,7 +495,7 @@ class matk(object):
                 parent = True
                 pids.append(pid)
                 workdirs.append( self.workdir )
-                indices.append( self.workdir_index )
+                ps_index.append( i )
                 results_files.append(self.results_file)
             else:
                 parent = False
@@ -507,7 +508,7 @@ class matk(object):
             # Create dictionaries of results_file names and working directories for reference below
             resfl_dict = dict(zip(pids,results_files)) 
             wkdir_dict = dict(zip(pids,workdirs))
-            index_dict = dict(zip(pids,indices))
+            ps_index_dict = dict(zip(pids,ps_index))
             res_index = []
             responses = []
             njobs_started = ncpus
@@ -515,12 +516,12 @@ class matk(object):
             while njobs_finished < n and parent:
                     rpid,status = os.wait() # Wait for jobs
                     if status:
-                        #print os.strerror( status )
+                        print os.strerror( status )
                         return 1
                     # Update dictionaries to include any new jobs
                     resfl_dict = dict(zip(pids,results_files))
                     wkdir_dict = dict(zip(pids,workdirs))
-                    index_dict = dict(zip(pids,indices))
+                    ps_index_dict = dict(zip(pids,ps_index))
                     # Load results from completed job
                     if not wkdir_dict[rpid] is None:
                         out = pickle.load( open( os.path.join(wkdir_dict[rpid],resfl_dict[rpid]), "rb" ) )
@@ -531,12 +532,12 @@ class matk(object):
                         if save is False:
                             os.remove( resfl_dict[rpid] )
                     responses.append( out )
-                    res_index.append( index_dict[rpid] )
+                    res_index.append( ps_index_dict[rpid] )
                     njobs_finished += 1
                     # Start new jobs
                     if njobs_started < n:
                         njobs_started += 1
-                        self.workdir_index = index_start + njobs_started - 1
+                        self.workdir_index = indices[njobs_started-1]
                         set_child( self )
                         pardict = dict(zip(self.get_par_names(), par_sets[njobs_started-1] ) )
                         self.set_par_values(pardict)
@@ -546,7 +547,7 @@ class matk(object):
                             pids.append(pid)
                             workdirs.append( self.workdir)
                             results_files.append(self.results_file)
-                            indices.append( self.workdir_index )
+                            ps_index.append( njobs_started-1 )
                         else:
                             parent = False
                             child( self )
@@ -555,7 +556,7 @@ class matk(object):
         # Rearrange responses to correspond with par_sets
         res = []
         for i in range(n):
-            res.append( responses[res_index[i]-1] ) 
+            res.append( responses[res_index[i]] ) 
         responses = numpy.array(res)
 
         # Clean parent
