@@ -443,9 +443,15 @@ class matk(object):
                 
         if ncpus == 1:
             out = []
-            for sample in self.sampleset[name].samples:
+            for sample, index in zip(self.sampleset[name].samples,self.sampleset[name].indices):
                 self.set_par_values(sample)
-                self.forward(reuse_dirs=reuse_dirs)
+                if not self.workdir_base is None:
+                    workdir = self.workdir_base + '.' + str(index)
+                else:
+                    workdir = None
+                self.forward(workdir=workdir,reuse_dirs=reuse_dirs)
+                if not save:
+                    rmtree( workdir )
                 responses = self.get_sims()
                 out.append( responses )
             out = numpy.array(out)
