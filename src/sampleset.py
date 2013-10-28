@@ -1,6 +1,7 @@
 import numpy
 import string
 from scipy import stats
+from matplotlib import pyplot as plt
 
 class SampleSet(object):
     """ MATK samples class - Stores information related to a sample
@@ -170,7 +171,7 @@ class SampleSet(object):
         self._index_start = value
         if not self.samples is None:
             self.indices = numpy.arange(self.index_start,self.index_start+self.samples.shape[0])
-    def corr(self, type='pearson'):
+    def corr(self, type='pearson', plot=False):
         """ Calculate correlation coefficients of parameters and responses
 
             :param type: Type of correlation coefficient (pearson by default, spearman also avaialable)
@@ -199,6 +200,15 @@ class SampleSet(object):
             for c in corrcoef[i]:
                 print string.rjust(`c`, 20),
             print ''
+
+        if plot:
+            # Plot
+            plt.pcolor(corrcoef)
+            plt.colorbar()
+            plt.yticks(numpy.arange(0.5,len(self.parnames)+0.5),self.parnames)
+            plt.xticks(numpy.arange(0.5,len(self.obsnames)+0.5),self.obsnames)
+            plt.show()
+
 
         return corrcoef
             
