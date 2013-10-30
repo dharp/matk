@@ -11,7 +11,7 @@ from lhs import *
 import cPickle as pickle
 from shutil import rmtree
 import itertools
-from multiprocessing import Process, Manager
+from multiprocessing import Process, Manager, freeze_support
 
 class matk(object):
     """ Class for Model Analysis ToolKit (MATK) module
@@ -602,6 +602,10 @@ class matk(object):
         return responses, par_sets   
     def parallel_mp(self, ncpus, par_sets, templatedir=None, workdir_base=None, save=True,
                 reuse_dirs=False, indices=None):
+
+        if not os.name is "posix":
+            # Use freeze_support for PCs
+            freeze_support()
  
         def child( prob, in_queue, out_list, reuse_dirs, save):
             pars,smp_ind,lst_ind = in_queue.get()
