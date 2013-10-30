@@ -97,13 +97,13 @@ class SampleSet(object):
             self._responses = value
         elif isinstance(value, numpy.ndarray):
             if not value.shape[0] == self.samples.shape[0]:
-                print "Error: number of indices does not equal number of samples"
+                print "Error: number of reponses does not equal number of samples"
                 return
             else:
                 self._responses = numpy.array(value)
         elif isinstance(value, list):
             if not len(value) == self.samples.shape[0]:
-                print "Error: number of indices does not equal number of samples"
+                print "Error: number of responses does not equal number of samples"
                 return
             else:
                 self._responses = numpy.array(value)

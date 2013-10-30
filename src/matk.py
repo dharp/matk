@@ -11,6 +11,7 @@ from lhs import *
 import cPickle as pickle
 from shutil import rmtree
 import itertools
+from multiprocessing import Process, Manager
 
 class matk(object):
     """ Class for Model Analysis ToolKit (MATK) module
@@ -347,7 +348,7 @@ class matk(object):
         return [par.dist_pars for par in self.parlist]
     def __iter__(self):
         return self
-    def forward(self, workdir=None, reuse_dirs=False):
+    def make_workdir(self, workdir=None, reuse_dirs=False):
         """ Run MATK model using current values
 
             :param workdir: Name of directory where model will be run. It will be created if it does not exist
@@ -357,25 +358,45 @@ class matk(object):
         """
         if not workdir is None: self.workdir = workdir
         if not self.workdir is None:
-            curdir = os.getcwd()
             # If folder doesn't exist
             if not os.path.isdir( self.workdir ):
                 os.makedirs( self.workdir )
+                return 0
             # or if reusing directories
             elif reuse_dirs:
                 pass
+                return 0
             # or throw error
             else:
                 print "Error: " + self.workdir + " already exists"
                 return 1
+    def forward(self, pardict=None, workdir=None, reuse_dirs=False):
+        """ Run MATK model using current values
+
+            :param pardict: Dictionary of parameter values keyed by parameter names
+            :type pardict: dict
+            :param workdir: Name of directory where model will be run. It will be created if it does not exist
+            :type workdir: str
+            :param reuse_dirs: If True and workdir exists, the model will reuse the directory
+            :returns: int -- 0: Successful run, 1: workdir exists 
+        """
+        if not workdir is None: self.workdir = workdir
+        if not self.workdir is None:
+            curdir = os.getcwd()
+            status = self.make_workdir( workdir=self.workdir, reuse_dirs=reuse_dirs)
             os.chdir( self.workdir )
+            if status:
+                return 1
+        else:
+            curdir = None
         if hasattr( self.model, '__call__' ):
-            pardict = dict([(par.name,par.value) for par in self.parlist])
+            if pardict is None:
+                pardict = dict([(par.name,par.value) for par in self.parlist])
             sims = self.model( pardict )
             self._set_sims(sims)
         else:
             pass # TODO: add external simulator capability
-        if not self.workdir is None:
+        if not curdir is None:
             os.chdir( curdir )
         return 0
     def calibrate(self):
@@ -456,7 +477,7 @@ class matk(object):
                 out.append( responses )
             out = numpy.array(out)
         elif ncpus > 1:
-            out, samples = self.parallel(ncpus, self.sampleset[name].samples, indices=self.sampleset[name].indices,
+            out, samples = self.parallel_mp(ncpus, self.sampleset[name].samples, indices=self.sampleset[name].indices,
                                          templatedir=templatedir, workdir_base=workdir_base, 
                                          save=save, reuse_dirs=reuse_dirs)
         else:
@@ -578,33 +599,67 @@ class matk(object):
         # Clean parent
         self.workdir = saved_workdir
 
-        #for par_set in par_sets:
-        #    pardict = dict(zip(self.get_par_names(), par_set ) )
-        #    self.set_par_values(par_set)
-        #    if not self.workdir_base is None:
-        #        child_dir = self.workdir_base + '.' + str( index )
-        #    jobs.append(job_server.submit(child,(self.model,templatedir,child_dir,), (),("os","subprocess",)))
-        #     
-        #    print "Job ", str(index), " added to queue"
-        #    index += 1
- 
-        ## Wait for jobs and collect results
-        #responses = []
-        #for job in jobs:
-        #    child_dir, index = job()
-        #    print "Job ", str(index), " finished"
-        #    self.read_model_files( workdir=str(child_dir) )
-        #    if not save:
-        #        rmtree( child_dir )
-        #    responses.append(self.get_sims())
-        #    stdout.flush()
-
-        #responses, samples, status = parallel(self, ncpus, par_sets, templatedir=templatedir,
-        #                    workdir_base=workdir_base, save=save)
-        #if status:
-        #    return 0, 0
-        #else:
         return responses, par_sets   
+    def parallel_mp(self, ncpus, par_sets, templatedir=None, workdir_base=None, save=True,
+                reuse_dirs=False, indices=None):
+ 
+        def child( prob, in_queue, out_list, reuse_dirs, save):
+            pars,smp_ind,lst_ind = in_queue.get()
+            if pars == None:
+                return
+            prob.workdir_index = ind
+            set_child( prob )
+            prob.set_par_values( pars )
+            status = prob.forward(reuse_dirs=reuse_dirs)
+            if status:
+                print "Error running forward model for parallel job " + str(prob.workdir_index)
+            else:
+                out_list[lst_ind] = prob.get_sims()
+            if not save and not prob.workdir is None:
+                rmtree( prob.workdir )
+
+
+        def set_child( prob ):
+            if prob.workdir_base is not None:
+                prob.workdir = prob.workdir_base + '.' + str(prob.workdir_index)
+
+        # Determine if using working directories or not
+        saved_workdir = self.workdir # Save workdir to reset after parallel run
+        if not workdir_base is None: self.workdir_base = workdir_base
+        if self.workdir_base is None: self.workdir = None
+
+        # Determine number of samples and adjust ncpus if samples < ncpus requested
+        if isinstance( par_sets, numpy.ndarray ): n = par_sets.shape[0]
+        elif isinstance( par_sets, list ): n = len(par_sets)
+        if n < ncpus: ncpus = n
+
+        # Start ncpus model runs
+        manager = Manager()
+        results = manager.list(range(len(par_sets)))
+        work = manager.Queue(ncpus)
+        pool = []
+        for pars,ind in zip(par_sets,indices):
+            p = Process(target=child, args=(self, work, results, reuse_dirs, save))
+            p.start()
+            pool.append(p)
+            
+        iter_args = itertools.chain( par_sets, (None,)*ncpus )
+        iter_smpind = itertools.chain( indices, (None,)*ncpus )
+        iter_lstind = itertools.chain( range(len(par_sets)), (None,)*ncpus )
+        for item in zip(iter_args,iter_smpind,iter_lstind):
+            work.put(item)
+        
+        for p in pool:
+            p.join()
+
+        # Clean parent
+        self.workdir = saved_workdir
+        results = numpy.array(results)
+        #print results.shape
+        #print results
+        #print type(results)        
+
+        return results, par_sets   
     def set_parstudy_samples(self, name, *args, **kwargs):
         ''' Generate parameter study samples
         
