@@ -1,7 +1,13 @@
+import sys
 import numpy
 import string
 from scipy import stats
-from matplotlib import pyplot as plt
+try:
+    from matplotlib import pyplot as plt
+    plotflag = True
+except ImportError as exc:
+    sys.stderr.write("Warning: failed to import matplotlib module. Plots will not be produced. ({})".format(exc))
+    plotflag = False
 
 class SampleSet(object):
     """ MATK samples class - Stores information related to a sample
@@ -201,7 +207,7 @@ class SampleSet(object):
                 print string.rjust(`c`, 20),
             print ''
 
-        if plot:
+        if plot and plotflag:
             # Plot
             plt.pcolor(corrcoef)
             plt.colorbar()
