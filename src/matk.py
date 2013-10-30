@@ -349,11 +349,12 @@ class matk(object):
     def __iter__(self):
         return self
     def make_workdir(self, workdir=None, reuse_dirs=False):
-        """ Run MATK model using current values
+        """ Create a working directory
 
             :param workdir: Name of directory where model will be run. It will be created if it does not exist
             :type workdir: str
             :param reuse_dirs: If True and workdir exists, the model will reuse the directory
+            :type reuse_dirs: bool
             :returns: int -- 0: Successful run, 1: workdir exists 
         """
         if not workdir is None: self.workdir = workdir
@@ -378,6 +379,7 @@ class matk(object):
             :param workdir: Name of directory where model will be run. It will be created if it does not exist
             :type workdir: str
             :param reuse_dirs: If True and workdir exists, the model will reuse the directory
+            :type reuse_dirs: bool
             :returns: int -- 0: Successful run, 1: workdir exists 
         """
         if not workdir is None: self.workdir = workdir
@@ -452,6 +454,7 @@ class matk(object):
             :param save: If True, model files and folders will not be deleted during parallel model execution
             :type save: bool
             :param reuse_dirs: Will use existing directories if True, will return an error if False and directory exists
+            :type reuse_dirs: bool
             :returns: tuple(ndarray(fl64),ndarray(fl64)) - (Matrix of responses from sampled model runs siz rows by npar columns, Parameter samples, same as input samples if provided)
             
         """
