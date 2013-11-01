@@ -21,6 +21,8 @@ class matk(object):
         :returns: object -- MATK object
         '''
         self.model = ''
+        self.model_args = None
+        self.model_kwargs = None
         self.ncpus = 1
         self.workdir_base = None
         self.workdir = None
@@ -42,6 +44,10 @@ class matk(object):
                 self.templatedir = v
             elif 'model' == k:
                 self.model = v
+            elif 'model_args' == k:
+                self.model_args = v
+            elif 'model_kwargs' == k:
+                self.model_kwargs = v
             elif 'parameters_file' == k:
                 self.parameters_file = v
             elif 'results_file' == k:
@@ -57,12 +63,40 @@ class matk(object):
         self.workdir_index = 0
     @property
     def model(self):
-        """ Python function or system command to run model
+        """ Python function that runs model
         """
         return self._model
     @model.setter
     def model(self,value):
         self._model = value       
+    @property
+    def model_args(self):
+        """ Tuple of extra arguments to MATK model expected to come after parameter dictionary
+        """
+        return self._model_args
+    @model_args.setter
+    def model_args(self,value):
+        if value is None:
+            self._model_args = value
+        elif not isinstance( value, (tuple,list,numpy.ndarray) ):
+            print "Error: Expected list or array for model keyword arguments"
+            return
+        else:
+            self._model_args = value
+    @property
+    def model_kwargs(self):
+        """ Dictionary of extra keyword arguments to MATK model expected to come after parameter dictionary and model_args
+        """
+        return self._model_kwargs
+    @model_kwargs.setter
+    def model_kwargs(self,value):
+        if value is None:
+            self._model_kwargs = value       
+        elif not isinstance( value, dict ):
+            print "Error: Expected dictionary for model keyword arguments"
+            return
+        else:
+            self._model_kwargs = value       
     @property
     def ncpus(self):
         """ Set number of cpus to use for concurrent model evaluations
@@ -394,10 +428,18 @@ class matk(object):
         if hasattr( self.model, '__call__' ):
             if pardict is None:
                 pardict = dict([(par.name,par.value) for par in self.parlist])
-            sims = self.model( pardict )
+            if self.model_args is None and self.model_kwargs is None:
+                sims = self.model( pardict )
+            elif not self.model_args is None and self.model_kwargs is None:
+                sims = self.model( pardict, *self.model_args )
+            elif self.model_args is None and not self.model_kwargs is None:
+                sims = self.model( pardict, **self.model_kwargs )
+            elif not self.model_args is None and not self.model_kwargs is None:
+                sims = self.model( pardict, *self.model_args, **self.model_kwargs )
             self._set_sims(sims)
         else:
-            pass # TODO: add external simulator capability
+            print "Error: Model is not a Python function"
+            return 1
         if not curdir is None:
             os.chdir( curdir )
         return 0
