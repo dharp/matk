@@ -667,7 +667,6 @@ class matk(object):
             if not save and not prob.workdir is None:
                 rmtree( prob.workdir )
 
-
         def set_child( prob ):
             if prob.workdir_base is not None:
                 prob.workdir = prob.workdir_base + '.' + str(prob.workdir_index)
@@ -704,9 +703,6 @@ class matk(object):
         # Clean parent
         self.workdir = saved_workdir
         results = numpy.array(results)
-        #print results.shape
-        #print results
-        #print type(results)        
 
         return results, par_sets   
     def set_parstudy_samples(self, name, *args, **kwargs):
