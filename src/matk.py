@@ -12,6 +12,7 @@ import cPickle as pickle
 from shutil import rmtree
 import itertools
 from multiprocessing import Process, Manager, freeze_support
+from multiprocessing.queues import Queue
 
 class matk(object):
     """ Class for Model Analysis ToolKit (MATK) module
@@ -651,7 +652,7 @@ class matk(object):
         if not os.name is "posix":
             # Use freeze_support for PCs
             freeze_support()
- 
+
         def child( prob, in_queue, out_list, reuse_dirs, save):
             pars,smp_ind,lst_ind = in_queue.get()
             if pars == None:
@@ -663,9 +664,11 @@ class matk(object):
             if status:
                 print "Error running forward model for parallel job " + str(prob.workdir_index)
             else:
-                out_list[lst_ind] = prob.get_sims()
+                out_list.put((lst_ind,prob.get_sims()))
+                #out_list[lst_ind] = prob.get_sims()
             if not save and not prob.workdir is None:
                 rmtree( prob.workdir )
+            return prob.get_sims()
 
         def set_child( prob ):
             if prob.workdir_base is not None:
@@ -682,21 +685,28 @@ class matk(object):
         if n < ncpus: ncpus = n
 
         # Start ncpus model runs
-        manager = Manager()
-        results = manager.list(range(len(par_sets)))
-        work = manager.Queue(ncpus)
+        #manager = Manager()
+        #results = manager.list(range(len(par_sets)))
+        #work = manager.Queue(ncpus)
+        resultsq = Queue()
+        work = Queue(ncpus)
         pool = []
         for pars,ind in zip(par_sets,indices):
-            p = Process(target=child, args=(self, work, results, reuse_dirs, save))
+            p = Process(target=child, args=(self, work, resultsq, reuse_dirs, save))
             p.start()
             pool.append(p)
-            
+
         iter_args = itertools.chain( par_sets, (None,)*ncpus )
         iter_smpind = itertools.chain( indices, (None,)*ncpus )
         iter_lstind = itertools.chain( range(len(par_sets)), (None,)*ncpus )
         for item in zip(iter_args,iter_smpind,iter_lstind):
             work.put(item)
         
+        results = [None]*len(par_sets)
+        for i in range(len(par_sets)):
+            ind, resp = resultsq.get()
+            results[ind] = resp
+            
         for p in pool:
             p.join()
 
