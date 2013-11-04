@@ -646,33 +646,28 @@ class matk(object):
         self.workdir = saved_workdir
 
         return responses, par_sets   
+    def child( self, in_queue, out_list, reuse_dirs, save):
+        pars,smp_ind,lst_ind = in_queue.get()
+        if pars == None:
+            return
+        self.workdir_index = smp_ind
+        if self.workdir_base is not None:
+            self.workdir = self.workdir_base + '.' + str(self.workdir_index)
+        self.set_par_values( pars )
+        status = self.forward(reuse_dirs=reuse_dirs)
+        if status:
+            print "Error running forward model for parallel job " + str(self.workdir_index)
+        else:
+            out_list.put((lst_ind,self.get_sims()))
+        if not save and not self.workdir is None:
+            rmtree( self.workdir )
+        return self.get_sims()
     def parallel_mp(self, ncpus, par_sets, templatedir=None, workdir_base=None, save=True,
                 reuse_dirs=False, indices=None):
 
         if not os.name is "posix":
             # Use freeze_support for PCs
             freeze_support()
-
-        def child( prob, in_queue, out_list, reuse_dirs, save):
-            pars,smp_ind,lst_ind = in_queue.get()
-            if pars == None:
-                return
-            prob.workdir_index = ind
-            set_child( prob )
-            prob.set_par_values( pars )
-            status = prob.forward(reuse_dirs=reuse_dirs)
-            if status:
-                print "Error running forward model for parallel job " + str(prob.workdir_index)
-            else:
-                out_list.put((lst_ind,prob.get_sims()))
-                #out_list[lst_ind] = prob.get_sims()
-            if not save and not prob.workdir is None:
-                rmtree( prob.workdir )
-            return prob.get_sims()
-
-        def set_child( prob ):
-            if prob.workdir_base is not None:
-                prob.workdir = prob.workdir_base + '.' + str(prob.workdir_index)
 
         # Determine if using working directories or not
         saved_workdir = self.workdir # Save workdir to reset after parallel run
@@ -692,7 +687,7 @@ class matk(object):
         work = Queue(ncpus)
         pool = []
         for pars,ind in zip(par_sets,indices):
-            p = Process(target=child, args=(self, work, resultsq, reuse_dirs, save))
+            p = Process(target=self.child, args=(work, resultsq, reuse_dirs, save))
             p.start()
             pool.append(p)
 
