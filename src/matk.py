@@ -11,8 +11,8 @@ from lhs import *
 import cPickle as pickle
 from shutil import rmtree
 import itertools
-from multiprocessing import Process, Manager, freeze_support
-from multiprocessing.queues import Queue
+from multiprocessing import Process, Manager, Pool, freeze_support
+from multiprocessing.queues import Queue, JoinableQueue
 
 class matk(object):
     """ Class for Model Analysis ToolKit (MATK) module
@@ -647,21 +647,20 @@ class matk(object):
 
         return responses, par_sets   
     def child( self, in_queue, out_list, reuse_dirs, save):
-        pars,smp_ind,lst_ind = in_queue.get()
-        if pars == None:
-            return
-        self.workdir_index = smp_ind
-        if self.workdir_base is not None:
-            self.workdir = self.workdir_base + '.' + str(self.workdir_index)
-        self.set_par_values( pars )
-        status = self.forward(reuse_dirs=reuse_dirs)
-        if status:
-            print "Error running forward model for parallel job " + str(self.workdir_index)
-        else:
-            out_list.put((lst_ind,self.get_sims()))
-        if not save and not self.workdir is None:
-            rmtree( self.workdir )
-        return self.get_sims()
+        for pars,smp_ind,lst_ind in iter(in_queue.get, (None,None,None)):
+            self.workdir_index = smp_ind
+            if self.workdir_base is not None:
+                self.workdir = self.workdir_base + '.' + str(self.workdir_index)
+            self.set_par_values( pars )
+            status = self.forward(reuse_dirs=reuse_dirs)
+            if status:
+                print "Error running forward model for parallel job " + str(self.workdir_index)
+            else:
+                out_list.put([lst_ind, self.get_sims()])
+            if not save and not self.workdir is None:
+                rmtree( self.workdir )
+            in_queue.task_done()
+        in_queue.task_done()
     def parallel_mp(self, ncpus, par_sets, templatedir=None, workdir_base=None, save=True,
                 reuse_dirs=False, indices=None):
 
@@ -680,14 +679,12 @@ class matk(object):
         if n < ncpus: ncpus = n
 
         # Start ncpus model runs
-        #manager = Manager()
-        #results = manager.list(range(len(par_sets)))
-        #work = manager.Queue(ncpus)
         resultsq = Queue()
-        work = Queue(ncpus)
+        work = JoinableQueue()
         pool = []
-        for pars,ind in zip(par_sets,indices):
+        for i in range(ncpus):
             p = Process(target=self.child, args=(work, resultsq, reuse_dirs, save))
+            p.daemon = True
             p.start()
             pool.append(p)
 
