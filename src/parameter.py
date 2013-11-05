@@ -16,6 +16,8 @@ class Parameter(object):
         self.pargrpnm = 'default'
         self.dist = ''
         self.nvals = 2
+        self.vary = True
+        self.expr = None
         for k,v in kwargs.iteritems():
             if k == 'value':
                 self.value = float(v)
@@ -41,6 +43,10 @@ class Parameter(object):
                 self.dist_pars = v
             elif k == 'nvals':
                 self.nvals = v
+            elif k == 'vary':
+                self.vary = v
+            elif k == 'expr':
+                self.expr = v
             else:
                 print k + ' is not a valid argument'
         # If min and max are set, but dist is not, set to uniform
@@ -166,3 +172,19 @@ class Parameter(object):
     @nvals.setter
     def nvals(self,value):
         self._nvals = value              
+    @property
+    def vary(self):
+        """ Boolean indicating whether or not to vary parameter
+        """
+        return self._vary
+    @vary.setter
+    def vary(self,value):
+        self._vary = value              
+    @property
+    def expr(self):
+        """ Mathematical expression to use to evaluate value
+        """
+        return self._expr
+    @expr.setter
+    def expr(self,value):
+        self._expr = value              

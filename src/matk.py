@@ -440,11 +440,35 @@ class matk(object):
         if not curdir is None:
             os.chdir( curdir )
         return 0
-    def calibrate(self):
+    def calibrate(self,workdir=None,reuse_dirs=False):
         """ Calibrate MATK model
         """
-        x,cov_x,infodic,mesg,ier = calibrate.least_squares(self)
-        return x,cov_x,infodic,mesg,ier
+        try: import lmfit
+        except ImportError as exc:
+            sys.stderr.write("Warning: failed to import lmfit module. ({})".format(exc))
+            return
+            
+        def residual(params, prob):
+            nm = [params[p.name].name for p in prob.parlist]
+            vs = [params[p.name].value for p in prob.parlist]
+            prob.forward(pardict=dict(zip(nm,vs)),workdir=workdir,reuse_dirs=reuse_dirs)
+            return prob.get_residuals()
+            
+        # Create lmfit parameter object
+        params = lmfit.Parameters()
+        #[pars.add(p.name,value=p.value,vary=p.vary,min=p.min,max=p.max,expr=p.expr) for p in self.parlist]
+        for p in self.parlist:
+            params.add(p.name,value=p.value,vary=p.vary,min=p.min,max=p.max,expr=p.expr) 
+        print params
+
+        out = lmfit.minimize(residual, params, args=(self,))
+        nm = [params[p.name].name for p in self.parlist]
+        vs = [params[p.name].value for p in self.parlist]
+        self.set_par_values( dict(zip(nm,vs)))
+
+        print lmfit.report_fit(params)
+
+        return out
     def set_lhs_samples(self, name, siz=None, noCorrRestr=False, corrmat=None, seed=None, index_start=1):
         """ Draw lhs samples of parameter values from scipy.stats module distribution
         
@@ -749,9 +773,9 @@ class matk(object):
 
         x = []
         for p in self.parlist:
-            if p.nvals == 1:
+            if p.nvals == 1 or not p.vary:
                 x.append(numpy.linspace(p.value, p.max, p.nvals))
-            if p.nvals > 1:
+            elif p.nvals > 1:
                 x.append(numpy.linspace(p.min, p.max, p.nvals))
 
         x = list(itertools.product(*x))
