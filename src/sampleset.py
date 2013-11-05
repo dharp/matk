@@ -209,8 +209,12 @@ class SampleSet(object):
 
         if plot and plotflag:
             # Plot
-            plt.pcolor(corrcoef)
+            plt.pcolor(corrcoef, vmin=-1, vmax=1)
             plt.colorbar()
+            if type is 'pearson':
+                plt.title('Pearson Correlation Coefficients')
+            elif type is 'spearman':
+                plt.title('Spearman Rank Correlation Coefficients')
             plt.yticks(numpy.arange(0.5,len(self.parnames)+0.5),self.parnames)
             plt.xticks(numpy.arange(0.5,len(self.obsnames)+0.5),self.obsnames)
             plt.show()
