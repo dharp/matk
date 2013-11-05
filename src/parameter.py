@@ -14,7 +14,7 @@ class Parameter(object):
         self.offset = 0.0
         self.parchglim = None
         self.pargrpnm = 'default'
-        self.dist = 'uniform'
+        self.dist = ''
         self.nvals = 2
         for k,v in kwargs.iteritems():
             if k == 'value':
@@ -43,6 +43,8 @@ class Parameter(object):
                 self.nvals = v
             else:
                 print k + ' is not a valid argument'
+        # If min and max are set, but dist is not, set to uniform
+        if not self.max is None and not self.min is None and self.dist is '': self.dist = 'uniform'
         if self.dist == 'uniform':
             if self.min is None or self.max is None: 
                 print "Error: Max and min parameter value must be specified for uniform distribution"

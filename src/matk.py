@@ -2,10 +2,6 @@ import sys, os
 from parameter import Parameter
 from observation import Observation
 from sampleset import SampleSet
-#import pesting
-#import dakoting
-#import calibrate
-#from sample import *
 import numpy 
 from lhs import *
 import cPickle as pickle
