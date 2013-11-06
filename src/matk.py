@@ -459,7 +459,6 @@ class matk(object):
         #[pars.add(p.name,value=p.value,vary=p.vary,min=p.min,max=p.max,expr=p.expr) for p in self.parlist]
         for p in self.parlist:
             params.add(p.name,value=p.value,vary=p.vary,min=p.min,max=p.max,expr=p.expr) 
-        print params
 
         out = lmfit.minimize(residual, params, args=(self,))
         nm = [params[p.name].name for p in self.parlist]
