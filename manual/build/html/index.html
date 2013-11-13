@@ -1,0 +1,673 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Welcome to matk’s documentation! &mdash; MATK 0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="MATK 0 documentation" href="#" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="#">MATK 0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="welcome-to-matk-s-documentation">
+<h1>Welcome to matk&#8217;s documentation!<a class="headerlink" href="#welcome-to-matk-s-documentation" title="Permalink to this headline">¶</a></h1>
+<p>Contents:</p>
+<div class="toctree-wrapper compound">
+<ul class="simple">
+</ul>
+</div>
+<span class="target" id="module-matk"></span><dl class="class">
+<dt id="matk.matk">
+<em class="property">class </em><tt class="descclassname">matk.</tt><tt class="descname">matk</tt><big>(</big><em>**kwargs</em><big>)</big><a class="headerlink" href="#matk.matk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class for Model Analysis ToolKit (MATK) module</p>
+<dl class="method">
+<dt id="matk.matk.add_obs">
+<tt class="descname">add_obs</tt><big>(</big><em>name</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#matk.matk.add_obs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add observation to problem</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> (<em>str</em>) &#8211; Name of observation</li>
+<li><strong>kwargs</strong> &#8211; keyword arguments passed to observation class</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="matk.matk.add_par">
+<tt class="descname">add_par</tt><big>(</big><em>name</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#matk.matk.add_par" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add parameter to problem</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> (<em>str</em>) &#8211; Name of parameter</li>
+<li><strong>kwargs</strong> &#8211; keyword arguments passed to parameter class</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="matk.matk.add_sampleset">
+<tt class="descname">add_sampleset</tt><big>(</big><em>name</em>, <em>samples</em>, <em>responses=None</em>, <em>indices=None</em>, <em>index_start=1</em><big>)</big><a class="headerlink" href="#matk.matk.add_sampleset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add sample set to problem</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> (<em>str</em>) &#8211; Name of sample set</li>
+<li><strong>samples</strong> (<em>list(fl64),ndarray(fl64)</em>) &#8211; Matrix of parameter samples with npar columns in order of [p.name for p in matkobj.parlist]</li>
+<li><strong>responses</strong> (<em>list(fl64),ndarray(fl64)</em>) &#8211; Matrix of associated responses with nobs columns in order of [o.name for o in matkobj.obslist] if observation exists (existence of observations is not required)</li>
+<li><strong>indices</strong> (<em>list(int),ndarray(int)</em>) &#8211; Sample indices to use when creating working directories and output files</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="matk.matk.calibrate">
+<tt class="descname">calibrate</tt><big>(</big><em>workdir=None</em>, <em>reuse_dirs=False</em>, <em>report_fit=True</em><big>)</big><a class="headerlink" href="#matk.matk.calibrate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calibrate MATK model</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>workdir</strong> (<em>str</em>) &#8211; Name of directory where model will be run. It will be created if it does not exist</li>
+<li><strong>reuse_dirs</strong> (<em>bool</em>) &#8211; If True and workdir exists, the model will reuse the directory</li>
+<li><strong>report_fit</strong> (<em>bool</em>) &#8211; If True, parameter statistics and correlations are printed to the screen</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">lmfit minimizer object</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="matk.matk.forward">
+<tt class="descname">forward</tt><big>(</big><em>pardict=None</em>, <em>workdir=None</em>, <em>reuse_dirs=False</em><big>)</big><a class="headerlink" href="#matk.matk.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run MATK model using current values</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>pardict</strong> (<em>dict</em>) &#8211; Dictionary of parameter values keyed by parameter names</li>
+<li><strong>workdir</strong> (<em>str</em>) &#8211; Name of directory where model will be run. It will be created if it does not exist</li>
+<li><strong>reuse_dirs</strong> (<em>bool</em>) &#8211; If True and workdir exists, the model will reuse the directory</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">int &#8211; 0: Successful run, 1: workdir exists</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="matk.matk.get_obs_names">
+<tt class="descname">get_obs_names</tt><big>(</big><big>)</big><a class="headerlink" href="#matk.matk.get_obs_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get observation names</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="matk.matk.get_obs_values">
+<tt class="descname">get_obs_values</tt><big>(</big><big>)</big><a class="headerlink" href="#matk.matk.get_obs_values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get observation values</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="matk.matk.get_par_dist_pars">
+<tt class="descname">get_par_dist_pars</tt><big>(</big><big>)</big><a class="headerlink" href="#matk.matk.get_par_dist_pars" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get parameters needed by parameter distributions</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="matk.matk.get_par_dists">
+<tt class="descname">get_par_dists</tt><big>(</big><big>)</big><a class="headerlink" href="#matk.matk.get_par_dists" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get parameter probabilistic distributions</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="matk.matk.get_par_maxs">
+<tt class="descname">get_par_maxs</tt><big>(</big><big>)</big><a class="headerlink" href="#matk.matk.get_par_maxs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get parameter lower bounds</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="matk.matk.get_par_mins">
+<tt class="descname">get_par_mins</tt><big>(</big><big>)</big><a class="headerlink" href="#matk.matk.get_par_mins" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get parameter lower bounds</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="matk.matk.get_par_names">
+<tt class="descname">get_par_names</tt><big>(</big><big>)</big><a class="headerlink" href="#matk.matk.get_par_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get parameter names</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="matk.matk.get_par_nvals">
+<tt class="descname">get_par_nvals</tt><big>(</big><big>)</big><a class="headerlink" href="#matk.matk.get_par_nvals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get parameter nvals (number of values for parameter studies)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="matk.matk.get_par_values">
+<tt class="descname">get_par_values</tt><big>(</big><big>)</big><a class="headerlink" href="#matk.matk.get_par_values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get parameter values</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="matk.matk.get_residuals">
+<tt class="descname">get_residuals</tt><big>(</big><big>)</big><a class="headerlink" href="#matk.matk.get_residuals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get least squares values</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="matk.matk.get_sims">
+<tt class="descname">get_sims</tt><big>(</big><big>)</big><a class="headerlink" href="#matk.matk.get_sims" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the current simulated values
+:returns: lst(fl64) &#8211; simulated values in order of matk.obslist</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="matk.matk.make_workdir">
+<tt class="descname">make_workdir</tt><big>(</big><em>workdir=None</em>, <em>reuse_dirs=False</em><big>)</big><a class="headerlink" href="#matk.matk.make_workdir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a working directory</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>workdir</strong> (<em>str</em>) &#8211; Name of directory where model will be run. It will be created if it does not exist</li>
+<li><strong>reuse_dirs</strong> (<em>bool</em>) &#8211; If True and workdir exists, the model will reuse the directory</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">int &#8211; 0: Successful run, 1: workdir exists</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.matk.model">
+<tt class="descname">model</tt><em class="property"> None</em><a class="headerlink" href="#matk.matk.model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Python function that runs model</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.matk.model_args">
+<tt class="descname">model_args</tt><em class="property"> None</em><a class="headerlink" href="#matk.matk.model_args" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tuple of extra arguments to MATK model expected to come after parameter dictionary</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.matk.model_kwargs">
+<tt class="descname">model_kwargs</tt><em class="property"> None</em><a class="headerlink" href="#matk.matk.model_kwargs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dictionary of extra keyword arguments to MATK model expected to come after parameter dictionary and model_args</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.matk.ncpus">
+<tt class="descname">ncpus</tt><em class="property"> None</em><a class="headerlink" href="#matk.matk.ncpus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set number of cpus to use for concurrent model evaluations</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.matk.parameters_file">
+<tt class="descname">parameters_file</tt><em class="property"> None</em><a class="headerlink" href="#matk.matk.parameters_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the name of the parameters_file for parallel runs</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.matk.results_file">
+<tt class="descname">results_file</tt><em class="property"> None</em><a class="headerlink" href="#matk.matk.results_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the name of the results_file for parallel runs</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="matk.matk.run_samples">
+<tt class="descname">run_samples</tt><big>(</big><em>name=None</em>, <em>ncpus=1</em>, <em>templatedir=None</em>, <em>workdir_base=None</em>, <em>save=True</em>, <em>reuse_dirs=False</em><big>)</big><a class="headerlink" href="#matk.matk.run_samples" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run model using values in samples for parameter values
+If samples are not specified, LHS samples are produced</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>name</strong> &#8211; Name of MATK sample set object</li>
+<li><strong>ncpus</strong> (<em>int</em>) &#8211; number of cpus to use to run models concurrently</li>
+<li><strong>templatedir</strong> (<em>str</em>) &#8211; Name of folder including files needed to run model (e.g. template files, instruction files, executables, etc.)</li>
+<li><strong>workdir_base</strong> (<em>str</em>) &#8211; Base name for model run folders, run index is appended to workdir_base</li>
+<li><strong>save</strong> (<em>bool</em>) &#8211; If True, model files and folders will not be deleted during parallel model execution</li>
+<li><strong>reuse_dirs</strong> (<em>bool</em>) &#8211; Will use existing directories if True, will return an error if False and directory exists</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">tuple(ndarray(fl64),ndarray(fl64)) - (Matrix of responses from sampled model runs siz rows by npar columns, Parameter samples, same as input samples if provided)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="matk.matk.save_sampleset">
+<tt class="descname">save_sampleset</tt><big>(</big><em>outfile</em>, <em>sampleset</em><big>)</big><a class="headerlink" href="#matk.matk.save_sampleset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save sampleset to file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>outfile</strong> (<em>str</em>) &#8211; Name of file where sampleset will be written</li>
+<li><strong>sampleset</strong> (<em>str</em>) &#8211; Sampleset name</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.matk.seed">
+<tt class="descname">seed</tt><em class="property"> None</em><a class="headerlink" href="#matk.matk.seed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the seed for random sampling</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="matk.matk.set_lhs_samples">
+<tt class="descname">set_lhs_samples</tt><big>(</big><em>name</em>, <em>siz=None</em>, <em>noCorrRestr=False</em>, <em>corrmat=None</em>, <em>seed=None</em>, <em>index_start=1</em><big>)</big><a class="headerlink" href="#matk.matk.set_lhs_samples" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw lhs samples of parameter values from scipy.stats module distribution</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>name</strong> (<em>str</em>) &#8211; Name of sample set to be created</li>
+<li><strong>siz</strong> (<em>int</em>) &#8211; Number of samples to generate, ignored if samples are provided</li>
+<li><strong>noCorrRestr</strong> (<em>bool</em>) &#8211; If True, correlation structure is not enforced on sample, use if siz is less than number of parameters</li>
+<li><strong>corrmat</strong> (<em>matrix</em>) &#8211; Correlation matrix</li>
+<li><strong>seed</strong> (<em>int</em>) &#8211; Random seed to allow replication of samples</li>
+<li><strong>index_start</strong> &#8211; Starting value for sample indices</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Type:</th><td class="field-body"><p class="first">int</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">matrix &#8211; Parameter samples</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="matk.matk.set_obs_values">
+<tt class="descname">set_obs_values</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#matk.matk.set_obs_values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set simulated values using a dictionary or keyword arguments</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="matk.matk.set_par_values">
+<tt class="descname">set_par_values</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#matk.matk.set_par_values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set parameters using values in first argument</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="matk.matk.set_parstudy_samples">
+<tt class="descname">set_parstudy_samples</tt><big>(</big><em>name</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#matk.matk.set_parstudy_samples" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate parameter study samples</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>name</strong> (<em>str</em>) &#8211; Name of sample set to be created</li>
+<li><strong>outfile</strong> (<em>str</em>) &#8211; Name of file where samples will be written. If outfile=None, no file is written.</li>
+<li><strong>*args</strong> &#8211; <p>Number of values for each parameter. The order is expected to match order of matk.parlist (e.g. [p.name for p in matk.parlist])</p>
+</li>
+<li><strong>**kwargs</strong> &#8211; <p>keyword arguments where keyword is the parameter name and argument is the number of desired values</p>
+</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">ndarray(fl64) &#8211; Array of samples</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.matk.templatedir">
+<tt class="descname">templatedir</tt><em class="property"> None</em><a class="headerlink" href="#matk.matk.templatedir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the name of the templatedir for parallel runs</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.matk.workdir">
+<tt class="descname">workdir</tt><em class="property"> None</em><a class="headerlink" href="#matk.matk.workdir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the base name for parallel working directories</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.matk.workdir_base">
+<tt class="descname">workdir_base</tt><em class="property"> None</em><a class="headerlink" href="#matk.matk.workdir_base" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the base name for parallel working directories</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.matk.workdir_index">
+<tt class="descname">workdir_index</tt><em class="property"> None</em><a class="headerlink" href="#matk.matk.workdir_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the working directory index for parallel runs</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="matk.Parameter">
+<em class="property">class </em><tt class="descclassname">matk.</tt><tt class="descname">Parameter</tt><big>(</big><em>name</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#matk.Parameter" title="Permalink to this definition">¶</a></dt>
+<dd><p>MATK parameter class</p>
+<dl class="attribute">
+<dt id="matk.Parameter.dist">
+<tt class="descname">dist</tt><em class="property"> None</em><a class="headerlink" href="#matk.Parameter.dist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Probabilistic distribution of parameter belonging to scipy.stats
+module</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.Parameter.dist_pars">
+<tt class="descname">dist_pars</tt><em class="property"> None</em><a class="headerlink" href="#matk.Parameter.dist_pars" title="Permalink to this definition">¶</a></dt>
+<dd><p>Distribution parameters required by self.dist 
+(e.g. if dist == uniform, dist_pars = (min,max-min))</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.Parameter.expr">
+<tt class="descname">expr</tt><em class="property"> None</em><a class="headerlink" href="#matk.Parameter.expr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mathematical expression to use to evaluate value</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.Parameter.max">
+<tt class="descname">max</tt><em class="property"> None</em><a class="headerlink" href="#matk.Parameter.max" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parameter upper bound</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.Parameter.mean">
+<tt class="descname">mean</tt><em class="property"> None</em><a class="headerlink" href="#matk.Parameter.mean" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parameter mean</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.Parameter.min">
+<tt class="descname">min</tt><em class="property"> None</em><a class="headerlink" href="#matk.Parameter.min" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parameter lower bound</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.Parameter.name">
+<tt class="descname">name</tt><em class="property"> None</em><a class="headerlink" href="#matk.Parameter.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parameter name</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.Parameter.nvals">
+<tt class="descname">nvals</tt><em class="property"> None</em><a class="headerlink" href="#matk.Parameter.nvals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of values the paramter will take for parameter studies</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.Parameter.offset">
+<tt class="descname">offset</tt><em class="property"> None</em><a class="headerlink" href="#matk.Parameter.offset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Offset to add to parameter</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.Parameter.scale">
+<tt class="descname">scale</tt><em class="property"> None</em><a class="headerlink" href="#matk.Parameter.scale" title="Permalink to this definition">¶</a></dt>
+<dd><p>Scale factor to multiply parameter by</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.Parameter.std">
+<tt class="descname">std</tt><em class="property"> None</em><a class="headerlink" href="#matk.Parameter.std" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parameter st. dev.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.Parameter.value">
+<tt class="descname">value</tt><em class="property"> None</em><a class="headerlink" href="#matk.Parameter.value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parameter value</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.Parameter.vary">
+<tt class="descname">vary</tt><em class="property"> None</em><a class="headerlink" href="#matk.Parameter.vary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Boolean indicating whether or not to vary parameter</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="matk.Observation">
+<em class="property">class </em><tt class="descclassname">matk.</tt><tt class="descname">Observation</tt><big>(</big><em>name</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#matk.Observation" title="Permalink to this definition">¶</a></dt>
+<dd><p>MATK observation class</p>
+<dl class="attribute">
+<dt id="matk.Observation.name">
+<tt class="descname">name</tt><em class="property"> None</em><a class="headerlink" href="#matk.Observation.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Observation name</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.Observation.residual">
+<tt class="descname">residual</tt><em class="property"> None</em><a class="headerlink" href="#matk.Observation.residual" title="Permalink to this definition">¶</a></dt>
+<dd><p>Observation value minus simulated value</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.Observation.sim">
+<tt class="descname">sim</tt><em class="property"> None</em><a class="headerlink" href="#matk.Observation.sim" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simulated value generated by MATK model</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.Observation.value">
+<tt class="descname">value</tt><em class="property"> None</em><a class="headerlink" href="#matk.Observation.value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Observation value</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.Observation.weight">
+<tt class="descname">weight</tt><em class="property"> None</em><a class="headerlink" href="#matk.Observation.weight" title="Permalink to this definition">¶</a></dt>
+<dd><p>Weight to apply to simulated values</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="matk.SampleSet">
+<em class="property">class </em><tt class="descclassname">matk.</tt><tt class="descname">SampleSet</tt><big>(</big><em>name</em>, <em>samples</em>, <em>index_start=1</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#matk.SampleSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>MATK samples class - Stores information related to a sample
+includeing parameter samples, associated responses, and sample indices</p>
+<dl class="method">
+<dt id="matk.SampleSet.corr">
+<tt class="descname">corr</tt><big>(</big><em>type='pearson'</em>, <em>plot=False</em><big>)</big><a class="headerlink" href="#matk.SampleSet.corr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate correlation coefficients of parameters and responses</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>type</strong> (<em>str</em>) &#8211; Type of correlation coefficient (pearson by default, spearman also avaialable)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">ndarray(fl64) &#8211; Correlation coefficients</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.SampleSet.index_start">
+<tt class="descname">index_start</tt><em class="property"> None</em><a class="headerlink" href="#matk.SampleSet.index_start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Starting integer value for sample indices</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.SampleSet.indices">
+<tt class="descname">indices</tt><em class="property"> None</em><a class="headerlink" href="#matk.SampleSet.indices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Array of sample indices</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.SampleSet.name">
+<tt class="descname">name</tt><em class="property"> None</em><a class="headerlink" href="#matk.SampleSet.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample set name</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.SampleSet.obsnames">
+<tt class="descname">obsnames</tt><em class="property"> None</em><a class="headerlink" href="#matk.SampleSet.obsnames" title="Permalink to this definition">¶</a></dt>
+<dd><p>Array of observation names</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.SampleSet.parnames">
+<tt class="descname">parnames</tt><em class="property"> None</em><a class="headerlink" href="#matk.SampleSet.parnames" title="Permalink to this definition">¶</a></dt>
+<dd><p>Array of parameter names</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.SampleSet.responses">
+<tt class="descname">responses</tt><em class="property"> None</em><a class="headerlink" href="#matk.SampleSet.responses" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ndarray of sample set responses, rows are samples, columns are responses associated with observations in order of MATKobject.obslist</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.SampleSet.samples">
+<tt class="descname">samples</tt><em class="property"> None</em><a class="headerlink" href="#matk.SampleSet.samples" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ndarray of parameter samples, rows are samples, columns are parameters in order of MATKobject.parlist</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><em>Index</em></a></li>
+<li><a class="reference internal" href="py-modindex.html"><em>Module Index</em></a></li>
+<li><a class="reference internal" href="search.html"><em>Search Page</em></a></li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Welcome to matk&#8217;s documentation!</a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/index.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="#">MATK 0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Dylan R. Harp.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b3.
+    </div>
+  </body>
+</html>
