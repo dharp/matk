@@ -442,6 +442,14 @@ class matk(object):
         return 0
     def calibrate(self,workdir=None,reuse_dirs=False,report_fit=True):
         """ Calibrate MATK model
+
+            :param workdir: Name of directory where model will be run. It will be created if it does not exist
+            :type workdir: str
+            :param reuse_dirs: If True and workdir exists, the model will reuse the directory
+            :type reuse_dirs: bool
+            :param report_fit: If True, parameter statistics and correlations are printed to the screen
+            :type report_fit: bool
+            :returns: lmfit minimizer object
         """
         try: import lmfit
         except ImportError as exc:
