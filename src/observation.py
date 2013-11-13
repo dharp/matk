@@ -8,11 +8,11 @@ class Observation(object):
         self.residual = None
         for k,v in kwargs.iteritems():
             if k == 'weight':
-                self.weight = float(v)
+                self.weight = v
             elif k == 'value':
-                self.value = float(v)
+                self.value = v
             elif k == 'sim':
-                self.sim = float(v)
+                self.sim = v
             else:
                 print k + ' is not a valid argument'
     @property
@@ -43,7 +43,7 @@ class Observation(object):
     @sim.setter
     def sim(self,value):
         if value is not None:
-            self._sim = float(value)
+            self._sim = value
         else:
             self._sim = None
     @property

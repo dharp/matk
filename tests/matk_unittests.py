@@ -2,16 +2,29 @@ import sys
 import unittest
 import matk
 from exp_model_int import dbexpl
+from sine_decay_model import sine_decay
 import numpy
 
 class Tests(unittest.TestCase):
 
     def setUp(self):
+        # Sampling model
         self.p = matk.matk(model=dbexpl)
         self.p.add_par('par1',min=0,max=1)
         self.p.add_par('par2',min=0,max=0.2)
         self.p.add_par('par3',min=0,max=1)
         self.p.add_par('par4',min=0,max=0.2)
+        # Calibration model
+        # create data to be fitted
+        self.x = numpy.linspace(0, 15, 301)
+        self.c = matk.matk(model=sine_decay, model_args=(self.x,))
+        self.c.add_par('amp', value=5, min=0.)
+        self.c.add_par('decay', value=0.025)
+        self.c.add_par('shift', value=-0.1, min=-numpy.pi/2., max=numpy.pi/2.)
+        self.c.add_par('omega', value=2.0)
+        self.c.forward()
+        self.c.set_obs_values(self.c.get_sims())
+        self.c.set_par_values(amp=10.,decay=0.1,shift=0.,omega=3.0)
 
     def forward(self):
         self.p.forward()
@@ -74,6 +87,19 @@ class Tests(unittest.TestCase):
         maxs = s.max(axis=0)
         self.assertTrue( (maxs >= lb).any() and (mins <= ub).any(), 'Parstudy outside parameter bounds' )
 
+
+    def calibrate(self): 
+        # Look at initial fit
+        self.c.forward()
+        sims = self.c.get_sims()
+        # Calibrate parameters to data, results are printed to screen
+        self.c.calibrate(report_fit=False)
+        # Look at calibrated fit
+        self.c.forward()
+        sims = self.c.get_sims()
+        of = numpy.sum(self.c.get_residuals())
+        self.assertTrue( of < 1.e-12, 'Objective function value is ' + str(of) )
+
 def suite(case):
     suite = unittest.TestSuite()
     suite.addTest( Tests('setUp') )
@@ -81,6 +107,7 @@ def suite(case):
         suite.addTest( Tests('forward') )
         suite.addTest( Tests('sample') )
         suite.addTest( Tests('parstudy') )
+        suite.addTest( Tests('calibrate') )
     if case == 'parallel' or case == 'all':
         suite.addTest( Tests('parallel') )
         suite.addTest( Tests('parallel_workdir') )

@@ -259,18 +259,18 @@ class matk(object):
                     else:
                         self.add_obs( k, value=v ) 
             elif isinstance( args[0], (list,tuple,numpy.ndarray) ):
-                if isinstance( args[0], (list,tuple) ):
-                    if not len(args[0]) == len(self.obslist): 
-                        print "Error: Number of simulated values in list or tuple does not match created observations"
+                # If no observations exist, create them
+                if len(self.obslist) == 0:
+                    for i,v in zip(range(len(args[0]),args[0])): 
+                        self.add_obs('obs'+str(i),value=v)
+                # else, check if length of args[0] is equal to number created observation
+                elif not len(args[0]) == len(self.obslist): 
+                        print "Error: Number of simulated values does not match created observations"
                         return
-                elif isinstance( args[0], numpy.ndarray ):
-                    if not args[0].shape[0] == len(self.obslist): 
-                        print "Error: Number of simulated values in ndarray does not match created observations"
-                        return
-                i = 0
-                for v in args[0]:
-                    self.obslist[i].value = v
-                    i += 1
+                    # else, set observation values in order
+                else:
+                    for i,v in zip(range(len(args[0])),args[0]):
+                        self.obslist[i].value = v
         else:
             obsdict = self.obs
             for k,v in kwargs.iteritems():
@@ -314,9 +314,9 @@ class matk(object):
     def set_par_values(self,*args, **kwargs):
         """ Set parameters using values in first argument
         """
-        if len(args[0]) > 0 and len(kwargs) > 0:
+        if len(args) > 0 and len(kwargs) > 0:
             print "Warning: dictionary arg will overide keyword args"
-        if len(args[0]) > 0:
+        if len(args) > 0:
             if isinstance( args[0], dict ):
                 pardict = self.par
                 for k,v in args[0].iteritems():
@@ -440,7 +440,7 @@ class matk(object):
         if not curdir is None:
             os.chdir( curdir )
         return 0
-    def calibrate(self,workdir=None,reuse_dirs=False):
+    def calibrate(self,workdir=None,reuse_dirs=False,report_fit=True):
         """ Calibrate MATK model
         """
         try: import lmfit
@@ -465,7 +465,8 @@ class matk(object):
         vs = [params[p.name].value for p in self.parlist]
         self.set_par_values( dict(zip(nm,vs)))
 
-        print lmfit.report_fit(params)
+        if report_fit:
+            print lmfit.report_fit(params)
 
         return out
     def set_lhs_samples(self, name, siz=None, noCorrRestr=False, corrmat=None, seed=None, index_start=1):
