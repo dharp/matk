@@ -9,6 +9,10 @@ from shutil import rmtree
 import itertools
 from multiprocessing import Process, Manager, Pool, freeze_support
 from multiprocessing.queues import Queue, JoinableQueue
+try:
+    from collections import OrderedDict
+except ImportError:
+    from ordereddict import OrderedDict
 
 class matk(object):
     """ Class for Model Analysis ToolKit (MATK) module
@@ -163,19 +167,19 @@ class matk(object):
         return self._parlist
     @property
     def par(self):
-        return dict([[p.name,p] for p in self.parlist if p.name])
+        return OrderedDict([[p.name,p] for p in self.parlist if p.name])
     @property
     def obslist(self):
         return self._obslist
     @property
     def obs(self):
-        return dict([[o.name,o] for o in self.obslist if o.name])
+        return OrderedDict([[o.name,o] for o in self.obslist if o.name])
     @property
     def samplesetlist(self):
         return self._samplesetlist
     @property
     def sampleset(self):
-        return dict([[s.name,s] for s in self.samplesetlist if s.name])
+        return OrderedDict([[s.name,s] for s in self.samplesetlist if s.name])
     def add_par(self, name, **kwargs):
         """ Add parameter to problem
 
