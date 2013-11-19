@@ -58,9 +58,12 @@ class matk(object):
             else:
                 print k + ' is not a valid argument'
       
-        self._parlist = []
-        self._obslist = []
-        self._samplesetlist = []
+        #self._parlist = []
+        #self._obslist = []
+        #self._samplesetlist = []
+        self.pars = OrderedDict()
+        self.obs = OrderedDict()
+        self.sampleset = OrderedDict()
         self.workdir_index = 0
     @property
     def model(self):
@@ -162,21 +165,21 @@ class matk(object):
     @seed.setter
     def seed(self,value):
         self._seed = value
-    @property
-    def parlist(self):
-        return self._parlist
+    #@property
+    #def parlist(self):
+    #    return self._parlist
     @property
     def par(self):
         return OrderedDict([[p.name,p] for p in self.parlist if p.name])
-    @property
-    def obslist(self):
-        return self._obslist
+    #@property
+    #def obslist(self):
+    #    return self._obslist
     @property
     def obs(self):
         return OrderedDict([[o.name,o] for o in self.obslist if o.name])
-    @property
-    def samplesetlist(self):
-        return self._samplesetlist
+    #@property
+    #def samplesetlist(self):
+    #    return self._samplesetlist
     @property
     def sampleset(self):
         return OrderedDict([[s.name,s] for s in self.samplesetlist if s.name])
