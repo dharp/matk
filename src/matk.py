@@ -58,12 +58,11 @@ class matk(object):
             else:
                 print k + ' is not a valid argument'
       
-        #self._parlist = []
-        #self._obslist = []
-        #self._samplesetlist = []
+        self._obslist = []
+        self._samplesetlist = []
         self.pars = OrderedDict()
-        self.obs = OrderedDict()
-        self.sampleset = OrderedDict()
+        #self.obs = OrderedDict()
+        #self.sampleset = OrderedDict()
         self.workdir_index = 0
     @property
     def model(self):
@@ -165,21 +164,15 @@ class matk(object):
     @seed.setter
     def seed(self,value):
         self._seed = value
-    #@property
-    #def parlist(self):
-    #    return self._parlist
     @property
-    def par(self):
-        return OrderedDict([[p.name,p] for p in self.parlist if p.name])
-    #@property
-    #def obslist(self):
-    #    return self._obslist
+    def obslist(self):
+        return self._obslist
     @property
     def obs(self):
         return OrderedDict([[o.name,o] for o in self.obslist if o.name])
-    #@property
-    #def samplesetlist(self):
-    #    return self._samplesetlist
+    @property
+    def samplesetlist(self):
+        return self._samplesetlist
     @property
     def sampleset(self):
         return OrderedDict([[s.name,s] for s in self.samplesetlist if s.name])
@@ -190,12 +183,10 @@ class matk(object):
             :type name: str
             :param kwargs: keyword arguments passed to parameter class
         """
-        if name in self.par: 
-            for i in range(len(self.parlist)):
-                if self.parlist[i].name == name:
-                    del self.parlist[i]
-                    break
-        self.parlist.append(Parameter(name,**kwargs))
+        if name in self.pars: 
+            self.par[name] = Parameter(name,**kwargs)
+        else:
+            self.pars.__setitem__( name, Parameter(name,**kwargs))
     def add_obs(self,name,**kwargs):
         """ Add observation to problem
             
@@ -224,7 +215,7 @@ class matk(object):
         if not isinstance( samples, (list,numpy.ndarray)):
             print "Error: Parameter samples are not a list or ndarray"
             return 1
-        npar = len(self.parlist)
+        npar = len(self.pars)
         # If list, convert to ndarray
         if isinstance( samples, list ):
             samples = numpy.array(samples)
@@ -237,7 +228,7 @@ class matk(object):
                 if self.samplesetlist[i].name == name:
                     del self.samplesetlist[i]
                     break
-        if len(self.parlist) > 0:
+        if len(self.pars) > 0:
             parnames = self.get_par_names()
         else:
             parnames = None
@@ -325,37 +316,34 @@ class matk(object):
             print "Warning: dictionary arg will overide keyword args"
         if len(args) > 0:
             if isinstance( args[0], dict ):
-                pardict = self.par
                 for k,v in args[0].iteritems():
-                    pardict[k].value = v
+                    self.pars[k].value = v
             elif isinstance( args[0], (list,tuple,numpy.ndarray)):
                 if isinstance( args[0], (list,tuple)):
-                    if not len(args[0]) == len(self.parlist): 
+                    if not len(args[0]) == len(self.pars): 
                         print "Error: Number of parameter values in list or tuple does not match created parameters"
                         return
                 elif isinstance( args[0], numpy.ndarray ):
-                    if not args[0].shape[0] == len(self.parlist): 
+                    if not args[0].shape[0] == len(self.pars): 
                         print "Error: Number of parameter values in ndarray does not match created parameters"
                         return
-                i = 0
-                for v in args[0]:
-                    self.parlist[i].value = v
-                    i += 1
+                for v,k in zip(args[0],self.pars.keys()):
+                    self.pars[k].value = v
         else:
             for k,v in kwargs.iteritems():
-                self.par[k].value = v
+                self.pars[k].value = v
     def get_par_values(self):
         """ Get parameter values
         """
-        return [par.value for par in self.parlist]
+        return [par.value for k,par in self.pars.items()]
     def get_par_names(self):
         """ Get parameter names
         """
-        return [par.name for par in self.parlist]
+        return [par.name for k,par in self.pars.items()]
     def get_par_nvals(self):
         """ Get parameter nvals (number of values for parameter studies)
         """
-        return [par.nval for par in self.parlist]
+        return [par.nval for k,par in self.pars.items()]
     def get_obs_values(self):
         """ Get observation values
         """
@@ -371,19 +359,19 @@ class matk(object):
     def get_par_mins(self):
         """ Get parameter lower bounds
         """
-        return [par.min for par in self.parlist]
+        return [par.min for k,par in self.pars.items()]
     def get_par_maxs(self):
         """ Get parameter lower bounds
         """
-        return [par.max for par in self.parlist]
+        return [par.max for k,par in self.pars.items()]
     def get_par_dists(self):
         """ Get parameter probabilistic distributions
         """
-        return [par.dist for par in self.parlist]
+        return [par.dist for k,par in self.pars.items()]
     def get_par_dist_pars(self):
         """ Get parameters needed by parameter distributions
         """
-        return [par.dist_pars for par in self.parlist]
+        return [par.dist_pars for k,par in self.pars.items()]
     def __iter__(self):
         return self
     def make_workdir(self, workdir=None, reuse_dirs=False):
@@ -431,7 +419,7 @@ class matk(object):
             curdir = None
         if hasattr( self.model, '__call__' ):
             if pardict is None:
-                pardict = dict([(par.name,par.value) for par in self.parlist])
+                pardict = dict([(par.name,par.value) for k,par in self.pars.items()])
             if self.model_args is None and self.model_kwargs is None:
                 sims = self.model( pardict )
             elif not self.model_args is None and self.model_kwargs is None:
@@ -464,20 +452,19 @@ class matk(object):
             return
             
         def residual(params, prob):
-            nm = [params[p.name].name for p in prob.parlist]
-            vs = [params[p.name].value for p in prob.parlist]
+            nm = [params[p.name].name for k,p in prob.pars.items()]
+            vs = [params[p.name].value for k,p in prob.pars.items()]
             prob.forward(pardict=dict(zip(nm,vs)),workdir=workdir,reuse_dirs=reuse_dirs)
             return prob.get_residuals()
             
         # Create lmfit parameter object
         params = lmfit.Parameters()
-        #[pars.add(p.name,value=p.value,vary=p.vary,min=p.min,max=p.max,expr=p.expr) for p in self.parlist]
-        for p in self.parlist:
+        for k,p in self.pars.items():
             params.add(p.name,value=p.value,vary=p.vary,min=p.min,max=p.max,expr=p.expr) 
 
         out = lmfit.minimize(residual, params, args=(self,))
-        nm = [params[p.name].name for p in self.parlist]
-        vs = [params[p.name].value for p in self.parlist]
+        nm = [params[p.name].name for k,p in self.pars.items()]
+        vs = [params[p.name].value for k,p in self.pars.items()]
         self.set_par_values( dict(zip(nm,vs)))
 
         if report_fit:
@@ -764,30 +751,29 @@ class matk(object):
             print "Warning: dictionary arg will overide keyword args"
         if len(args) > 0:
             if isinstance( args[0], dict ):
-                pardict = self.par
                 for k,v in args[0].iteritems():
-                    pardict[k].nvals = v
+                    self.pars[k].nvals = v
             elif isinstance( args[0], (list,tuple,numpy.ndarray)):
                 if isinstance( args[0], (list,tuple)):
-                    if not len(args[0]) == len(self.parlist): 
+                    if not len(args[0]) == len(self.pars): 
                         print "Error: Number of values in list or tuple does not match created parameters"
                         return
                 elif isinstance( args[0], numpy.ndarray ):
-                    if not args[0].shape[0] == len(self.parlist): 
+                    if not args[0].shape[0] == len(self.pars): 
                         print "Error: Number of values in ndarray does not match created parameters"
                         return
                 i = 0
-                for v in args[0]:
-                    self.parlist[i].nvals = v
+                for v,k in zip(args[0],self.pars.keys()):
+                    self.pars[k].nvals = v
                     i += 1
         else:
             for k,v in kwargs.iteritems():
                 if not k == 'outfile':
-                    self.par[k].nvals = v
+                    self.pars[k].nvals = v
 
 
         x = []
-        for p in self.parlist:
+        for k,p in self.pars.items():
             if p.nvals == 1 or not p.vary:
                 x.append(numpy.linspace(p.value, p.max, p.nvals))
             elif p.nvals > 1:
@@ -833,8 +819,6 @@ class matk(object):
                 for i in range(1,len(row)):
                     f.write("%16lf" % row[i] )
                 f.write('\n')
-
-
             #numpy.savetxt(f, x, fmt='%16lf')
             f.close()
 
