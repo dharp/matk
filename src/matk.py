@@ -196,7 +196,7 @@ class matk(object):
             
             :param name: Name of sample set
             :type name: str
-            :param samples: Matrix of parameter samples with npar columns in order of [p.name for p in matkobj.parlist] 
+            :param samples: Matrix of parameter samples with npar columns in order of matk.pars.keys()
             :type samples: list(fl64),ndarray(fl64)
             :param responses: Matrix of associated responses with nobs columns in order matk.obs.keys() if observation exists (existence of observations is not required) 
             :type responses: list(fl64),ndarray(fl64)
@@ -322,15 +322,15 @@ class matk(object):
     def get_par_values(self):
         """ Get parameter values
         """
-        return [par.value for k,par in self.pars.items()]
+        return [par.value for par in self.pars.values()]
     def get_par_names(self):
         """ Get parameter names
         """
-        return [par.name for k,par in self.pars.items()]
+        return [par.name for par in self.pars.values()]
     def get_par_nvals(self):
         """ Get parameter nvals (number of values for parameter studies)
         """
-        return [par.nval for k,par in self.pars.items()]
+        return [par.nval for par in self.pars.values()]
     def get_obs_values(self):
         """ Get observation values
         """
@@ -346,19 +346,19 @@ class matk(object):
     def get_par_mins(self):
         """ Get parameter lower bounds
         """
-        return [par.min for k,par in self.pars.items()]
+        return [par.min for par in self.pars.values()]
     def get_par_maxs(self):
         """ Get parameter lower bounds
         """
-        return [par.max for k,par in self.pars.items()]
+        return [par.max for par in self.pars.values()]
     def get_par_dists(self):
         """ Get parameter probabilistic distributions
         """
-        return [par.dist for k,par in self.pars.items()]
+        return [par.dist for par in self.pars.values()]
     def get_par_dist_pars(self):
         """ Get parameters needed by parameter distributions
         """
-        return [par.dist_pars for k,par in self.pars.items()]
+        return [par.dist_pars for par in self.pars.values()]
     def __iter__(self):
         return self
     def make_workdir(self, workdir=None, reuse_dirs=False):
@@ -406,7 +406,7 @@ class matk(object):
             curdir = None
         if hasattr( self.model, '__call__' ):
             if pardict is None:
-                pardict = dict([(par.name,par.value) for k,par in self.pars.items()])
+                pardict = dict([(k,par.value) for k,par in self.pars.items()])
             if self.model_args is None and self.model_kwargs is None:
                 sims = self.model( pardict )
             elif not self.model_args is None and self.model_kwargs is None:
@@ -447,11 +447,13 @@ class matk(object):
         # Create lmfit parameter object
         params = lmfit.Parameters()
         for k,p in self.pars.items():
-            params.add(p.name,value=p.value,vary=p.vary,min=p.min,max=p.max,expr=p.expr) 
+            params.add(k,value=p.value,vary=p.vary,min=p.min,max=p.max,expr=p.expr) 
 
         out = lmfit.minimize(residual, params, args=(self,))
-        nm = [params[p.name].name for k,p in self.pars.items()]
-        vs = [params[p.name].value for k,p in self.pars.items()]
+
+        # Make sure that self.pars are set to final values of params
+        nm = [params[k].name for k in self.pars.keys()]
+        vs = [params[k].value for k in self.pars.keys()]
         self.set_par_values( dict(zip(nm,vs)))
 
         if report_fit:
@@ -723,7 +725,7 @@ class matk(object):
         :type name: str
         :param outfile: Name of file where samples will be written. If outfile=None, no file is written.
         :type outfile: str
-        :param *args: Number of values for each parameter. The order is expected to match order of matk.parlist (e.g. [p.name for p in matk.parlist])
+        :param *args: Number of values for each parameter. The order is expected to match order of matk.pars.keys()
         :type *args: tuple(fl64), list(fl64), or ndarray(fl64)
         :param **kwargs: keyword arguments where keyword is the parameter name and argument is the number of desired values
         :type **kwargs: dict(fl64)
