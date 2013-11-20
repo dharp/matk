@@ -58,10 +58,9 @@ class matk(object):
             else:
                 print k + ' is not a valid argument'
       
-        self._obslist = []
         self._samplesetlist = []
         self.pars = OrderedDict()
-        #self.obs = OrderedDict()
+        self.obs = OrderedDict()
         #self.sampleset = OrderedDict()
         self.workdir_index = 0
     @property
@@ -165,12 +164,6 @@ class matk(object):
     def seed(self,value):
         self._seed = value
     @property
-    def obslist(self):
-        return self._obslist
-    @property
-    def obs(self):
-        return OrderedDict([[o.name,o] for o in self.obslist if o.name])
-    @property
     def samplesetlist(self):
         return self._samplesetlist
     @property
@@ -195,11 +188,9 @@ class matk(object):
             :param kwargs: keyword arguments passed to observation class
         """
         if name in self.obs: 
-            for i in range(len(self.obslist)):
-                if self.obslist[i].name == name:
-                    del self.obslist[i]
-                    break
-        self.obslist.append(Observation(name,**kwargs))
+            self.obs[name] = Observation(name,**kwargs)
+        else:
+            self.obs.__setitem__( name, Observation(name,**kwargs))
     def add_sampleset(self,name,samples,responses=None,indices=None,index_start=1):
         """ Add sample set to problem
             
@@ -207,7 +198,7 @@ class matk(object):
             :type name: str
             :param samples: Matrix of parameter samples with npar columns in order of [p.name for p in matkobj.parlist] 
             :type samples: list(fl64),ndarray(fl64)
-            :param responses: Matrix of associated responses with nobs columns in order of [o.name for o in matkobj.obslist] if observation exists (existence of observations is not required) 
+            :param responses: Matrix of associated responses with nobs columns in order matk.obs.keys() if observation exists (existence of observations is not required) 
             :type responses: list(fl64),ndarray(fl64)
             :param indices: Sample indices to use when creating working directories and output files
             :type indices: list(int),ndarray(int)
@@ -232,7 +223,7 @@ class matk(object):
             parnames = self.get_par_names()
         else:
             parnames = None
-        if len(self.obslist) > 0:
+        if len(self.obs) > 0:
             obsnames = self.get_obs_names()
         else:
             obsnames = None
@@ -240,9 +231,9 @@ class matk(object):
                                            parnames=parnames, obsnames=obsnames))
     def get_sims(self):
         """ Get the current simulated values
-            :returns: lst(fl64) -- simulated values in order of matk.obslist
+            :returns: lst(fl64) -- simulated values in order of matk.obs.keys()
         """
-        return [obs.sim for obs in self.obslist]
+        return [obs.sim for obs in self.obs.values()]
     def set_obs_values(self, *args, **kwargs):
         """ Set simulated values using a dictionary or keyword arguments
         """
@@ -250,30 +241,28 @@ class matk(object):
             print "Warning: dictionary arg will overide keyword args"
         if len(args) > 0:
             if isinstance( args[0], dict ):
-                obsdict = self.obs
                 for k,v in args[0].iteritems():
-                    if k in obsdict:
-                        obsdict[k].value = v
+                    if k in self.obs:
+                        self.obs[k].value = v
                     else:
                         self.add_obs( k, value=v ) 
             elif isinstance( args[0], (list,tuple,numpy.ndarray) ):
                 # If no observations exist, create them
-                if len(self.obslist) == 0:
+                if len(self.obs) == 0:
                     for i,v in zip(range(len(args[0]),args[0])): 
                         self.add_obs('obs'+str(i),value=v)
                 # else, check if length of args[0] is equal to number created observation
-                elif not len(args[0]) == len(self.obslist): 
+                elif not len(args[0]) == len(self.obs): 
                         print "Error: Number of simulated values does not match created observations"
                         return
                     # else, set observation values in order
                 else:
-                    for i,v in zip(range(len(args[0])),args[0]):
-                        self.obslist[i].value = v
+                    for k,v in zip(self.obs.keys(),args[0]):
+                        self.obs[k].value = v
         else:
-            obsdict = self.obs
             for k,v in kwargs.iteritems():
-                if k in obsdict:
-                    obsdict[k].value = v
+                if k in self.obs:
+                    self.obs[k].value = v
                 else:
                     self.add_obs( k, value=v ) 
     def _set_sims(self, *args, **kwargs):
@@ -283,30 +272,28 @@ class matk(object):
             print "Warning: dictionary arg will overide keyword args"
         if len(args) > 0:
             if isinstance( args[0], dict ):
-                obsdict = self.obs
                 for k,v in args[0].iteritems():
-                    if k in obsdict:
-                        obsdict[k].sim = v
+                    if k in self.obs:
+                        self.obs[k].sim = v
                     else:
                         self.add_obs( k, sim=v ) 
             elif isinstance( args[0], (list,tuple,numpy.ndarray) ):
                 if isinstance( args[0], (list,tuple) ):
-                    if not len(args[0]) == len(self.obslist): 
+                    if not len(args[0]) == len(self.obs): 
                         print "Error: Number of simulated values in list or tuple does not match created observations"
                         return
                 elif isinstance( args[0], numpy.ndarray ):
-                    if not args[0].shape[0] == len(self.obslist): 
+                    if not args[0].shape[0] == len(self.obs): 
                         print "Error: Number of simulated values in ndarray does not match created observations"
                         return
                 i = 0
-                for v in args[0]:
-                    self.obslist[i].sim = v
+                for k,v in zip(self.obs.keys(),args[0]):
+                    self.obs[k].sim = v
                     i += 1
         else:
-            obsdict = self.obs
             for k,v in kwargs.iteritems():
-                if k in obsdict:
-                    obsdict[k].sim = v
+                if k in self.obs:
+                    self.obs[k].sim = v
                 else:
                     self.add_obs( k, sim=v ) 
     def set_par_values(self,*args, **kwargs):
@@ -347,15 +334,15 @@ class matk(object):
     def get_obs_values(self):
         """ Get observation values
         """
-        return [o.value for o in self.obslist]
+        return [o.value for o in self.obs.values()]
     def get_obs_names(self):
         """ Get observation names
         """
-        return [o.name for o in self.obslist]
+        return [o.name for o in self.obs.values()]
     def get_residuals(self):
         """ Get least squares values
         """
-        return [o.residual for o in self.obslist]
+        return [o.residual for o in self.obs.values()]
     def get_par_mins(self):
         """ Get parameter lower bounds
         """
