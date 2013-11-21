@@ -505,8 +505,12 @@ class matk(object):
             :returns: tuple(ndarray(fl64),ndarray(fl64)) - (Matrix of responses from sampled model runs siz rows by npar columns, Parameter samples, same as input samples if provided)
             
         """
-        if name == None and len(self.sampleset) == 1:
-            name = self.sampleset[0].name
+        # If name is None, run last created sampleset 
+        if name is None:
+            name = next(reversed(self.sampleset)).name
+        elif len(self.sampleset) == 0:
+            print "Error: There is not a sampleset to run"
+            return
         if templatedir:
             self.templatedir = templatedir
         if workdir_base:
