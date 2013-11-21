@@ -58,10 +58,9 @@ class matk(object):
             else:
                 print k + ' is not a valid argument'
       
-        self._samplesetlist = []
         self.pars = OrderedDict()
         self.obs = OrderedDict()
-        #self.sampleset = OrderedDict()
+        self.sampleset = OrderedDict()
         self.workdir_index = 0
     @property
     def model(self):
@@ -163,12 +162,6 @@ class matk(object):
     @seed.setter
     def seed(self,value):
         self._seed = value
-    @property
-    def samplesetlist(self):
-        return self._samplesetlist
-    @property
-    def sampleset(self):
-        return OrderedDict([[s.name,s] for s in self.samplesetlist if s.name])
     def add_par(self, name, **kwargs):
         """ Add parameter to problem
 
@@ -213,12 +206,6 @@ class matk(object):
         if not samples.shape[1] == npar:
             print "Error: The number of columns in sample is not equal to the number of parameters in the problem"
             return 1
-        # Delete old sampleset with same name if it exists
-        if name in self.sampleset: 
-            for i in range(len(self.samplesetlist)):
-                if self.samplesetlist[i].name == name:
-                    del self.samplesetlist[i]
-                    break
         if len(self.pars) > 0:
             parnames = self.get_par_names()
         else:
@@ -227,8 +214,14 @@ class matk(object):
             obsnames = self.get_obs_names()
         else:
             obsnames = None
-        self.samplesetlist.append(SampleSet(name,samples,responses=responses,indices=indices,index_start=index_start,
-                                           parnames=parnames, obsnames=obsnames))
+        if name in self.sampleset: 
+            self.sampleset[name] = SampleSet(name,samples,responses=responses,
+                                             indices=indices,index_start=index_start,
+                                             parnames=parnames, obsnames=obsnames)
+        else:
+            self.sampleset.__setitem__( name, SampleSet(name,samples,responses=responses,
+                                                indices=indices,index_start=index_start,
+                                                parnames=parnames, obsnames=obsnames))
     def get_sims(self):
         """ Get the current simulated values
             :returns: lst(fl64) -- simulated values in order of matk.obs.keys()
