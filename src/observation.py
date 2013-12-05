@@ -2,17 +2,18 @@ class Observation(object):
     """ MATK observation class
     """
     def __init__(self, name, **kwargs):
-        self.name = name
-        self.value = None
-        self.sim = None
-        self.residual = None
+        self._name = name
+        self._value = None
+        self._sim = None
+        self._residual = None
+        self._weight = 1.0
         for k,v in kwargs.iteritems():
             if k == 'weight':
-                self.weight = v
+                self._weight = v
             elif k == 'value':
-                self.value = v
+                self._value = v
             elif k == 'sim':
-                self.sim = v
+                self._sim = v
             else:
                 print k + ' is not a valid argument'
     @property

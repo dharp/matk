@@ -38,19 +38,16 @@ for i in range(len(data)):
 
 # Look at initial fit
 p.forward()
-sims = p.get_sims()
 plt.plot(x,data, 'k+')
-plt.plot(x,sims, 'r')
+plt.plot(x,p.get_sims(), 'r')
 plt.title("Before Calibration")
 plt.show(block=True)
 
 # Calibrate parameters to data, results are printed to screen
-p.calibrate()
+p.calibrate(solver='lmfit')
 
 # Look at calibrated fit
-p.forward()
-sims = p.get_sims()
 plt.plot(x,data, 'k+')
-plt.plot(x,sims, 'r')
+plt.plot(x,p.get_sims(), 'r')
 plt.title("After Calibration")
 plt.show()

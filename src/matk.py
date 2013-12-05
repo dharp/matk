@@ -242,7 +242,7 @@ class matk(object):
             elif isinstance( args[0], (list,tuple,numpy.ndarray) ):
                 # If no observations exist, create them
                 if len(self.obs) == 0:
-                    for i,v in zip(range(len(args[0]),args[0])): 
+                    for i,v in zip(range(len(args[0])),args[0]): 
                         self.add_obs('obs'+str(i),value=v)
                 # else, check if length of args[0] is equal to number created observation
                 elif not len(args[0]) == len(self.obs): 
@@ -271,18 +271,16 @@ class matk(object):
                     else:
                         self.add_obs( k, sim=v ) 
             elif isinstance( args[0], (list,tuple,numpy.ndarray) ):
-                if isinstance( args[0], (list,tuple) ):
-                    if not len(args[0]) == len(self.obs): 
-                        print "Error: Number of simulated values in list or tuple does not match created observations"
-                        return
-                elif isinstance( args[0], numpy.ndarray ):
-                    if not args[0].shape[0] == len(self.obs): 
-                        print "Error: Number of simulated values in ndarray does not match created observations"
-                        return
-                i = 0
-                for k,v in zip(self.obs.keys(),args[0]):
-                    self.obs[k].sim = v
-                    i += 1
+                # If no observations exist, create them
+                if len(self.obs) == 0:
+                    for i,v in zip(range(len(args[0])),args[0]): 
+                        self.add_obs('obs'+str(i),sim=v)
+                elif not len(args[0]) == len(self.obs): 
+                    print "Error: Number of simulated values in list or tuple does not match created observations"
+                    return
+                else:
+                    for k,v in zip(self.obs.keys(),args[0]):
+                        self.obs[k].sim = v
         else:
             for k,v in kwargs.iteritems():
                 if k in self.obs:
@@ -332,6 +330,10 @@ class matk(object):
         """ Get observation names
         """
         return [o.name for o in self.obs.values()]
+    def get_obs_weights(self):
+        """ Get observation names
+        """
+        return [o.weight for o in self.obs.values()]
     def get_residuals(self):
         """ Get least squares values
         """
@@ -415,7 +417,7 @@ class matk(object):
         if not curdir is None:
             os.chdir( curdir )
         return 0
-    def calibrate(self,workdir=None,reuse_dirs=False,report_fit=True):
+    def calibrate(self,workdir=None,reuse_dirs=False,report_fit=True,solver='lmfit'):
         """ Calibrate MATK model
 
             :param workdir: Name of directory where model will be run. It will be created if it does not exist
@@ -426,33 +428,81 @@ class matk(object):
             :type report_fit: bool
             :returns: lmfit minimizer object
         """
-        try: import lmfit
-        except ImportError as exc:
-            sys.stderr.write("Warning: failed to import lmfit module. ({})".format(exc))
-            return
-            
-        def residual(params, prob):
-            nm = [params[p.name].name for k,p in prob.pars.items()]
-            vs = [params[p.name].value for k,p in prob.pars.items()]
-            prob.forward(pardict=dict(zip(nm,vs)),workdir=workdir,reuse_dirs=reuse_dirs)
-            return prob.get_residuals()
-            
-        # Create lmfit parameter object
-        params = lmfit.Parameters()
-        for k,p in self.pars.items():
-            params.add(k,value=p.value,vary=p.vary,min=p.min,max=p.max,expr=p.expr) 
+           
+        if solver is 'lmfit':
+            try: import lmfit
+            except ImportError as exc:
+                sys.stderr.write("Warning: failed to import lmfit module. ({})".format(exc))
+                return
+            def residual(params, prob):
+                nm = [params[p.name].name for k,p in prob.pars.items()]
+                vs = [params[p.name].value for k,p in prob.pars.items()]
+                prob.forward(pardict=dict(zip(nm,vs)),workdir=workdir,reuse_dirs=reuse_dirs)
+                return prob.get_residuals()
 
-        out = lmfit.minimize(residual, params, args=(self,))
+            # Create lmfit parameter object
+            params = lmfit.Parameters()
+            for k,p in self.pars.items():
+                params.add(k,value=p.value,vary=p.vary,min=p.min,max=p.max,expr=p.expr) 
 
-        # Make sure that self.pars are set to final values of params
-        nm = [params[k].name for k in self.pars.keys()]
-        vs = [params[k].value for k in self.pars.keys()]
-        self.set_par_values( dict(zip(nm,vs)))
+            out = lmfit.minimize(residual, params, args=(self,))
 
-        if report_fit:
-            print lmfit.report_fit(params)
+            # Make sure that self.pars are set to final values of params
+            nm = [params[k].name for k in self.pars.keys()]
+            vs = [params[k].value for k in self.pars.keys()]
+            self.set_par_values( dict(zip(nm,vs)))
+            # Run forward model to set simulated values
+            self.forward()
 
-        return out
+            if report_fit:
+                print lmfit.report_fit(params)
+
+            return out
+        elif solver is 'levmar':
+            try: import levmar
+            except ImportError as exc:
+                sys.stderr.write("Warning: failed to import levmar module. ({})".format(exc))
+                return
+            def _f(pars, prob):
+                prob = prob[0]
+                nm = [p.name for p in prob.pars.values()]
+                vs = [p._func_value(v) for v,p in zip(pars,prob.pars.values())]
+                print nm,vs
+                prob.forward(pardict=dict(zip(nm,vs)),workdir=workdir,reuse_dirs=reuse_dirs)
+                return prob.get_sims()
+            vs = [p.calib_value for p in self.pars.values()]
+            meas = self.get_obs_values()
+            out = levmar.leastsq(_f, vs, meas, args=(self,), Dfun=None, max_iter=1000, full_output=1)
+            return out
+        elif solver is 'default':
+            import matk_lm
+            def residual(params, prob):
+                nm = [p.name for k,p in prob.pars.items()]
+                vs = [p._func_value(v) for v,p in zip(pars,prob.pars.values())]
+                prob.forward(pardict=dict(zip(nm,vs)),workdir=workdir,reuse_dirs=reuse_dirs)
+                return prob.get_residuals()
+            vs = [p.calib_value for p in self.pars.values()]
+            out = matk_lm.marquardt( self.get_obs_values(), self.get_obs_weights(),residual,matk_lm.Jv,self.get_par_values())
+
+    def J(self, h=1.0e-3):
+        """ Calculate Jacobian matrix
+        """
+        a = self.get_par_values()
+        # Collect parameter sets
+        a_ls = [] # Parameter sets with parameters values reduced by h
+        a_us = [] # Parameter sets with parameters values increased by h
+        for i in range(len(a)):
+            a[i] -= h
+            a_ls.append(np.copy(a))
+            a[i] += 2*h
+            a_us.append(np.copy(a))
+            a[i] -= h
+        # Perform simulations on parameter sets
+        J = []
+        for a_l,a_u in zip(a_ls,a_us):
+            J.append((fv(a_l)-fv(a_u))/(2*h))
+        return np.array(J).T
+ 
     def set_lhs_samples(self, name, siz=None, noCorrRestr=False, corrmat=None, seed=None, index_start=1):
         """ Draw lhs samples of parameter values from scipy.stats module distribution
         
@@ -538,6 +588,7 @@ class matk(object):
             print 'Error: number of cpus (ncpus) must be greater than zero'
             return
         self.sampleset[name].responses = out 
+        return out
     def parallel(self, ncpus, par_sets, templatedir=None, workdir_base=None, save=True,
                 reuse_dirs=False, indices=None):
  
@@ -807,5 +858,42 @@ class matk(object):
                 f.write('\n')
             #numpy.savetxt(f, x, fmt='%16lf')
             f.close()
+    def Jac( self, h=1.e-3, ncpus=1, templatedir=None, workdir_base=None,
+                    save=True, reuse_dirs=False ):
+        ''' Numerical Jacobian calculation
+
+            :param h: Parameter increment, single value or array with npar values
+            :type h: fl64 or ndarray(fl64)
+            :returns: ndarray(fl64) -- Jacobian matrix
+        '''
+        # Collect parameter sets
+        a = numpy.array(self.get_par_values())
+        if isinstance(h, (tuple,list)):
+            h = numpy.array(h)
+        elif not isinstance(h, numpy.ndarray):
+            h = numpy.ones(len(a))*h
+        hlmat = numpy.identity(len(self.pars))*-h
+        humat = numpy.identity(len(self.pars))*h
+        hmat = numpy.concatenate([hlmat,humat])
+        parset = []
+        for hs in hmat:
+            parset.append(hs+a)
+        parset = numpy.array(parset)
+        self.add_sampleset('_jac_',parset)
+
+        self.run_samples(name='_jac_', ncpus=ncpus, templatedir=templatedir, workdir_base=workdir_base, save=save, reuse_dirs=reuse_dirs )
+        # Perform simulations on parameter sets
+        obs = self.sampleset['_jac_'].responses
+        a_ls = obs[0:len(a)]
+        a_us = obs[len(a):]
+        J = []
+        for a_l,a_u,hs in zip(a_ls,a_us,h):
+            J.append((a_l-a_u)/(2*hs))
+        self.set_par_values(a)
+
+        return numpy.array(J).T
+    
+
+
 
 

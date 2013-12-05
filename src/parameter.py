@@ -1,23 +1,25 @@
+import numpy
+
 class Parameter(object):
     """ MATK parameter class
     """
     def __init__(self, name, **kwargs):
-        self.name = name
-        self.valuelist = []
-        self.value = None
-        self.min = None
-        self.max = None
-        self.mean = None
-        self.std = None
-        self.trans = 'none'
-        self.scale = 1.0
-        self.offset = 0.0
-        self.parchglim = None
-        self.pargrpnm = 'default'
-        self.dist = ''
-        self.nvals = 2
-        self.vary = True
-        self.expr = None
+        self._name = name
+        self._valuelist = []
+        self._value = None
+        self._min = None
+        self._max = None
+        self._mean = None
+        self._std = None
+        self._trans = 'none'
+        self._scale = 1.0
+        self._offset = 0.0
+        self._parchglim = None
+        self._pargrpnm = 'default'
+        self._dist = ''
+        self._nvals = 2
+        self._vary = True
+        self._expr = None
         for k,v in kwargs.iteritems():
             if k == 'value':
                 self.value = float(v)
@@ -123,7 +125,7 @@ class Parameter(object):
     def value(self,value):
         self._value = value
         if not self.value is None:
-            self.valuelist.append(self.value)
+            self._valuelist.append(self.value)
     @property
     def scale(self):
         """ Scale factor to multiply parameter by
@@ -188,3 +190,43 @@ class Parameter(object):
     @expr.setter
     def expr(self,value):
         self._expr = value              
+    @property
+    def calib_value(self):
+        """set up Minuit-style internal/external parameter transformation
+        of min/max bounds.
+
+        returns internal value for parameter from self.value (which holds
+        the external, user-expected value).   This internal values should
+        actually be used in a fit....
+
+        As a side-effect, this also defines the self.from_internal method
+        used to re-calculate self.value from the internal value, applying
+        the inverse Minuit-style transformation.  This method should be
+        called prior to passing a Parameter to the user-defined objective
+        function.
+
+        This code borrows heavily from lmfit, which borrows heavily from
+        JJ Helmus' leastsqbound.py
+        """
+        try:
+            self._min
+            self._max
+        except NameError: pass
+        else:
+            if self._min in (None, -numpy.inf) and self._max in (None, numpy.inf):
+                self._func_value = lambda val: val
+                self._calib_value =  self._value 
+            elif self._max in (None, numpy.inf):
+                self._func_value = lambda val: numpy.sqrt((val - self.min + 1)**2 - 1)
+                self._calib_value = self._min - 1 + numpy.sqrt(self._value*self._value + 1)
+            elif self._min in (None, -numpy.inf):
+                self._func_value = lambda val: numpy.sqrt((self.max - val + 1)**2 - 1)
+                self._calib_value = self._max + 1 - numpy.sqrt(self._value*self._value + 1)
+            else:
+                self._func_value = lambda val: numpy.arcsin(2*(val - self.min)/(self.max - self.min) - 1)
+                self._calib_value = self._min + (numpy.sin(self._value) + 1) * (self._max - self._min) / 2 
+
+            return self._calib_value 
+             
+
+
