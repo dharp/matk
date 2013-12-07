@@ -5,6 +5,16 @@ from exp_model_int import dbexpl
 from sine_decay_model import sine_decay
 import numpy
 
+def fv(a):
+    ''' Exponential function from marquardt.py
+    '''
+    a0 = a['a0']
+    a1 = a['a1']
+    a2 = a['a2']
+    X = numpy.array([1.,2.,3.,4.,5.,6.,7.,8.,9.,10.,11.,12.])
+    out = a0 / (1. + a1 * numpy.exp( X * a2))
+    return out 
+
 class Tests(unittest.TestCase):
 
     def setUp(self):
@@ -25,6 +35,11 @@ class Tests(unittest.TestCase):
         self.c.forward()
         self.c.set_obs_values(self.c.get_sims())
         self.c.set_par_values(amp=10.,decay=0.1,shift=0.,omega=3.0)
+        # Model for testing jacobian
+        self.j = matk.matk(model=fv)
+        self.j.add_par('a0', value=0.7)
+        self.j.add_par('a1', value=10.)
+        self.j.add_par('a2', value=-0.4)
 
     def forward(self):
         self.p.forward()
@@ -100,6 +115,12 @@ class Tests(unittest.TestCase):
         of = numpy.sum(self.c.get_residuals())
         self.assertTrue( of < 1.e-12, 'Objective function value is ' + str(of) )
 
+    def jacobian(self):
+        # Check condition number
+        J = self.j.Jac()
+        C = numpy.linalg.cond(J)
+        self.assertEqual(C.round(16) , 225.6849012361745395, 'Condition number of Jacobian is incorrect')
+        
 def suite(case):
     suite = unittest.TestSuite()
     suite.addTest( Tests('setUp') )
@@ -108,6 +129,7 @@ def suite(case):
         suite.addTest( Tests('sample') )
         suite.addTest( Tests('parstudy') )
         suite.addTest( Tests('calibrate') )
+        suite.addTest( Tests('jacobian') )
     if case == 'parallel' or case == 'all':
         suite.addTest( Tests('parallel') )
         suite.addTest( Tests('parallel_workdir') )

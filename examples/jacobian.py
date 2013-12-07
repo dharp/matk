@@ -20,3 +20,5 @@ p.add_par('a1', value=10.)
 p.add_par('a2', value=-0.4)
 
 J = p.Jac()
+
+print np.dot(J.T,J)
