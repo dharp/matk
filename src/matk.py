@@ -207,11 +207,11 @@ class matk(object):
             print "Error: The number of columns in sample is not equal to the number of parameters in the problem"
             return 1
         if len(self.pars) > 0:
-            parnames = self.get_par_names()
+            parnames = self.par_names()
         else:
             parnames = None
         if len(self.obs) > 0:
-            obsnames = self.get_obs_names()
+            obsnames = self.obs_names()
         else:
             obsnames = None
         if name in self.sampleset: 
@@ -222,7 +222,7 @@ class matk(object):
             self.sampleset.__setitem__( name, SampleSet(name,samples,responses=responses,
                                                 indices=indices,index_start=index_start,
                                                 parnames=parnames, obsnames=obsnames))
-    def get_sims(self):
+    def sim_values(self):
         """ Get the current simulated values
             :returns: lst(fl64) -- simulated values in order of matk.obs.keys()
         """
@@ -310,47 +310,47 @@ class matk(object):
         else:
             for k,v in kwargs.iteritems():
                 self.pars[k].value = v
-    def get_par_values(self):
+    def par_values(self):
         """ Get parameter values
         """
         return [par.value for par in self.pars.values()]
-    def get_par_names(self):
+    def par_names(self):
         """ Get parameter names
         """
         return [par.name for par in self.pars.values()]
-    def get_par_nvals(self):
+    def par_nvals(self):
         """ Get parameter nvals (number of values for parameter studies)
         """
         return [par.nval for par in self.pars.values()]
-    def get_obs_values(self):
+    def obs_values(self):
         """ Get observation values
         """
         return [o.value for o in self.obs.values()]
-    def get_obs_names(self):
+    def obs_names(self):
         """ Get observation names
         """
         return [o.name for o in self.obs.values()]
-    def get_obs_weights(self):
+    def obs_weights(self):
         """ Get observation names
         """
         return [o.weight for o in self.obs.values()]
-    def get_residuals(self):
+    def residuals(self):
         """ Get least squares values
         """
         return [o.residual for o in self.obs.values()]
-    def get_par_mins(self):
+    def par_mins(self):
         """ Get parameter lower bounds
         """
         return [par.min for par in self.pars.values()]
-    def get_par_maxs(self):
+    def par_maxs(self):
         """ Get parameter lower bounds
         """
         return [par.max for par in self.pars.values()]
-    def get_par_dists(self):
+    def par_dists(self):
         """ Get parameter probabilistic distributions
         """
         return [par.dist for par in self.pars.values()]
-    def get_par_dist_pars(self):
+    def par_dist_pars(self):
         """ Get parameters needed by parameter distributions
         """
         return [par.dist_pars for par in self.pars.values()]
@@ -438,7 +438,7 @@ class matk(object):
                 nm = [params[p.name].name for k,p in prob.pars.items()]
                 vs = [params[p.name].value for k,p in prob.pars.items()]
                 prob.forward(pardict=dict(zip(nm,vs)),workdir=workdir,reuse_dirs=reuse_dirs)
-                return prob.get_residuals()
+                return prob.residuals()
 
             # Create lmfit parameter object
             params = lmfit.Parameters()
@@ -469,9 +469,9 @@ class matk(object):
                 vs = [p._func_value(v) for v,p in zip(pars,prob.pars.values())]
                 print nm,vs
                 prob.forward(pardict=dict(zip(nm,vs)),workdir=workdir,reuse_dirs=reuse_dirs)
-                return prob.get_sims()
+                return prob.sim_values()
             vs = [p.calib_value for p in self.pars.values()]
-            meas = self.get_obs_values()
+            meas = self.obs_values()
             out = levmar.leastsq(_f, vs, meas, args=(self,), Dfun=None, max_iter=1000, full_output=1)
             return out
         elif solver is 'default':
@@ -480,14 +480,14 @@ class matk(object):
                 nm = [p.name for k,p in prob.pars.items()]
                 vs = [p._func_value(v) for v,p in zip(pars,prob.pars.values())]
                 prob.forward(pardict=dict(zip(nm,vs)),workdir=workdir,reuse_dirs=reuse_dirs)
-                return prob.get_residuals()
+                return prob.residuals()
             vs = [p.calib_value for p in self.pars.values()]
-            out = matk_lm.marquardt( self.get_obs_values(), self.get_obs_weights(),residual,matk_lm.Jv,self.get_par_values())
+            out = matk_lm.marquardt( self.obs_values(), self.obs_weights(),residual,matk_lm.Jv,self.par_values())
 
     def J(self, h=1.0e-3):
         """ Calculate Jacobian matrix
         """
-        a = self.get_par_values()
+        a = self.par_values()
         # Collect parameter sets
         a_ls = [] # Parameter sets with parameters values reduced by h
         a_us = [] # Parameter sets with parameters values increased by h
@@ -530,9 +530,9 @@ class matk(object):
             siz = self.sample_size
         # Take distribution keyword and convert to scipy.stats distribution object
         dists = []
-        for dist in self.get_par_dists():
+        for dist in self.par_dists():
             eval( 'dists.append(stats.' + dist + ')' )
-        dist_pars = self.get_par_dist_pars()
+        dist_pars = self.par_dist_pars()
         x = lhs(dists, dist_pars, siz=siz, noCorrRestr=noCorrRestr, corrmat=corrmat, seed=seed)
         self.add_sampleset( name, x, index_start=index_start )
     def run_samples(self, name=None, ncpus=1, templatedir=None, workdir_base=None,
@@ -577,7 +577,7 @@ class matk(object):
                 self.forward(workdir=workdir,reuse_dirs=reuse_dirs)
                 if not save:
                     rmtree( workdir )
-                responses = self.get_sims()
+                responses = self.sim_values()
                 out.append( responses )
             out = numpy.array(out)
         elif ncpus > 1:
@@ -598,7 +598,7 @@ class matk(object):
                 if status:
                     print "Error running forward model for parallel job " + str(prob.workdir_index)
                     os._exit( 0 )
-                out = dict( zip(prob.get_obs_names(),prob.get_sims()) )
+                out = dict( zip(prob.obs_names(),prob.sim_values()) )
                 if self.workdir is None:
                     pickle.dump( out, open(self.results_file, "wb"))
                 else:
@@ -629,7 +629,7 @@ class matk(object):
         for i in range(ncpus):
             self.workdir_index = indices[i]
             set_child( self )
-            pardict = dict(zip(self.get_par_names(), par_sets[i] ) )
+            pardict = dict(zip(self.par_names(), par_sets[i] ) )
             self.set_par_values(pardict)
             pid = os.fork()
             if pid:
@@ -673,7 +673,7 @@ class matk(object):
                         if save is False:
                             os.remove( resfl_dict[rpid] )
                     self._set_sims( out )
-                    responses.append( self.get_sims() )
+                    responses.append( self.sim_values() )
                     res_index.append( ps_index_dict[rpid] )
                     njobs_finished += 1
                     # Start new jobs
@@ -681,7 +681,7 @@ class matk(object):
                         njobs_started += 1
                         self.workdir_index = indices[njobs_started-1]
                         set_child( self )
-                        pardict = dict(zip(self.get_par_names(), par_sets[njobs_started-1] ) )
+                        pardict = dict(zip(self.par_names(), par_sets[njobs_started-1] ) )
                         self.set_par_values(pardict)
                         pid = os.fork()
                         if pid:
@@ -715,7 +715,7 @@ class matk(object):
             if status:
                 print "Error running forward model for parallel job " + str(self.workdir_index)
             else:
-                out_list.put([lst_ind, self.get_sims()])
+                out_list.put([lst_ind, self.sim_values()])
             if not save and not self.workdir is None:
                 rmtree( self.workdir )
             in_queue.task_done()
@@ -842,12 +842,12 @@ class matk(object):
             f = open(outfile, 'w')
             f.write("%-8s" % 'index' )
             # Print par names
-            for nm in self.get_par_names():
+            for nm in self.par_names():
                 f.write(" ")
                 f.write("%15s" % nm )
             # Print obs names if responses exist
             if not self.sampleset[sampleset].responses is None:
-                for nm in self.get_obs_names():
+                for nm in self.obs_names():
                     f.write(" ")
                     f.write("%15s" % nm )
             f.write('\n')
@@ -867,7 +867,7 @@ class matk(object):
             :returns: ndarray(fl64) -- Jacobian matrix
         '''
         # Collect parameter sets
-        a = numpy.array(self.get_par_values())
+        a = numpy.array(self.par_values())
         if isinstance(h, (tuple,list)):
             h = numpy.array(h)
         elif not isinstance(h, numpy.ndarray):
