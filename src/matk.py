@@ -207,11 +207,11 @@ class matk(object):
             print "Error: The number of columns in sample is not equal to the number of parameters in the problem"
             return 1
         if len(self.pars) > 0:
-            parnames = self.par_names()
+            parnames = self.par_names
         else:
             parnames = None
         if len(self.obs) > 0:
-            obsnames = self.obs_names()
+            obsnames = self.obs_names
         else:
             obsnames = None
         if name in self.sampleset: 
@@ -222,44 +222,14 @@ class matk(object):
             self.sampleset.__setitem__( name, SampleSet(name,samples,responses=responses,
                                                 indices=indices,index_start=index_start,
                                                 parnames=parnames, obsnames=obsnames))
+    @property
     def sim_values(self):
-        """ Get the current simulated values
+        """ Simulated values
             :returns: lst(fl64) -- simulated values in order of matk.obs.keys()
         """
         return [obs.sim for obs in self.obs.values()]
-    def set_obs_values(self, *args, **kwargs):
-        """ Set simulated values using a dictionary or keyword arguments
-        """
-        if len(args) > 0 and len(kwargs) > 0:
-            print "Warning: dictionary arg will overide keyword args"
-        if len(args) > 0:
-            if isinstance( args[0], dict ):
-                for k,v in args[0].iteritems():
-                    if k in self.obs:
-                        self.obs[k].value = v
-                    else:
-                        self.add_obs( k, value=v ) 
-            elif isinstance( args[0], (list,tuple,numpy.ndarray) ):
-                # If no observations exist, create them
-                if len(self.obs) == 0:
-                    for i,v in zip(range(len(args[0])),args[0]): 
-                        self.add_obs('obs'+str(i),value=v)
-                # else, check if length of args[0] is equal to number created observation
-                elif not len(args[0]) == len(self.obs): 
-                        print "Error: Number of simulated values does not match created observations"
-                        return
-                    # else, set observation values in order
-                else:
-                    for k,v in zip(self.obs.keys(),args[0]):
-                        self.obs[k].value = v
-        else:
-            for k,v in kwargs.iteritems():
-                if k in self.obs:
-                    self.obs[k].value = v
-                else:
-                    self.add_obs( k, value=v ) 
-    def _set_sims(self, *args, **kwargs):
-        """ Set simulated values using a dictionary or keyword arguments
+    def _set_sim_values(self, *args, **kwargs):
+        """ Set simulated values using a tuple, list, numpy.ndarray, dictionary or keyword arguments
         """
         if len(args) > 0 and len(kwargs) > 0:
             print "Warning: dictionary arg will overide keyword args"
@@ -287,69 +257,97 @@ class matk(object):
                     self.obs[k].sim = v
                 else:
                     self.add_obs( k, sim=v ) 
-    def set_par_values(self,*args, **kwargs):
-        """ Set parameters using values in first argument
-        """
-        if len(args) > 0 and len(kwargs) > 0:
-            print "Warning: dictionary arg will overide keyword args"
-        if len(args) > 0:
-            if isinstance( args[0], dict ):
-                for k,v in args[0].iteritems():
-                    self.pars[k].value = v
-            elif isinstance( args[0], (list,tuple,numpy.ndarray)):
-                if isinstance( args[0], (list,tuple)):
-                    if not len(args[0]) == len(self.pars): 
-                        print "Error: Number of parameter values in list or tuple does not match created parameters"
-                        return
-                elif isinstance( args[0], numpy.ndarray ):
-                    if not args[0].shape[0] == len(self.pars): 
-                        print "Error: Number of parameter values in ndarray does not match created parameters"
-                        return
-                for v,k in zip(args[0],self.pars.keys()):
-                    self.pars[k].value = v
-        else:
-            for k,v in kwargs.iteritems():
-                self.pars[k].value = v
+    @property
     def par_values(self):
-        """ Get parameter values
+        """ Parameter values
         """
         return [par.value for par in self.pars.values()]
+    @par_values.setter
+    def par_values(self, value):
+        """ Set parameter values using a tuple, list, numpy.ndarray, or dictionary
+        """
+        if isinstance( value, dict ):
+            for k,v in value.iteritems():
+                self.pars[k].value = v
+        elif isinstance( value, (list,tuple,numpy.ndarray)):
+            if not len(value) == len(self.pars): 
+                print "Error: Number of parameter values in ndarray does not match created parameters"
+                return
+            for v,k in zip(value,self.pars.keys()):
+                self.pars[k].value = v
+        else:
+            print "Error: tuple, list, numpy.ndarray, or dictionary expected"
+    @property
     def par_names(self):
         """ Get parameter names
         """
         return [par.name for par in self.pars.values()]
+    @property
     def par_nvals(self):
         """ Get parameter nvals (number of values for parameter studies)
         """
         return [par.nval for par in self.pars.values()]
+    @property
     def obs_values(self):
-        """ Get observation values
+        """ Observation values
         """
         return [o.value for o in self.obs.values()]
+    @obs_values.setter
+    def obs_values(self, value):
+        """ Set simulated values using a tuple, list, numpy.ndarray, or dictionary
+        """
+        if isinstance( value, dict ):
+            for k,v in value.iteritems():
+                if k in self.obs:
+                    self.obs[k].value = v
+                else:
+                    self.add_obs( k, value=v ) 
+        elif isinstance( value, (list,tuple,numpy.ndarray) ):
+            # If no observations exist, create them
+            if len(self.obs) == 0:
+                for i,v in enumerate(value): 
+                    self.add_obs('obs'+str(i),value=v)
+            # else, check if length of value is equal to number created observation
+            elif not len(value) == len(self.obs): 
+                    print "Error: Number of simulated values does not match created observations"
+                    return
+            # else, set observation values in order
+            else:
+                for k,v in zip(self.obs.keys(),value):
+                    self.obs[k].value = v
+        else:
+            print "Error: tuple, list, numpy.ndarray, or dictionary expected"
+    @property
     def obs_names(self):
         """ Get observation names
         """
         return [o.name for o in self.obs.values()]
+    @property
     def obs_weights(self):
         """ Get observation names
         """
         return [o.weight for o in self.obs.values()]
+    @property
     def residuals(self):
         """ Get least squares values
         """
         return [o.residual for o in self.obs.values()]
+    @property
     def par_mins(self):
         """ Get parameter lower bounds
         """
         return [par.min for par in self.pars.values()]
+    @property
     def par_maxs(self):
         """ Get parameter lower bounds
         """
         return [par.max for par in self.pars.values()]
+    @property
     def par_dists(self):
         """ Get parameter probabilistic distributions
         """
         return [par.dist for par in self.pars.values()]
+    @property
     def par_dist_pars(self):
         """ Get parameters needed by parameter distributions
         """
@@ -410,7 +408,7 @@ class matk(object):
                 sims = self.model( pardict, **self.model_kwargs )
             elif not self.model_args is None and not self.model_kwargs is None:
                 sims = self.model( pardict, *self.model_args, **self.model_kwargs )
-            self._set_sims(sims)
+            self._set_sim_values(sims)
         else:
             print "Error: Model is not a Python function"
             return 1
@@ -438,7 +436,7 @@ class matk(object):
                 nm = [params[p.name].name for k,p in prob.pars.items()]
                 vs = [params[p.name].value for k,p in prob.pars.items()]
                 prob.forward(pardict=dict(zip(nm,vs)),workdir=workdir,reuse_dirs=reuse_dirs)
-                return prob.residuals()
+                return prob.residuals
 
             # Create lmfit parameter object
             params = lmfit.Parameters()
@@ -450,7 +448,7 @@ class matk(object):
             # Make sure that self.pars are set to final values of params
             nm = [params[k].name for k in self.pars.keys()]
             vs = [params[k].value for k in self.pars.keys()]
-            self.set_par_values( dict(zip(nm,vs)))
+            self.par_values = dict(zip(nm,vs))
             # Run forward model to set simulated values
             self.forward()
 
@@ -469,9 +467,9 @@ class matk(object):
                 vs = [p._func_value(v) for v,p in zip(pars,prob.pars.values())]
                 print nm,vs
                 prob.forward(pardict=dict(zip(nm,vs)),workdir=workdir,reuse_dirs=reuse_dirs)
-                return prob.sim_values()
+                return prob.sim_values
             vs = [p.calib_value for p in self.pars.values()]
-            meas = self.obs_values()
+            meas = self.obs_values
             out = levmar.leastsq(_f, vs, meas, args=(self,), Dfun=None, max_iter=1000, full_output=1)
             return out
         elif solver is 'default':
@@ -480,29 +478,9 @@ class matk(object):
                 nm = [p.name for k,p in prob.pars.items()]
                 vs = [p._func_value(v) for v,p in zip(pars,prob.pars.values())]
                 prob.forward(pardict=dict(zip(nm,vs)),workdir=workdir,reuse_dirs=reuse_dirs)
-                return prob.residuals()
+                return prob.residuals
             vs = [p.calib_value for p in self.pars.values()]
-            out = matk_lm.marquardt( self.obs_values(), self.obs_weights(),residual,matk_lm.Jv,self.par_values())
-
-    def J(self, h=1.0e-3):
-        """ Calculate Jacobian matrix
-        """
-        a = self.par_values()
-        # Collect parameter sets
-        a_ls = [] # Parameter sets with parameters values reduced by h
-        a_us = [] # Parameter sets with parameters values increased by h
-        for i in range(len(a)):
-            a[i] -= h
-            a_ls.append(np.copy(a))
-            a[i] += 2*h
-            a_us.append(np.copy(a))
-            a[i] -= h
-        # Perform simulations on parameter sets
-        J = []
-        for a_l,a_u in zip(a_ls,a_us):
-            J.append((fv(a_l)-fv(a_u))/(2*h))
-        return np.array(J).T
- 
+            out = matk_lm.marquardt( self.obs_values, self.obs_weights,residual,matk_lm.Jv,self.par_values)
     def set_lhs_samples(self, name, siz=None, noCorrRestr=False, corrmat=None, seed=None, index_start=1):
         """ Draw lhs samples of parameter values from scipy.stats module distribution
         
@@ -530,9 +508,9 @@ class matk(object):
             siz = self.sample_size
         # Take distribution keyword and convert to scipy.stats distribution object
         dists = []
-        for dist in self.par_dists():
+        for dist in self.par_dists:
             eval( 'dists.append(stats.' + dist + ')' )
-        dist_pars = self.par_dist_pars()
+        dist_pars = self.par_dist_pars
         x = lhs(dists, dist_pars, siz=siz, noCorrRestr=noCorrRestr, corrmat=corrmat, seed=seed)
         self.add_sampleset( name, x, index_start=index_start )
     def run_samples(self, name=None, ncpus=1, templatedir=None, workdir_base=None,
@@ -569,7 +547,7 @@ class matk(object):
         if ncpus == 1:
             out = []
             for sample, index in zip(self.sampleset[name].samples,self.sampleset[name].indices):
-                self.set_par_values(sample)
+                self.par_values = sample
                 if not self.workdir_base is None:
                     workdir = self.workdir_base + '.' + str(index)
                 else:
@@ -577,7 +555,7 @@ class matk(object):
                 self.forward(workdir=workdir,reuse_dirs=reuse_dirs)
                 if not save:
                     rmtree( workdir )
-                responses = self.sim_values()
+                responses = self.sim_values
                 out.append( responses )
             out = numpy.array(out)
         elif ncpus > 1:
@@ -598,7 +576,7 @@ class matk(object):
                 if status:
                     print "Error running forward model for parallel job " + str(prob.workdir_index)
                     os._exit( 0 )
-                out = dict( zip(prob.obs_names(),prob.sim_values()) )
+                out = dict( zip(prob.obs_names,prob.sim_values) )
                 if self.workdir is None:
                     pickle.dump( out, open(self.results_file, "wb"))
                 else:
@@ -630,7 +608,7 @@ class matk(object):
             self.workdir_index = indices[i]
             set_child( self )
             pardict = dict(zip(self.par_names(), par_sets[i] ) )
-            self.set_par_values(pardict)
+            self.par_values = pardict
             pid = os.fork()
             if pid:
                 parent = True
@@ -672,8 +650,8 @@ class matk(object):
                         out = pickle.load( open( resfl_dict[rpid], "rb" ))
                         if save is False:
                             os.remove( resfl_dict[rpid] )
-                    self._set_sims( out )
-                    responses.append( self.sim_values() )
+                    self._set_sim_values( out )
+                    responses.append( self.sim_values )
                     res_index.append( ps_index_dict[rpid] )
                     njobs_finished += 1
                     # Start new jobs
@@ -682,7 +660,7 @@ class matk(object):
                         self.workdir_index = indices[njobs_started-1]
                         set_child( self )
                         pardict = dict(zip(self.par_names(), par_sets[njobs_started-1] ) )
-                        self.set_par_values(pardict)
+                        self.par_values = pardict
                         pid = os.fork()
                         if pid:
                             parent = True
@@ -710,12 +688,12 @@ class matk(object):
             self.workdir_index = smp_ind
             if self.workdir_base is not None:
                 self.workdir = self.workdir_base + '.' + str(self.workdir_index)
-            self.set_par_values( pars )
+            self.par_values = pars
             status = self.forward(reuse_dirs=reuse_dirs)
             if status:
                 print "Error running forward model for parallel job " + str(self.workdir_index)
             else:
-                out_list.put([lst_ind, self.sim_values()])
+                out_list.put([lst_ind, self.sim_values])
             if not save and not self.workdir is None:
                 rmtree( self.workdir )
             in_queue.task_done()
@@ -773,10 +751,10 @@ class matk(object):
         :type name: str
         :param outfile: Name of file where samples will be written. If outfile=None, no file is written.
         :type outfile: str
-        :param *args: Number of values for each parameter. The order is expected to match order of matk.pars.keys()
-        :type *args: tuple(fl64), list(fl64), or ndarray(fl64)
-        :param **kwargs: keyword arguments where keyword is the parameter name and argument is the number of desired values
-        :type **kwargs: dict(fl64)
+        :param args: Number of values for each parameter. The order is expected to match order of matk.pars.keys()
+        :type args: tuple(fl64), list(fl64), or ndarray(fl64)
+        :param kwargs: keyword arguments where keyword is the parameter name and argument is the number of desired values
+        :type kwargs: dict(fl64)
         :returns: ndarray(fl64) -- Array of samples
         '''
         outfile = None
@@ -847,7 +825,7 @@ class matk(object):
                 f.write("%15s" % nm )
             # Print obs names if responses exist
             if not self.sampleset[sampleset].responses is None:
-                for nm in self.obs_names():
+                for nm in self.obs_names:
                     f.write(" ")
                     f.write("%15s" % nm )
             f.write('\n')
@@ -867,7 +845,7 @@ class matk(object):
             :returns: ndarray(fl64) -- Jacobian matrix
         '''
         # Collect parameter sets
-        a = numpy.array(self.par_values())
+        a = numpy.array(self.par_values)
         if isinstance(h, (tuple,list)):
             h = numpy.array(h)
         elif not isinstance(h, numpy.ndarray):
@@ -889,7 +867,7 @@ class matk(object):
         J = []
         for a_l,a_u,hs in zip(a_ls,a_us,h):
             J.append((a_l-a_u)/(2*hs))
-        self.set_par_values(a)
+        self.par_values = a
 
         return numpy.array(J).T
     
