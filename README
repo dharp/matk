@@ -4,12 +4,15 @@ MATK provides basic functionality to facilitate model analysis within the
 Python computational environment. Model analysis setup within MATK includes:
 	- define parameters
 	- define observations
-	- define model (python function or system command)
+	- define model (python function)
+	- define samplesets (sets of parameter combinations)
 
 Currently supported functionality includes:
 	- forward model runs
 	- Latin-Hypercube sampling of parameters
+	- multi-dimensional parameter studies
 	- parallel execution of parameter samples
+	- model calibration using lmfit python package
 
 MATK facilitates model analysis using:
 	- scipy - calibration (scipy.optimize)
