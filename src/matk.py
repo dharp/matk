@@ -62,6 +62,7 @@ class matk(object):
         self.obs = OrderedDict()
         self.sampleset = OrderedDict()
         self.workdir_index = 0
+        self._current = False # Flag indicating if simulated values are associated with current parameters
     @property
     def model(self):
         """ Python function that runs model
@@ -162,6 +163,11 @@ class matk(object):
     @seed.setter
     def seed(self,value):
         self._seed = value
+    @property
+    def ssr(self):
+        """ Sum of squared residuals
+        """
+        return sum(numpy.array(self.residuals)**2)
     def add_par(self, name, **kwargs):
         """ Add parameter to problem
 
@@ -170,9 +176,9 @@ class matk(object):
             :param kwargs: keyword arguments passed to parameter class
         """
         if name in self.pars: 
-            self.par[name] = Parameter(name,**kwargs)
+            self.par[name] = Parameter(name,parent=self,**kwargs)
         else:
-            self.pars.__setitem__( name, Parameter(name,**kwargs))
+            self.pars.__setitem__( name, Parameter(name,parent=self,**kwargs))
     def add_obs(self,name,**kwargs):
         """ Add observation to problem
             
@@ -246,6 +252,7 @@ class matk(object):
                     for i,v in zip(range(len(args[0])),args[0]): 
                         self.add_obs('obs'+str(i),sim=v)
                 elif not len(args[0]) == len(self.obs): 
+                    print len(args[0]), len(self.obs)
                     print "Error: Number of simulated values in list or tuple does not match created observations"
                     return
                 else:
@@ -400,6 +407,7 @@ class matk(object):
         if hasattr( self.model, '__call__' ):
             if pardict is None:
                 pardict = dict([(k,par.value) for k,par in self.pars.items()])
+            else: self.par_values = pardict
             if self.model_args is None and self.model_kwargs is None:
                 sims = self.model( pardict )
             elif not self.model_args is None and self.model_kwargs is None:
@@ -409,12 +417,13 @@ class matk(object):
             elif not self.model_args is None and not self.model_kwargs is None:
                 sims = self.model( pardict, *self.model_args, **self.model_kwargs )
             self._set_sim_values(sims)
+            self._current = True
         else:
             print "Error: Model is not a Python function"
             return 1
         if not curdir is None:
             os.chdir( curdir )
-        return 0
+        return None
     def calibrate(self,workdir=None,reuse_dirs=False,report_fit=True,solver='lmfit'):
         """ Calibrate MATK model
 
@@ -450,7 +459,7 @@ class matk(object):
             vs = [params[k].value for k in self.pars.keys()]
             self.par_values = dict(zip(nm,vs))
             # Run forward model to set simulated values
-            self.forward()
+            self.forward(workdir=workdir, reuse_dirs=reuse_dirs)
 
             if report_fit:
                 print lmfit.report_fit(params)
@@ -845,7 +854,10 @@ class matk(object):
             :returns: ndarray(fl64) -- Jacobian matrix
         '''
         # Collect parameter sets
-        a = numpy.array(self.par_values)
+        a = numpy.copy(numpy.array(self.par_values))
+        # If current simulated values are associated with current parameter values...
+        if self._current:
+            sims = self.sim_values
         if isinstance(h, (tuple,list)):
             h = numpy.array(h)
         elif not isinstance(h, numpy.ndarray):
@@ -859,7 +871,8 @@ class matk(object):
         parset = numpy.array(parset)
         self.add_sampleset('_jac_',parset)
 
-        self.run_samples(name='_jac_', ncpus=ncpus, templatedir=templatedir, workdir_base=workdir_base, save=save, reuse_dirs=reuse_dirs )
+        self.run_samples(name='_jac_', ncpus=ncpus, templatedir=templatedir,
+                         workdir_base=workdir_base, save=save, reuse_dirs=reuse_dirs )
         # Perform simulations on parameter sets
         obs = self.sampleset['_jac_'].responses
         a_ls = obs[0:len(a)]
@@ -868,10 +881,140 @@ class matk(object):
         for a_l,a_u,hs in zip(a_ls,a_us,h):
             J.append((a_l-a_u)/(2*hs))
         self.par_values = a
+        # If current simulated values are associated with current parameter values...
+        if self._current:
+            self._set_sim_values(sims)
 
         return numpy.array(J).T
-    
+    def _marquardt( self, maxiter=100, lambdax=0.001, minchange=1.0e-3, minlambdax=1.0e-6, debug=False,
+                  workdir=None, reuse_dirs=False):
+        """ Levenberg-Marquardt algorithm based on code written by Ernesto P. Adorio PhD.
+            (UPDEPP at Clarkfield, Pampanga)
 
+            :param maxiter: Maximum number of iterations
+            :type maxiter: int
+            :param lambdax: Initial Marquardt lambda
+            :type lambdax: fl64
+            :param minchange: Minimum change between successive ChiSquares
+            :type minchange: fl64
+            :param minlambda: Minimum lambda value
+            :type minlambda: fl4
+            :returns: best fit parameters found by routine
+            :returns: best Sum of squares.
+            :returns: covariance matrix
+        """
+        n = len(self.obs) # Number of observations
+        m = len(self.pars) # Number of parameters
+        a = numpy.copy(self.par_values) # Initial parameter values
+        besta = a # Best parameters start as current parameters
+        self.forward(workdir=workdir, reuse_dirs=reuse_dirs)
+        bestSS = SS = self.ssr # Sum of squared error
+        Cov = None
+        iscomp = True
+        ncount = 0
+        flag   = 0
+        for p in range(1, maxiter+1):
+            if debug: print "marquardt(): iteration=", p
+            # If iscomp, recalculate JtJ and beta
+            if (iscomp) :
+                # Compute Jacobian
+                J = self.Jac()
+                # Compute Hessian
+                JtJ = numpy.dot(J.T,J)
+                if (lambdax == 0.0) :
+                    break
+                # Form RHS beta vector
+                pardict = dict(zip(self.par_names, a))
+                self.forward(pardict=pardict, workdir=workdir, reuse_dirs=reuse_dirs)
+                r = numpy.array(self.residuals)
+                beta = -numpy.dot(J.T,r)
 
+            # Update A with new lambdax
+            A = JtJ * (numpy.ones(m) + numpy.identity(m)*lambdax)
+
+            # Solve for delta
+            try:
+                delta = numpy.linalg.solve(A, beta)
+            except numpy.linalg.linalg.LinAlgError as err:
+                print "Error: Unable to solve for update vector - " + str(err)
+                break
+            else:
+                code=0
+            totabsdelta = numpy.sum(numpy.abs(delta))
+            if debug:
+                print "JtJ:"
+                print JtJ
+                try:
+                    Cov = numpy.linalg.inv(JtJ)
+                except numpy.linalg.linalg.LinAlgError as err:
+                    print "Warning: Unable to compute covariance - " + err   
+                else:
+                    print 'Cov: '
+                    print Cov
+                print "beta = ", beta
+                print "delta=", delta
+                print "SS =",SS
+                print "lambdax=", lambdax
+                print "total abs delta=", totabsdelta
+            if (code == 0):
+                # Compute new parameters
+                newa = a + delta
+                # and new sum of squares
+                pardict = dict(zip(self.par_names, newa))
+                self.forward(pardict=pardict, workdir=workdir, reuse_dirs=reuse_dirs)
+                newSS = self.ssr
+                if debug: print "newSS = ", newSS
+                # Update current parameter vector?
+                if (newSS < bestSS):
+                    if debug: print "improved values found!"
+                    besta  = newa
+                    bestSS = newSS
+                    bestJtJ = JtJ
+                    a = newa
+                    #a = newa
+                    iscomp = True
+                    if debug:
+                        print "new a:"
+                        for x in a:
+                            print x
+                        print
+                    # Termination criteria
+                    if (SS - newSS < minchange):
+                        ncount+= 1
+                        if (ncount == 2) :
+                            lambdax  = 0.0
+                            flag = 0
+                            break
+                    else :
+                        ncount = 0
+                        lambdax = 0.4 * lambdax  # after Nash
+                        if (lambdax < minlambdax) :
+                            flag = 3
+                            break
+                    SS = newSS
+                else :
+                    iscomp = False
+                    lambdax = 10.0 * lambdax
+                    ncount = 0
+            else :
+                flag = 1
+                break
+        if (flag == 0):
+            if Cov is None: flag = 4
+            if (p >= maxiter) :
+                flag = 2
+        self.par_values = besta
+        self.forward( workdir=workdir, reuse_dirs=reuse_dirs)
+        print 'Parameter: '
+        print self.par_values
+        print 'SSR: '
+        print self.ssr
+        try:
+            Cov = numpy.linalg.inv(JtJ)
+        except numpy.linalg.linalg.LinAlgError as err:
+            print "Warning: Unable to compute covariance - " + err   
+        else:
+            print 'Cov: '
+            print Cov
 
 

@@ -17,9 +17,11 @@ class Parameter(object):
         self._parchglim = None
         self._pargrpnm = 'default'
         self._dist = ''
+        self._dist_pars = ()
         self._nvals = 2
         self._vary = True
         self._expr = None
+        self._parent = None
         for k,v in kwargs.iteritems():
             if k == 'value':
                 self.value = float(v)
@@ -49,6 +51,8 @@ class Parameter(object):
                 self.vary = v
             elif k == 'expr':
                 self.expr = v
+            elif k == 'parent':
+                self._parent = v
             else:
                 print k + ' is not a valid argument'
         # If min and max are set, but dist is not, set to uniform
@@ -126,6 +130,8 @@ class Parameter(object):
         self._value = value
         if not self.value is None:
             self._valuelist.append(self.value)
+        if self._parent:
+            self._parent._current = False
     @property
     def scale(self):
         """ Scale factor to multiply parameter by
