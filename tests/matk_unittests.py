@@ -103,12 +103,12 @@ class Tests(unittest.TestCase):
         self.assertTrue( (maxs >= lb).any() and (mins <= ub).any(), 'Parstudy outside parameter bounds' )
 
 
-    def calibrate(self): 
+    def calibrate_lmfit(self): 
         # Look at initial fit
         self.c.forward()
         sims = self.c.sim_values
         # Calibrate parameters to data, results are printed to screen
-        self.c.calibrate(report_fit=False)
+        self.c.lmfit(report_fit=False)
         # Look at calibrated fit
         self.c.forward()
         sims = self.c.sim_values
@@ -120,6 +120,11 @@ class Tests(unittest.TestCase):
         J = self.j.Jac()
         C = numpy.linalg.cond(J)
         self.assertEqual(C.round(16) , 225.6849012361745395, 'Condition number of Jacobian is incorrect')
+
+    def calibrate(self):
+        self.j.obs_values = [5.308,7.24,9.638,12.866,17.069,23.192,31.443,38.558,50.156,62.948,75.995,91.972]
+        self.j.calibrate()
+        self.assertEqual( round(self.j.ssr,6), 2.587278, 'Final SSR is incorrect')
         
 def suite(case):
     suite = unittest.TestSuite()
@@ -128,8 +133,9 @@ def suite(case):
         suite.addTest( Tests('forward') )
         suite.addTest( Tests('sample') )
         suite.addTest( Tests('parstudy') )
-        suite.addTest( Tests('calibrate') )
+        suite.addTest( Tests('calibrate_lmfit') )
         suite.addTest( Tests('jacobian') )
+        suite.addTest( Tests('calibrate') )
     if case == 'parallel' or case == 'all':
         suite.addTest( Tests('parallel') )
         suite.addTest( Tests('parallel_workdir') )

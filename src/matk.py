@@ -424,8 +424,8 @@ class matk(object):
         if not curdir is None:
             os.chdir( curdir )
         return None
-    def calibrate(self,workdir=None,reuse_dirs=False,report_fit=True,solver='lmfit'):
-        """ Calibrate MATK model
+    def lmfit(self,workdir=None,reuse_dirs=False,report_fit=True):
+        """ Calibrate MATK model using lmfit package
 
             :param workdir: Name of directory where model will be run. It will be created if it does not exist
             :type workdir: str
@@ -436,60 +436,63 @@ class matk(object):
             :returns: lmfit minimizer object
         """
            
-        if solver is 'lmfit':
-            try: import lmfit
-            except ImportError as exc:
-                sys.stderr.write("Warning: failed to import lmfit module. ({})".format(exc))
-                return
-            def residual(params, prob):
-                nm = [params[p.name].name for k,p in prob.pars.items()]
-                vs = [params[p.name].value for k,p in prob.pars.items()]
-                prob.forward(pardict=dict(zip(nm,vs)),workdir=workdir,reuse_dirs=reuse_dirs)
-                return prob.residuals
+        try: import lmfit
+        except ImportError as exc:
+            sys.stderr.write("Warning: failed to import lmfit module. ({})".format(exc))
+            return
+        def residual(params, prob):
+            nm = [params[p.name].name for k,p in prob.pars.items()]
+            vs = [params[p.name].value for k,p in prob.pars.items()]
+            prob.forward(pardict=dict(zip(nm,vs)),workdir=workdir,reuse_dirs=reuse_dirs)
+            return prob.residuals
 
-            # Create lmfit parameter object
-            params = lmfit.Parameters()
-            for k,p in self.pars.items():
-                params.add(k,value=p.value,vary=p.vary,min=p.min,max=p.max,expr=p.expr) 
+        # Create lmfit parameter object
+        params = lmfit.Parameters()
+        for k,p in self.pars.items():
+            params.add(k,value=p.value,vary=p.vary,min=p.min,max=p.max,expr=p.expr) 
 
-            out = lmfit.minimize(residual, params, args=(self,))
+        out = lmfit.minimize(residual, params, args=(self,))
 
-            # Make sure that self.pars are set to final values of params
-            nm = [params[k].name for k in self.pars.keys()]
-            vs = [params[k].value for k in self.pars.keys()]
-            self.par_values = dict(zip(nm,vs))
-            # Run forward model to set simulated values
-            self.forward(workdir=workdir, reuse_dirs=reuse_dirs)
+        # Make sure that self.pars are set to final values of params
+        nm = [params[k].name for k in self.pars.keys()]
+        vs = [params[k].value for k in self.pars.keys()]
+        self.par_values = dict(zip(nm,vs))
+        # Run forward model to set simulated values
+        self.forward(workdir=workdir, reuse_dirs=reuse_dirs)
 
-            if report_fit:
-                print lmfit.report_fit(params)
+        if report_fit:
+            print lmfit.report_fit(params)
+        return out
 
-            return out
-        elif solver is 'levmar':
-            try: import levmar
-            except ImportError as exc:
-                sys.stderr.write("Warning: failed to import levmar module. ({})".format(exc))
-                return
-            def _f(pars, prob):
-                prob = prob[0]
-                nm = [p.name for p in prob.pars.values()]
-                vs = [p._func_value(v) for v,p in zip(pars,prob.pars.values())]
-                print nm,vs
-                prob.forward(pardict=dict(zip(nm,vs)),workdir=workdir,reuse_dirs=reuse_dirs)
-                return prob.sim_values
-            vs = [p.calib_value for p in self.pars.values()]
-            meas = self.obs_values
-            out = levmar.leastsq(_f, vs, meas, args=(self,), Dfun=None, max_iter=1000, full_output=1)
-            return out
-        elif solver is 'default':
-            import matk_lm
-            def residual(params, prob):
-                nm = [p.name for k,p in prob.pars.items()]
-                vs = [p._func_value(v) for v,p in zip(pars,prob.pars.values())]
-                prob.forward(pardict=dict(zip(nm,vs)),workdir=workdir,reuse_dirs=reuse_dirs)
-                return prob.residuals
-            vs = [p.calib_value for p in self.pars.values()]
-            out = matk_lm.marquardt( self.obs_values, self.obs_weights,residual,matk_lm.Jv,self.par_values)
+    def levmar(self,workdir=None,reuse_dirs=False,max_iter=1000,full_output=True):
+        """ Calibrate MATK model using levmar package
+
+            :param workdir: Name of directory where model will be run. It will be created if it does not exist
+            :type workdir: str
+            :param reuse_dirs: If True and workdir exists, the model will reuse the directory
+            :type reuse_dirs: bool
+            :param max_iter: Maximum number of iterations
+            :type max_iter: int
+            :param full_output: If True, additional output displayed during calibration
+            :returns: levmar output
+        """
+        try: import levmar
+        except ImportError as exc:
+            sys.stderr.write("Warning: failed to import levmar module. ({})".format(exc))
+            return
+        def _f(pars, prob):
+            prob = prob[0]
+            nm = [p.name for p in prob.pars.values()]
+            vs = [p._func_value(v) for v,p in zip(pars,prob.pars.values())]
+            print nm,vs
+            prob.forward(pardict=dict(zip(nm,vs)),workdir=workdir,reuse_dirs=reuse_dirs)
+            return prob.sim_values
+        vs = [p.calib_value for p in self.pars.values()]
+        meas = self.obs_values
+        if full_output: full_output = 1
+        out = levmar.leastsq(_f, vs, meas, args=(self,), Dfun=None, max_iter=max_iter, full_output=full_output)
+        #TODO Put levmar results into MATK object
+        return out
     def set_lhs_samples(self, name, siz=None, noCorrRestr=False, corrmat=None, seed=None, index_start=1):
         """ Draw lhs samples of parameter values from scipy.stats module distribution
         
@@ -886,9 +889,10 @@ class matk(object):
             self._set_sim_values(sims)
 
         return numpy.array(J).T
-    def _marquardt( self, maxiter=100, lambdax=0.001, minchange=1.0e-3, minlambdax=1.0e-6, debug=False,
+    def calibrate( self, maxiter=100, lambdax=0.001, minchange=1.0e-1, minlambdax=1.0e-6, verbose=False,
                   workdir=None, reuse_dirs=False):
-        """ Levenberg-Marquardt algorithm based on code written by Ernesto P. Adorio PhD.
+        """ Calibrate MATK model using Levenberg-Marquardt algorithm based on 
+            original code written by Ernesto P. Adorio PhD. 
             (UPDEPP at Clarkfield, Pampanga)
 
             :param maxiter: Maximum number of iterations
@@ -897,8 +901,10 @@ class matk(object):
             :type lambdax: fl64
             :param minchange: Minimum change between successive ChiSquares
             :type minchange: fl64
-            :param minlambda: Minimum lambda value
-            :type minlambda: fl4
+            :param minlambdax: Minimum lambda value
+            :type minlambdax: fl4
+            :param verbose: If True, additional information written to screen during calibration
+            :type verbose: bool
             :returns: best fit parameters found by routine
             :returns: best Sum of squares.
             :returns: covariance matrix
@@ -914,7 +920,7 @@ class matk(object):
         ncount = 0
         flag   = 0
         for p in range(1, maxiter+1):
-            if debug: print "marquardt(): iteration=", p
+            if verbose: print "marquardt(): iteration=", p
             # If iscomp, recalculate JtJ and beta
             if (iscomp) :
                 # Compute Jacobian
@@ -941,7 +947,7 @@ class matk(object):
             else:
                 code=0
             totabsdelta = numpy.sum(numpy.abs(delta))
-            if debug:
+            if verbose:
                 print "JtJ:"
                 print JtJ
                 try:
@@ -963,17 +969,17 @@ class matk(object):
                 pardict = dict(zip(self.par_names, newa))
                 self.forward(pardict=pardict, workdir=workdir, reuse_dirs=reuse_dirs)
                 newSS = self.ssr
-                if debug: print "newSS = ", newSS
+                if verbose: print "newSS = ", newSS
                 # Update current parameter vector?
                 if (newSS < bestSS):
-                    if debug: print "improved values found!"
+                    if verbose: print "improved values found!"
                     besta  = newa
                     bestSS = newSS
                     bestJtJ = JtJ
                     a = newa
                     #a = newa
                     iscomp = True
-                    if debug:
+                    if verbose:
                         print "new a:"
                         for x in a:
                             print x
@@ -1005,16 +1011,17 @@ class matk(object):
                 flag = 2
         self.par_values = besta
         self.forward( workdir=workdir, reuse_dirs=reuse_dirs)
-        print 'Parameter: '
-        print self.par_values
-        print 'SSR: '
-        print self.ssr
-        try:
-            Cov = numpy.linalg.inv(JtJ)
-        except numpy.linalg.linalg.LinAlgError as err:
-            print "Warning: Unable to compute covariance - " + err   
-        else:
-            print 'Cov: '
-            print Cov
+        if verbose:
+            print 'Parameter: '
+            print self.par_values
+            print 'SSR: '
+            print self.ssr
+            try:
+                Cov = numpy.linalg.inv(JtJ)
+            except numpy.linalg.linalg.LinAlgError as err:
+                print "Warning: Unable to compute covariance - " + err   
+            else:
+                print 'Cov: '
+                print Cov
 
 
