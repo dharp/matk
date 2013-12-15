@@ -12,7 +12,9 @@ Currently supported functionality includes:
 	- Latin-Hypercube sampling of parameters
 	- multi-dimensional parameter studies
 	- parallel execution of parameter samples
-	- model calibration using lmfit python package
+	- model calibration using internal Levenberg-Marquardt algorithm
+    - model calibration using lmfit package
+    - model calibration using levmar package
 
 MATK facilitates model analysis using:
 	- scipy - calibration (scipy.optimize)
