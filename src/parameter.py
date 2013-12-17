@@ -1,12 +1,13 @@
 import numpy
+from lmfit.parameter import Parameter
 
-class Parameter(object):
+class Parameter(Parameter):
     """ MATK parameter class
     """
     def __init__(self, name, **kwargs):
         self._name = name
         self._valuelist = []
-        self._value = None
+        self._val = None
         self._min = None
         self._max = None
         self._mean = None
@@ -22,9 +23,13 @@ class Parameter(object):
         self._vary = True
         self._expr = None
         self._parent = None
+        self.deps   = None
+        self.stderr = None
+        self.correl = None
+        self.from_internal = lambda val: val
         for k,v in kwargs.iteritems():
             if k == 'value':
-                self.value = float(v)
+                self._val = float(v)
             elif k == 'min':
                 self.min = float(v)
             elif k == 'max':
@@ -61,12 +66,12 @@ class Parameter(object):
             if self.min is None or self.max is None: 
                 print "Error: Max and min parameter value must be specified for uniform distribution"
                 return
-            if not self.value is None:
-                if not self.min <= self.value <= self.max:
+            if not self._val is None:
+                if not self.min <= self._val <= self.max:
                     print "Error: Value is not within min and max values"
                     return
             else:
-                self.value = (self.max + self.min)/2.
+                self._val = (self.max + self.min)/2.
             range = self.max - self.min
             self.dist_pars = (self.min, range)
         elif self.dist == 'norm':
@@ -74,6 +79,8 @@ class Parameter(object):
                 print "Error: Mean and std. dev. required for normal distribution"
             else:
                 self.dist_pars = (self.mean, self.std)
+        self.user_value = self._val
+        self.init_value = self._val
     @property
     def name(self):
         """ Parameter name
@@ -124,21 +131,22 @@ class Parameter(object):
     def value(self):
         """ Parameter value
         """
-        return self._value
+        return self._getval()
     @value.setter
     def value(self,value):
-        if not self._min is None and value < self._min:
-            print "Error: Attempted to set "+self.name+" below min ("+str(self._min)+")"
-            print self.name+" set to min"
-            self._value = self._min
-        elif not self._max is None and value > self._max:
-            print "Error: Attempted to set "+self.name+" above max ("+str(self._max)+")"
-            print self.name+" set to max"
-            self._value = self._max
-        else:
-            self._value = value
-        if not self.value is None:
-            self._valuelist.append(self.value)
+    #    if not self._min is None and value < self._min:
+    #        print "Error: Attempted to set "+self.name+" below min ("+str(self._min)+")"
+    #        print self.name+" set to min"
+    #        self._value = self._min
+    #    elif not self._max is None and value > self._max:
+    #        print "Error: Attempted to set "+self.name+" above max ("+str(self._max)+")"
+    #        print self.name+" set to max"
+    #        self._value = self._max
+    #    else:
+    #        self._value = value
+    #    if not self.value is None:
+    #        self._valuelist.append(self.value)
+        self._val = value
         if self._parent:
             self._parent._current = False
     @property
