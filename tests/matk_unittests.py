@@ -4,7 +4,6 @@ import matk
 from exp_model_int import dbexpl
 from sine_decay_model import sine_decay
 import numpy
-import decimal
 
 def fv(a):
     ''' Exponential function from marquardt.py
