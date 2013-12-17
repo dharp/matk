@@ -4,6 +4,7 @@ import matk
 from exp_model_int import dbexpl
 from sine_decay_model import sine_decay
 import numpy
+import decimal
 
 def fv(a):
     ''' Exponential function from marquardt.py
@@ -119,7 +120,7 @@ class Tests(unittest.TestCase):
         # Check condition number
         J = self.j.Jac()
         C = numpy.linalg.cond(J)
-        self.assertEqual(C.round(16) , 225.6849012361745395, 'Condition number of Jacobian is incorrect')
+        self.assertTrue(numpy.abs(C - 225.6849012361745395)<1.e-10, 'Condition number of Jacobian is incorrect')
 
     def calibrate(self):
         self.j.obs_values = [5.308,7.24,9.638,12.866,17.069,23.192,31.443,38.558,50.156,62.948,75.995,91.972]
