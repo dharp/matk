@@ -526,7 +526,7 @@ class matk(object):
         x = lhs(dists, dist_pars, siz=siz, noCorrRestr=noCorrRestr, corrmat=corrmat, seed=seed)
         self.add_sampleset( name, x, index_start=index_start )
     def run_samples(self, name=None, ncpus=1, templatedir=None, workdir_base=None,
-                    save=True, reuse_dirs=False, outfile=None ):
+                    save=True, reuse_dirs=False, outfile=None, verbose=True ):
         """ Run model using values in samples for parameter values
             If samples are not specified, LHS samples are produced
             
@@ -558,6 +558,12 @@ class matk(object):
         if workdir_base:
             self.workdir_base = workdir_base
                 
+        if verbose: 
+            print "%-8s" % 'index',
+            for nm in self.par_names:
+                print ' ',
+                print "%14s" % nm,
+            header = True
         if ncpus == 1:
             out = []
             for sample, index in zip(self.sampleset[name].samples,self.sampleset[name].indices):
@@ -570,12 +576,26 @@ class matk(object):
                 if not save:
                     rmtree( workdir )
                 responses = self.sim_values
+                if verbose:
+                    if header:
+                        for nm in self.obs_names:
+                            print " ",
+                            print "%14s" % nm,
+                        header = False
+                        print ''
+                    print "%-8d" % index,
+                    for v in sample:
+                        print "%16lf" % v,
+                    for v in responses:
+                        print "%16lf" % v,
+                    print ''
+
                 out.append( responses )
             out = numpy.array(out)
         elif ncpus > 1:
             out, samples = self.parallel_mp(ncpus, self.sampleset[name].samples, indices=self.sampleset[name].indices,
                                          templatedir=templatedir, workdir_base=workdir_base, 
-                                         save=save, reuse_dirs=reuse_dirs)
+                                         save=save, reuse_dirs=reuse_dirs, verbose=verbose)
         else:
             print 'Error: number of cpus (ncpus) must be greater than zero'
             return
@@ -716,7 +736,7 @@ class matk(object):
             in_queue.task_done()
         in_queue.task_done()
     def parallel_mp(self, ncpus, par_sets, templatedir=None, workdir_base=None, save=True,
-                reuse_dirs=False, indices=None):
+                reuse_dirs=False, indices=None, verbose=True):
 
         if not os.name is "posix":
             # Use freeze_support for PCs
@@ -749,9 +769,27 @@ class matk(object):
             work.put(item)
         
         results = [None]*len(par_sets)
+        header = True
         for i in range(len(par_sets)):
             ind, resp = resultsq.get()
             results[ind] = resp
+            if verbose:
+                if header:
+                    if len(self.obs_names) == 0:
+                        for i in range(len(results[ind])):
+                            print "%15s" % 'obs'+str(i+1),
+                    else:
+                        for nm in self.obs_names:
+                            print " ",
+                            print "%14s" % nm,
+                    header = False
+                    print ''
+                print "%-8d" % indices[ind],
+                for v in par_sets[ind]:
+                    print "%16lf" % v,
+                for v in resp:
+                    print "%16lf" % v,
+                print ''
             
         for p in pool:
             p.join()
@@ -884,7 +922,7 @@ class matk(object):
         parset = numpy.array(parset)
         self.add_sampleset('_jac_',parset)
 
-        self.run_samples(name='_jac_', ncpus=ncpus, templatedir=templatedir,
+        self.run_samples(name='_jac_', ncpus=ncpus, templatedir=templatedir, verbose=False,
                          workdir_base=workdir_base, save=save, reuse_dirs=reuse_dirs )
         # Perform simulations on parameter sets
         obs = self.sampleset['_jac_'].responses

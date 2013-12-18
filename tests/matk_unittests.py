@@ -60,7 +60,7 @@ class Tests(unittest.TestCase):
     def parallel(self):
         # Without working directories
         self.p.set_lhs_samples('lhs', siz=10 )
-        self.p.run_samples('lhs', ncpus=2, save=False)
+        self.p.run_samples('lhs', ncpus=2, save=False, verbose=False)
         for smp,out in zip(self.p.sampleset['lhs'].samples,self.p.sampleset['lhs'].responses):
             self.p.par_values = smp
             self.p.forward()
@@ -70,9 +70,9 @@ class Tests(unittest.TestCase):
     def parallel_workdir(self):
         # With working directories
         self.p.set_lhs_samples('lhs', siz=10 )
-        self.p.run_samples('lhs', ncpus=2, save=True, workdir_base='workdir')
+        self.p.run_samples('lhs', ncpus=2, save=True, verbose=False, workdir_base='workdir')
         # Test to make sure reusing directories works
-        self.p.run_samples('lhs', ncpus=2, workdir_base='workdir', save=False, reuse_dirs=True)
+        self.p.run_samples('lhs', ncpus=2, verbose=False, workdir_base='workdir', save=False, reuse_dirs=True)
         for smp,out in zip(self.p.sampleset['lhs'].samples,self.p.sampleset['lhs'].responses):
             self.p.par_values = smp
             self.p.forward()
