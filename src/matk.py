@@ -526,7 +526,7 @@ class matk(object):
         x = lhs(dists, dist_pars, siz=siz, noCorrRestr=noCorrRestr, corrmat=corrmat, seed=seed)
         self.add_sampleset( name, x, index_start=index_start )
     def run_samples(self, name=None, ncpus=1, templatedir=None, workdir_base=None,
-                    save=True, reuse_dirs=False ):
+                    save=True, reuse_dirs=False, outfile=None ):
         """ Run model using values in samples for parameter values
             If samples are not specified, LHS samples are produced
             
@@ -542,6 +542,8 @@ class matk(object):
             :type save: bool
             :param reuse_dirs: Will use existing directories if True, will return an error if False and directory exists
             :type reuse_dirs: bool
+            :param outfile: File to write results to
+            :type outfile: str
             :returns: tuple(ndarray(fl64),ndarray(fl64)) - (Matrix of responses from sampled model runs siz rows by npar columns, Parameter samples, same as input samples if provided)
             
         """
@@ -578,6 +580,9 @@ class matk(object):
             print 'Error: number of cpus (ncpus) must be greater than zero'
             return
         self.sampleset[name].responses = out 
+        if not outfile is None:
+            self.save_sampleset( outfile, name )
+
         return out
     def parallel(self, ncpus, par_sets, templatedir=None, workdir_base=None, save=True,
                 reuse_dirs=False, indices=None):
@@ -832,14 +837,19 @@ class matk(object):
             f = open(outfile, 'w')
             f.write("%-8s" % 'index' )
             # Print par names
-            for nm in self.par_names():
+            for nm in self.par_names:
                 f.write(" ")
                 f.write("%15s" % nm )
             # Print obs names if responses exist
             if not self.sampleset[sampleset].responses is None:
-                for nm in self.obs_names:
-                    f.write(" ")
-                    f.write("%15s" % nm )
+                if len(self.obs_names) == 0:
+                    for i in range(self.sampleset[sampleset].responses.shape[1]):
+                        #f.write(" ")
+                        f.write("%15s" % 'obs'+str(i+1) )
+                else:
+                    for nm in self.obs_names:
+                        #f.write(" ")
+                        f.write("%15s" % nm )
             f.write('\n')
             for row in x:
                 f.write("%-8d" % row[0] )
