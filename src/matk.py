@@ -425,10 +425,6 @@ class matk(object):
                 return simdict
             except:
                 errstr = traceback.format_exc()                
-                print "Exception in model:"
-                print "-"*60
-                print errstr
-                print "-"*60
                 if not curdir is None: os.chdir( curdir )
                 return errstr
         else:
@@ -592,10 +588,12 @@ class matk(object):
         for i in range(len(par_sets)):
             lst_ind, smp_ind, resp = resultsq.get()
             if isinstance( resp, str):
-                print "Exception in parallel job "+str(smp_ind)+":"
-                print "-"*60
-                print resp
-                print "-"*60
+                s = "-"*60+'\n'
+                s += "Exception in job "+str(smp_ind)+":"+'\n'
+                s += resp
+                s += "-"*60
+                print s
+                if logfile: f.write(s+'\n')
             else:
                 if len(self.obs) == 0:
                     self._set_sim_values(resp)

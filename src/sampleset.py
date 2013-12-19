@@ -238,35 +238,47 @@ class SampleSet(object):
                 for nm in self.parnames:
                     s += " %16s" % nm
                 header = True
-            out = []
+            out = [None]*self.samples.shape[0]
+            i = 0
             for sample, index in zip(self.samples,self.indices):
                 self._parent.par_values = sample
                 if not self._parent.workdir_base is None:
                     workdir = self._parent.workdir_base + '.' + str(index)
                 else:
                     workdir = None
-                self._parent.forward(workdir=workdir,reuse_dirs=reuse_dirs)
-                if not save and workdir:
-                    rmtree( workdir )
-                responses = self._parent.sim_values
-                if verbose or logfile:
-                    if header:
-                        for nm in self.obsnames:
-                            s += " %16s" % nm
+                status = self._parent.forward(workdir=workdir,reuse_dirs=reuse_dirs)
+                if isinstance( status, str):
+                    s = "-"*60+'\n'
+                    s += "Exception in job "+str(index)+":"+'\n'
+                    s += status
+                    s += "-"*60
+                    print s
+                    if logfile: f.write(s+'\n')
+                else:
+                    out[i] = self._parent.sim_values
+                    if not save and workdir:
+                        rmtree( workdir )
+                    if verbose or logfile:
+                        if header:
+                            for nm in self.obsnames:
+                                s += " %16s" % nm
+                            s += '\n'
+                            if verbose: print s,
+                            if logfile: f.write( s )
+                            header = False
+                        s = "%-8d" % index
+                        for v in sample:
+                            s += " %16lf" % v
+                        for v in out[i]:
+                            s += " %16lf" % v
                         s += '\n'
                         if verbose: print s,
                         if logfile: f.write( s )
-                        header = False
-                    s = "%-8d" % index
-                    for v in sample:
-                        s += " %16lf" % v
-                    for v in responses:
-                        s += " %16lf" % v
-                    s += '\n'
-                    if verbose: print s,
-                    if logfile: f.write( s )
-                out.append( responses )
+                i+=1
             if logfile: f.close()
+            for i in range(len(out)):
+                if out[i] is None:
+                    out[i] = [numpy.NAN]*len(self.obsnames)
             out = numpy.array(out)
         elif ncpus > 1:
             out, samples = self._parent.parallel(ncpus, self.samples,
@@ -298,18 +310,15 @@ class SampleSet(object):
             f.write("%-8s" % 'index' )
             # Print par names
             for nm in self.parnames:
-                f.write(" ")
-                f.write("%15s" % nm )
+                f.write(" %16s" % nm )
             # Print obs names if responses exist
             if not self.responses is None:
                 if len(self.obsnames) == 0:
                     for i in range(self.responses.shape[1]):
-                        #f.write(" ")
-                        f.write("%15s" % 'obs'+str(i+1) )
+                        f.write("%16s" % 'obs'+str(i+1) )
                 else:
                     for nm in self.obsnames:
-                        f.write(" ")
-                        f.write("%15s" % nm )
+                        f.write(" %16s" % nm )
             f.write('\n')
             for row in x:
                 if isinstance( row[0], str ):
@@ -318,9 +327,9 @@ class SampleSet(object):
                     f.write("%-8d" % row[0] )
                 for i in range(1,len(row)):
                     if isinstance( row[i], str):
-                        f.write("%16s" % row[i] )
+                        f.write(" %16s" % row[i] )
                     else:
-                        f.write("%16lf" % row[i] )
+                        f.write(" %16lf" % row[i] )
                 f.write('\n')
             #numpy.savetxt(f, x, fmt='%16lf')
             f.close()
