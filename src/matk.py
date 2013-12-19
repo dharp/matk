@@ -9,6 +9,7 @@ from shutil import rmtree
 import itertools
 from multiprocessing import Process, Manager, Pool, freeze_support
 from multiprocessing.queues import Queue, JoinableQueue
+import traceback
 try:
     from collections import OrderedDict
 except ImportError:
@@ -405,25 +406,35 @@ class matk(object):
         else:
             curdir = None
         if hasattr( self.model, '__call__' ):
-            if pardict is None:
-                pardict = dict([(k,par.value) for k,par in self.pars.items()])
-            else: self.par_values = pardict
-            if self.model_args is None and self.model_kwargs is None:
-                sims = self.model( pardict )
-            elif not self.model_args is None and self.model_kwargs is None:
-                sims = self.model( pardict, *self.model_args )
-            elif self.model_args is None and not self.model_kwargs is None:
-                sims = self.model( pardict, **self.model_kwargs )
-            elif not self.model_args is None and not self.model_kwargs is None:
-                sims = self.model( pardict, *self.model_args, **self.model_kwargs )
-            self._set_sim_values(sims)
-            self._current = True
+            try:
+                if pardict is None:
+                    pardict = dict([(k,par.value) for k,par in self.pars.items()])
+                else: self.par_values = pardict
+                if self.model_args is None and self.model_kwargs is None:
+                    sims = self.model( pardict )
+                elif not self.model_args is None and self.model_kwargs is None:
+                    sims = self.model( pardict, *self.model_args )
+                elif self.model_args is None and not self.model_kwargs is None:
+                    sims = self.model( pardict, **self.model_kwargs )
+                elif not self.model_args is None and not self.model_kwargs is None:
+                    sims = self.model( pardict, *self.model_args, **self.model_kwargs )
+                self._set_sim_values(sims)
+                simdict = dict(zip(self.obs_names,self.sim_values))
+                self._current = True
+                if not curdir is None: os.chdir( curdir )
+                return simdict
+            except:
+                errstr = traceback.format_exc()                
+                print "Exception in model:"
+                print "-"*60
+                print errstr
+                print "-"*60
+                if not curdir is None: os.chdir( curdir )
+                return errstr
         else:
             print "Error: Model is not a Python function"
+            if not curdir is None: os.chdir( curdir )
             return 1
-        if not curdir is None:
-            os.chdir( curdir )
-        return None
     def lmfit(self,workdir=None,reuse_dirs=False,report_fit=True):
         """ Calibrate MATK model using lmfit package
 
@@ -727,10 +738,7 @@ class matk(object):
                 self.workdir = self.workdir_base + '.' + str(self.workdir_index)
             self.par_values = pars
             status = self.forward(reuse_dirs=reuse_dirs)
-            if status:
-                print "Error running forward model for parallel job " + str(self.workdir_index)
-            else:
-                out_list.put([lst_ind, self.sim_values])
+            out_list.put([lst_ind, smp_ind, status])
             if not save and not self.workdir is None:
                 rmtree( self.workdir )
             in_queue.task_done()
@@ -771,26 +779,41 @@ class matk(object):
         results = [None]*len(par_sets)
         header = True
         for i in range(len(par_sets)):
-            ind, resp = resultsq.get()
-            results[ind] = resp
-            if verbose:
-                if header:
-                    if len(self.obs_names) == 0:
-                        for i in range(len(results[ind])):
-                            print "%15s" % 'obs'+str(i+1),
-                    else:
-                        for nm in self.obs_names:
-                            print " ",
-                            print "%14s" % nm,
-                    header = False
+            lst_ind, smp_ind, resp = resultsq.get()
+            if isinstance( resp, str):
+                print "Exception in parallel job "+str(smp_ind)+":"
+                print "-"*60
+                print resp
+                print "-"*60
+            else:
+                if len(self.obs) == 0:
+                    self._set_sim_values(resp)
+                results[lst_ind] = resp.values()
+                if verbose:
+                    if header:
+                        if len(self.obs_names) == 0:
+                            for i in range(len(results[lst_ind])):
+                                print "%15s" % 'obs'+str(i+1),
+                        else:
+                            for nm in self.obs_names:
+                                print " ",
+                                print "%14s" % nm,
+                        header = False
+                        print ''
+                    print "%-8d" % indices[lst_ind],
+                    for v in par_sets[lst_ind]:
+                        print "%16lf" % v,
+                    for v in resp.values():
+                        if isinstance(v,str):
+                            print "%16s" % v,
+                        else:
+                            print "%16lf" % v,
                     print ''
-                print "%-8d" % indices[ind],
-                for v in par_sets[ind]:
-                    print "%16lf" % v,
-                for v in resp:
-                    print "%16lf" % v,
-                print ''
-            
+         
+        for i in range(len(results)):
+            if results[i] is None:
+                results[i] = [numpy.NAN]*len(self.obs)
+
         for p in pool:
             p.join()
 
@@ -890,9 +913,15 @@ class matk(object):
                         f.write("%15s" % nm )
             f.write('\n')
             for row in x:
-                f.write("%-8d" % row[0] )
+                if isinstance( row[0], str ):
+                    f.write("%-8s" % row[0] )
+                else:
+                    f.write("%-8d" % row[0] )
                 for i in range(1,len(row)):
-                    f.write("%16lf" % row[i] )
+                    if isinstance( row[i], str):
+                        f.write("%16s" % row[i] )
+                    else:
+                        f.write("%16lf" % row[i] )
                 f.write('\n')
             #numpy.savetxt(f, x, fmt='%16lf')
             f.close()
