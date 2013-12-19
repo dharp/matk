@@ -536,85 +536,6 @@ class matk(object):
         dist_pars = self.par_dist_pars
         x = lhs(dists, dist_pars, siz=siz, noCorrRestr=noCorrRestr, corrmat=corrmat, seed=seed)
         self.add_sampleset( name, x, index_start=index_start )
-    def run_samples(self, name=None, ncpus=1, templatedir=None, workdir_base=None,
-                    save=True, reuse_dirs=False, outfile=None, verbose=True ):
-        """ Run model using values in samples for parameter values
-            If samples are not specified, LHS samples are produced
-            
-            :param name: Name of MATK sample set object
-            :type samples: str
-            :param ncpus: number of cpus to use to run models concurrently
-            :type ncpus: int
-            :param templatedir: Name of folder including files needed to run model (e.g. template files, instruction files, executables, etc.)
-            :type templatedir: str
-            :param workdir_base: Base name for model run folders, run index is appended to workdir_base
-            :type workdir_base: str
-            :param save: If True, model files and folders will not be deleted during parallel model execution
-            :type save: bool
-            :param reuse_dirs: Will use existing directories if True, will return an error if False and directory exists
-            :type reuse_dirs: bool
-            :param outfile: File to write results to
-            :type outfile: str
-            :returns: tuple(ndarray(fl64),ndarray(fl64)) - (Matrix of responses from sampled model runs siz rows by npar columns, Parameter samples, same as input samples if provided)
-            
-        """
-        # If name is None, run last created sampleset 
-        if name is None:
-            name = next(reversed(self.sampleset)).name
-        elif len(self.sampleset) == 0:
-            print "Error: There is not a sampleset to run"
-            return
-        if templatedir:
-            self.templatedir = templatedir
-        if workdir_base:
-            self.workdir_base = workdir_base
-                
-        if verbose: 
-            print "%-8s" % 'index',
-            for nm in self.parnames:
-                print ' ',
-                print "%14s" % nm,
-            header = True
-        if ncpus == 1:
-            out = []
-            for sample, index in zip(self.sampleset[name].samples,self.sampleset[name].indices):
-                self.par_values = sample
-                if not self.workdir_base is None:
-                    workdir = self.workdir_base + '.' + str(index)
-                else:
-                    workdir = None
-                self.forward(workdir=workdir,reuse_dirs=reuse_dirs)
-                if not save and workdir:
-                    rmtree( workdir )
-                responses = self.sim_values
-                if verbose:
-                    if header:
-                        for nm in self.obsnames:
-                            print " ",
-                            print "%14s" % nm,
-                        header = False
-                        print ''
-                    print "%-8d" % index,
-                    for v in sample:
-                        print "%16lf" % v,
-                    for v in responses:
-                        print "%16lf" % v,
-                    print ''
-
-                out.append( responses )
-            out = numpy.array(out)
-        elif ncpus > 1:
-            out, samples = self.parallel(ncpus, self.sampleset[name].samples, indices=self.sampleset[name].indices,
-                                         templatedir=templatedir, workdir_base=workdir_base, 
-                                         save=save, reuse_dirs=reuse_dirs, verbose=verbose)
-        else:
-            print 'Error: number of cpus (ncpus) must be greater than zero'
-            return
-        self.sampleset[name].responses = out 
-        if not outfile is None:
-            self.sampleset[name].savetxt( outfile )
-
-        return out
     def child( self, in_queue, out_list, reuse_dirs, save):
         for pars,smp_ind,lst_ind in iter(in_queue.get, (None,None,None)):
             self.workdir_index = smp_ind
@@ -789,9 +710,7 @@ class matk(object):
         parset = numpy.array(parset)
         self.add_sampleset('_jac_',parset)
 
-        #self.sampleset['_jac_'].run( ncpus=ncpus, templatedir=templatedir, verbose=False,
-        #                 workdir_base=workdir_base, save=save, reuse_dirs=reuse_dirs )
-        self.run_samples(name='_jac_', ncpus=ncpus, templatedir=templatedir, verbose=False,
+        self.sampleset['_jac_'].run( ncpus=ncpus, templatedir=templatedir, verbose=False,
                          workdir_base=workdir_base, save=save, reuse_dirs=reuse_dirs )
         # Perform simulations on parameter sets
         obs = self.sampleset['_jac_'].responses
