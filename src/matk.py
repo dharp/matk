@@ -604,7 +604,7 @@ class matk(object):
                 out.append( responses )
             out = numpy.array(out)
         elif ncpus > 1:
-            out, samples = self.parallel_mp(ncpus, self.sampleset[name].samples, indices=self.sampleset[name].indices,
+            out, samples = self.parallel(ncpus, self.sampleset[name].samples, indices=self.sampleset[name].indices,
                                          templatedir=templatedir, workdir_base=workdir_base, 
                                          save=save, reuse_dirs=reuse_dirs, verbose=verbose)
         else:
@@ -615,122 +615,6 @@ class matk(object):
             self.save_sampleset( outfile, name )
 
         return out
-    def parallel(self, ncpus, par_sets, templatedir=None, workdir_base=None, save=True,
-                reuse_dirs=False, indices=None):
- 
-        def child( prob ):
-            if hasattr( prob.model, '__call__' ):
-                status = prob.forward(reuse_dirs=reuse_dirs)
-                if status:
-                    print "Error running forward model for parallel job " + str(prob.workdir_index)
-                    os._exit( 0 )
-                out = dict( zip(prob.obsnames,prob.sim_values) )
-                if self.workdir is None:
-                    pickle.dump( out, open(self.results_file, "wb"))
-                else:
-                    pickle.dump( out, open(os.path.join(self.workdir,self.results_file), "wb"))
-            os._exit( 0 )
-
-        def set_child( prob ):
-            if prob.workdir_base is not None:
-                prob.workdir = prob.workdir_base + '.' + str(prob.workdir_index)
-            prob.results_file = 'output' + '.' + str(prob.workdir_index)
-
-        # Determine if using working directories or not
-        saved_workdir = self.workdir # Save workdir to reset after parallel run
-        if not workdir_base is None: self.workdir_base = workdir_base
-        if self.workdir_base is None: self.workdir = None
-
-        # Determine number of samples and adjust ncpus if samples < ncpus requested
-        if isinstance( par_sets, numpy.ndarray ): n = par_sets.shape[0]
-        elif isinstance( par_sets, list ): n = len(par_sets)
-        if n < ncpus: ncpus = n
-
-        # Start ncpus model runs
-        jobs = []
-        pids = []
-        workdirs = []
-        ps_index = [] # Parset index used for reordering
-        results_files = []
-        for i in range(ncpus):
-            self.workdir_index = indices[i]
-            set_child( self )
-            pardict = dict(zip(self.parnames(), par_sets[i] ) )
-            self.par_values = pardict
-            pid = os.fork()
-            if pid:
-                parent = True
-                pids.append(pid)
-                workdirs.append( self.workdir )
-                ps_index.append( i )
-                results_files.append(self.results_file)
-            else:
-                parent = False
-                child( self )
-                os._exit( 0 )
-
-        
-        # Wait for jobs and start new ones
-        if parent:
-            # Create dictionaries of results_file names and working directories for reference below
-            resfl_dict = dict(zip(pids,results_files)) 
-            wkdir_dict = dict(zip(pids,workdirs))
-            ps_index_dict = dict(zip(pids,ps_index))
-            res_index = []
-            responses = []
-            njobs_started = ncpus
-            njobs_finished = 0
-            while njobs_finished < n and parent:
-                    rpid,status = os.wait() # Wait for jobs
-                    if status:
-                        print os.strerror( status )
-                        return 1
-                    # Update dictionaries to include any new jobs
-                    resfl_dict = dict(zip(pids,results_files))
-                    wkdir_dict = dict(zip(pids,workdirs))
-                    ps_index_dict = dict(zip(pids,ps_index))
-                    # Load results from completed job
-                    if not wkdir_dict[rpid] is None:
-                        out = pickle.load( open( os.path.join(wkdir_dict[rpid],resfl_dict[rpid]), "rb" ) )
-                        if save is False:
-                            rmtree( wkdir_dict[rpid] )
-                    else:
-                        out = pickle.load( open( resfl_dict[rpid], "rb" ))
-                        if save is False:
-                            os.remove( resfl_dict[rpid] )
-                    self._set_sim_values( out )
-                    responses.append( self.sim_values )
-                    res_index.append( ps_index_dict[rpid] )
-                    njobs_finished += 1
-                    # Start new jobs
-                    if njobs_started < n:
-                        njobs_started += 1
-                        self.workdir_index = indices[njobs_started-1]
-                        set_child( self )
-                        pardict = dict(zip(self.parnames(), par_sets[njobs_started-1] ) )
-                        self.par_values = pardict
-                        pid = os.fork()
-                        if pid:
-                            parent = True
-                            pids.append(pid)
-                            workdirs.append( self.workdir)
-                            results_files.append(self.results_file)
-                            ps_index.append( njobs_started-1 )
-                        else:
-                            parent = False
-                            child( self )
-                            os._exit( 0 )
-        
-        # Rearrange responses to correspond with par_sets
-        res = []
-        for i in range(n):
-            res.append( responses[res_index[i]] ) 
-        responses = numpy.array(res)
-
-        # Clean parent
-        self.workdir = saved_workdir
-
-        return responses, par_sets   
     def child( self, in_queue, out_list, reuse_dirs, save):
         for pars,smp_ind,lst_ind in iter(in_queue.get, (None,None,None)):
             self.workdir_index = smp_ind
@@ -743,7 +627,7 @@ class matk(object):
                 rmtree( self.workdir )
             in_queue.task_done()
         in_queue.task_done()
-    def parallel_mp(self, ncpus, par_sets, templatedir=None, workdir_base=None, save=True,
+    def parallel(self, ncpus, par_sets, templatedir=None, workdir_base=None, save=True,
                 reuse_dirs=False, indices=None, verbose=True):
 
         if not os.name is "posix":

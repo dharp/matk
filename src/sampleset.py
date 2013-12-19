@@ -254,7 +254,7 @@ class SampleSet(object):
                 print "%14s" % nm,
             header = True
         if ncpus > 0:
-            out, samples = self._parent.parallel_mp(ncpus, self.samples,
+            out, samples = self._parent.parallel(ncpus, self.samples,
                  indices=self.indices, templatedir=templatedir, workdir_base=workdir_base, 
                  save=save, reuse_dirs=reuse_dirs, verbose=verbose)
         else:
