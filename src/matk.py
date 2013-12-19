@@ -612,7 +612,7 @@ class matk(object):
             return
         self.sampleset[name].responses = out 
         if not outfile is None:
-            self.save_sampleset( outfile, name )
+            self.sampleset[name].savetxt( outfile )
 
         return out
     def child( self, in_queue, out_list, reuse_dirs, save):
@@ -760,55 +760,6 @@ class matk(object):
         x = numpy.array(x)
 
         self.add_sampleset( name, x )
-
-    def save_sampleset( self, outfile, sampleset ):
-        ''' Save sampleset to file
-
-            :param outfile: Name of file where sampleset will be written
-            :type outfile: str
-            :param sampleset: Sampleset name
-            :type sampleset: str
-        '''
-
-        if isinstance( sampleset, str ):
-            x = numpy.column_stack([self.sampleset[sampleset].indices,self.sampleset[sampleset].samples])
-            if not self.sampleset[sampleset].responses is None:
-                x = numpy.column_stack([x,self.sampleset[sampleset].responses])
-        else:
-            print 'Error: sampleset is not a string'
-            return
-
-        if outfile:
-            f = open(outfile, 'w')
-            f.write("%-8s" % 'index' )
-            # Print par names
-            for nm in self.parnames:
-                f.write(" ")
-                f.write("%15s" % nm )
-            # Print obs names if responses exist
-            if not self.sampleset[sampleset].responses is None:
-                if len(self.obsnames) == 0:
-                    for i in range(self.sampleset[sampleset].responses.shape[1]):
-                        #f.write(" ")
-                        f.write("%15s" % 'obs'+str(i+1) )
-                else:
-                    for nm in self.obsnames:
-                        #f.write(" ")
-                        f.write("%15s" % nm )
-            f.write('\n')
-            for row in x:
-                if isinstance( row[0], str ):
-                    f.write("%-8s" % row[0] )
-                else:
-                    f.write("%-8d" % row[0] )
-                for i in range(1,len(row)):
-                    if isinstance( row[i], str):
-                        f.write("%16s" % row[i] )
-                    else:
-                        f.write("%16lf" % row[i] )
-                f.write('\n')
-            #numpy.savetxt(f, x, fmt='%16lf')
-            f.close()
     def Jac( self, h=1.e-3, ncpus=1, templatedir=None, workdir_base=None,
                     save=True, reuse_dirs=False ):
         ''' Numerical Jacobian calculation

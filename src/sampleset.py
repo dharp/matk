@@ -274,9 +274,51 @@ class SampleSet(object):
         self.responses = out 
         self._obsnames = self._parent.obsnames
         if not outfile is None:
-            self._parent.save_sampleset( outfile, self.name )
+            self.savetxt( outfile )
 
         return out
+    def savetxt( self, outfile):
+        ''' Save sampleset to file
+
+            :param outfile: Name of file where sampleset will be written
+            :type outfile: str
+        '''
+
+        x = numpy.column_stack([self.indices,self.samples])
+        if not self.responses is None:
+            x = numpy.column_stack([x,self.responses])
+
+        if outfile:
+            f = open(outfile, 'w')
+            f.write("%-8s" % 'index' )
+            # Print par names
+            for nm in self.parnames:
+                f.write(" ")
+                f.write("%15s" % nm )
+            # Print obs names if responses exist
+            if not self.responses is None:
+                if len(self.obsnames) == 0:
+                    for i in range(self.responses.shape[1]):
+                        #f.write(" ")
+                        f.write("%15s" % 'obs'+str(i+1) )
+                else:
+                    for nm in self.obsnames:
+                        f.write(" ")
+                        f.write("%15s" % nm )
+            f.write('\n')
+            for row in x:
+                if isinstance( row[0], str ):
+                    f.write("%-8s" % row[0] )
+                else:
+                    f.write("%-8d" % row[0] )
+                for i in range(1,len(row)):
+                    if isinstance( row[i], str):
+                        f.write("%16s" % row[i] )
+                    else:
+                        f.write("%16lf" % row[i] )
+                f.write('\n')
+            #numpy.savetxt(f, x, fmt='%16lf')
+            f.close()
             
 
 
