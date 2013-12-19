@@ -584,7 +584,7 @@ class matk(object):
                 else:
                     workdir = None
                 self.forward(workdir=workdir,reuse_dirs=reuse_dirs)
-                if not save:
+                if not save and workdir:
                     rmtree( workdir )
                 responses = self.sim_values
                 if verbose:

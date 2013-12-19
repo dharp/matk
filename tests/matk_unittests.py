@@ -60,7 +60,7 @@ class Tests(unittest.TestCase):
     def parallel(self):
         # Without working directories
         self.p.set_lhs_samples('lhs', siz=10 )
-        #self.p.run_samples('lhs', ncpus=2, save=False, verbose=False)
+        #self.p.run_samples('lhs', ncpus=1, save=False, verbose=False)
         self.p.sampleset['lhs'].run( ncpus=2, save=False, verbose=False)
         for smp,out in zip(self.p.sampleset['lhs'].samples,self.p.sampleset['lhs'].responses):
             self.p.par_values = smp

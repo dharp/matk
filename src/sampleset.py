@@ -2,6 +2,7 @@ import sys
 import numpy
 import string
 from scipy import stats
+from shutil import rmtree
 try:
     from matplotlib import pyplot as plt
     plotflag = True
@@ -136,11 +137,17 @@ class SampleSet(object):
     def parnames(self):
         """ Array of parameter names
         """ 
+        if not self._parent is None:
+            if len(self._parent.parnames):
+                self._parnames = self._parent.parnames
         return self._parnames
     @property
     def obsnames(self):
         """ Array of observation names
         """ 
+        if not self._parent is None:
+            if len(self._parent.obsnames):
+                self._obsnames = self._parent.obsnames
         return self._obsnames
     @property
     def index_start(self):
@@ -228,7 +235,35 @@ class SampleSet(object):
                 print ' ',
                 print "%14s" % nm,
             header = True
-        if ncpus > 0:
+        if ncpus == 1:
+            out = []
+            for sample, index in zip(self.samples,self.indices):
+                self._parent.par_values = sample
+                if not self._parent.workdir_base is None:
+                    workdir = self._parent.workdir_base + '.' + str(index)
+                else:
+                    workdir = None
+                self._parent.forward(workdir=workdir,reuse_dirs=reuse_dirs)
+                if not save and workdir:
+                    rmtree( workdir )
+                responses = self._parent.sim_values
+                if verbose:
+                    if header:
+                        for nm in self.obsnames:
+                            print " ",
+                            print "%14s" % nm,
+                        header = False
+                        print ''
+                    print "%-8d" % index,
+                    for v in sample:
+                        print "%16lf" % v,
+                    for v in responses:
+                        print "%16lf" % v,
+                    print ''
+
+                out.append( responses )
+            out = numpy.array(out)
+        elif ncpus > 1:
             out, samples = self._parent.parallel(ncpus, self.samples,
                  indices=self.indices, templatedir=templatedir, workdir_base=workdir_base, 
                  save=save, reuse_dirs=reuse_dirs, verbose=verbose)
