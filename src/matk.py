@@ -628,7 +628,7 @@ class matk(object):
             in_queue.task_done()
         in_queue.task_done()
     def parallel(self, ncpus, par_sets, templatedir=None, workdir_base=None, save=True,
-                reuse_dirs=False, indices=None, verbose=True):
+                reuse_dirs=False, indices=None, verbose=True, logfile=None):
 
         if not os.name is "posix":
             # Use freeze_support for PCs
@@ -660,8 +660,14 @@ class matk(object):
         for item in zip(iter_args,iter_smpind,iter_lstind):
             work.put(item)
         
+        if verbose or logfile: 
+            if logfile: f = open(logfile, 'w')
+            s = "%-8s" % 'index'
+            for nm in self.parnames:
+                s += " %16s" % nm
+            header = True
+
         results = [None]*len(par_sets)
-        header = True
         for i in range(len(par_sets)):
             lst_ind, smp_ind, resp = resultsq.get()
             if isinstance( resp, str):
@@ -673,27 +679,24 @@ class matk(object):
                 if len(self.obs) == 0:
                     self._set_sim_values(resp)
                 results[lst_ind] = resp.values()
-                if verbose:
+                if verbose or logfile:
                     if header:
-                        if len(self.obsnames) == 0:
-                            for i in range(len(results[lst_ind])):
-                                print "%15s" % 'obs'+str(i+1),
-                        else:
-                            for nm in self.obsnames:
-                                print " ",
-                                print "%14s" % nm,
+                        for nm in self.obsnames:
+                            s += " %16s" % nm
+                        s += '\n'
+                        if verbose: print s,
+                        if logfile: f.write( s )
                         header = False
-                        print ''
-                    print "%-8d" % indices[lst_ind],
+                    s = "%-8d" % smp_ind
                     for v in par_sets[lst_ind]:
-                        print "%16lf" % v,
-                    for v in resp.values():
-                        if isinstance(v,str):
-                            print "%16s" % v,
-                        else:
-                            print "%16lf" % v,
-                    print ''
-         
+                        s += " %16lf" % v
+                    for v in results[lst_ind]:
+                        s += " %16lf" % v
+                    s += '\n'
+                    if verbose: print s,
+                    if logfile: f.write( s )
+        if logfile: f.close()
+
         for i in range(len(results)):
             if results[i] is None:
                 results[i] = [numpy.NAN]*len(self.obs)

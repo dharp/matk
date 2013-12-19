@@ -206,7 +206,7 @@ class SampleSet(object):
 
         return corrcoef
     def run(self, ncpus=1, templatedir=None, workdir_base=None,
-                    save=True, reuse_dirs=False, outfile=None, verbose=True ):
+                    save=True, reuse_dirs=False, outfile=None, logfile=None, verbose=True ):
         """ Run model using values in samples for parameter values
             If samples are not specified, LHS samples are produced
             
@@ -222,6 +222,8 @@ class SampleSet(object):
             :type reuse_dirs: bool
             :param outfile: File to write results to
             :type outfile: str
+            :param logfile: File to write details of run to during execution
+            :type logfile: str
             :returns: tuple(ndarray(fl64),ndarray(fl64)) - (Matrix of responses from sampled model runs siz rows by npar columns, Parameter samples, same as input samples if provided)
         """
         if templatedir:
@@ -229,13 +231,13 @@ class SampleSet(object):
         if workdir_base:
             self._parent.workdir_base = workdir_base
                 
-        if verbose: 
-            print "%-8s" % 'index',
-            for nm in self.parnames:
-                print ' ',
-                print "%14s" % nm,
-            header = True
         if ncpus == 1:
+            if verbose or logfile: 
+                if logfile: f = open(logfile, 'w')
+                s = "%-8s" % 'index'
+                for nm in self.parnames:
+                    s += " %16s" % nm
+                header = True
             out = []
             for sample, index in zip(self.samples,self.indices):
                 self._parent.par_values = sample
@@ -247,26 +249,29 @@ class SampleSet(object):
                 if not save and workdir:
                     rmtree( workdir )
                 responses = self._parent.sim_values
-                if verbose:
+                if verbose or logfile:
                     if header:
                         for nm in self.obsnames:
-                            print " ",
-                            print "%14s" % nm,
+                            s += " %16s" % nm
+                        s += '\n'
+                        if verbose: print s,
+                        if logfile: f.write( s )
                         header = False
-                        print ''
-                    print "%-8d" % index,
+                    s = "%-8d" % index
                     for v in sample:
-                        print "%16lf" % v,
+                        s += " %16lf" % v
                     for v in responses:
-                        print "%16lf" % v,
-                    print ''
-
+                        s += " %16lf" % v
+                    s += '\n'
+                    if verbose: print s,
+                    if logfile: f.write( s )
                 out.append( responses )
+            if logfile: f.close()
             out = numpy.array(out)
         elif ncpus > 1:
             out, samples = self._parent.parallel(ncpus, self.samples,
                  indices=self.indices, templatedir=templatedir, workdir_base=workdir_base, 
-                 save=save, reuse_dirs=reuse_dirs, verbose=verbose)
+                 save=save, reuse_dirs=reuse_dirs, verbose=verbose, logfile=logfile)
         else:
             print 'Error: number of cpus (ncpus) must be greater than zero'
             return

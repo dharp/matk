@@ -15,7 +15,7 @@ p.add_par('par2',min=0,max=0.2)
 p.add_par('par3',min=0,max=1)
 p.add_par('par4',min=0,max=0.2)
 
-p.set_lhs_samples('lhs', siz=10, seed=1000)
-p.sampleset['lhs'].run( ncpus=2, outfile='results.dat')
+p.set_lhs_samples('lhs', siz=20, seed=1000)
+p.sampleset['lhs'].run( ncpus=1, outfile='results.dat', logfile='log.dat')
 #p.run_samples('lhs', ncpus=2, outfile='results.dat')
  
