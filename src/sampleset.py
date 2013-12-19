@@ -40,14 +40,14 @@ class SampleSet(object):
             elif k == 'parnames':
                 if not v is None:
                     if isinstance( v, (tuple,list,numpy.ndarray)):
-                        self.parnames = v
+                        self._parnames = v
                     else:
                         print "Error: Parnames are not a tuple, list or ndarray"
                         return
             elif k == 'obsnames':
                 if not v is None:
                     if isinstance( v, (tuple,list,numpy.ndarray)):
-                        self.obsnames = v
+                        self._obsnames = v
                     else:
                         print "Error: Obsnames are not a tuple, list or ndarray"
                         return
@@ -137,34 +137,11 @@ class SampleSet(object):
         """ Array of parameter names
         """ 
         return self._parnames
-    @parnames.setter
-    def parnames(self,value):
-        if self.samples is None and value is None:
-            self._parnames = value
-        elif self.samples is None and not value is None:
-            print "Error: Samples are not defined"
-            return
-        elif value is None:
-            self._parnames = value
-        elif not len(value) == self.samples.shape[1]:
-            print "Error: number of parnames does not equal number of samples"
-            return
-        else:
-            self._parnames = value
     @property
     def obsnames(self):
         """ Array of observation names
         """ 
         return self._obsnames
-    @obsnames.setter
-    def obsnames(self,value):
-        if self.samples is None and value is None:
-            self._obsnames = value
-        elif self.samples is None and not value is None:
-            print "Error: Samples are not defined"
-            return
-        else:
-            self._obsnames = value
     @property
     def index_start(self):
         """ Starting integer value for sample indices
@@ -239,7 +216,6 @@ class SampleSet(object):
             :type reuse_dirs: bool
             :param outfile: File to write results to
             :type outfile: str
-            :returns: tuple(ndarray(fl64),ndarray(fl64)) - (Matrix of responses from sampled model runs siz rows by npar columns, Parameter samples, same as input samples if provided)
             
         """
         if templatedir:
@@ -261,9 +237,9 @@ class SampleSet(object):
             print 'Error: number of cpus (ncpus) must be greater than zero'
             return
         self.responses = out 
+        self._obsnames = self._parent.obsnames
         if not outfile is None:
             self._parent.save_sampleset( outfile, self.name )
-        #return out
             
 
 
