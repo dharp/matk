@@ -197,7 +197,6 @@ class SampleSet(object):
             plt.xticks(numpy.arange(0.5,len(self.obsnames)+0.5),self.obsnames)
             plt.show()
 
-
         return corrcoef
     def run(self, ncpus=1, templatedir=None, workdir_base=None,
                     save=True, reuse_dirs=False, outfile=None, verbose=True ):
@@ -216,7 +215,7 @@ class SampleSet(object):
             :type reuse_dirs: bool
             :param outfile: File to write results to
             :type outfile: str
-            
+            :returns: tuple(ndarray(fl64),ndarray(fl64)) - (Matrix of responses from sampled model runs siz rows by npar columns, Parameter samples, same as input samples if provided)
         """
         if templatedir:
             self._parent.templatedir = templatedir
@@ -236,10 +235,13 @@ class SampleSet(object):
         else:
             print 'Error: number of cpus (ncpus) must be greater than zero'
             return
+        out = numpy.array(out)
         self.responses = out 
         self._obsnames = self._parent.obsnames
         if not outfile is None:
             self._parent.save_sampleset( outfile, self.name )
+
+        return out
             
 
 

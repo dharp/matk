@@ -835,6 +835,8 @@ class matk(object):
         parset = numpy.array(parset)
         self.add_sampleset('_jac_',parset)
 
+        #self.sampleset['_jac_'].run( ncpus=ncpus, templatedir=templatedir, verbose=False,
+        #                 workdir_base=workdir_base, save=save, reuse_dirs=reuse_dirs )
         self.run_samples(name='_jac_', ncpus=ncpus, templatedir=templatedir, verbose=False,
                          workdir_base=workdir_base, save=save, reuse_dirs=reuse_dirs )
         # Perform simulations on parameter sets
@@ -848,7 +850,6 @@ class matk(object):
         # If current simulated values are associated with current parameter values...
         if self._current:
             self._set_sim_values(sims)
-
         return numpy.array(J).T
     def calibrate( self, maxiter=100, lambdax=0.001, minchange=1.0e-1, minlambdax=1.0e-6, verbose=False,
                   workdir=None, reuse_dirs=False):
