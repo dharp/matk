@@ -214,19 +214,19 @@ class matk(object):
             print "Error: The number of columns in sample is not equal to the number of parameters in the problem"
             return 1
         if len(self.pars) > 0:
-            parnames = self.par_names
+            parnames = self.parnames
         else:
             parnames = None
         if len(self.obs) > 0:
-            obsnames = self.obs_names
+            obsnames = self.obsnames
         else:
             obsnames = None
         if name in self.sampleset: 
-            self.sampleset[name] = SampleSet(name,samples,responses=responses,
+            self.sampleset[name] = SampleSet(name,samples,parent=self,responses=responses,
                                              indices=indices,index_start=index_start,
                                              parnames=parnames, obsnames=obsnames)
         else:
-            self.sampleset.__setitem__( name, SampleSet(name,samples,responses=responses,
+            self.sampleset.__setitem__( name, SampleSet(name,samples,parent=self,responses=responses,
                                                 indices=indices,index_start=index_start,
                                                 parnames=parnames, obsnames=obsnames))
     @property
@@ -286,7 +286,7 @@ class matk(object):
         else:
             print "Error: tuple, list, numpy.ndarray, or dictionary expected"
     @property
-    def par_names(self):
+    def parnames(self):
         """ Get parameter names
         """
         return [par.name for par in self.pars.values()]
@@ -326,7 +326,7 @@ class matk(object):
         else:
             print "Error: tuple, list, numpy.ndarray, or dictionary expected"
     @property
-    def obs_names(self):
+    def obsnames(self):
         """ Get observation names
         """
         return [o.name for o in self.obs.values()]
@@ -419,7 +419,7 @@ class matk(object):
                 elif not self.model_args is None and not self.model_kwargs is None:
                     sims = self.model( pardict, *self.model_args, **self.model_kwargs )
                 self._set_sim_values(sims)
-                simdict = dict(zip(self.obs_names,self.sim_values))
+                simdict = dict(zip(self.obsnames,self.sim_values))
                 self._current = True
                 if not curdir is None: os.chdir( curdir )
                 return simdict
@@ -571,7 +571,7 @@ class matk(object):
                 
         if verbose: 
             print "%-8s" % 'index',
-            for nm in self.par_names:
+            for nm in self.parnames:
                 print ' ',
                 print "%14s" % nm,
             header = True
@@ -589,7 +589,7 @@ class matk(object):
                 responses = self.sim_values
                 if verbose:
                     if header:
-                        for nm in self.obs_names:
+                        for nm in self.obsnames:
                             print " ",
                             print "%14s" % nm,
                         header = False
@@ -624,7 +624,7 @@ class matk(object):
                 if status:
                     print "Error running forward model for parallel job " + str(prob.workdir_index)
                     os._exit( 0 )
-                out = dict( zip(prob.obs_names,prob.sim_values) )
+                out = dict( zip(prob.obsnames,prob.sim_values) )
                 if self.workdir is None:
                     pickle.dump( out, open(self.results_file, "wb"))
                 else:
@@ -655,7 +655,7 @@ class matk(object):
         for i in range(ncpus):
             self.workdir_index = indices[i]
             set_child( self )
-            pardict = dict(zip(self.par_names(), par_sets[i] ) )
+            pardict = dict(zip(self.parnames(), par_sets[i] ) )
             self.par_values = pardict
             pid = os.fork()
             if pid:
@@ -707,7 +707,7 @@ class matk(object):
                         njobs_started += 1
                         self.workdir_index = indices[njobs_started-1]
                         set_child( self )
-                        pardict = dict(zip(self.par_names(), par_sets[njobs_started-1] ) )
+                        pardict = dict(zip(self.parnames(), par_sets[njobs_started-1] ) )
                         self.par_values = pardict
                         pid = os.fork()
                         if pid:
@@ -791,11 +791,11 @@ class matk(object):
                 results[lst_ind] = resp.values()
                 if verbose:
                     if header:
-                        if len(self.obs_names) == 0:
+                        if len(self.obsnames) == 0:
                             for i in range(len(results[lst_ind])):
                                 print "%15s" % 'obs'+str(i+1),
                         else:
-                            for nm in self.obs_names:
+                            for nm in self.obsnames:
                                 print " ",
                                 print "%14s" % nm,
                         header = False
@@ -898,17 +898,17 @@ class matk(object):
             f = open(outfile, 'w')
             f.write("%-8s" % 'index' )
             # Print par names
-            for nm in self.par_names:
+            for nm in self.parnames:
                 f.write(" ")
                 f.write("%15s" % nm )
             # Print obs names if responses exist
             if not self.sampleset[sampleset].responses is None:
-                if len(self.obs_names) == 0:
+                if len(self.obsnames) == 0:
                     for i in range(self.sampleset[sampleset].responses.shape[1]):
                         #f.write(" ")
                         f.write("%15s" % 'obs'+str(i+1) )
                 else:
-                    for nm in self.obs_names:
+                    for nm in self.obsnames:
                         #f.write(" ")
                         f.write("%15s" % nm )
             f.write('\n')

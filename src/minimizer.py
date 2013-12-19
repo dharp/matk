@@ -48,7 +48,7 @@ class Minimizer(LmfitMinimizer):
             self.nfev = self.nfev + 1
 
             self.update_constraints()
-            pardict = dict(zip(self._parent.par_names, self._parent.par_values))
+            pardict = dict(zip(self._parent.parnames, self._parent.par_values))
             self.userfcn(pardict=pardict, *self.userargs, **self.userkws)
         else:
             self.userfcn(*self.userargs, **self.userkws)
@@ -104,7 +104,7 @@ class Minimizer(LmfitMinimizer):
                 if (lambdax == 0.0) :
                     break
                 # Form RHS beta vector
-                #pardict = dict(zip(self._parent.par_names, a))
+                #pardict = dict(zip(self._parent.parnames, a))
                 #self._parent.forward(pardict=pardict, workdir=workdir, reuse_dirs=reuse_dirs)
                 r = numpy.array(self.__residual(a))
                 beta = -numpy.dot(J.T,r)
@@ -140,7 +140,7 @@ class Minimizer(LmfitMinimizer):
                 # Compute new parameters
                 newa = a + delta
                 # and new sum of squares
-                #pardict = dict(zip(self._parent.par_names, newa))
+                #pardict = dict(zip(self._parent.parnames, newa))
                 #self._parent.forward(pardict=pardict, workdir=workdir, reuse_dirs=reuse_dirs)
                 self.__residual(newa)
                 newSS = self._parent.ssr

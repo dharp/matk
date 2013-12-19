@@ -13,7 +13,7 @@ class SampleSet(object):
     """ MATK samples class - Stores information related to a sample
         includeing parameter samples, associated responses, and sample indices
     """
-    def __init__(self, name, samples, index_start=1, **kwargs):
+    def __init__(self,name,samples,index_start=1,**kwargs):
         self.name = name
         self._samples = samples
         self._responses = None
@@ -21,6 +21,7 @@ class SampleSet(object):
         self._parnames = None
         self._obsnames = None
         self._index_start = index_start
+        self._parent = None
         for k,v in kwargs.iteritems():
             if k == 'responses':
                 if not v is None:
@@ -50,6 +51,8 @@ class SampleSet(object):
                     else:
                         print "Error: Obsnames are not a tuple, list or ndarray"
                         return
+            elif k == 'parent':
+                self._parent = v
             else:
                 print k + ' is not a valid argument'
         # Set default indices if None
@@ -160,8 +163,6 @@ class SampleSet(object):
         elif self.samples is None and not value is None:
             print "Error: Samples are not defined"
             return
-        elif value is None:
-            self._obsnames = value
         else:
             self._obsnames = value
     @property
@@ -221,6 +222,48 @@ class SampleSet(object):
 
 
         return corrcoef
+    def run(self, ncpus=1, templatedir=None, workdir_base=None,
+                    save=True, reuse_dirs=False, outfile=None, verbose=True ):
+        """ Run model using values in samples for parameter values
+            If samples are not specified, LHS samples are produced
+            
+            :param ncpus: number of cpus to use to run models concurrently
+            :type ncpus: int
+            :param templatedir: Name of folder including files needed to run model (e.g. template files, instruction files, executables, etc.)
+            :type templatedir: str
+            :param workdir_base: Base name for model run folders, run index is appended to workdir_base
+            :type workdir_base: str
+            :param save: If True, model files and folders will not be deleted during parallel model execution
+            :type save: bool
+            :param reuse_dirs: Will use existing directories if True, will return an error if False and directory exists
+            :type reuse_dirs: bool
+            :param outfile: File to write results to
+            :type outfile: str
+            :returns: tuple(ndarray(fl64),ndarray(fl64)) - (Matrix of responses from sampled model runs siz rows by npar columns, Parameter samples, same as input samples if provided)
+            
+        """
+        if templatedir:
+            self._parent.templatedir = templatedir
+        if workdir_base:
+            self._parent.workdir_base = workdir_base
+                
+        if verbose: 
+            print "%-8s" % 'index',
+            for nm in self.parnames:
+                print ' ',
+                print "%14s" % nm,
+            header = True
+        if ncpus > 0:
+            out, samples = self._parent.parallel_mp(ncpus, self.samples,
+                 indices=self.indices, templatedir=templatedir, workdir_base=workdir_base, 
+                 save=save, reuse_dirs=reuse_dirs, verbose=verbose)
+        else:
+            print 'Error: number of cpus (ncpus) must be greater than zero'
+            return
+        self.responses = out 
+        if not outfile is None:
+            self._parent.save_sampleset( outfile, self.name )
+        #return out
             
 
 
