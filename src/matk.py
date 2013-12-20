@@ -595,9 +595,8 @@ class matk(object):
                 print s
                 if logfile: f.write(s+'\n')
             else:
-                if len(self.obs) == 0:
-                    self._set_sim_values(resp)
-                results[lst_ind] = resp.values()
+                self._set_sim_values(resp)
+                results[lst_ind] = self.sim_values
                 if verbose or logfile:
                     if header:
                         for nm in self.obsnames:
@@ -722,11 +721,31 @@ class matk(object):
         if self._current:
             self._set_sim_values(sims)
         return numpy.array(J).T
-    def calibrate( self, maxiter=100, lambdax=0.001, minchange=1.0e-1, minlambdax=1.0e-6, verbose=False,
+    def calibrate( self, ncpus=1, maxiter=100, lambdax=0.001, minchange=1.0e-1, minlambdax=1.0e-6, verbose=False,
                   workdir=None, reuse_dirs=False):
+        """ Calibrate MATK model using Levenberg-Marquardt algorithm based on 
+            original code written by Ernesto P. Adorio PhD. 
+            (UPDEPP at Clarkfield, Pampanga)
+
+            :param ncpus: Number of cpus to use
+            :type maxiter: int
+            :param maxiter: Maximum number of iterations
+            :type maxiter: int
+            :param lambdax: Initial Marquardt lambda
+            :type lambdax: fl64
+            :param minchange: Minimum change between successive ChiSquares
+            :type minchange: fl64
+            :param minlambdax: Minimum lambda value
+            :type minlambdax: fl4
+            :param verbose: If True, additional information written to screen during calibration
+            :type verbose: bool
+            :returns: best fit parameters found by routine
+            :returns: best Sum of squares.
+            :returns: covariance matrix
+        """
         from minimizer import Minimizer
         fitter = Minimizer(self)
-        fitter.calibrate(maxiter=maxiter, lambdax=lambdax, minchange=minchange,
-                         minlambdax=minlambdax, verbose=verbose, workdir=workdir, reuse_dirs=reuse_dirs)
+        fitter.calibrate(ncpus=ncpus,maxiter=maxiter,lambdax=lambdax,minchange=minchange,
+                         minlambdax=minlambdax,verbose=verbose,workdir=workdir,reuse_dirs=reuse_dirs)
 
 
