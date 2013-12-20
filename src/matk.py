@@ -251,7 +251,7 @@ class matk(object):
                 # If no observations exist, create them
                 if len(self.obs) == 0:
                     for i,v in zip(range(len(args[0])),args[0]): 
-                        self.add_obs('obs'+str(i),sim=v)
+                        self.add_obs('obs'+str(i+1),sim=v)
                 elif not len(args[0]) == len(self.obs): 
                     print len(args[0]), len(self.obs)
                     print "Error: Number of simulated values in list or tuple does not match created observations"
@@ -419,7 +419,7 @@ class matk(object):
                 elif not self.model_args is None and not self.model_kwargs is None:
                     sims = self.model( pardict, *self.model_args, **self.model_kwargs )
                 self._set_sim_values(sims)
-                simdict = dict(zip(self.obsnames,self.sim_values))
+                simdict = OrderedDict(zip(self.obsnames,self.sim_values))
                 self._current = True
                 if not curdir is None: os.chdir( curdir )
                 return simdict
@@ -596,7 +596,7 @@ class matk(object):
                 if logfile: f.write(s+'\n')
             else:
                 self._set_sim_values(resp)
-                results[lst_ind] = self.sim_values
+                results[lst_ind] = resp.values()
                 if verbose or logfile:
                     if header:
                         for nm in self.obsnames:

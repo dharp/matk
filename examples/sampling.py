@@ -1,11 +1,19 @@
 import matk
 import numpy
 from scipy import arange, randn, exp
+try:
+    from collections import OrderedDict as dict
+except:
+    print "Warning: collections module is not installed"
+    print "Ordering of observations will not be maintained in output"
+
+
 
 def dbexpl(p):
     t=arange(0,100,20.)
     y =  (p['par1']*exp(-p['par2']*t) + p['par3']*exp(-p['par4']*t))
-    return {'obs1':y[0],'obs2':y[1],'obs3':y[2],'obs4':y[3],'obs5':y[4]}
+    nm =  ['o1','o2','o3','o4','o5']
+    return dict(zip(nm,y))
 
 
 # Sampling model
