@@ -60,12 +60,14 @@ class Minimizer(LmfitMinimizer):
 
 
 
-    def calibrate( self, maxiter=100, lambdax=0.001, minchange=1.0e-1, minlambdax=1.0e-6, verbose=False,
+    def calibrate( self, ncpus=1, maxiter=100, lambdax=0.001, minchange=1.0e-1, minlambdax=1.0e-6, verbose=False,
                   workdir=None, reuse_dirs=False):
         """ Calibrate MATK model using Levenberg-Marquardt algorithm based on 
             original code written by Ernesto P. Adorio PhD. 
             (UPDEPP at Clarkfield, Pampanga)
 
+            :param ncpus: Number of cpus to use
+            :type maxiter: int
             :param maxiter: Maximum number of iterations
             :type maxiter: int
             :param lambdax: Initial Marquardt lambda
@@ -86,7 +88,6 @@ class Minimizer(LmfitMinimizer):
         m = len(self._parent.pars) # Number of parameters
         a = numpy.copy(self._parent.par_values) # Initial parameter values
         besta = a # Best parameters start as current parameters
-        #self._parent.forward(workdir=workdir, reuse_dirs=reuse_dirs)
         self.__residual()
         bestSS = SS = self._parent.ssr # Sum of squared error
         Cov = None
@@ -98,14 +99,13 @@ class Minimizer(LmfitMinimizer):
             # If iscomp, recalculate JtJ and beta
             if (iscomp) :
                 # Compute Jacobian
-                J = self._parent.Jac()
+                self._parent.parvalues = a
+                J = self._parent.Jac(ncpus=ncpus)
                 # Compute Hessian
                 JtJ = numpy.dot(J.T,J)
                 if (lambdax == 0.0) :
                     break
                 # Form RHS beta vector
-                #pardict = dict(zip(self._parent.parnames, a))
-                #self._parent.forward(pardict=pardict, workdir=workdir, reuse_dirs=reuse_dirs)
                 r = numpy.array(self.__residual(a))
                 beta = -numpy.dot(J.T,r)
 
@@ -140,8 +140,6 @@ class Minimizer(LmfitMinimizer):
                 # Compute new parameters
                 newa = a + delta
                 # and new sum of squares
-                #pardict = dict(zip(self._parent.parnames, newa))
-                #self._parent.forward(pardict=pardict, workdir=workdir, reuse_dirs=reuse_dirs)
                 self.__residual(newa)
                 newSS = self._parent.ssr
                 if verbose: print "newSS = ", newSS
@@ -152,7 +150,6 @@ class Minimizer(LmfitMinimizer):
                     bestSS = newSS
                     bestJtJ = JtJ
                     a = newa
-                    #a = newa
                     iscomp = True
                     if verbose:
                         print "new a:"
@@ -184,8 +181,6 @@ class Minimizer(LmfitMinimizer):
             if Cov is None: flag = 4
             if (p >= maxiter) :
                 flag = 2
-        #self._parent.par_values = besta
-        #self._parent.forward( workdir=workdir, reuse_dirs=reuse_dirs)
         self.__residual(besta)
         if verbose:
             print 'Parameter: '
