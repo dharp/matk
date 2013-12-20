@@ -231,56 +231,7 @@ class SampleSet(object):
         if workdir_base:
             self._parent.workdir_base = workdir_base
                 
-        if ncpus == 1:
-            if verbose or logfile: 
-                if logfile: f = open(logfile, 'w')
-                s = "%-8s" % 'index'
-                for nm in self.parnames:
-                    s += " %16s" % nm
-                header = True
-            out = [None]*self.samples.shape[0]
-            i = 0
-            for sample, index in zip(self.samples,self.indices):
-                self._parent.par_values = sample
-                if not self._parent.workdir_base is None:
-                    workdir = self._parent.workdir_base + '.' + str(index)
-                else:
-                    workdir = None
-                status = self._parent.forward(workdir=workdir,reuse_dirs=reuse_dirs)
-                if isinstance( status, str):
-                    s = "-"*60+'\n'
-                    s += "Exception in job "+str(index)+":"+'\n'
-                    s += status
-                    s += "-"*60
-                    print s
-                    if logfile: f.write(s+'\n')
-                else:
-                    out[i] = self._parent.sim_values
-                    if not save and workdir:
-                        rmtree( workdir )
-                    if verbose or logfile:
-                        if header:
-                            for nm in self.obsnames:
-                                s += " %16s" % nm
-                            s += '\n'
-                            if verbose: print s,
-                            if logfile: f.write( s )
-                            header = False
-                        s = "%-8d" % index
-                        for v in sample:
-                            s += " %16lf" % v
-                        for v in out[i]:
-                            s += " %16lf" % v
-                        s += '\n'
-                        if verbose: print s,
-                        if logfile: f.write( s )
-                i+=1
-            if logfile: f.close()
-            for i in range(len(out)):
-                if out[i] is None:
-                    out[i] = [numpy.NAN]*len(self.obsnames)
-            out = numpy.array(out)
-        elif ncpus > 1:
+        if ncpus > 0:
             out, samples = self._parent.parallel(ncpus, self.samples,
                  indices=self.indices, templatedir=templatedir, workdir_base=workdir_base, 
                  save=save, reuse_dirs=reuse_dirs, verbose=verbose, logfile=logfile)
@@ -331,7 +282,6 @@ class SampleSet(object):
                     else:
                         f.write(" %16lf" % row[i] )
                 f.write('\n')
-            #numpy.savetxt(f, x, fmt='%16lf')
             f.close()
             
 
