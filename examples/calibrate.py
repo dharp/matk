@@ -19,4 +19,4 @@ p.add_par('a2', value=-0.4)
 p.forward()
 p.obs_values = [5.308,7.24,9.638,12.866,17.069,23.192,31.443,38.558,50.156,62.948,75.995,91.972]
 
-p.calibrate(verbose=True)
+p.calibrate(ncpus=6,verbose=True)
