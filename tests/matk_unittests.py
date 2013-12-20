@@ -131,7 +131,6 @@ class Tests(unittest.TestCase):
         
 def suite(case):
     suite = unittest.TestSuite()
-    suite.addTest( Tests('setUp') )
     if case == 'base' or case == 'all':
         suite.addTest( Tests('forward') )
         suite.addTest( Tests('sample') )
