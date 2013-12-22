@@ -33,8 +33,8 @@ class Tests(unittest.TestCase):
         self.c.add_par('shift', value=-0.1, min=-numpy.pi/2., max=numpy.pi/2.)
         self.c.add_par('omega', value=2.0)
         self.c.forward()
-        self.c.obs_values = self.c.sim_values
-        self.c.par_values = {'amp':10.,'decay':0.1,'shift':0.,'omega':3.0}
+        self.c.obsvalues = self.c.sim_values
+        self.c.parvalues = {'amp':10.,'decay':0.1,'shift':0.,'omega':3.0}
         # Model for testing jacobian
         self.j = matk.matk(model=fv)
         self.j.add_par('a0', value=0.7)
@@ -44,7 +44,7 @@ class Tests(unittest.TestCase):
     def forward(self):
         self.p.forward()
         results = self.p.sim_values
-        self.p.obs_values = results
+        self.p.obsvalues = results
         self.assertEqual(sum(self.p.residuals),0.0, 'Residual from forward run is not zero')
 
     def sample(self):
@@ -53,8 +53,8 @@ class Tests(unittest.TestCase):
         s = self.p.sampleset['lhs'].samples
         mins = s.min(axis=0)
         maxs = s.max(axis=0)
-        lb = self.p.par_mins
-        ub = self.p.par_maxs
+        lb = self.p.parmins
+        ub = self.p.parmaxs
         self.assertTrue( (maxs >= lb).any() and (mins <= ub).any(), 'Sample outside parameter bounds' )
 
     def parallel(self):
@@ -63,9 +63,9 @@ class Tests(unittest.TestCase):
         #self.p.run_samples('lhs', ncpus=1, save=False, verbose=False)
         self.p.sampleset['lhs'].run( ncpus=2, save=False, verbose=False)
         for smp,out in zip(self.p.sampleset['lhs'].samples,self.p.sampleset['lhs'].responses):
-            self.p.par_values = smp
+            self.p.parvalues = smp
             self.p.forward()
-            self.p.obs_values =  out
+            self.p.obsvalues =  out
             self.assertTrue( sum(self.p.residuals) == 0., 'A parallel run does not match a forward run' )
 
     def parallel_workdir(self):
@@ -77,14 +77,14 @@ class Tests(unittest.TestCase):
         #self.p.run_samples('lhs', ncpus=2, verbose=False, workdir_base='workdir', save=False, reuse_dirs=True)
         self.p.sampleset['lhs'].run( ncpus=2, verbose=False, workdir_base='workdir', save=False, reuse_dirs=True)
         for smp,out in zip(self.p.sampleset['lhs'].samples,self.p.sampleset['lhs'].responses):
-            self.p.par_values = smp
+            self.p.parvalues = smp
             self.p.forward()
-            self.p.obs_values = out 
+            self.p.obsvalues = out 
             self.assertTrue( sum(self.p.residuals) == 0., 'A parallel run with a working directory does not match a forward run' )
 
     def parstudy(self):
-        lb = self.p.par_mins
-        ub = self.p.par_maxs
+        lb = self.p.parmins
+        ub = self.p.parmaxs
         # Test keyword args
         self.p.set_parstudy_samples( 'ps', par1=2, par2=2, par3=2, par4=2, outfile=None )
         s = self.p.sampleset['ps'].samples
@@ -125,7 +125,7 @@ class Tests(unittest.TestCase):
         self.assertTrue(numpy.abs(C - 225.6849012361745395)<1.e-10, 'Condition number of Jacobian is incorrect')
 
     def calibrate(self):
-        self.j.obs_values = [5.308,7.24,9.638,12.866,17.069,23.192,31.443,38.558,50.156,62.948,75.995,91.972]
+        self.j.obsvalues = [5.308,7.24,9.638,12.866,17.069,23.192,31.443,38.558,50.156,62.948,75.995,91.972]
         self.j.calibrate()
         self.assertEqual( round(self.j.ssr,6), 2.587278, 'Final SSR is incorrect')
         

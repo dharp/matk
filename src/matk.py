@@ -266,12 +266,12 @@ class matk(object):
                 else:
                     self.add_obs( k, sim=v ) 
     @property
-    def par_values(self):
+    def parvalues(self):
         """ Parameter values
         """
         return [par.value for par in self.pars.values()]
-    @par_values.setter
-    def par_values(self, value):
+    @parvalues.setter
+    def parvalues(self, value):
         """ Set parameter values using a tuple, list, numpy.ndarray, or dictionary
         """
         if isinstance( value, dict ):
@@ -291,17 +291,17 @@ class matk(object):
         """
         return [par.name for par in self.pars.values()]
     @property
-    def par_nvals(self):
+    def parnvals(self):
         """ Get parameter nvals (number of values for parameter studies)
         """
         return [par.nval for par in self.pars.values()]
     @property
-    def obs_values(self):
+    def obsvalues(self):
         """ Observation values
         """
         return [o.value for o in self.obs.values()]
-    @obs_values.setter
-    def obs_values(self, value):
+    @obsvalues.setter
+    def obsvalues(self, value):
         """ Set simulated values using a tuple, list, numpy.ndarray, or dictionary
         """
         if isinstance( value, dict ):
@@ -331,7 +331,7 @@ class matk(object):
         """
         return [o.name for o in self.obs.values()]
     @property
-    def obs_weights(self):
+    def obsweights(self):
         """ Get observation names
         """
         return [o.weight for o in self.obs.values()]
@@ -341,22 +341,22 @@ class matk(object):
         """
         return [o.residual for o in self.obs.values()]
     @property
-    def par_mins(self):
+    def parmins(self):
         """ Get parameter lower bounds
         """
         return [par.min for par in self.pars.values()]
     @property
-    def par_maxs(self):
+    def parmaxs(self):
         """ Get parameter lower bounds
         """
         return [par.max for par in self.pars.values()]
     @property
-    def par_dists(self):
+    def pardists(self):
         """ Get parameter probabilistic distributions
         """
         return [par.dist for par in self.pars.values()]
     @property
-    def par_dist_pars(self):
+    def pardist_pars(self):
         """ Get parameters needed by parameter distributions
         """
         return [par.dist_pars for par in self.pars.values()]
@@ -409,7 +409,7 @@ class matk(object):
             try:
                 if pardict is None:
                     pardict = dict([(k,par.value) for k,par in self.pars.items()])
-                else: self.par_values = pardict
+                else: self.parvalues = pardict
                 if self.model_args is None and self.model_kwargs is None:
                     sims = self.model( pardict )
                 elif not self.model_args is None and self.model_kwargs is None:
@@ -463,7 +463,7 @@ class matk(object):
         # Make sure that self.pars are set to final values of params
         nm = [params[k].name for k in self.pars.keys()]
         vs = [params[k].value for k in self.pars.keys()]
-        self.par_values = dict(zip(nm,vs))
+        self.parvalues = dict(zip(nm,vs))
         # Run forward model to set simulated values
         self.forward(workdir=workdir, reuse_dirs=reuse_dirs)
 
@@ -495,7 +495,7 @@ class matk(object):
             prob.forward(pardict=dict(zip(nm,vs)),workdir=workdir,reuse_dirs=reuse_dirs)
             return prob.sim_values
         vs = [p.calib_value for p in self.pars.values()]
-        meas = self.obs_values
+        meas = self.obsvalues
         if full_output: full_output = 1
         out = levmar.leastsq(_f, vs, meas, args=(self,), Dfun=None, max_iter=max_iter, full_output=full_output)
         #TODO Put levmar results into MATK object
@@ -527,9 +527,9 @@ class matk(object):
             siz = self.sample_size
         # Take distribution keyword and convert to scipy.stats distribution object
         dists = []
-        for dist in self.par_dists:
+        for dist in self.pardists:
             eval( 'dists.append(stats.' + dist + ')' )
-        dist_pars = self.par_dist_pars
+        dist_pars = self.pardist_pars
         x = lhs(dists, dist_pars, siz=siz, noCorrRestr=noCorrRestr, corrmat=corrmat, seed=seed)
         self.add_sampleset( name, x, index_start=index_start )
     def child( self, in_queue, out_list, reuse_dirs, save):
@@ -537,14 +537,14 @@ class matk(object):
             self.workdir_index = smp_ind
             if self.workdir_base is not None:
                 self.workdir = self.workdir_base + '.' + str(self.workdir_index)
-            self.par_values = pars
+            self.parvalues = pars
             status = self.forward(reuse_dirs=reuse_dirs)
             out_list.put([lst_ind, smp_ind, status])
             if not save and not self.workdir is None:
                 rmtree( self.workdir )
             in_queue.task_done()
         in_queue.task_done()
-    def parallel(self, ncpus, par_sets, templatedir=None, workdir_base=None, save=True,
+    def parallel(self, ncpus, parsets, templatedir=None, workdir_base=None, save=True,
                 reuse_dirs=False, indices=None, verbose=True, logfile=None):
 
         if not os.name is "posix":
@@ -557,8 +557,8 @@ class matk(object):
         if self.workdir_base is None: self.workdir = None
 
         # Determine number of samples and adjust ncpus if samples < ncpus requested
-        if isinstance( par_sets, numpy.ndarray ): n = par_sets.shape[0]
-        elif isinstance( par_sets, list ): n = len(par_sets)
+        if isinstance( parsets, numpy.ndarray ): n = parsets.shape[0]
+        elif isinstance( parsets, list ): n = len(parsets)
         if n < ncpus: ncpus = n
 
         # Start ncpus model runs
@@ -571,9 +571,9 @@ class matk(object):
             p.start()
             pool.append(p)
 
-        iter_args = itertools.chain( par_sets, (None,)*ncpus )
+        iter_args = itertools.chain( parsets, (None,)*ncpus )
         iter_smpind = itertools.chain( indices, (None,)*ncpus )
-        iter_lstind = itertools.chain( range(len(par_sets)), (None,)*ncpus )
+        iter_lstind = itertools.chain( range(len(parsets)), (None,)*ncpus )
         for item in zip(iter_args,iter_smpind,iter_lstind):
             work.put(item)
         
@@ -584,8 +584,8 @@ class matk(object):
                 s += " %16s" % nm
             header = True
 
-        results = [None]*len(par_sets)
-        for i in range(len(par_sets)):
+        results = [None]*len(parsets)
+        for i in range(len(parsets)):
             lst_ind, smp_ind, resp = resultsq.get()
             if isinstance( resp, str):
                 s = "-"*60+'\n'
@@ -606,7 +606,7 @@ class matk(object):
                         if logfile: f.write( s )
                         header = False
                     s = "%-8d" % smp_ind
-                    for v in par_sets[lst_ind]:
+                    for v in parsets[lst_ind]:
                         s += " %16lf" % v
                     for v in results[lst_ind]:
                         s += " %16lf" % v
@@ -626,7 +626,7 @@ class matk(object):
         self.workdir = saved_workdir
         results = numpy.array(results)
 
-        return results, par_sets   
+        return results, parsets   
     def set_parstudy_samples(self, name, *args, **kwargs):
         ''' Generate parameter study samples
         
@@ -690,7 +690,7 @@ class matk(object):
             :returns: ndarray(fl64) -- Jacobian matrix
         '''
         # Collect parameter sets
-        a = numpy.copy(numpy.array(self.par_values))
+        a = numpy.copy(numpy.array(self.parvalues))
         # If current simulated values are associated with current parameter values...
         if self._current:
             sims = self.sim_values
@@ -716,7 +716,7 @@ class matk(object):
         J = []
         for a_l,a_u,hs in zip(a_ls,a_us,h):
             J.append((a_l-a_u)/(2*hs))
-        self.par_values = a
+        self.parvalues = a
         # If current simulated values are associated with current parameter values...
         if self._current:
             self._set_sim_values(sims)

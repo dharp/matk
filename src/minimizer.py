@@ -48,7 +48,7 @@ class Minimizer(LmfitMinimizer):
             self.nfev = self.nfev + 1
 
             self.update_constraints()
-            pardict = dict(zip(self._parent.parnames, self._parent.par_values))
+            pardict = dict(zip(self._parent.parnames, self._parent.parvalues))
             self.userfcn(pardict=pardict, *self.userargs, **self.userkws)
         else:
             self.userfcn(*self.userargs, **self.userkws)
@@ -86,7 +86,7 @@ class Minimizer(LmfitMinimizer):
         
         n = len(self._parent.obs) # Number of observations
         m = len(self._parent.pars) # Number of parameters
-        a = numpy.copy(self._parent.par_values) # Initial parameter values
+        a = numpy.copy(self._parent.parvalues) # Initial parameter values
         besta = a # Best parameters start as current parameters
         self.__residual()
         bestSS = SS = self._parent.ssr # Sum of squared error
@@ -184,7 +184,7 @@ class Minimizer(LmfitMinimizer):
         self.__residual(besta)
         if verbose:
             print 'Parameter: '
-            print self._parent.par_values
+            print self._parent.parvalues
             print 'SSR: '
             print self._parent.ssr
             try:
