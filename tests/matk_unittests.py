@@ -50,7 +50,7 @@ class Tests(unittest.TestCase):
     def sample(self):
         # Create 100 lhs samples and make sure they are within parameter bounds
         self.p.set_lhs_samples('lhs', siz=10)
-        s = self.p.sampleset['lhs'].samples
+        s = self.p.sampleset['lhs'].samples.values
         mins = s.min(axis=0)
         maxs = s.max(axis=0)
         lb = self.p.parmins
@@ -62,7 +62,7 @@ class Tests(unittest.TestCase):
         self.p.set_lhs_samples('lhs', siz=10 )
         #self.p.run_samples('lhs', ncpus=1, save=False, verbose=False)
         self.p.sampleset['lhs'].run( ncpus=2, save=False, verbose=False)
-        for smp,out in zip(self.p.sampleset['lhs'].samples,self.p.sampleset['lhs'].responses):
+        for smp,out in zip(self.p.sampleset['lhs'].samples.values,self.p.sampleset['lhs'].responses):
             self.p.parvalues = smp
             self.p.forward()
             self.p.obsvalues =  out
@@ -76,7 +76,7 @@ class Tests(unittest.TestCase):
         # Test to make sure reusing directories works
         #self.p.run_samples('lhs', ncpus=2, verbose=False, workdir_base='workdir', save=False, reuse_dirs=True)
         self.p.sampleset['lhs'].run( ncpus=2, verbose=False, workdir_base='workdir', save=False, reuse_dirs=True)
-        for smp,out in zip(self.p.sampleset['lhs'].samples,self.p.sampleset['lhs'].responses):
+        for smp,out in zip(self.p.sampleset['lhs'].samples.values,self.p.sampleset['lhs'].responses):
             self.p.parvalues = smp
             self.p.forward()
             self.p.obsvalues = out 
@@ -87,20 +87,20 @@ class Tests(unittest.TestCase):
         ub = self.p.parmaxs
         # Test keyword args
         self.p.set_parstudy_samples( 'ps', par1=2, par2=2, par3=2, par4=2, outfile=None )
-        s = self.p.sampleset['ps'].samples
+        s = self.p.sampleset['ps'].samples.values
         mins = s.min(axis=0)
         maxs = s.max(axis=0)
         self.assertTrue( (maxs >= lb).any() and (mins <= ub).any(), 'Parstudy outside parameter bounds' )
         # Test dictionary
         pardict = {'par1':2,'par2':2,'par3':2,'par4':2}
         self.p.set_parstudy_samples( 'ps', pardict )
-        s = self.p.sampleset['ps'].samples
+        s = self.p.sampleset['ps'].samples.values
         mins = s.min(axis=0)
         maxs = s.max(axis=0)
         self.assertTrue( (maxs >= lb).any() and (mins <= ub).any(), 'Parstudy outside parameter bounds' )
         # Test list
         s = self.p.set_parstudy_samples( 'ps', (2,2,2,2) )
-        s = self.p.sampleset['ps'].samples
+        s = self.p.sampleset['ps'].samples.values
         mins = s.min(axis=0)
         maxs = s.max(axis=0)
         self.assertTrue( (maxs >= lb).any() and (mins <= ub).any(), 'Parstudy outside parameter bounds' )
