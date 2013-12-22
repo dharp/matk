@@ -86,6 +86,11 @@ class SampleSet(object):
         else:
             self._samples = value
     @property
+    def samples_recarray(self):
+        """ Structured (record) array of samples
+        """
+        return numpy.rec.fromarrays(self._samples.T,names=self.parnames)
+    @property
     def responses(self):
         """Ndarray of sample set responses, rows are samples, columns are responses associated with observations in order of MATKobject.obslist
         """
@@ -114,6 +119,11 @@ class SampleSet(object):
         else:
             print "Error: Responses must be a list or ndarray with nsample rows"
             return
+    @property
+    def responses_recarray(self):
+        """ Structured (record) array of responses
+        """
+        return numpy.rec.fromarrays(self._responses.T,names=self.obsnames)
     @property
     def indices(self):
         """ Array of sample indices
