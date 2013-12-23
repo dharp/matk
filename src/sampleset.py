@@ -14,20 +14,18 @@ class SampleSet(object):
     """ MATK SampleSet class - Stores information related to a sample
         including parameter samples, associated responses, and sample indices
     """
-    def __init__(self,name,samples,index_start=1,**kwargs):
+    def __init__(self,name,samples,parent,index_start=1,**kwargs):
         self.name = name
-        #self._samples = samples
-        self._responses = None
+        responses = None
         self._indices = None
-        parnames = None
-        self._obsnames = None
         self._index_start = index_start
-        self._parent = None
+        self._parent = parent
+        self.samples = DataSet(samples,self._parent.parnames) 
         for k,v in kwargs.iteritems():
             if k == 'responses':
                 if not v is None:
                     if isinstance( v, (list,numpy.ndarray)):
-                        self.responses = v
+                       responses = numpy.array(v)
                     else:
                         print "Error: Responses are not a list or ndarray"
                         return
@@ -38,25 +36,14 @@ class SampleSet(object):
                     else:
                         print "Error: Indices are not a list or ndarray"
                         return
-            elif k == 'parnames':
-                if not v is None:
-                    if isinstance( v, (tuple,list,numpy.ndarray)):
-                        parnames = v
-                    else:
-                        print "Error: Parnames are not a tuple, list or ndarray"
-                        return
-            elif k == 'obsnames':
-                if not v is None:
-                    if isinstance( v, (tuple,list,numpy.ndarray)):
-                        self._obsnames = v
-                    else:
-                        print "Error: Obsnames are not a tuple, list or ndarray"
-                        return
-            elif k == 'parent':
-                self._parent = v
-            else:
-                print k + ' is not a valid argument'
-        self.samples = Samples(samples,parnames,self) 
+        if self._parent.obsnames is None and responses is not None:
+            self._parent._obsnames = []
+            for i in range(responses.shape[0]):
+                self._parent._obsnames.append('obs'+str(i))
+        if responses is not None:
+            self.responses = DataSet(responses,self._parent.obsnames) 
+        else:
+            self.responses = None
         # Set default indices if None
         if self.indices is None and not self.samples.values is None:
             if not self.index_start is None:
@@ -71,40 +58,6 @@ class SampleSet(object):
     @name.setter
     def name(self,value):
         self._name = value
-    @property
-    def responses(self):
-        """Ndarray of sample set responses, rows are samples, columns are responses associated with observations in order of MATKobject.obslist
-        """
-        return self._responses
-    @responses.setter
-    def responses(self,value):
-        if self.samples is None and value is None:
-            self._responses = value
-        elif self.samples is None and not value is None:
-            print "Error: Samples are not defined"
-            return
-        elif value is None:
-            self._responses = value
-        elif isinstance(value, numpy.ndarray):
-            if not value.shape[0] == self.samples.values.shape[0]:
-                print "Error: number of reponses does not equal number of samples"
-                return
-            else:
-                self._responses = numpy.array(value)
-        elif isinstance(value, list):
-            if not len(value) == self.samples.values.shape[0]:
-                print "Error: number of responses does not equal number of samples"
-                return
-            else:
-                self._responses = numpy.array(value)
-        else:
-            print "Error: Responses must be a list or ndarray with nsample rows"
-            return
-    @property
-    def responses_recarray(self):
-        """ Structured (record) array of responses
-        """
-        return numpy.rec.fromarrays(self._responses.T,names=self.obsnames)
     @property
     def indices(self):
         """ Array of sample indices
@@ -155,10 +108,10 @@ class SampleSet(object):
         corrlist = []
         if type is 'pearson':
             for i in range(self.samples.values.shape[1]):
-                corrlist.append([stats.pearsonr(self.samples[:,i],self.responses[:,j])[0] for j in range(self.responses.shape[1])])
+                corrlist.append([stats.pearsonr(self.samples.values[:,i],self.responses.values[:,j])[0] for j in range(self.responses.values.shape[1])])
         elif type is 'spearman':
             for i in range(self.samples.values.shape[1]):
-                corrlist.append([stats.spearmanr(self.samples[:,i],self.responses[:,j])[0] for j in range(self.responses.shape[1])])
+                corrlist.append([stats.spearmanr(self.samples.values[:,i],self.responses.values[:,j])[0] for j in range(self.responses.values.shape[1])])
         else:
             print "Error: type not recognized"
             return
@@ -170,7 +123,7 @@ class SampleSet(object):
             print string.rjust(`nm`, 20),
         print ''
         for i in range(corrcoef.shape[0]):
-            print string.ljust(`self.samples.parnames[i]`, 8),
+            print string.ljust(`self.samples.names[i]`, 8),
             for c in corrcoef[i]:
                 print string.rjust(`c`, 20),
             print ''
@@ -183,7 +136,7 @@ class SampleSet(object):
                 plt.title('Pearson Correlation Coefficients')
             elif type is 'spearman':
                 plt.title('Spearman Rank Correlation Coefficients')
-            plt.yticks(numpy.arange(0.5,len(self.samples.parnames)+0.5),self.samples.parnames)
+            plt.yticks(numpy.arange(0.5,len(self.samples.names)+0.5),self.samples.names)
             plt.xticks(numpy.arange(0.5,len(self.obsnames)+0.5),self.obsnames)
             plt.show()
 
@@ -222,7 +175,10 @@ class SampleSet(object):
             print 'Error: number of cpus (ncpus) must be greater than zero'
             return
         out = numpy.array(out)
-        self.responses = out 
+        if self.responses is None:
+            self.responses = DataSet(out,self._parent.obsnames) 
+        else:
+            self.responses.values = out 
         self._obsnames = self._parent.obsnames
         if not outfile is None:
             self.savetxt( outfile )
@@ -237,18 +193,18 @@ class SampleSet(object):
 
         x = numpy.column_stack([self.indices,self.samples.values])
         if not self.responses is None:
-            x = numpy.column_stack([x,self.responses])
+            x = numpy.column_stack([x,self.responses.values])
 
         if outfile:
             f = open(outfile, 'w')
             f.write("%-8s" % 'index' )
             # Print par names
-            for nm in self.samples.parnames:
+            for nm in self.samples.names:
                 f.write(" %16s" % nm )
             # Print obs names if responses exist
             if not self.responses is None:
                 if len(self.obsnames) == 0:
-                    for i in range(self.responses.shape[1]):
+                    for i in range(self.responses.values.shape[1]):
                         f.write("%16s" % 'obs'+str(i+1) )
                 else:
                     for nm in self.obsnames:
@@ -267,22 +223,17 @@ class SampleSet(object):
                 f.write('\n')
             f.close()
             
-class Samples(object):
-    """ MATK samples class - Stores information related to a sample
-        includeing parameter samples, associated responses, and sample indices
+class DataSet(object):
+    """ MATK Samples class
     """
-    def __init__(self,samples,parnames,parent):
+    def __init__(self,samples,names):
         self._values = samples
-        self._parnames = parnames
-        self._parent = parent
+        self._names = names
     @property
-    def parnames(self):
+    def names(self):
         """ Array of parameter names
         """ 
-        if not self._parent._parent is None:
-            if len(self._parent._parent.parnames):
-                self._parnames = self._parent._parent.parnames
-        return self._parnames
+        return self._names
     @property
     def values(self):
         """Ndarray of parameter samples, rows are samples, columns are parameters in order of MATKobject.parlist
@@ -302,9 +253,7 @@ class Samples(object):
     def recarray(self):
         """ Structured (record) array of samples
         """
-        return numpy.rec.fromarrays(self._values.T,names=self._parnames)
- 
-
+        return numpy.rec.fromarrays(self._values.T,names=self._names)
 
 
 

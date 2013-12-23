@@ -191,7 +191,7 @@ class matk(object):
             self.obs[name] = Observation(name,**kwargs)
         else:
             self.obs.__setitem__( name, Observation(name,**kwargs))
-    def add_sampleset(self,name,samples,responses=None,indices=None,index_start=1):
+    def add_sampleset(self,name,samples,parent,responses=None,indices=None,index_start=1):
         """ Add sample set to problem
             
             :param name: Name of sample set
@@ -223,12 +223,10 @@ class matk(object):
             obsnames = None
         if name in self.sampleset: 
             self.sampleset[name] = SampleSet(name,samples,parent=self,responses=responses,
-                                             indices=indices,index_start=index_start,
-                                             parnames=parnames, obsnames=obsnames)
+                                             indices=indices,index_start=index_start)
         else:
             self.sampleset.__setitem__( name, SampleSet(name,samples,parent=self,responses=responses,
-                                                indices=indices,index_start=index_start,
-                                                parnames=parnames, obsnames=obsnames))
+                                                indices=indices,index_start=index_start))
     @property
     def sim_values(self):
         """ Simulated values
@@ -531,7 +529,7 @@ class matk(object):
             eval( 'dists.append(stats.' + dist + ')' )
         dist_pars = self.pardist_pars
         x = lhs(dists, dist_pars, siz=siz, noCorrRestr=noCorrRestr, corrmat=corrmat, seed=seed)
-        self.add_sampleset( name, x, index_start=index_start )
+        self.add_sampleset( name, x, self, index_start=index_start )
     def child( self, in_queue, out_list, reuse_dirs, save):
         for pars,smp_ind,lst_ind in iter(in_queue.get, (None,None,None)):
             self.workdir_index = smp_ind
@@ -680,7 +678,7 @@ class matk(object):
         x = list(itertools.product(*x))
         x = numpy.array(x)
 
-        self.add_sampleset( name, x )
+        self.add_sampleset( name, x, self )
     def Jac( self, h=1.e-3, ncpus=1, templatedir=None, workdir_base=None,
                     save=True, reuse_dirs=False ):
         ''' Numerical Jacobian calculation
@@ -705,12 +703,12 @@ class matk(object):
         for hs in hmat:
             parset.append(hs+a)
         parset = numpy.array(parset)
-        self.add_sampleset('_jac_',parset)
+        self.add_sampleset('_jac_',parset,self)
 
         self.sampleset['_jac_'].run( ncpus=ncpus, templatedir=templatedir, verbose=False,
                          workdir_base=workdir_base, save=save, reuse_dirs=reuse_dirs )
         # Perform simulations on parameter sets
-        obs = self.sampleset['_jac_'].responses
+        obs = self.sampleset['_jac_'].responses.values
         a_ls = obs[0:len(a)]
         a_us = obs[len(a):]
         J = []

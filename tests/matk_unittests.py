@@ -62,7 +62,7 @@ class Tests(unittest.TestCase):
         self.p.set_lhs_samples('lhs', siz=10 )
         #self.p.run_samples('lhs', ncpus=1, save=False, verbose=False)
         self.p.sampleset['lhs'].run( ncpus=2, save=False, verbose=False)
-        for smp,out in zip(self.p.sampleset['lhs'].samples.values,self.p.sampleset['lhs'].responses):
+        for smp,out in zip(self.p.sampleset['lhs'].samples.values,self.p.sampleset['lhs'].responses.values):
             self.p.parvalues = smp
             self.p.forward()
             self.p.obsvalues =  out
@@ -76,7 +76,7 @@ class Tests(unittest.TestCase):
         # Test to make sure reusing directories works
         #self.p.run_samples('lhs', ncpus=2, verbose=False, workdir_base='workdir', save=False, reuse_dirs=True)
         self.p.sampleset['lhs'].run( ncpus=2, verbose=False, workdir_base='workdir', save=False, reuse_dirs=True)
-        for smp,out in zip(self.p.sampleset['lhs'].samples.values,self.p.sampleset['lhs'].responses):
+        for smp,out in zip(self.p.sampleset['lhs'].samples.values,self.p.sampleset['lhs'].responses.values):
             self.p.parvalues = smp
             self.p.forward()
             self.p.obsvalues = out 
