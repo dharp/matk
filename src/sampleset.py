@@ -98,44 +98,56 @@ class SampleSet(object):
         self._index_start = value
         if not self.samples is None:
             self.indices = numpy.arange(self.index_start,self.index_start+self.samples.values.shape[0])
-    def corr(self, type='pearson', plot=False):
+    def corr(self, type='pearson', plot=False, printout=True, figsize=None, title=None):
         """ Calculate correlation coefficients of parameters and responses
 
             :param type: Type of correlation coefficient (pearson by default, spearman also avaialable)
             :type type: str
+            :param plot: If True, plot correlation matrix
+            :type plot: bool
+            :param printout: If True, print correlation matrix with row and column headings
+            :type printout: bool
+            :param figsize: Width and height of figure in inches
+            :type figsize: tuple(fl64,fl64)
+            :param title: Title of plot
+            :type title: str
             :returns: ndarray(fl64) -- Correlation coefficients
         """
         corrlist = []
+        smprc = self.samples.recarray
+        rsprc = self.responses.recarray
         if type is 'pearson':
-            for i in range(self.samples.values.shape[1]):
-                corrlist.append([stats.pearsonr(self.samples.values[:,i],self.responses.values[:,j])[0] for j in range(self.responses.values.shape[1])])
+            #for i in range(self.samples.values.shape[1]):
+            #    corrlist.append([stats.pearsonr(self.samples.values[:,i],self.responses.values[:,j])[0] for j in range(self.responses.values.shape[1])])
+            for snm in self.samples.names:
+                corrlist.append([stats.pearsonr(smprc[snm],rsprc[rnm])[0] for rnm in self.responses.names])
         elif type is 'spearman':
-            for i in range(self.samples.values.shape[1]):
-                corrlist.append([stats.spearmanr(self.samples.values[:,i],self.responses.values[:,j])[0] for j in range(self.responses.values.shape[1])])
+            for snm in self.samples.names:
+                corrlist.append([stats.spearmanr(smprc[snm],rsprc[rnm])[0] for rnm in self.responses.names])
         else:
             print "Error: type not recognized"
             return
         corrcoef = numpy.array(corrlist)
         # Print 
-        dum = ' '
-        print string.rjust(`dum`, 8),
-        for nm in self.obsnames:
-            print string.rjust(`nm`, 20),
-        print ''
-        for i in range(corrcoef.shape[0]):
-            print string.ljust(`self.samples.names[i]`, 8),
-            for c in corrcoef[i]:
-                print string.rjust(`c`, 20),
+        if printout:
+            dum = ' '
+            print string.rjust(`dum`, 8),
+            for nm in self.obsnames:
+                print string.rjust(`nm`, 20),
             print ''
+            for i in range(corrcoef.shape[0]):
+                print string.ljust(`self.samples.names[i]`, 8),
+                for c in corrcoef[i]:
+                    print string.rjust(`c`, 20),
+                print ''
 
         if plot and plotflag:
             # Plot
+            plt.figure(figsize=figsize)
             plt.pcolor(corrcoef, vmin=-1, vmax=1)
             plt.colorbar()
-            if type is 'pearson':
-                plt.title('Pearson Correlation Coefficients')
-            elif type is 'spearman':
-                plt.title('Spearman Rank Correlation Coefficients')
+            if title:
+                plt.title(title)
             plt.yticks(numpy.arange(0.5,len(self.samples.names)+0.5),self.samples.names)
             plt.xticks(numpy.arange(0.5,len(self.obsnames)+0.5),self.obsnames)
             plt.show()
@@ -254,16 +266,21 @@ class DataSet(object):
         """ Structured (record) array of samples
         """
         return numpy.rec.fromarrays(self._values.T,names=self._names)
-    def hist(self, nrows=None, ncols=4, figsize=None):
+    def hist(self, ncols=4, figsize=None, title=None, tight=True):
+        """ Plot histograms of dataset
+
+            :param ncols: Number of columns in plot matrix
+            :type ncols: int
+            :param figsize: Width and height of figure in inches
+            :type figsize: tuple(fl64,fl64)
+            :param title: Title of plot
+            :type title: str
+            :param tight: Use matplotlib tight layout
+            :type tight: bool
+        """        
         if plotflag:
             siz = self.values.shape[1]
-            if nrows is not None:
-                if siz > nrows*ncols:
-                    print "Error: Not enough rows and columns for the number of subplots ("+str(siz)+")"
-                    return
-                else:
-                    ncols = numpy.ceil(float(nrows)/siz) + 1
-            elif siz < ncols:
+            if siz <= ncols:
                 ncols = siz
                 nrows = 1
             elif siz > ncols:
@@ -282,7 +299,11 @@ class DataSet(object):
                 plt.hist(rc[nm])
                 plt.xlabel(nm)
                 ind+=1
-            plt.tight_layout()
+            if tight: 
+                plt.tight_layout()
+                if title:
+                    plt.subplots_adjust(top=0.925) 
+            if title: plt.suptitle(title)
             plt.show()
         else:
             print "Matplotlib must be installed to plot histograms"
