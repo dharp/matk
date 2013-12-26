@@ -254,6 +254,40 @@ class DataSet(object):
         """ Structured (record) array of samples
         """
         return numpy.rec.fromarrays(self._values.T,names=self._names)
+    def hist(self, nrows=None, ncols=4, figsize=None):
+        if plotflag:
+            siz = self.values.shape[1]
+            if nrows is not None:
+                if siz > nrows*ncols:
+                    print "Error: Not enough rows and columns for the number of subplots ("+str(siz)+")"
+                    return
+                else:
+                    ncols = numpy.ceil(float(nrows)/siz) + 1
+            elif siz < ncols:
+                ncols = siz
+                nrows = 1
+            elif siz > ncols:
+                nrows = int(numpy.ceil(float(siz)/ncols))
+            else:
+                nrows = 1
+            if figsize is None:
+                figsize = (ncols*3,nrows*3)
+            fig = plt.figure(figsize=figsize)
+            rc = self.recarray
+            ind = 0
+            for nm in self.names: 
+                plt.subplot(nrows,ncols,ind+1)
+                if ind==0 or (ind)%ncols==0:
+                    plt.ylabel('Count')
+                plt.hist(rc[nm])
+                plt.xlabel(nm)
+                ind+=1
+            plt.tight_layout()
+            plt.show()
+        else:
+            print "Matplotlib must be installed to plot histograms"
+            return
+
 
 
 
