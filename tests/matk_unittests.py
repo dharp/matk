@@ -60,7 +60,6 @@ class Tests(unittest.TestCase):
     def parallel(self):
         # Without working directories
         self.p.set_lhs_samples('lhs', siz=10 )
-        #self.p.run_samples('lhs', ncpus=1, save=False, verbose=False)
         self.p.sampleset['lhs'].run( ncpus=2, save=False, verbose=False)
         for smp,out in zip(self.p.sampleset['lhs'].samples.values,self.p.sampleset['lhs'].responses.values):
             self.p.parvalues = smp
@@ -71,16 +70,40 @@ class Tests(unittest.TestCase):
     def parallel_workdir(self):
         # With working directories
         self.p.set_lhs_samples('lhs', siz=10 )
-        #self.p.run_samples('lhs', ncpus=2, save=True, verbose=False, workdir_base='workdir')
         self.p.sampleset['lhs'].run( ncpus=2, save=True, verbose=False, workdir_base='workdir')
         # Test to make sure reusing directories works
-        #self.p.run_samples('lhs', ncpus=2, verbose=False, workdir_base='workdir', save=False, reuse_dirs=True)
         self.p.sampleset['lhs'].run( ncpus=2, verbose=False, workdir_base='workdir', save=False, reuse_dirs=True)
         for smp,out in zip(self.p.sampleset['lhs'].samples.values,self.p.sampleset['lhs'].responses.values):
             self.p.parvalues = smp
             self.p.forward()
             self.p.obsvalues = out 
             self.assertTrue( sum(self.p.residuals) == 0., 'A parallel run with a working directory does not match a forward run' )
+
+    def correlation(self):
+        samples = numpy.array([[  2.79514388e-01,   1.83572352e-01,   1.15954591e-01,   4.64518743e-02],
+          [  7.03315739e-01,   7.84390758e-02,   3.01698515e-01,   1.88716879e-01],
+          [  6.28705093e-01,   1.09417588e-01,   7.99492817e-01,   3.29320144e-02],
+          [  9.12638366e-01,   5.79033575e-02,   2.11340456e-01,   9.12899918e-02],
+          [  6.78093963e-03,   9.65827955e-02,   5.46769483e-01,   1.60025355e-01],
+          [  5.57984090e-01,   1.40754999e-01,   1.67581806e-02,   1.27378742e-01],
+          [  4.76628157e-01,   2.13377376e-02,   6.85030919e-01,   1.14660269e-01],
+          [  8.74069237e-01,   1.67045111e-01,   8.73799590e-01,   7.88785508e-02],
+          [  3.21965099e-01,   1.32870668e-01,   9.84993837e-01,   1.54219267e-01],
+          [  1.90139017e-01,   9.68264397e-04,   4.29314483e-01,   9.04097997e-03]])
+        self.p.add_sampleset('corr',samples=samples)
+        self.p.sampleset['corr'].run( save=False, verbose=False)
+        cor = self.p.sampleset['corr'].corr(printout=False)
+        numpy.set_printoptions(precision=16)
+        truecor = numpy.array([[-0.2886237899165263, -0.3351709603865224,  0.2026940592413644,
+            -0.1583038087507029,  0.6551351732039064],
+          [-0.7055158223412237, -0.6756193472215576, -0.6798276930925701,
+             -0.7316977209208033,  0.0728971957076234],
+          [ 0.0513490094706376,  0.0127386564821643,  0.2351160518407344,
+              0.1062707741035715,  0.7433613835033323],
+          [-0.6286817433084496, -0.5937202224731661, -0.6548756831743127,
+             -0.6743550366736296,  0.0103233615954467]])
+        for t,c in zip(cor.flatten(),truecor.flatten()):
+            self.assertTrue(numpy.abs(t-c)<1.e-10, 'Value in correlation matrix does not match')
 
     def parstudy(self):
         lb = self.p.parmins
@@ -138,6 +161,7 @@ def suite(case):
         suite.addTest( Tests('calibrate_lmfit') )
         suite.addTest( Tests('jacobian') )
         suite.addTest( Tests('calibrate') )
+        suite.addTest( Tests('correlation') )
     if case == 'parallel' or case == 'all':
         suite.addTest( Tests('parallel') )
         suite.addTest( Tests('parallel_workdir') )
