@@ -131,12 +131,12 @@ class SampleSet(object):
         # Print 
         if printout:
             dum = ' '
-            print string.rjust(`dum`, 8),
+            print string.rjust(dum, 8),
             for nm in self.obsnames:
-                print string.rjust(`nm`, 20),
+                print string.rjust(nm, 20),
             print ''
             for i in range(corrcoef.shape[0]):
-                print string.ljust(`self.samples.names[i]`, 8),
+                print string.ljust(self.samples.names[i], 8),
                 for c in corrcoef[i]:
                     print string.rjust(`c`, 20),
                 print ''
@@ -144,11 +144,11 @@ class SampleSet(object):
         if plot and plotflag:
             # Plot
             plt.figure(figsize=figsize)
-            plt.pcolor(corrcoef, vmin=-1, vmax=1)
+            plt.pcolor(numpy.flipud(corrcoef), vmin=-1, vmax=1)
             plt.colorbar()
             if title:
                 plt.title(title)
-            plt.yticks(numpy.arange(0.5,len(self.samples.names)+0.5),self.samples.names)
+            plt.yticks(numpy.arange(0.5,len(self.samples.names)+0.5),[nm for nm in reversed(self.samples.names)])
             plt.xticks(numpy.arange(0.5,len(self.obsnames)+0.5),self.obsnames)
             plt.show()
 
@@ -308,7 +308,58 @@ class DataSet(object):
         else:
             print "Matplotlib must be installed to plot histograms"
             return
+    def corr(self, type='pearson', plot=False, printout=True, figsize=None, title=None):
+        """ Calculate correlation coefficients of dataset values
 
+            :param type: Type of correlation coefficient (pearson by default, spearman also avaialable)
+            :type type: str
+            :param plot: If True, plot correlation matrix
+            :type plot: bool
+            :param printout: If True, print correlation matrix with row and column headings
+            :type printout: bool
+            :param figsize: Width and height of figure in inches
+            :type figsize: tuple(fl64,fl64)
+            :param title: Title of plot
+            :type title: str
+            :returns: ndarray(fl64) -- Correlation coefficients
+        """
+        corrlist = []
+        rc = self.recarray
+        if type is 'pearson':
+            for nm1 in self.names:
+                corrlist.append([stats.pearsonr(rc[nm1],rc[nm2])[0] for nm2 in self.names])
+        elif type is 'spearman':
+            for nm1 in reversed(self.names):
+                corrlist.append([stats.spearmanr(rc[nm1],rc[nm2])[0] for nm2 in self.names])
+        else:
+            print "Error: type not recognized"
+            return
+        corrcoef = numpy.array(corrlist)
+        # Print 
+        if printout:
+            dum = ' '
+            print string.rjust(dum, 8),
+            for nm in self.names:
+                print string.rjust(nm, 20),
+            print ''
+            for i in range(len(self.names)):
+                print string.ljust(self.names[i], 8),
+                for c in corrcoef[i]:
+                    print string.rjust(`c`, 20),
+                print ''
+
+        if plot and plotflag:
+            # Plot
+            plt.figure(figsize=figsize)
+            plt.pcolor(numpy.flipud(corrcoef), vmin=-1, vmax=1)
+            plt.colorbar()
+            if title:
+                plt.title(title)
+            plt.yticks(numpy.arange(0.5,len(self.names)+0.5),[nm for nm in reversed(self.names)])
+            plt.xticks(numpy.arange(0.5,len(self.names)+0.5),self.names)
+            plt.show()
+
+        return corrcoef
 
 
 

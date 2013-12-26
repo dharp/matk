@@ -26,14 +26,16 @@ p.add_par('par4',min=0,max=0.2)
 # Create LHS sample
 p.set_lhs_samples('lhs', siz=20, seed=1000)
 
-# Look at sample parameter histograms
+# Look at sample parameter histograms and correlations
 p.sampleset['lhs'].samples.hist(ncols=2,title='Parameter Histograms',tight=True)
+parcor = p.sampleset['lhs'].samples.corr(plot=True, title='Parameter Correlations')
 
 # Run model with parameter samples
 p.sampleset['lhs'].run( ncpus=2, outfile='results.dat', logfile='log.dat',verbose=False)
 
 # Look at sample response histograms
 p.sampleset['lhs'].responses.hist(ncols=3,title='Model Response Histograms',tight=True)
+rescor = p.sampleset['lhs'].responses.corr(plot=True, title='Model Response Correlations')
 
 # Print and plot parameter/response correlations
 print "\nPearson Correlation Coefficients:"
