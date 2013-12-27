@@ -113,46 +113,9 @@ class SampleSet(object):
             :type title: str
             :returns: ndarray(fl64) -- Correlation coefficients
         """
-        corrlist = []
-        smprc = self.samples.recarray
-        rsprc = self.responses.recarray
-        if type is 'pearson':
-            #for i in range(self.samples.values.shape[1]):
-            #    corrlist.append([stats.pearsonr(self.samples.values[:,i],self.responses.values[:,j])[0] for j in range(self.responses.values.shape[1])])
-            for snm in self.samples.names:
-                corrlist.append([stats.pearsonr(smprc[snm],rsprc[rnm])[0] for rnm in self.responses.names])
-        elif type is 'spearman':
-            for snm in self.samples.names:
-                corrlist.append([stats.spearmanr(smprc[snm],rsprc[rnm])[0] for rnm in self.responses.names])
-        else:
-            print "Error: type not recognized"
-            return
-        corrcoef = numpy.array(corrlist)
-        # Print 
-        if printout:
-            dum = ' '
-            print string.rjust(dum, 8),
-            for nm in self.obsnames:
-                print string.rjust(nm, 20),
-            print ''
-            for i in range(corrcoef.shape[0]):
-                print string.ljust(self.samples.names[i], 8),
-                for c in corrcoef[i]:
-                    print string.rjust(`c`, 20),
-                print ''
-
-        if plot and plotflag:
-            # Plot
-            plt.figure(figsize=figsize)
-            plt.pcolor(numpy.flipud(corrcoef), vmin=-1, vmax=1)
-            plt.colorbar()
-            if title:
-                plt.title(title)
-            plt.yticks(numpy.arange(0.5,len(self.samples.names)+0.5),[nm for nm in reversed(self.samples.names)])
-            plt.xticks(numpy.arange(0.5,len(self.obsnames)+0.5),self.obsnames)
-            plt.show()
-
-        return corrcoef
+        return corr(self.samples.recarray, self.responses.recarray, type=type, plot=plot, printout=printout, figsize=figsize, title=title)
+    def panels(self):
+        pass
     def run(self, ncpus=1, templatedir=None, workdir_base=None,
                     save=True, reuse_dirs=False, outfile=None, logfile=None, verbose=True ):
         """ Run model using values in samples for parameter values
@@ -323,43 +286,56 @@ class DataSet(object):
             :type title: str
             :returns: ndarray(fl64) -- Correlation coefficients
         """
-        corrlist = []
-        rc = self.recarray
-        if type is 'pearson':
-            for nm1 in self.names:
-                corrlist.append([stats.pearsonr(rc[nm1],rc[nm2])[0] for nm2 in self.names])
-        elif type is 'spearman':
-            for nm1 in reversed(self.names):
-                corrlist.append([stats.spearmanr(rc[nm1],rc[nm2])[0] for nm2 in self.names])
-        else:
-            print "Error: type not recognized"
-            return
-        corrcoef = numpy.array(corrlist)
-        # Print 
-        if printout:
-            dum = ' '
-            print string.rjust(dum, 8),
-            for nm in self.names:
-                print string.rjust(nm, 20),
+        return corr(self.recarray, self.recarray, type=type, plot=plot, printout=printout, figsize=figsize, title=title)
+
+
+def corr(rc1, rc2, type='pearson', plot=False, printout=True, figsize=None, title=None):
+    """ Calculate correlation coefficients of parameters and responses
+
+        :param type: Type of correlation coefficient (pearson by default, spearman also avaialable)
+        :type type: str
+        :param plot: If True, plot correlation matrix
+        :type plot: bool
+        :param printout: If True, print correlation matrix with row and column headings
+        :type printout: bool
+        :param figsize: Width and height of figure in inches
+        :type figsize: tuple(fl64,fl64)
+        :param title: Title of plot
+        :type title: str
+        :returns: ndarray(fl64) -- Correlation coefficients
+    """
+    corrlist = []
+    if type is 'pearson':
+        for snm in rc1.dtype.names:
+            corrlist.append([stats.pearsonr(rc1[snm],rc2[rnm])[0] for rnm in rc2.dtype.names])
+    elif type is 'spearman':
+        for snm in rc1.dtype.names:
+            corrlist.append([stats.spearmanr(rc1[snm],rc2[rnm])[0] for rnm in rc2.dtype.names])
+    else:
+        print "Error: current types include 'pearson' and 'spearman'"
+        return
+    corrcoef = numpy.array(corrlist)
+    # Print 
+    if printout:
+        dum = ' '
+        print string.rjust(dum, 8),
+        for nm in rc2.dtype.names:
+            print string.rjust(nm, 20),
+        print ''
+        for i in range(corrcoef.shape[0]):
+            print string.ljust(rc1.dtype.names[i], 8),
+            for c in corrcoef[i]:
+                print string.rjust(`c`, 20),
             print ''
-            for i in range(len(self.names)):
-                print string.ljust(self.names[i], 8),
-                for c in corrcoef[i]:
-                    print string.rjust(`c`, 20),
-                print ''
-
-        if plot and plotflag:
-            # Plot
-            plt.figure(figsize=figsize)
-            plt.pcolor(numpy.flipud(corrcoef), vmin=-1, vmax=1)
-            plt.colorbar()
-            if title:
-                plt.title(title)
-            plt.yticks(numpy.arange(0.5,len(self.names)+0.5),[nm for nm in reversed(self.names)])
-            plt.xticks(numpy.arange(0.5,len(self.names)+0.5),self.names)
-            plt.show()
-
-        return corrcoef
-
-
+    if plot and plotflag:
+        # Plot
+        plt.figure(figsize=figsize)
+        plt.pcolor(numpy.flipud(corrcoef), vmin=-1, vmax=1)
+        plt.colorbar()
+        if title:
+            plt.title(title)
+        plt.yticks(numpy.arange(0.5,len(rc1.dtype.names)+0.5),[nm for nm in reversed(rc1.dtype.names)])
+        plt.xticks(numpy.arange(0.5,len(rc2.dtype.names)+0.5),rc2.dtype.names)
+        plt.show()
+    return corrcoef
 
