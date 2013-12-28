@@ -98,6 +98,16 @@ class SampleSet(object):
         self._index_start = value
         if not self.samples is None:
             self.indices = numpy.arange(self.index_start,self.index_start+self.samples.values.shape[0])
+    @property
+    def recarray(self):
+        """ Structured (record) array of samples
+        """
+        if self.responses is None:
+            return numpy.rec.fromarrays(self.samples._values.T,names=self.samples._names)
+        else:
+            data = numpy.column_stack([self.samples._values,self.responses._values])
+            names = numpy.concatenate([self.samples._names,self.responses._names])
+            return numpy.rec.fromarrays(data.T,names=names.tolist())
     def corr(self, type='pearson', plot=False, printout=True, figsize=None, title=None):
         """ Calculate correlation coefficients of parameters and responses
 
@@ -113,9 +123,28 @@ class SampleSet(object):
             :type title: str
             :returns: ndarray(fl64) -- Correlation coefficients
         """
-        return corr(self.samples.recarray, self.responses.recarray, type=type, plot=plot, printout=printout, figsize=figsize, title=title)
-    def panels(self):
-        pass
+        corrcoef = corr(self.samples.recarray, self.responses.recarray, type=type, plot=plot, printout=printout, figsize=figsize, title=title)
+        return corrcoef
+    
+    def panels(self, type='pearson', figsize=None, title=None, tight=False, symbol='.',fontsize=None,ms=5):
+        """ Plot histograms, scatterplots, and correlation coefficients in paired matrix
+
+            :param type: Type of correlation coefficient (pearson by default, spearman also avaialable)
+            :type type: str
+            :param figsize: Width and height of figure in inches
+            :type figsize: tuple(fl64,fl64)
+            :param title: Title of plot
+            :type title: str
+            :param tight: Use matplotlib tight layout
+            :type tight: bool
+            :param symbol: matplotlib symbol for scatterplots
+            :type symbol: str
+            :param fontsize: Size of font for correlation coefficients
+            :type fontsize: fl64
+            :param ms: Scatterplot marker size
+            :type ms: fl64
+        """
+        panels( self.recarray, type=type, figsize=figsize, title=title, tight=tight, symbol=symbol,fontsize=fontsize,ms=ms)
     def run(self, ncpus=1, templatedir=None, workdir_base=None,
                     save=True, reuse_dirs=False, outfile=None, logfile=None, verbose=True ):
         """ Run model using values in samples for parameter values
@@ -287,11 +316,32 @@ class DataSet(object):
             :returns: ndarray(fl64) -- Correlation coefficients
         """
         return corr(self.recarray, self.recarray, type=type, plot=plot, printout=printout, figsize=figsize, title=title)
+    def panels(self, type='pearson', figsize=None, title=None, tight=True, symbol='.',fontsize=None,ms=5):
+        """ Plot histograms, scatterplots, and correlation coefficients in paired matrix
 
-
+            :param type: Type of correlation coefficient (pearson by default, spearman also avaialable)
+            :type type: str
+            :param figsize: Width and height of figure in inches
+            :type figsize: tuple(fl64,fl64)
+            :param title: Title of plot
+            :type title: str
+            :param tight: Use matplotlib tight layout
+            :type tight: bool
+            :param symbol: matplotlib symbol for scatterplots
+            :type symbol: str
+            :param fontsize: Size of font for correlation coefficients
+            :type fontsize: fl64
+            :param ms: Scatterplot marker size
+            :type ms: fl64
+        """
+        panels( self.recarray, type=type, figsize=figsize, title=title, tight=tight, symbol=symbol,fontsize=fontsize,ms=ms)
 def corr(rc1, rc2, type='pearson', plot=False, printout=True, figsize=None, title=None):
     """ Calculate correlation coefficients of parameters and responses
 
+        :param rc1: Data
+        :type type: Numpy structured (record) array
+        :param rc2: Data
+        :type type: Numpy structured (record) array
         :param type: Type of correlation coefficient (pearson by default, spearman also avaialable)
         :type type: str
         :param plot: If True, plot correlation matrix
@@ -338,4 +388,55 @@ def corr(rc1, rc2, type='pearson', plot=False, printout=True, figsize=None, titl
         plt.xticks(numpy.arange(0.5,len(rc2.dtype.names)+0.5),rc2.dtype.names)
         plt.show()
     return corrcoef
+
+def panels(rc, type='pearson', figsize=None, title=None, tight=True, symbol='o',fontsize=None,ms=None):
+    if plotflag:
+        siz = len(rc.dtype)
+        fig,ax = plt.subplots(siz,siz,figsize=figsize)
+        ind = 1
+        # Plot histograms in diagonal plots
+        for i,nm in enumerate(rc.dtype.names): 
+            ax[i,i].hist(rc[nm])
+        # Add axis labels to first column and last row
+        for i,nm in enumerate(rc.dtype.names): 
+            ax[i,0].set_ylabel(nm)
+            ax[siz-1,i].set_xlabel(nm)
+        # Scatterplots in lower triangular matrix
+        if fontsize is None: fontsize = 5*siz
+        for i,nm1 in enumerate(rc.dtype.names): 
+            for j,nm2 in enumerate(rc.dtype.names): 
+                if j<i:
+                    ax[i,j].plot(rc[nm2],rc[nm1], symbol, ms=ms)
+        # Print correlation coefficient in upper triangular matrix 
+        corrcoef = corr(rc,rc,plot=False,printout=False)
+        for i,nm1 in enumerate(rc.dtype.names): 
+            for j,nm2 in enumerate(rc.dtype.names): 
+                if j<i:
+                    #ax[j,i].axis('off')
+                    ax[j,i].text(0.5,0.5,str(numpy.round(corrcoef[j,i],2)),ha='center',va='center',size=20,weight='bold')
+
+        for i,nm1 in enumerate(rc.dtype.names): 
+            for j,nm2 in enumerate(rc.dtype.names): 
+                if j > 0:
+                    ax[i,j].get_yaxis().set_visible(False)
+                else:
+                    tk = ax[i,j].get_yticks()
+                    tk = [0.2*(tk[0]+tk[-1]),0.8*(tk[0]+tk[-1])]
+                    ax[i,j].set_yticks(tk)
+                if i < len(rc.dtype)-1:
+                    ax[i,j].get_xaxis().set_visible(False)
+                else:
+                    tk = ax[i,j].get_xticks()
+                    tk = [0.2*(tk[0]+tk[-1]),0.8*(tk[0]+tk[-1])]
+                    ax[i,j].set_xticks(tk)
+
+        if tight: 
+            plt.tight_layout()
+            if title:
+                plt.subplots_adjust(top=0.925) 
+        if title: plt.suptitle(title)
+        plt.show()
+    else:
+        print "Matplotlib must be installed to plot histograms"
+        return
 
