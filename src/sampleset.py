@@ -229,8 +229,8 @@ class SampleSet(object):
     def subset(self, criteria=None): 
         """ Save samples based on response values, remove all others
 
-            :param criteria: List of 3 element tuples, e.g. [(response, boolean, value)]
-            :type criteria: lst((str,str,fl64))
+            :param criteria: List of 2 or 3 element tuples, e.g. [('obs1','numpy.isnan'),('obs2','>',0.5)]
+            :type criteria: lst((str,str,fl64)) or lst((str,str))
         """
         if self.responses is None:
             print 'Error: sampleset contains no responses'
@@ -240,12 +240,16 @@ class SampleSet(object):
             if not c[0] in self.responses.names:
                 print "Error: "+c[0]+" is not a response"
                 return
-            s = "ind = numpy.where(self.responses.recarray['"+c[0]+"']"+c[1]+str(c[2])+")"
+            if len(c) == 2:
+                s = "ind = numpy.where("+c[1]+"(self.responses.recarray['"+c[0]+"']))"
+            elif len(c) == 3:
+                s = "ind = numpy.where(self.responses.recarray['"+c[0]+"']"+" "+c[1]+" "+str(c[2])+")"
             exec(s)
             inds = numpy.unique(numpy.concatenate([inds,ind[0]]))
-        self.samples._values = self.samples._values[inds.tolist(),:]
-        self.responses._values = self.responses._values[inds.tolist(),:]
-        self.indices = self.indices[inds.tolist()]
+        if len(inds):
+            self.samples._values = self.samples._values[inds.tolist(),:]
+            self.responses._values = self.responses._values[inds.tolist(),:]
+            self.indices = self.indices[inds.tolist()]
             
 class DataSet(object):
     """ MATK Samples class
@@ -291,6 +295,9 @@ class DataSet(object):
             :type tight: bool
         """        
         if plotflag:
+            if numpy.any(numpy.isnan(self.values)):
+                print "Error: Nan values exist probably due to failed simulations. Use subset (e.g. subset([('obs','!=',numpy.nan)]) to remove"
+                return
             siz = self.values.shape[1]
             if siz <= ncols:
                 ncols = siz
@@ -355,6 +362,7 @@ class DataSet(object):
             :type ms: fl64
         """
         panels( self.recarray, type=type, figsize=figsize, title=title, tight=tight, symbol=symbol,fontsize=fontsize,ms=ms)
+
 def corr(rc1, rc2, type='pearson', plot=False, printout=True, figsize=None, title=None):
     """ Calculate correlation coefficients of parameters and responses
 
@@ -374,6 +382,9 @@ def corr(rc1, rc2, type='pearson', plot=False, printout=True, figsize=None, titl
         :type title: str
         :returns: ndarray(fl64) -- Correlation coefficients
     """
+    if numpy.any(numpy.isnan(rc1.tolist())) or numpy.any(numpy.isnan(rc2.tolist())):
+        print "Error: Nan values exist probably due to failed simulations. Use subset (e.g. subset([('obs','!=',numpy.nan)]) to remove"
+        return
     corrlist = []
     if type is 'pearson':
         for snm in rc1.dtype.names:
@@ -411,6 +422,9 @@ def corr(rc1, rc2, type='pearson', plot=False, printout=True, figsize=None, titl
 
 def panels(rc, type='pearson', figsize=None, title=None, tight=True, symbol='o',fontsize=None,ms=None):
     if plotflag:
+        if numpy.any(numpy.isnan(rc.tolist())):
+            print "Error: Nan values exist probably due to failed simulations. Use subset (e.g. subset([('obs','!=',numpy.nan)]) to remove"
+            return
         siz = len(rc.dtype)
         fig,ax = plt.subplots(siz,siz,figsize=figsize)
         ind = 1
