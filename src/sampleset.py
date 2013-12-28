@@ -294,39 +294,7 @@ class DataSet(object):
             :param tight: Use matplotlib tight layout
             :type tight: bool
         """        
-        if plotflag:
-            if numpy.any(numpy.isnan(self.values)):
-                print "Error: Nan values exist probably due to failed simulations. Use subset (e.g. subset([('obs','!=',numpy.nan)]) to remove"
-                return
-            siz = self.values.shape[1]
-            if siz <= ncols:
-                ncols = siz
-                nrows = 1
-            elif siz > ncols:
-                nrows = int(numpy.ceil(float(siz)/ncols))
-            else:
-                nrows = 1
-            if figsize is None:
-                figsize = (ncols*3,nrows*3)
-            fig = plt.figure(figsize=figsize)
-            rc = self.recarray
-            ind = 0
-            for nm in self.names: 
-                plt.subplot(nrows,ncols,ind+1)
-                if ind==0 or (ind)%ncols==0:
-                    plt.ylabel('Count')
-                plt.hist(rc[nm])
-                plt.xlabel(nm)
-                ind+=1
-            if tight: 
-                plt.tight_layout()
-                if title:
-                    plt.subplots_adjust(top=0.925) 
-            if title: plt.suptitle(title)
-            plt.show()
-        else:
-            print "Matplotlib must be installed to plot histograms"
-            return
+        hist(self.recarray, ncols=ncols, figsize=figsize, title=title, tight=tight)
     def corr(self, type='pearson', plot=False, printout=True, figsize=None, title=None):
         """ Calculate correlation coefficients of dataset values
 
@@ -464,6 +432,50 @@ def panels(rc, type='pearson', figsize=None, title=None, tight=True, symbol='o',
                     tk = [0.2*(tk[0]+tk[-1]),0.8*(tk[0]+tk[-1])]
                     ax[i,j].set_xticks(tk)
 
+        if tight: 
+            plt.tight_layout()
+            if title:
+                plt.subplots_adjust(top=0.925) 
+        if title: plt.suptitle(title)
+        plt.show()
+    else:
+        print "Matplotlib must be installed to plot histograms"
+        return
+def hist(rc, ncols=4, figsize=None, title=None, tight=True):
+    """ Plot histograms of dataset
+
+        :param ncols: Number of columns in plot matrix
+        :type ncols: int
+        :param figsize: Width and height of figure in inches
+        :type figsize: tuple(fl64,fl64)
+        :param title: Title of plot
+        :type title: str
+        :param tight: Use matplotlib tight layout
+        :type tight: bool
+    """        
+    if plotflag:
+        if numpy.any(numpy.isnan(rc.tolist())):
+            print "Error: Nan values exist probably due to failed simulations. Use subset (e.g. subset([('obs','!=',numpy.nan)]) to remove"
+            return
+        siz = len(rc.dtype)
+        if siz <= ncols:
+            ncols = siz
+            nrows = 1
+        elif siz > ncols:
+            nrows = int(numpy.ceil(float(siz)/ncols))
+        else:
+            nrows = 1
+        if figsize is None:
+            figsize = (ncols*3,nrows*3)
+        fig = plt.figure(figsize=figsize)
+        ind = 0
+        for nm in rc.dtype.names: 
+            plt.subplot(nrows,ncols,ind+1)
+            if ind==0 or (ind)%ncols==0:
+                plt.ylabel('Count')
+            plt.hist(rc[nm])
+            plt.xlabel(nm)
+            ind+=1
         if tight: 
             plt.tight_layout()
             if title:

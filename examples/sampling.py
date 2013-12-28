@@ -34,8 +34,8 @@ p.sampleset['lhs'].samples.panels(title='Parameter Panels')
 # Run model with parameter samples
 p.sampleset['lhs'].run( ncpus=2, outfile='results.dat', logfile='log.dat',verbose=False)
 
-# Look at sample response histograms, correlations, and panels
-p.sampleset['lhs'].responses.hist(ncols=3,title='Model Response Histograms',tight=True)
+# Look at response histograms, correlations, and panels
+p.sampleset['lhs'].responses.hist(ncols=2,title='Model Response Histograms',tight=True)
 rescor = p.sampleset['lhs'].responses.corr(plot=True, title='Model Response Correlations')
 p.sampleset['lhs'].responses.panels(title='Response Panels')
 
