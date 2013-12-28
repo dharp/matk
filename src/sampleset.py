@@ -226,6 +226,26 @@ class SampleSet(object):
                         f.write(" %16lf" % row[i] )
                 f.write('\n')
             f.close()
+    def subset(self, criteria=None): 
+        """ Save samples based on response values, remove all others
+
+            :param criteria: List of 3 element tuples, e.g. [(response, boolean, value)]
+            :type criteria: lst((str,str,fl64))
+        """
+        if self.responses is None:
+            print 'Error: sampleset contains no responses'
+            return
+        inds = []
+        for c in criteria:
+            if not c[0] in self.responses.names:
+                print "Error: "+c[0]+" is not a response"
+                return
+            s = "ind = numpy.where(self.responses.recarray['"+c[0]+"']"+c[1]+str(c[2])+")"
+            exec(s)
+            inds = numpy.unique(numpy.concatenate([inds,ind[0]]))
+        self.samples._values = self.samples._values[inds.tolist(),:]
+        self.responses._values = self.responses._values[inds.tolist(),:]
+        self.indices = self.indices[inds.tolist()]
             
 class DataSet(object):
     """ MATK Samples class

@@ -26,20 +26,23 @@ p.add_par('par4',min=0,max=0.2)
 # Create LHS sample
 p.set_lhs_samples('lhs', siz=20, seed=1000)
 
-# Look at sample parameter histograms and correlations
+# Look at sample parameter histograms, correlations, and panels
 p.sampleset['lhs'].samples.hist(ncols=2,title='Parameter Histograms',tight=True)
 parcor = p.sampleset['lhs'].samples.corr(plot=True, title='Parameter Correlations')
+p.sampleset['lhs'].samples.panels(title='Parameter Panels')
 
 # Run model with parameter samples
 p.sampleset['lhs'].run( ncpus=2, outfile='results.dat', logfile='log.dat',verbose=False)
 
-# Look at sample response histograms
+# Look at sample response histograms, correlations, and panels
 p.sampleset['lhs'].responses.hist(ncols=3,title='Model Response Histograms',tight=True)
 rescor = p.sampleset['lhs'].responses.corr(plot=True, title='Model Response Correlations')
+p.sampleset['lhs'].responses.panels(title='Response Panels')
 
 # Print and plot parameter/response correlations
 print "\nPearson Correlation Coefficients:"
 pcorr = p.sampleset['lhs'].corr(plot=True,title='Pearson Correlation Coefficients') 
 print "\nSpearman Correlation Coefficients:"
 scorr = p.sampleset['lhs'].corr(plot=True,type='spearman',title='Spearman Rank Correlation Coefficients') 
+p.sampleset['lhs'].panels(tight=True,figsize=(10,8))
 

@@ -236,7 +236,10 @@ class matk(object):
             :param newname: Name of new sampleset
             :type newname: str
         """
-        self.sampleset.__setitem__( newname, self.sampleset[oldname] )
+        if newname in self.sampleset: 
+            self.sampleset[newname] = self.sampleset[oldname]
+        else:
+            self.sampleset.__setitem__( newname, deepcopy(self.sampleset[oldname]) )
     @property
     def sim_values(self):
         """ Simulated values
