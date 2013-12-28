@@ -10,6 +10,7 @@ import itertools
 from multiprocessing import Process, Manager, Pool, freeze_support
 from multiprocessing.queues import Queue, JoinableQueue
 import traceback
+from copy import deepcopy
 try:
     from collections import OrderedDict
 except ImportError:
@@ -227,6 +228,15 @@ class matk(object):
         else:
             self.sampleset.__setitem__( name, SampleSet(name,samples,parent=self,responses=responses,
                                                 indices=indices,index_start=index_start))
+    def copy_sampleset(self,oldname,newname):
+        """ Copy sampleset
+
+            :param oldname: Name of sampleset to copy
+            :type oldname: str
+            :param newname: Name of new sampleset
+            :type newname: str
+        """
+        self.sampleset.__setitem__( newname, self.sampleset[oldname] )
     @property
     def sim_values(self):
         """ Simulated values
