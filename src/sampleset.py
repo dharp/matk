@@ -20,7 +20,7 @@ class SampleSet(object):
         self._indices = None
         self._index_start = index_start
         self._parent = parent
-        self.samples = DataSet(samples,self._parent.parnames) 
+        self.samples = DataSet(samples,self._parent.parnames,mins=self._parent.parmins,maxs=self._parent.parmaxs) 
         for k,v in kwargs.iteritems():
             if k == 'responses':
                 if not v is None:
@@ -126,7 +126,7 @@ class SampleSet(object):
         corrcoef = corr(self.samples.recarray, self.responses.recarray, type=type, plot=plot, printout=printout, figsize=figsize, title=title)
         return corrcoef
     
-    def panels(self, type='pearson', figsize=None, title=None, tight=False, symbol='.',fontsize=None,ms=5):
+    def panels(self, type='pearson', figsize=None, title=None, tight=False, symbol='.',fontsize=None,ms=5,mins=None,maxs=None):
         """ Plot histograms, scatterplots, and correlation coefficients in paired matrix
 
             :param type: Type of correlation coefficient (pearson by default, spearman also avaialable)
@@ -144,7 +144,9 @@ class SampleSet(object):
             :param ms: Scatterplot marker size
             :type ms: fl64
         """
-        panels( self.recarray, type=type, figsize=figsize, title=title, tight=tight, symbol=symbol,fontsize=fontsize,ms=ms)
+        if mins is None and self.samples._mins is not None: mins = numpy.concatenate([self.samples._mins,numpy.min(self.responses.values,axis=0)])
+        if maxs is None and self.samples._maxs is not None: maxs = numpy.concatenate([self.samples._maxs,numpy.max(self.responses.values,axis=0)])
+        panels( self.recarray, type=type, figsize=figsize, title=title, tight=tight, symbol=symbol,fontsize=fontsize,ms=ms,mins=mins,maxs=maxs)
     def run(self, ncpus=1, templatedir=None, workdir_base=None,
                     save=True, reuse_dirs=False, outfile=None, logfile=None, verbose=True ):
         """ Run model using values in samples for parameter values
@@ -254,9 +256,11 @@ class SampleSet(object):
 class DataSet(object):
     """ MATK Samples class
     """
-    def __init__(self,samples,names):
+    def __init__(self,samples,names,mins=None,maxs=None):
         self._values = samples
         self._names = names
+        self._mins = mins
+        self._maxs = maxs
     @property
     def names(self):
         """ Array of parameter names
@@ -282,7 +286,7 @@ class DataSet(object):
         """ Structured (record) array of samples
         """
         return numpy.rec.fromarrays(self._values.T,names=self._names)
-    def hist(self, ncols=4, figsize=None, title=None, tight=True):
+    def hist(self, ncols=4, figsize=None, title=None, tight=True, mins=None, maxs=None):
         """ Plot histograms of dataset
 
             :param ncols: Number of columns in plot matrix
@@ -294,7 +298,9 @@ class DataSet(object):
             :param tight: Use matplotlib tight layout
             :type tight: bool
         """        
-        hist(self.recarray, ncols=ncols, figsize=figsize, title=title, tight=tight)
+        if mins is None and self._mins is not None: mins = self._mins
+        if maxs is None and self._maxs is not None: maxs = self._maxs
+        hist(self.recarray, ncols=ncols, figsize=figsize, title=title, tight=tight, mins=mins, maxs=maxs)
     def corr(self, type='pearson', plot=False, printout=True, figsize=None, title=None):
         """ Calculate correlation coefficients of dataset values
 
@@ -311,7 +317,7 @@ class DataSet(object):
             :returns: ndarray(fl64) -- Correlation coefficients
         """
         return corr(self.recarray, self.recarray, type=type, plot=plot, printout=printout, figsize=figsize, title=title)
-    def panels(self, type='pearson', figsize=None, title=None, tight=True, symbol='.',fontsize=None,ms=5):
+    def panels(self, type='pearson', figsize=None, title=None, tight=True, symbol='.',fontsize=None,ms=5,mins=None,maxs=None):
         """ Plot histograms, scatterplots, and correlation coefficients in paired matrix
 
             :param type: Type of correlation coefficient (pearson by default, spearman also avaialable)
@@ -329,7 +335,9 @@ class DataSet(object):
             :param ms: Scatterplot marker size
             :type ms: fl64
         """
-        panels( self.recarray, type=type, figsize=figsize, title=title, tight=tight, symbol=symbol,fontsize=fontsize,ms=ms)
+        if mins is None and self._mins is not None: mins = self._mins
+        if maxs is None and self._maxs is not None: maxs = self._maxs
+        panels( self.recarray, type=type, figsize=figsize, title=title, tight=tight, symbol=symbol,fontsize=fontsize,ms=ms,mins=mins,maxs=maxs)
 
 def corr(rc1, rc2, type='pearson', plot=False, printout=True, figsize=None, title=None):
     """ Calculate correlation coefficients of parameters and responses
@@ -388,8 +396,10 @@ def corr(rc1, rc2, type='pearson', plot=False, printout=True, figsize=None, titl
         plt.show()
     return corrcoef
 
-def panels(rc, type='pearson', figsize=None, title=None, tight=True, symbol='o',fontsize=None,ms=None):
+def panels(rc, type='pearson', figsize=None, title=None, tight=True, symbol='o',fontsize=None,ms=None,mins=None,maxs=None):
     if plotflag:
+        if mins is None: mins = numpy.min(rc.tolist(),axis=0)
+        if maxs is None: maxs = numpy.max(rc.tolist(),axis=0)
         if numpy.any(numpy.isnan(rc.tolist())):
             print "Error: Nan values exist probably due to failed simulations. Use subset (e.g. subset([('obs','!=',numpy.nan)]) to remove"
             return
@@ -398,7 +408,7 @@ def panels(rc, type='pearson', figsize=None, title=None, tight=True, symbol='o',
         ind = 1
         # Plot histograms in diagonal plots
         for i,nm in enumerate(rc.dtype.names): 
-            ax[i,i].hist(rc[nm])
+            ax[i,i].hist(rc[nm], range=(mins[i],maxs[i]))
         # Add axis labels to first column and last row
         for i,nm in enumerate(rc.dtype.names): 
             ax[i,0].set_ylabel(nm)
@@ -409,6 +419,7 @@ def panels(rc, type='pearson', figsize=None, title=None, tight=True, symbol='o',
             for j,nm2 in enumerate(rc.dtype.names): 
                 if j<i:
                     ax[i,j].plot(rc[nm2],rc[nm1], symbol, ms=ms)
+                    ax[i,j].axis([mins[j],maxs[j],mins[i],maxs[i]])
         # Print correlation coefficient in upper triangular matrix 
         corrcoef = corr(rc,rc,plot=False,printout=False)
         for i,nm1 in enumerate(rc.dtype.names): 
@@ -441,7 +452,7 @@ def panels(rc, type='pearson', figsize=None, title=None, tight=True, symbol='o',
     else:
         print "Matplotlib must be installed to plot histograms"
         return
-def hist(rc, ncols=4, figsize=None, title=None, tight=True):
+def hist(rc, ncols=4, figsize=None, title=None, tight=True, mins=None, maxs=None):
     """ Plot histograms of dataset
 
         :param ncols: Number of columns in plot matrix
@@ -452,6 +463,11 @@ def hist(rc, ncols=4, figsize=None, title=None, tight=True):
         :type title: str
         :param tight: Use matplotlib tight layout
         :type tight: bool
+        :param mins: Minimum values of recarray fields
+        :type mins: lst(fl64)
+        :param maxs: Maximum values of recarray fields
+        :type maxs: lst(fl64)
+
     """        
     if plotflag:
         if numpy.any(numpy.isnan(rc.tolist())):
@@ -469,11 +485,13 @@ def hist(rc, ncols=4, figsize=None, title=None, tight=True):
             figsize = (ncols*3,nrows*3)
         fig = plt.figure(figsize=figsize)
         ind = 0
+        if mins is None: mins = numpy.min(rc.tolist(),axis=0)
+        if maxs is None: maxs = numpy.max(rc.tolist(),axis=0)
         for nm in rc.dtype.names: 
             plt.subplot(nrows,ncols,ind+1)
             if ind==0 or (ind)%ncols==0:
                 plt.ylabel('Count')
-            plt.hist(rc[nm])
+            plt.hist(rc[nm], range=(mins[ind],maxs[ind]))
             plt.xlabel(nm)
             ind+=1
         if tight: 
