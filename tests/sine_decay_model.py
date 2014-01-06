@@ -8,6 +8,7 @@ def sine_decay(params, x):
     omega = params['omega']
     decay = params['decay']
 
+    np.seterr(all='ignore')
     model = amp * np.sin(x * omega + shift) * np.exp(-x*x*decay)
 
     obsnames = ['obs'+str(i) for i in range(1,len(model)+1)]

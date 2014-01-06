@@ -732,8 +732,8 @@ class matk(object):
         if self._current:
             self._set_sim_values(sims)
         return numpy.array(J).T
-    def calibrate( self, ncpus=1, maxiter=100, lambdax=0.001, minchange=1.0e-1, minlambdax=1.0e-6, verbose=False,
-                  workdir=None, reuse_dirs=False):
+    def calibrate( self, ncpus=1, maxiter=100, lambdax=0.001, minchange=1.0e-16, minlambdax=1.0e-6, verbose=False,
+                  workdir=None, reuse_dirs=False, h=1.e-6):
         """ Calibrate MATK model using Levenberg-Marquardt algorithm based on 
             original code written by Ernesto P. Adorio PhD. 
             (UPDEPP at Clarkfield, Pampanga)
@@ -757,6 +757,6 @@ class matk(object):
         from minimizer import Minimizer
         fitter = Minimizer(self)
         fitter.calibrate(ncpus=ncpus,maxiter=maxiter,lambdax=lambdax,minchange=minchange,
-                         minlambdax=minlambdax,verbose=verbose,workdir=workdir,reuse_dirs=reuse_dirs)
+                         minlambdax=minlambdax,verbose=verbose,workdir=workdir,reuse_dirs=reuse_dirs,h=h)
 
 

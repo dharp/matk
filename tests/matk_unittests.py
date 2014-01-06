@@ -24,7 +24,7 @@ class Tests(unittest.TestCase):
         self.p.add_par('par2',min=0,max=0.2)
         self.p.add_par('par3',min=0,max=1)
         self.p.add_par('par4',min=0,max=0.2)
-        # Calibration model
+        # Calibration sine model
         # create data to be fitted
         self.x = numpy.linspace(0, 15, 301)
         self.c = matk.matk(model=sine_decay, model_args=(self.x,))
@@ -138,8 +138,7 @@ class Tests(unittest.TestCase):
         # Look at calibrated fit
         self.c.forward()
         sims = self.c.sim_values
-        of = numpy.sum(self.c.residuals)
-        self.assertTrue( of < 1.e-12, 'Objective function value is ' + str(of) )
+        self.assertTrue( self.c.ssr < 1.e-27, 'Objective function value is ' + str(self.c.ssr) )
 
     def jacobian(self):
         # Check condition number
@@ -150,7 +149,10 @@ class Tests(unittest.TestCase):
     def calibrate(self):
         self.j.obsvalues = [5.308,7.24,9.638,12.866,17.069,23.192,31.443,38.558,50.156,62.948,75.995,91.972]
         self.j.calibrate()
-        self.assertEqual( round(self.j.ssr,6), 2.587278, 'Final SSR is incorrect')
+        self.assertTrue( self.j.ssr < 2.587278, 'Final SSR of sine model is incorrect' + str(self.j.ssr) )
+        self.c.parvalues = {'amp':10.,'decay':0.1,'shift':0.,'omega':3.0}
+        self.c.calibrate()
+        self.assertTrue( self.c.ssr < 1.e-27, 'Final SSR of marquardt model is incorrect ' + str(self.c.ssr) )
         
 def suite(case):
     suite = unittest.TestSuite()

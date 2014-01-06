@@ -41,27 +41,76 @@ class Minimizer(LmfitMinimizer):
         """
         if not fvars is None:
             # set parameter values
-            for varname, val in zip(self.var_map, fvars):
-                # self.params[varname].value = val
-                par = self.params[varname]
-                par.value = par.from_internal(val)
-            self.nfev = self.nfev + 1
-
+            self.__set_internal_parvalues(fvars)
             self.update_constraints()
             pardict = dict(zip(self._parent.parnames, self._parent.parvalues))
             self.userfcn(pardict=pardict, *self.userargs, **self.userkws)
         else:
+            self.__set_internal_parvalues(self.vars)
             self.userfcn(*self.userargs, **self.userkws)
+        self.nfev = self.nfev + 1
         out = self._parent.residuals
         if hasattr(self.iter_cb, '__call__'):
             self.iter_cb(self.params, self.nfev, out,
                          *self.userargs, **self.userkws)
         return out
 
+    def __get_internal_parvalues(self, fvars):
+        parvalues = []
+        for varname, val in zip(self.var_map, fvars):
+            par = self.params[varname]
+            parvalues.append(par.from_internal(val))
+        return numpy.array(parvalues)
 
+    def __set_internal_parvalues(self, fvars):
+        for varname, val in zip(self.var_map, fvars):
+            par = self.params[varname]
+            par.value = par.from_internal(val)
 
-    def calibrate( self, ncpus=1, maxiter=100, lambdax=0.001, minchange=1.0e-1, minlambdax=1.0e-6, verbose=False,
-                  workdir=None, reuse_dirs=False):
+    def __jacobian( self, h=1.e-3, ncpus=1, templatedir=None, workdir_base=None,
+                    save=True, reuse_dirs=False ):
+        ''' Numerical Jacobian calculation
+
+            :param h: Parameter increment, single value or array with npar values
+            :type h: fl64 or ndarray(fl64)
+            :returns: ndarray(fl64) -- Jacobian matrix
+        '''
+        # Collect parameter sets
+        a = self.vars
+        # If current simulated values are associated with current parameter values...
+        if self._parent._current:
+            sims = self._parent.sim_values
+        if isinstance(h, (tuple,list)):
+            h = numpy.array(h)
+        elif not isinstance(h, numpy.ndarray):
+            h = numpy.ones(len(a))*h
+        hlmat = numpy.identity(len(self.vars))*-h
+        humat = numpy.identity(len(self.vars))*h
+        hmat = numpy.concatenate([hlmat,humat])
+        parset = []
+        for hs in hmat:
+            int_pars = self.__get_internal_parvalues(hs+a)
+            parset.append(int_pars)
+        parset = numpy.array(parset)
+        self._parent.add_sampleset('_jac_',parset)
+
+        self._parent.sampleset['_jac_'].run( ncpus=ncpus, templatedir=templatedir, verbose=False,
+                         workdir_base=workdir_base, save=save, reuse_dirs=reuse_dirs )
+        # Perform simulations on parameter sets
+        obs = self._parent.sampleset['_jac_'].responses.values
+        a_ls = obs[0:len(a)]
+        a_us = obs[len(a):]
+        J = []
+        for a_l,a_u,hs in zip(a_ls,a_us,h):
+            J.append((a_l-a_u)/(2*hs))
+        self._parent.parvalues = a
+        # If current simulated values are associated with current parameter values...
+        if self._parent._current:
+            self._parent._set_sim_values(sims)
+        return numpy.array(J).T
+
+    def calibrate( self, ncpus=1, maxiter=100, lambdax=0.001, minchange=1.0e-16, minlambdax=1.0e-6, verbose=False,
+                  workdir=None, reuse_dirs=False, h=1.e-6):
         """ Calibrate MATK model using Levenberg-Marquardt algorithm based on 
             original code written by Ernesto P. Adorio PhD. 
             (UPDEPP at Clarkfield, Pampanga)
@@ -86,9 +135,9 @@ class Minimizer(LmfitMinimizer):
         
         n = len(self._parent.obs) # Number of observations
         m = len(self._parent.pars) # Number of parameters
-        a = numpy.copy(self._parent.parvalues) # Initial parameter values
-        besta = a # Best parameters start as current parameters
-        self.__residual()
+        #a = self.vars # Initial parameter values
+        besta = self.vars # Best parameters start as current parameters
+        self.__residual(self.vars)
         bestSS = SS = self._parent.ssr # Sum of squared error
         Cov = None
         iscomp = True
@@ -99,14 +148,13 @@ class Minimizer(LmfitMinimizer):
             # If iscomp, recalculate JtJ and beta
             if (iscomp) :
                 # Compute Jacobian
-                self._parent.parvalues = a
-                J = self._parent.Jac(ncpus=ncpus)
+                J = self.__jacobian( ncpus=ncpus, h=h )
                 # Compute Hessian
                 JtJ = numpy.dot(J.T,J)
                 if (lambdax == 0.0) :
                     break
                 # Form RHS beta vector
-                r = numpy.array(self.__residual(a))
+                r = numpy.array(self.__residual(self.vars))
                 beta = -numpy.dot(J.T,r)
 
             # Update A with new lambdax
@@ -138,7 +186,7 @@ class Minimizer(LmfitMinimizer):
                 print "total abs delta=", totabsdelta
             if (code == 0):
                 # Compute new parameters
-                newa = a + delta
+                newa = self.vars + delta
                 # and new sum of squares
                 self.__residual(newa)
                 newSS = self._parent.ssr
@@ -149,11 +197,11 @@ class Minimizer(LmfitMinimizer):
                     besta  = newa
                     bestSS = newSS
                     bestJtJ = JtJ
-                    a = newa
+                    self.vars = newa
                     iscomp = True
                     if verbose:
                         print "new a:"
-                        for x in a:
+                        for x in self.vars:
                             print x
                         print
                     # Termination criteria
@@ -187,10 +235,11 @@ class Minimizer(LmfitMinimizer):
             print self._parent.parvalues
             print 'SSR: '
             print self._parent.ssr
+            print 'Flag: ', flag
             try:
                 Cov = numpy.linalg.inv(JtJ)
             except numpy.linalg.linalg.LinAlgError as err:
-                print "Warning: Unable to compute covariance - " + err   
+                print "Warning: Unable to compute covariance - " + str(err)   
             else:
                 print 'Cov: '
                 print Cov
