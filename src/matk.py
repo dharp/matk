@@ -480,6 +480,7 @@ class matk(object):
 
         if report_fit:
             print lmfit.report_fit(params)
+            print 'SSR: ',self.ssr
         return out
 
     def levmar(self,workdir=None,reuse_dirs=False,max_iter=1000,full_output=True):
