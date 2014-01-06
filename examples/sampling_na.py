@@ -26,7 +26,7 @@ p.add_par('par3',min=0,max=1)
 p.add_par('par4',min=0,max=0.2)
 
 # Create LHS sample
-p.set_lhs_samples('lhs', siz=20, seed=1000)
+p.set_lhs_samples('lhs', siz=100, seed=1000)
 
 # Look at sample parameter histograms, correlations, and panels
 p.sampleset['lhs'].samples.hist(ncols=2,title='Parameter Histograms',tight=True)
@@ -41,7 +41,8 @@ p.sampleset['lhs'].responses.hist(ncols=3,title='Model Response Histograms',tigh
 
 # Copy sampleset and subset to only samples with nan responses
 p.copy_sampleset('lhs','nans')
-p.sampleset['nans'].subset([('o1','numpy.isnan')])
+p.sampleset['nans'].subset(numpy.isnan, obs='o1')
+#p.sampleset['nans'].subset([('o1','numpy.isnan')])
 
 # Evaluate parameter combination resulting in nans
 # Note that it is easy to identify that the culprit is par1 with values less than 0.5

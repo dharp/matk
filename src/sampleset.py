@@ -228,26 +228,22 @@ class SampleSet(object):
                         f.write(" %16lf" % row[i] )
                 f.write('\n')
             f.close()
-    def subset(self, criteria=None): 
-        """ Save samples based on response values, remove all others
+    def subset(self, boolfcn, obs, *args, **kwargs): 
+        """ Collect samples based on response values, remove all others
 
-            :param criteria: List of 2 or 3 element tuples, e.g. [('obs1','numpy.isnan'),('obs2','>',0.5)]
-            :type criteria: lst((str,str,fl64)) or lst((str,str))
+            :param boofcn: Function that returns true for samples to keep and false for samples to remove
+            :type boolfcn: function handle
+            :param obs: Name of response to apply boolfcn to
+            :type obs: str
+            :param args: Additional arguments to add to boolfcn
+            :param kwargs: Keyword arguments to add to boolfcn 
         """
         if self.responses is None:
             print 'Error: sampleset contains no responses'
             return
         inds = []
-        for c in criteria:
-            if not c[0] in self.responses.names:
-                print "Error: "+c[0]+" is not a response"
-                return
-            if len(c) == 2:
-                s = "ind = numpy.where("+c[1]+"(self.responses.recarray['"+c[0]+"']))"
-            elif len(c) == 3:
-                s = "ind = numpy.where(self.responses.recarray['"+c[0]+"']"+" "+c[1]+" "+str(c[2])+")"
-            exec(s)
-            inds = numpy.unique(numpy.concatenate([inds,ind[0]]))
+        boolarr = numpy.array([boolfcn(val,*args,**kwargs) for val in self.responses.recarray[obs]])
+        inds = numpy.where(boolarr)[0]
         if len(inds):
             self.samples._values = self.samples._values[inds.tolist(),:]
             self.responses._values = self.responses._values[inds.tolist(),:]
