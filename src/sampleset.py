@@ -78,6 +78,14 @@ class SampleSet(object):
         else:
             self._indices = value
     @property
+    def parnames(self):
+        """ Array of observation names
+        """ 
+        if not self._parent is None:
+            if len(self._parent.parnames):
+                self._parnames = self._parent.parnames
+        return self._parnames
+    @property
     def obsnames(self):
         """ Array of observation names
         """ 
@@ -203,6 +211,8 @@ class SampleSet(object):
 
         if outfile:
             f = open(outfile, 'w')
+            f.write("Number of parameters: %d\n" % len(self.parnames) )
+            f.write("Number of responses: %d\n" % len(self.obsnames) )
             f.write("%-8s" % 'index' )
             # Print par names
             for nm in self.samples.names:

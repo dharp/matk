@@ -242,32 +242,22 @@ class matk(object):
             return
         fp = open(file)
         # parse file
+        npar = int(fp.readline().rstrip().split(':')[1])
+        nobs = int(fp.readline().rstrip().split(':')[1])
         headers = fp.readline().rstrip().split()
         data = numpy.array([[float(num) for num in line.split()] for line in fp])
-        # divide parameters from responses
-        i = 0
-        for val1,val2 in zip(data[0,:],data[1,:]):
-            # special case if indices present
-            if (val1 != val2) and i == 0:
-                i+=1
-                continue
-            i += 1
-            if val1 != val2: break
-        
         # add parameters
-        indexFlag = False
-        for header,dat in zip(headers[:i],data[:,:i].T):
-            if header == 'index': indexFlag = True; continue
-            self.add_par(header,min = numpy.min(dat),max = numpy.max(dat))
+        for header,dat in zip(headers[1:npar+1],data[:,npar+1].T):
+            if header not in self.pars:
+                self.add_par(header,min = numpy.min(dat),max = numpy.max(dat))
         # add observations
-        for header in headers[i:]: self.add_obs(header)
+        for header in headers[npar+1:]: 
+            if header not in self.obs:
+                self.add_obs(header)
         # create samples
-        samples = numpy.array([data[:,headers.index(key)] for key in self.pars.keys()]).T
-        responses = numpy.array([data[:,headers.index(key)] for key in self.obs.keys()]).T
-        if indexFlag:
-            self.sampleset[name] = SampleSet(name,samples,parent=self,responses=responses,indices=data[:,0])
-        else:
-            self.sampleset[name] = SampleSet(name,samples,parent=self,responses=responses)
+        samples = data[:,1:npar+1]
+        responses = data[:,npar+1:]
+        self.sampleset[name] = SampleSet(name,samples,parent=self,responses=responses,indices=data[:,0])
     def copy_sampleset(self,oldname,newname):
         """ Copy sampleset
 
