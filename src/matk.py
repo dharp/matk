@@ -247,7 +247,7 @@ class matk(object):
         headers = fp.readline().rstrip().split()
         data = numpy.array([[float(num) for num in line.split()] for line in fp])
         # add parameters
-        for header,dat in zip(headers[1:npar+1],data[:,npar+1].T):
+        for header,dat in zip(headers[1:npar+1],data[:,1:npar+1].T):
             if header not in self.pars:
                 self.add_par(header,min = numpy.min(dat),max = numpy.max(dat))
         # add observations
