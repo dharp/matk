@@ -682,10 +682,6 @@ class matk(object):
         :type kwargs: dict(fl64)
         :returns: ndarray(fl64) -- Array of samples
         '''
-        outfile = None
-        for k,v in kwargs.iteritems():
-            if k == 'outfile':
-                outfile = v
 
         if len(args) > 0 and len(kwargs) > 0:
             print "Warning: dictionary arg will overide keyword args"
@@ -708,10 +704,7 @@ class matk(object):
                     i += 1
         else:
             for k,v in kwargs.iteritems():
-                if not k == 'outfile':
-                    self.pars[k].nvals = v
-
-
+                self.pars[k].nvals = v
         x = []
         for k,p in self.pars.items():
             if p.nvals == 1 or not p.vary:
@@ -723,6 +716,24 @@ class matk(object):
         x = numpy.array(x)
 
         self.add_sampleset( name, x )
+    def set_fullfact(self,name,levels=[]):
+        try:
+            import pyDOE
+        except ImportError as exc:
+            sys.stderr.write("Warning: failed to import pyDOE module. ({})".format(exc))
+            return
+        if len(levels) == 0:
+            levels = numpy.array([p.nvals for p in self.pars.values()])
+        elif len(levels) != len(self.pars): 
+            print "Error: Length of levels ("+str(len(levels))+") not equal to number of parameters ("+str(len(self.pars))+")"
+            return
+        else:
+            levels = numpy.array(levels)
+        ds = pyDOE.fullfact(levels)
+        mns = numpy.array(self.parmins)
+        mxs = numpy.array(self.parmaxs)
+        parsets = mns + ds/(levels-1)*(mxs-mns)
+        self.add_sampleset(name,parsets)
     def Jac( self, h=1.e-3, ncpus=1, templatedir=None, workdir_base=None,
                     save=True, reuse_dirs=False ):
         ''' Numerical Jacobian calculation

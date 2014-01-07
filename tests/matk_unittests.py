@@ -109,7 +109,7 @@ class Tests(unittest.TestCase):
         lb = self.p.parmins
         ub = self.p.parmaxs
         # Test keyword args
-        self.p.set_parstudy_samples( 'ps', par1=2, par2=2, par3=2, par4=2, outfile=None )
+        self.p.set_parstudy_samples( 'ps', par1=2, par2=2, par3=2, par4=2)
         s = self.p.sampleset['ps'].samples.values
         mins = s.min(axis=0)
         maxs = s.max(axis=0)
@@ -128,6 +128,14 @@ class Tests(unittest.TestCase):
         maxs = s.max(axis=0)
         self.assertTrue( (maxs >= lb).any() and (mins <= ub).any(), 'Parstudy outside parameter bounds' )
 
+    def fullfact(self):
+        lb = self.p.parmins
+        ub = self.p.parmaxs
+        self.p.set_fullfact( 'ff', levels=[2,2,2,2] )
+        s = self.p.sampleset['ff'].samples.values
+        mins = s.min(axis=0)
+        maxs = s.max(axis=0)
+        self.assertTrue( (maxs >= lb).any() and (mins <= ub).any(), 'Full factorial design outside parameter bounds' )
 
     def calibrate_lmfit(self): 
         # Look at initial fit
@@ -160,6 +168,7 @@ def suite(case):
         suite.addTest( Tests('forward') )
         suite.addTest( Tests('sample') )
         suite.addTest( Tests('parstudy') )
+        suite.addTest( Tests('fullfact') )
         suite.addTest( Tests('calibrate_lmfit') )
         suite.addTest( Tests('jacobian') )
         suite.addTest( Tests('calibrate') )
