@@ -81,7 +81,7 @@ class Parameter(Parameter):
                 self.dist_pars = (self.mean, self.std)
         self.user_value = self._val
         self.init_value = self._val
-    @property
+    @property    
     def name(self):
         """ Parameter name
         """
