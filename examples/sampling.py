@@ -1,3 +1,6 @@
+
+import sys
+sys.path.append('C:\\Users\\264485\\python\\matk\\src')
 import matk
 import numpy
 from scipy import arange, randn, exp
