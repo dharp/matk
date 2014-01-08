@@ -1,5 +1,14 @@
 import numpy
 from lmfit.parameter import Parameter
+import copy_reg, new
+
+# Use copy_reg to allow pickling of bound methods
+def make_instancemethod(inst, methodname):
+    return getattr(inst, methodname)
+def pickle_instancemethod(method):
+    return make_instancemethod, (method.im_self, method.im_func.__name__)
+copy_reg.pickle(new.instancemethod, pickle_instancemethod,
+make_instancemethod)
 
 class Parameter(Parameter):
     """ MATK parameter class
@@ -26,7 +35,6 @@ class Parameter(Parameter):
         self.deps   = None
         self.stderr = None
         self.correl = None
-        self.from_internal = lambda val: val
         for k,v in kwargs.iteritems():
             if k == 'value':
                 self._val = float(v)
@@ -81,6 +89,11 @@ class Parameter(Parameter):
                 self.dist_pars = (self.mean, self.std)
         self.user_value = self._val
         self.init_value = self._val
+    def __getstate__(self):
+        odict = self.__dict__.copy()
+        return odict
+    def __setstate__(self,state):
+        self.__dict__.update(state)
     @property    
     def name(self):
         """ Parameter name
@@ -213,8 +226,15 @@ class Parameter(Parameter):
     @expr.setter
     def expr(self,value):
         self._expr = value              
-    @property
-    def calib_value(self):
+    def _nobound(self,val):
+        return val
+    def _minbound(self,val):
+        return self.min - 1 + numpy.sqrt(val*val + 1)
+    def _maxbound(self,val):
+        return self.max + 1 - numpy.sqrt(val*val + 1)
+    def _bound(self,val):
+        return self.min + (numpy.sin(val) + 1) * (self.max - self.min) / 2
+    def setup_bounds(self):
         """set up Minuit-style internal/external parameter transformation
         of min/max bounds.
 
@@ -228,28 +248,27 @@ class Parameter(Parameter):
         called prior to passing a Parameter to the user-defined objective
         function.
 
-        This code borrows heavily from lmfit, which borrows heavily from
-        JJ Helmus' leastsqbound.py
+        This code borrows heavily from JJ Helmus' leastsqbound.py
         """
-        try:
-            self._min
-            self._max
-        except NameError: pass
+        if self.min in (None, -numpy.inf) and self.max in (None, numpy.inf):
+            #self.from_internal = lambda val: val
+            self.from_internal = self._nobound
+            _val  = self._val
+        elif self.max in (None, numpy.inf):
+            #self.from_internal = lambda val: self.min - 1 + sqrt(val*val + 1)
+            self.from_internal = self._minbound
+            _val  = numpy.sqrt((self._val - self.min + 1)**2 - 1)
+        elif self.min in (None, -numpy.inf):
+            #self.from_internal = lambda val: self.max + 1 - sqrt(val*val + 1)
+            self.from_internal = self._maxbound
+            _val  = numpy.sqrt((self.max - self._val + 1)**2 - 1)
         else:
-            if self._min in (None, -numpy.inf) and self._max in (None, numpy.inf):
-                self._func_value = lambda val: val
-                self._calib_value =  self._value 
-            elif self._max in (None, numpy.inf):
-                self._func_value = lambda val: numpy.sqrt((val - self.min + 1)**2 - 1)
-                self._calib_value = self._min - 1 + numpy.sqrt(self._value*self._value + 1)
-            elif self._min in (None, -numpy.inf):
-                self._func_value = lambda val: numpy.sqrt((self.max - val + 1)**2 - 1)
-                self._calib_value = self._max + 1 - numpy.sqrt(self._value*self._value + 1)
-            else:
-                self._func_value = lambda val: numpy.arcsin(2*(val - self.min)/(self.max - self.min) - 1)
-                self._calib_value = self._min + (numpy.sin(self._value) + 1) * (self._max - self._min) / 2 
+            #self.from_internal = lambda val: self.min + (sin(val) + 1) * \
+            #                     (self.max - self.min) / 2
+            self.from_internal = self._bound 
+            _val  = numpy.arcsin(2*(self._val - self.min)/(self.max - self.min) - 1)
+        return _val
 
-            return self._calib_value 
              
 
 

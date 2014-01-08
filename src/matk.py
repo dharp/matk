@@ -536,7 +536,7 @@ class matk(object):
             print nm,vs
             prob.forward(pardict=dict(zip(nm,vs)),workdir=workdir,reuse_dirs=reuse_dirs)
             return prob.sim_values
-        vs = [p.calib_value for p in self.pars.values()]
+        vs = [p.from_internal for p in self.pars.values()]
         meas = self.obsvalues
         if full_output: full_output = 1
         out = levmar.leastsq(_f, vs, meas, args=(self,), Dfun=None, max_iter=max_iter, full_output=full_output)
