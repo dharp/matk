@@ -307,7 +307,26 @@ class SampleSet(object):
             var_matrix.append(var_row)
             
         return sensitivity_matrix, mean_matrix, var_matrix
+    def rank_parameter_frequencies(self):
+        """ Yields a printout of parameter value frequencies in the sample set
         
+        returns An array of tuples, each containing the parameter name tagged as min or max and a
+            second tuple containing the parameter value and the frequency of its appearance in the sample set.
+        """
+        # create dictionary of parameter name and value
+        pars = []
+        for par,col in zip(self._parent.pars,self.samples._values.T):
+            min = self._parent.pars[par]._min
+            max = self._parent.pars[par]._max
+            minN = list(col).count(min)
+            maxN = list(col).count(max)
+            pars.append((par+':min',[min,minN]))
+            pars.append((par+':max',[max,maxN]))
+        
+        pars.sort(key=lambda x: x[1][1],reverse=True)
+            
+        return pars
+            
 class DataSet(object):
     """ MATK Samples class
     """
