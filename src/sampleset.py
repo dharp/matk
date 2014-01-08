@@ -270,14 +270,13 @@ class SampleSet(object):
         # sort lists by parameter value            
         sorted_samples = [[i]+list(s) for i,s in enumerate(self.samples._values)]
         for i in range(N,0,-1): sorted_samples.sort(key = itemgetter(i))
-        
         # for each parameter
         pairDict = []
-        for i in range(N-1,-1,-1):             
+        for i,parname in zip(range(N-1,-1,-1),self._parent.pars.keys()):             
             inds = range(0,2**N+1,2**i)
             # for each parameter pairing set
             pairs = []
-            for j,parname in zip(range(1,N-i+1),self._parent.pars.keys()):
+            for j in range(1,(len(inds)-1)/2+1):
                 set1 = sorted_samples[inds[2*(j-1)]:inds[2*j-1]]
                 set2 = sorted_samples[inds[2*j-1]:inds[2*j]]
                 # for each parameter pair
@@ -285,7 +284,6 @@ class SampleSet(object):
                     pairs.append((s1[0],s2[0]))
             pairDict.append((parname,pairs))
         pairDict = dict(pairDict)
-        
         # for each observation - parameter pair set, calculate the set of sensitivities
         sensitivity_matrix = []
         for i,obs in enumerate(self._parent.obs.keys()):
