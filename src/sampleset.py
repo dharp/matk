@@ -371,10 +371,12 @@ class DataSet(object):
             :type title: str
             :param tight: Use matplotlib tight layout
             :type tight: bool
+            :returns: dict(lst(int),lst(fl64)) - dictionary of histogram data (counts,bins) keyed by name
         """        
         if mins is None and self._mins is not None: mins = self._mins
         if maxs is None and self._maxs is not None: maxs = self._maxs
-        hist(self.recarray, ncols=ncols, figsize=figsize, title=title, tight=tight, mins=mins, maxs=maxs)
+        hd = hist(self.recarray, ncols=ncols, figsize=figsize, title=title, tight=tight, mins=mins, maxs=maxs)
+        return hd
     def corr(self, type='pearson', plot=False, printout=True, figsize=None, title=None):
         """ Calculate correlation coefficients of dataset values
 
@@ -541,6 +543,7 @@ def hist(rc, ncols=4, figsize=None, title=None, tight=True, mins=None, maxs=None
         :type mins: lst(fl64)
         :param maxs: Maximum values of recarray fields
         :type maxs: lst(fl64)
+        :returns: dict(lst(int),lst(fl64)) - dictionary of histogram data (counts,bins) keyed by name
 
     """        
     if plotflag:
@@ -561,11 +564,12 @@ def hist(rc, ncols=4, figsize=None, title=None, tight=True, mins=None, maxs=None
         ind = 0
         if mins is None: mins = numpy.min(rc.tolist(),axis=0)
         if maxs is None: maxs = numpy.max(rc.tolist(),axis=0)
+        hist_dict = {}
         for nm in rc.dtype.names: 
             plt.subplot(nrows,ncols,ind+1)
             if ind==0 or (ind)%ncols==0:
                 plt.ylabel('Count')
-            plt.hist(rc[nm], range=(mins[ind],maxs[ind]))
+            hist_dict[nm] = plt.hist(rc[nm], range=(mins[ind],maxs[ind]))
             plt.xlabel(nm)
             ind+=1
         if tight: 
@@ -574,6 +578,7 @@ def hist(rc, ncols=4, figsize=None, title=None, tight=True, mins=None, maxs=None
                 plt.subplots_adjust(top=0.925) 
         if title: plt.suptitle(title)
         plt.show()
+        return hist_dict
     else:
         print "Matplotlib must be installed to plot histograms"
         return
