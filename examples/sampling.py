@@ -33,7 +33,7 @@ def run():
 	p.add_par('par4',min=0,max=0.2)
 	
 	# Create LHS sample
-	s = p.lhs('lhs', siz=20, seed=1000)
+	s = p.lhs('lhs', siz=500, seed=1000)
 	
 	# Look at sample parameter histograms, correlations, and panels
 	s.samples.hist(ncols=2,title='Parameter Histograms',tight=True)
