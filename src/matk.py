@@ -192,7 +192,7 @@ class matk(object):
             self.obs[name] = Observation(name,**kwargs)
         else:
             self.obs.__setitem__( name, Observation(name,**kwargs))
-    def add_sampleset(self,name,samples,responses=None,indices=None,index_start=1):
+    def create_sampleset(self,samples,name=None,responses=None,indices=None,index_start=1):
         """ Add sample set to problem
             
             :param name: Name of sample set
@@ -214,6 +214,12 @@ class matk(object):
         if not samples.shape[1] == npar:
             print "Error: The number of columns in sample is not equal to the number of parameters in the problem"
             return 1
+        if name is None:
+            ind = str(len(self.sampleset))
+            name = 'ss'+str(ind)
+            while name in self.sampleset:
+                ind += 1
+                name = 'ss'+str(ind)
         if len(self.pars) > 0:
             parnames = self.parnames
         else:
@@ -228,7 +234,8 @@ class matk(object):
         else:
             self.sampleset.__setitem__( name, SampleSet(name,samples,parent=self,responses=responses,
                                                 indices=indices,index_start=index_start))
-    def read_sampleset(self,name,file):
+        return self.sampleset[name]
+    def read_sampleset(self, file, name=None):
         """ Read MATK output file and assemble corresponding sampleset with responses.
         
         :param name: Name of sample set
@@ -257,8 +264,9 @@ class matk(object):
         # create samples
         samples = data[:,1:npar+1]
         responses = data[:,npar+1:]
-        self.sampleset[name] = SampleSet(name,samples,parent=self,responses=responses,indices=data[:,0])
-    def copy_sampleset(self,oldname,newname):
+        #self.sampleset[name] = SampleSet(name,samples,parent=self,responses=responses,indices=data[:,0])
+        self.create_sampleset(samples,name=name,responses=responses,indices=data[:,0])
+    def copy_sampleset(self,oldname,newname=None):
         """ Copy sampleset
 
             :param oldname: Name of sampleset to copy
@@ -266,10 +274,12 @@ class matk(object):
             :param newname: Name of new sampleset
             :type newname: str
         """
-        if newname in self.sampleset: 
-            self.sampleset[newname] = self.sampleset[oldname]
-        else:
-            self.sampleset.__setitem__( newname, deepcopy(self.sampleset[oldname]) )
+        return self.create_sampleset(self.sampleset[oldname].samples.values,name=newname,responses=self.sampleset[oldname].responses.values,indices=self.sampleset[oldname].indices)
+        #if newname in self.sampleset: 
+        #    self.sampleset[newname] = self.sampleset[oldname]
+        #else:
+        #    self.sampleset.__setitem__( newname, deepcopy(self.sampleset[oldname]) )
+        #return self.sampleset[newname]
     @property
     def sim_values(self):
         """ Simulated values
@@ -542,7 +552,7 @@ class matk(object):
         out = levmar.leastsq(_f, vs, meas, args=(self,), Dfun=None, max_iter=max_iter, full_output=full_output)
         #TODO Put levmar results into MATK object
         return out
-    def set_lhs_samples(self, name, siz=None, noCorrRestr=False, corrmat=None, seed=None, index_start=1):
+    def lhs(self, name=None, siz=None, noCorrRestr=False, corrmat=None, seed=None, index_start=1):
         """ Draw lhs samples of parameter values from scipy.stats module distribution
         
             :param name: Name of sample set to be created
@@ -573,7 +583,7 @@ class matk(object):
             eval( 'dists.append(stats.' + dist + ')' )
         dist_pars = self.pardist_pars
         x = lhs(dists, dist_pars, siz=siz, noCorrRestr=noCorrRestr, corrmat=corrmat, seed=seed)
-        self.add_sampleset( name, x, index_start=index_start )
+        return self.create_sampleset( x, name=name, index_start=index_start )
     def child( self, in_queue, out_list, reuse_dirs, save):
         for pars,smp_ind,lst_ind in iter(in_queue.get, (None,None,None)):
             self.workdir_index = smp_ind
@@ -669,41 +679,20 @@ class matk(object):
         results = numpy.array(results)
 
         return results, parsets   
-    def set_parstudy_samples(self, name, *args, **kwargs):
+    def parstudy(self, name=None, **kwargs):
         ''' Generate parameter study samples
         
         :param name: Name of sample set to be created
         :type name: str
         :param outfile: Name of file where samples will be written. If outfile=None, no file is written.
         :type outfile: str
-        :param args: Number of values for each parameter. The order is expected to match order of matk.pars.keys()
-        :type args: tuple(fl64), list(fl64), or ndarray(fl64)
         :param kwargs: keyword arguments where keyword is the parameter name and argument is the number of desired values
         :type kwargs: dict(fl64)
         :returns: ndarray(fl64) -- Array of samples
         '''
 
-        if len(args) > 0 and len(kwargs) > 0:
-            print "Warning: dictionary arg will overide keyword args"
-        if len(args) > 0:
-            if isinstance( args[0], dict ):
-                for k,v in args[0].iteritems():
-                    self.pars[k].nvals = v
-            elif isinstance( args[0], (list,tuple,numpy.ndarray)):
-                if isinstance( args[0], (list,tuple)):
-                    if not len(args[0]) == len(self.pars): 
-                        print "Error: Number of values in list or tuple does not match created parameters"
-                        return
-                elif isinstance( args[0], numpy.ndarray ):
-                    if not args[0].shape[0] == len(self.pars): 
-                        print "Error: Number of values in ndarray does not match created parameters"
-                        return
-                i = 0
-                for v,k in zip(args[0],self.pars.keys()):
-                    self.pars[k].nvals = v
-                    i += 1
-        else:
-            for k,v in kwargs.iteritems():
+        for k,v in kwargs.iteritems():
+            if k is not 'name':
                 self.pars[k].nvals = v
         x = []
         for k,p in self.pars.items():
@@ -715,8 +704,8 @@ class matk(object):
         x = list(itertools.product(*x))
         x = numpy.array(x)
 
-        self.add_sampleset( name, x )
-    def set_fullfact(self,name,levels=[]):
+        return self.create_sampleset( x, name=name )
+    def fullfact(self,name=None,levels=[]):
         try:
             import pyDOE
         except ImportError as exc:
@@ -733,7 +722,7 @@ class matk(object):
         mns = numpy.array(self.parmins)
         mxs = numpy.array(self.parmaxs)
         parsets = mns + ds/(levels-1)*(mxs-mns)
-        self.add_sampleset(name,parsets)
+        return self.create_sampleset(parsets, name=name)
     def Jac( self, h=1.e-3, ncpus=1, templatedir=None, workdir_base=None,
                     save=True, reuse_dirs=False ):
         ''' Numerical Jacobian calculation
@@ -758,7 +747,7 @@ class matk(object):
         for hs in hmat:
             parset.append(hs+a)
         parset = numpy.array(parset)
-        self.add_sampleset('_jac_',parset)
+        self.create_sampleset(parset, name='_jac_')
 
         self.sampleset['_jac_'].run( ncpus=ncpus, templatedir=templatedir, verbose=False,
                          workdir_base=workdir_base, save=save, reuse_dirs=reuse_dirs )

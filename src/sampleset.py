@@ -199,6 +199,8 @@ class SampleSet(object):
             self.savetxt( outfile )
 
         return out
+    def copy(self, newname=None):
+        return self._parent.copy_sampleset(self.name,newname=newname)
     def savetxt( self, outfile):
         ''' Save sampleset to file
 

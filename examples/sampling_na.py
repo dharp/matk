@@ -1,8 +1,12 @@
+import sys,os
 try:
     import matk
 except:
-    sys.path.append('..'+os.sep+'src')
-    import matk
+    try:
+        sys.path.append('..'+os.sep+'src')
+        import matk
+    except ImportError as err:
+        print 'Unable to load MATK module: '+str(err)
 import numpy
 from scipy import arange, randn, exp
 try:
@@ -30,29 +34,28 @@ def run():
     p.add_par('par4',min=0,max=0.2)
     
     # Create LHS sample
-    p.set_lhs_samples('lhs', siz=100, seed=1000)
+    s = p.lhs(siz=100, seed=1000)
     
     # Look at sample parameter histograms, correlations, and panels
-    p.sampleset['lhs'].samples.hist(ncols=2,title='Parameter Histograms',tight=True)
-    parcor = p.sampleset['lhs'].samples.corr(plot=True, title='Parameter Correlations')
-    p.sampleset['lhs'].samples.panels(title='Parameter Panels')
+    s.samples.hist(ncols=2,title='Parameter Histograms',tight=True)
+    parcor = s.samples.corr(plot=True, title='Parameter Correlations')
+    s.samples.panels(title='Parameter Panels')
     
     # Run model with parameter samples
-    p.sampleset['lhs'].run( ncpus=2, outfile='results.dat', logfile='log.dat',verbose=False)
+    s.run( ncpus=2, outfile='results.dat', logfile='log.dat',verbose=False)
     
     # Look at sample response histograms, correlations, and panels
-    p.sampleset['lhs'].responses.hist(ncols=3,title='Model Response Histograms',tight=True)
+    s.responses.hist(ncols=3,title='Model Response Histograms',tight=True)
     
     # Copy sampleset and subset to only samples with nan responses
-    p.copy_sampleset('lhs','nans')
-    p.sampleset['nans'].subset(numpy.isnan, obs='o1')
-    #p.sampleset['nans'].subset([('o1','numpy.isnan')])
+    snan = s.copy()
+    snan.subset(numpy.isnan, obs='o1')
     
     # Evaluate parameter combination resulting in nans
     # Note that it is easy to identify that the culprit is par1 with values less than 0.5
-    p.sampleset['nans'].samples.hist(ncols=2,title='NAN Parameter Histograms',tight=True)
-    parcor = p.sampleset['nans'].samples.corr(plot=True, title='NAN Parameter Correlations')
-    p.sampleset['nans'].samples.panels(title='NAN Parameter Panels')
+    snan.samples.hist(ncols=2,title='NAN Parameter Histograms',tight=True)
+    parcor = snan.samples.corr(plot=True, title='NAN Parameter Correlations')
+    snan.samples.panels(title='NAN Parameter Panels')
     
 # Freeze support is necessary for multiprocessing on windows
 if __name__== "__main__":

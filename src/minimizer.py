@@ -92,7 +92,7 @@ class Minimizer(LmfitMinimizer):
             int_pars = self.__get_internal_parvalues(hs+a)
             parset.append(int_pars)
         parset = numpy.array(parset)
-        self._parent.add_sampleset('_jac_',parset)
+        self._parent.create_sampleset(parset,name='_jac_')
 
         self._parent.sampleset['_jac_'].run( ncpus=ncpus, templatedir=templatedir, verbose=False,
                          workdir_base=workdir_base, save=save, reuse_dirs=reuse_dirs )
