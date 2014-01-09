@@ -1,7 +1,10 @@
 
-import sys
-sys.path.append('C:\\Users\\264485\\python\\matk\\src')
-import matk
+import sys,os
+try:
+    import matk
+except:
+    sys.path.append('..'+os.sep+'src')
+    import matk
 import numpy
 from scipy import arange, randn, exp
 try:
@@ -49,7 +52,7 @@ def run():
 	scorr = p.sampleset['lhs'].corr(plot=True,type='spearman',title='Spearman Rank Correlation Coefficients') 
 	p.sampleset['lhs'].panels(tight=True,figsize=(10,8))
 
-
+# Freeze support is necessary for multiprocessing on windows
 if __name__== "__main__":
 	freeze_support()
 	run()
