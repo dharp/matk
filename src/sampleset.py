@@ -135,7 +135,7 @@ class SampleSet(object):
         corrcoef = corr(self.samples.recarray, self.responses.recarray, type=type, plot=plot, printout=printout, figsize=figsize, title=title)
         return corrcoef
     
-    def panels(self, type='pearson', figsize=None, title=None, tight=False, symbol='.',fontsize=None,ms=5,mins=None,maxs=None):
+    def panels(self, type='pearson', figsize=None, title=None, tight=False, symbol='.',fontsize=None,ms=5,mins=None,maxs=None,frequency=False,bins=10, ylim=None):
         """ Plot histograms, scatterplots, and correlation coefficients in paired matrix
 
             :param type: Type of correlation coefficient (pearson by default, spearman also avaialable)
@@ -152,10 +152,16 @@ class SampleSet(object):
             :type fontsize: fl64
             :param ms: Scatterplot marker size
             :type ms: fl64
+            :param frequency: If True, the first element of the return tuple will be the counts normalized by the length of data, i.e., n/len(x)
+            :type frequency: bool
+            :param bins: If an integer is given, bins + 1 bin edges are returned. Unequally spaced bins are supported if bins is a list of sequences for each histogram.
+            :type bins: int or lst(lst(int))
+            :param ylim: y-axis limits for histograms.
+            :type ylim: lst(tuples) - list of 2 element tuples with y limits for each histogram
         """
         if mins is None and self.samples._mins is not None: mins = numpy.concatenate([self.samples._mins,numpy.min(self.responses.values,axis=0)])
         if maxs is None and self.samples._maxs is not None: maxs = numpy.concatenate([self.samples._maxs,numpy.max(self.responses.values,axis=0)])
-        panels( self.recarray, type=type, figsize=figsize, title=title, tight=tight, symbol=symbol,fontsize=fontsize,ms=ms,mins=mins,maxs=maxs)
+        panels( self.recarray, type=type, figsize=figsize, title=title, tight=tight, symbol=symbol,fontsize=fontsize,ms=ms,mins=mins,maxs=maxs,frequency=frequency,bins=bins,ylim=ylim)
     def run(self, ncpus=1, templatedir=None, workdir_base=None,
                     save=True, reuse_dirs=False, outfile=None, logfile=None, verbose=True ):
         """ Run model using values in samples for parameter values
@@ -362,7 +368,7 @@ class DataSet(object):
         """ Structured (record) array of samples
         """
         return numpy.rec.fromarrays(self._values.T,names=self._names)
-    def hist(self, ncols=4, figsize=None, title=None, tight=True, mins=None, maxs=None):
+    def hist(self, ncols=4, figsize=None, title=None, tight=True, mins=None, maxs=None,frequency=False,bins=10,ylim=None):
         """ Plot histograms of dataset
 
             :param ncols: Number of columns in plot matrix
@@ -374,10 +380,16 @@ class DataSet(object):
             :param tight: Use matplotlib tight layout
             :type tight: bool
             :returns: dict(lst(int),lst(fl64)) - dictionary of histogram data (counts,bins) keyed by name
+            :param frequency: If True, the first element of the return tuple will be the counts normalized by the length of data, i.e., n/len(x)
+            :type frequency: bool
+            :param bins: If an integer is given, bins + 1 bin edges are returned. Unequally spaced bins are supported if bins is a list of sequences for each histogram.
+            :type bins: int or lst(lst(int))
+            :param ylim: y-axis limits for histograms.
+            :type ylim: lst(tuples) - list of 2 element tuples with y limits for each histogram
         """        
         if mins is None and self._mins is not None: mins = self._mins
         if maxs is None and self._maxs is not None: maxs = self._maxs
-        hd = hist(self.recarray, ncols=ncols, figsize=figsize, title=title, tight=tight, mins=mins, maxs=maxs)
+        hd = hist(self.recarray, ncols=ncols, figsize=figsize, title=title, tight=tight, mins=mins, maxs=maxs,frequency=frequency,bins=bins,ylim=ylim)
         return hd
     def corr(self, type='pearson', plot=False, printout=True, figsize=None, title=None):
         """ Calculate correlation coefficients of dataset values
@@ -395,7 +407,7 @@ class DataSet(object):
             :returns: ndarray(fl64) -- Correlation coefficients
         """
         return corr(self.recarray, self.recarray, type=type, plot=plot, printout=printout, figsize=figsize, title=title)
-    def panels(self, type='pearson', figsize=None, title=None, tight=True, symbol='.',fontsize=None,ms=5,mins=None,maxs=None):
+    def panels(self, type='pearson', figsize=None, title=None, tight=True, symbol='.',fontsize=None,ms=5,mins=None,maxs=None,frequency=False,bins=10,ylim=None):
         """ Plot histograms, scatterplots, and correlation coefficients in paired matrix
 
             :param type: Type of correlation coefficient (pearson by default, spearman also avaialable)
@@ -412,10 +424,16 @@ class DataSet(object):
             :type fontsize: fl64
             :param ms: Scatterplot marker size
             :type ms: fl64
+            :param frequency: If True, the first element of the return tuple will be the counts normalized by the length of data, i.e., n/len(x)
+            :type frequency: bool
+            :param bins: If an integer is given, bins + 1 bin edges are returned. Unequally spaced bins are supported if bins is a list of sequences for each histogram.
+            :type bins: int or lst(lst(int))
+            :param ylim: y-axis limits for histograms.
+            :type ylim: lst(tuples) - list of 2 element tuples with y limits for each histogram
         """
         if mins is None and self._mins is not None: mins = self._mins
         if maxs is None and self._maxs is not None: maxs = self._maxs
-        panels( self.recarray, type=type, figsize=figsize, title=title, tight=tight, symbol=symbol,fontsize=fontsize,ms=ms,mins=mins,maxs=maxs)
+        panels( self.recarray, type=type, figsize=figsize, title=title, tight=tight, symbol=symbol,fontsize=fontsize,ms=ms,mins=mins,maxs=maxs,frequency=frequency,bins=bins,ylim=ylim)
 
 def corr(rc1, rc2, type='pearson', plot=False, printout=True, figsize=None, title=None):
     """ Calculate correlation coefficients of parameters and responses
@@ -474,7 +492,7 @@ def corr(rc1, rc2, type='pearson', plot=False, printout=True, figsize=None, titl
         plt.show()
     return corrcoef
 
-def panels(rc, type='pearson', figsize=None, title=None, tight=True, symbol='o',fontsize=None,ms=None,mins=None,maxs=None):
+def panels(rc, type='pearson', figsize=None, title=None, tight=True, symbol='o',fontsize=None,ms=None,mins=None,maxs=None,frequency=False,bins=10,ylim=None):
     if plotflag:
         if mins is None: mins = numpy.min(rc.tolist(),axis=0)
         if maxs is None: maxs = numpy.max(rc.tolist(),axis=0)
@@ -485,8 +503,25 @@ def panels(rc, type='pearson', figsize=None, title=None, tight=True, symbol='o',
         fig,ax = plt.subplots(siz,siz,figsize=figsize)
         ind = 1
         # Plot histograms in diagonal plots
+        ns = []
         for i,nm in enumerate(rc.dtype.names): 
-            ax[i,i].hist(rc[nm], range=(mins[i],maxs[i]))
+            if frequency:
+                n,b,patches = ax[i,i].hist(rc[nm], range=(mins[i],maxs[i]), weights=numpy.ones(len(rc[nm])) / len(rc[nm]))
+            else:
+                n,b,patches = ax[i,i].hist(rc[nm], range=(mins[i],maxs[i]))
+            ns.append(n)
+        # Set ylims of histograms
+        if ylim is None:
+            ymax = max([max(n) for n in ns])
+            for i in range(len(rc.dtype)):
+                ax[i,i].set_ylim([0,ymax])
+        elif len(ylim) == 1:
+            for i in range(len(rc.dtype)):
+                ax[i,i].set_ylim(ylim[0])
+        elif len(ylim) == len(rc.dtype):
+            for i in range(len(rc.dtype)):
+                ax[i,i].set_ylim(ylim[i])
+        else: print "Warning: number of ylims is not 1 or the same as number of fields, it will be ignored"
         # Add axis labels to first column and last row
         for i,nm in enumerate(rc.dtype.names): 
             ax[i,0].set_ylabel(nm)
@@ -530,7 +565,7 @@ def panels(rc, type='pearson', figsize=None, title=None, tight=True, symbol='o',
     else:
         print "Matplotlib must be installed to plot histograms"
         return
-def hist(rc, ncols=4, figsize=None, title=None, tight=True, mins=None, maxs=None):
+def hist(rc,ncols=4,figsize=None,title=None,tight=True,mins=None,maxs=None,frequency=False,bins=10,ylim=None):
     """ Plot histograms of dataset
 
         :param ncols: Number of columns in plot matrix
@@ -546,6 +581,12 @@ def hist(rc, ncols=4, figsize=None, title=None, tight=True, mins=None, maxs=None
         :param maxs: Maximum values of recarray fields
         :type maxs: lst(fl64)
         :returns: dict(lst(int),lst(fl64)) - dictionary of histogram data (counts,bins) keyed by name
+        :param frequency: If True, the first element of the return tuple will be the counts normalized by the length of data, i.e., n/len(x)
+        :type frequency: bool
+        :param bins: If an integer is given, bins + 1 bin edges are returned. Unequally spaced bins are supported if bins is a list of sequences for each histogram.
+        :type bins: int or lst(lst(int))
+        :param ylim: y-axis limits for histograms.
+        :type ylim: lst(tuples) - list of 2 element tuples with y limits for each histogram
 
     """        
     if plotflag:
@@ -567,13 +608,34 @@ def hist(rc, ncols=4, figsize=None, title=None, tight=True, mins=None, maxs=None
         if mins is None: mins = numpy.min(rc.tolist(),axis=0)
         if maxs is None: maxs = numpy.max(rc.tolist(),axis=0)
         hist_dict = {}
+        ns = []
+        ax = []
         for nm in rc.dtype.names: 
-            plt.subplot(nrows,ncols,ind+1)
+            ax.append(plt.subplot(nrows,ncols,ind+1))
             if ind==0 or (ind)%ncols==0:
                 plt.ylabel('Count')
-            hist_dict[nm] = plt.hist(rc[nm], range=(mins[ind],maxs[ind]))
+            if frequency:
+                n,b,patches = ax[-1].hist(rc[nm], range=(mins[ind],maxs[ind]), weights=numpy.ones(len(rc[nm])) / len(rc[nm]))
+                hist_dict[nm] = (n,b,patches)
+            else:
+                n,b,patches = ax[-1].hist(rc[nm], range=(mins[ind],maxs[ind]))
+                hist_dict[nm] = (n,b,patches)
+            ns.append(n)
             plt.xlabel(nm)
             ind+=1
+        # Set ylims of histograms
+        if ylim is None:
+            ymax = max([max(n) for n in ns])
+            for i in range(len(rc.dtype.names)):
+                ax[i].set_ylim([0,ymax])
+        elif len(ylim) == 1:
+            for i in range(len(rc.dtype.names)):
+                ax[i].set_ylim(ylim[0])
+        elif len(ylim) == len(rc.dtype.names):
+            for i in range(len(rc.dtype.names)):
+                ax[i].set_ylim(ylim[i])
+        else: print "Warning: number of ylims is not 1 or the same as number of fields, it will be ignored"            
+
         if tight: 
             plt.tight_layout()
             if title:
