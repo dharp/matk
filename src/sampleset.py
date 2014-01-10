@@ -154,10 +154,10 @@ class SampleSet(object):
             :type ms: fl64
             :param frequency: If True, the first element of the return tuple will be the counts normalized by the length of data, i.e., n/len(x)
             :type frequency: bool
-            :param bins: If an integer is given, bins + 1 bin edges are returned. Unequally spaced bins are supported if bins is a list of sequences for each histogram.
-            :type bins: int or lst(lst(int))
+            :param bins: Number of bins in histograms
+            :type bins: int
             :param ylim: y-axis limits for histograms.
-            :type ylim: lst(tuples) - list of 2 element tuples with y limits for each histogram
+            :type ylim: tuples - 2 element tuples with y limits for histograms
         """
         if mins is None and self.samples._mins is not None: mins = numpy.concatenate([self.samples._mins,numpy.min(self.responses.values,axis=0)])
         if maxs is None and self.samples._maxs is not None: maxs = numpy.concatenate([self.samples._maxs,numpy.max(self.responses.values,axis=0)])
@@ -382,10 +382,10 @@ class DataSet(object):
             :returns: dict(lst(int),lst(fl64)) - dictionary of histogram data (counts,bins) keyed by name
             :param frequency: If True, the first element of the return tuple will be the counts normalized by the length of data, i.e., n/len(x)
             :type frequency: bool
-            :param bins: If an integer is given, bins + 1 bin edges are returned. Unequally spaced bins are supported if bins is a list of sequences for each histogram.
-            :type bins: int or lst(lst(int))
+            :param bins: Number of bins in histograms
+            :type bins: int
             :param ylim: y-axis limits for histograms.
-            :type ylim: lst(tuples) - list of 2 element tuples with y limits for each histogram
+            :type ylim: tuple - 2 element tuple with y limits for histograms
         """        
         if mins is None and self._mins is not None: mins = self._mins
         if maxs is None and self._maxs is not None: maxs = self._maxs
@@ -429,7 +429,7 @@ class DataSet(object):
             :param bins: If an integer is given, bins + 1 bin edges are returned. Unequally spaced bins are supported if bins is a list of sequences for each histogram.
             :type bins: int or lst(lst(int))
             :param ylim: y-axis limits for histograms.
-            :type ylim: lst(tuples) - list of 2 element tuples with y limits for each histogram
+            :type ylim: tuple - 2 element tuples with y limits for histograms
         """
         if mins is None and self._mins is not None: mins = self._mins
         if maxs is None and self._maxs is not None: maxs = self._maxs
@@ -506,22 +506,18 @@ def panels(rc, type='pearson', figsize=None, title=None, tight=True, symbol='o',
         ns = []
         for i,nm in enumerate(rc.dtype.names): 
             if frequency:
-                n,b,patches = ax[i,i].hist(rc[nm], range=(mins[i],maxs[i]), weights=numpy.ones(len(rc[nm])) / len(rc[nm]))
+                n,b,patches = ax[i,i].hist(rc[nm], range=(mins[i],maxs[i]), bins=bins, weights=numpy.ones(len(rc[nm])) / len(rc[nm]))
             else:
-                n,b,patches = ax[i,i].hist(rc[nm], range=(mins[i],maxs[i]))
+                n,b,patches = ax[i,i].hist(rc[nm], range=(mins[i],maxs[i]), bins=bins)
             ns.append(n)
         # Set ylims of histograms
         if ylim is None:
             ymax = max([max(n) for n in ns])
             for i in range(len(rc.dtype)):
                 ax[i,i].set_ylim([0,ymax])
-        elif len(ylim) == 1:
+        else:
             for i in range(len(rc.dtype)):
-                ax[i,i].set_ylim(ylim[0])
-        elif len(ylim) == len(rc.dtype):
-            for i in range(len(rc.dtype)):
-                ax[i,i].set_ylim(ylim[i])
-        else: print "Warning: number of ylims is not 1 or the same as number of fields, it will be ignored"
+                ax[i,i].set_ylim(ylim)
         # Add axis labels to first column and last row
         for i,nm in enumerate(rc.dtype.names): 
             ax[i,0].set_ylabel(nm)
@@ -586,7 +582,7 @@ def hist(rc,ncols=4,figsize=None,title=None,tight=True,mins=None,maxs=None,frequ
         :param bins: If an integer is given, bins + 1 bin edges are returned. Unequally spaced bins are supported if bins is a list of sequences for each histogram.
         :type bins: int or lst(lst(int))
         :param ylim: y-axis limits for histograms.
-        :type ylim: lst(tuples) - list of 2 element tuples with y limits for each histogram
+        :type ylim: tuples - 2 element tuple with y limits for histograms
 
     """        
     if plotflag:
@@ -615,10 +611,10 @@ def hist(rc,ncols=4,figsize=None,title=None,tight=True,mins=None,maxs=None,frequ
             if ind==0 or (ind)%ncols==0:
                 plt.ylabel('Count')
             if frequency:
-                n,b,patches = ax[-1].hist(rc[nm], range=(mins[ind],maxs[ind]), weights=numpy.ones(len(rc[nm])) / len(rc[nm]))
+                n,b,patches = ax[-1].hist(rc[nm], range=(mins[ind],maxs[ind]), bins=bins, weights=numpy.ones(len(rc[nm])) / len(rc[nm]))
                 hist_dict[nm] = (n,b,patches)
             else:
-                n,b,patches = ax[-1].hist(rc[nm], range=(mins[ind],maxs[ind]))
+                n,b,patches = ax[-1].hist(rc[nm], range=(mins[ind],maxs[ind]), bins=bins)
                 hist_dict[nm] = (n,b,patches)
             ns.append(n)
             plt.xlabel(nm)
@@ -628,14 +624,9 @@ def hist(rc,ncols=4,figsize=None,title=None,tight=True,mins=None,maxs=None,frequ
             ymax = max([max(n) for n in ns])
             for i in range(len(rc.dtype.names)):
                 ax[i].set_ylim([0,ymax])
-        elif len(ylim) == 1:
+        else:
             for i in range(len(rc.dtype.names)):
-                ax[i].set_ylim(ylim[0])
-        elif len(ylim) == len(rc.dtype.names):
-            for i in range(len(rc.dtype.names)):
-                ax[i].set_ylim(ylim[i])
-        else: print "Warning: number of ylims is not 1 or the same as number of fields, it will be ignored"            
-
+                ax[i].set_ylim(ylim)
         if tight: 
             plt.tight_layout()
             if title:
