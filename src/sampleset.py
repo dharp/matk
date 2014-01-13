@@ -10,6 +10,10 @@ try:
 except ImportError as exc:
     sys.stderr.write("Warning: failed to import matplotlib module. Plots will not be produced. ({})".format(exc))
     plotflag = False
+try:
+    from collections import OrderedDict
+except ImportError:
+    from ordereddict import OrderedDict
 
 class SampleSet(object):
     """ MATK SampleSet class - Stores information related to a sample
@@ -370,7 +374,7 @@ class DataSet(object):
         """ Structured (record) array of samples
         """
         return numpy.rec.fromarrays(self._values.T,names=self._names)
-    def hist(self, ncols=4, figsize=None, title=None, tight=False, mins=None, maxs=None,frequency=False,bins=10,ylim=None):
+    def hist(self, ncols=4, figsize=None, title=None, tight=False, mins=None, maxs=None,frequency=False,bins=10,ylim=None,printout=True):
         """ Plot histograms of dataset
 
             :param ncols: Number of columns in plot matrix
@@ -388,10 +392,12 @@ class DataSet(object):
             :type bins: int
             :param ylim: y-axis limits for histograms.
             :type ylim: tuple - 2 element tuple with y limits for histograms
+            :param printout: If True, histogram values are printed to the terminal
+            :type printout: bool
         """        
         if mins is None and self._mins is not None: mins = self._mins
         if maxs is None and self._maxs is not None: maxs = self._maxs
-        hd = hist(self.recarray, ncols=ncols, figsize=figsize, title=title, tight=tight, mins=mins, maxs=maxs,frequency=frequency,bins=bins,ylim=ylim)
+        hd = hist(self.recarray, ncols=ncols, figsize=figsize, title=title, tight=tight, mins=mins, maxs=maxs,frequency=frequency,bins=bins,ylim=ylim,printout=printout)
         return hd
     def corr(self, type='pearson', plot=False, printout=True, plotvals=True, figsize=None, title=None):
         """ Calculate correlation coefficients of dataset values
@@ -571,7 +577,7 @@ def panels(rc, type='pearson', figsize=None, title=None, tight=False, symbol='o'
     else:
         print "Matplotlib must be installed to plot histograms"
         return
-def hist(rc,ncols=4,figsize=None,title=None,tight=False,mins=None,maxs=None,frequency=False,bins=10,ylim=None):
+def hist(rc,ncols=4,figsize=None,title=None,tight=False,mins=None,maxs=None,frequency=False,bins=10,ylim=None,printout=True):
     """ Plot histograms of dataset
 
         :param ncols: Number of columns in plot matrix
@@ -613,7 +619,7 @@ def hist(rc,ncols=4,figsize=None,title=None,tight=False,mins=None,maxs=None,freq
         ind = 0
         if mins is None: mins = numpy.min(rc.tolist(),axis=0)
         if maxs is None: maxs = numpy.max(rc.tolist(),axis=0)
-        hist_dict = {}
+        hist_dict = OrderedDict()
         ns = []
         ax = []
         for nm in rc.dtype.names: 
@@ -644,6 +650,38 @@ def hist(rc,ncols=4,figsize=None,title=None,tight=False,mins=None,maxs=None,freq
                 plt.subplots_adjust(top=0.925) 
         if title: plt.suptitle(title)
         plt.show()
+        if printout:
+            for nm in hist_dict.keys():
+                print '\n'
+                print nm+':'
+                if frequency: 
+                    print ' Freq:',
+                    flag=True
+                    for n in hist_dict[nm][0]:
+                        if flag: 
+                            print '{:12.2f}'.format(n),
+                            flag=False
+                        else: print '{:8.2f}'.format(n),
+                        #print '{:2f}'.format(n),
+                else: 
+                    print 'Count:',
+                    flag=True
+                    for n in hist_dict[nm][0]:
+                        if flag:
+                            print '{:12d}'.format(n),
+                            flag=False
+                        else:
+                            print '{:8d}'.format(n),
+                print '\n',
+                print ' Bins:',
+                flag=True
+                for b in hist_dict[nm][1]:
+                    if flag:
+                        print '{:8.2g}'.format(b),
+                        flag=False
+                    else:
+                        print '{:8.2g}'.format(b),
+            print '\n'
         return hist_dict
     else:
         print "Matplotlib must be installed to plot histograms"

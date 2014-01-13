@@ -46,6 +46,7 @@ def run():
 	
 	# Look at response histograms, correlations, and panels
 	s.responses.hist(ncols=2,title='Model Response Histograms')
+	s.responses.hist(ncols=2,title='Model Response Histograms',frequency=True)
 	rescor = s.responses.corr(plot=True, title='Model Response Correlations')
 	s.responses.panels(title='Response Panels')
 	
