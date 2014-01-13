@@ -117,7 +117,7 @@ class SampleSet(object):
             data = numpy.column_stack([self.samples._values,self.responses._values])
             names = numpy.concatenate([self.samples._names,self.responses._names])
             return numpy.rec.fromarrays(data.T,names=names.tolist())
-    def corr(self, type='pearson', plot=False, printout=True, figsize=None, title=None):
+    def corr(self, type='pearson', plot=False, printout=True, plotvals=True, figsize=None, title=None):
         """ Calculate correlation coefficients of parameters and responses
 
             :param type: Type of correlation coefficient (pearson by default, spearman also avaialable)
@@ -126,13 +126,15 @@ class SampleSet(object):
             :type plot: bool
             :param printout: If True, print correlation matrix with row and column headings
             :type printout: bool
+            :param plotvals: If True, print correlation coefficients on plot matrix
+            :type plotvals: bool
             :param figsize: Width and height of figure in inches
             :type figsize: tuple(fl64,fl64)
             :param title: Title of plot
             :type title: str
             :returns: ndarray(fl64) -- Correlation coefficients
         """
-        corrcoef = corr(self.samples.recarray, self.responses.recarray, type=type, plot=plot, printout=printout, figsize=figsize, title=title)
+        corrcoef = corr(self.samples.recarray, self.responses.recarray, type=type, plot=plot, printout=printout, plotvals=plotvals, figsize=figsize, title=title)
         return corrcoef
     
     def panels(self, type='pearson', figsize=None, title=None, tight=False, symbol='.',fontsize=None,ms=5,mins=None,maxs=None,frequency=False,bins=10, ylim=None):
@@ -368,7 +370,7 @@ class DataSet(object):
         """ Structured (record) array of samples
         """
         return numpy.rec.fromarrays(self._values.T,names=self._names)
-    def hist(self, ncols=4, figsize=None, title=None, tight=True, mins=None, maxs=None,frequency=False,bins=10,ylim=None):
+    def hist(self, ncols=4, figsize=None, title=None, tight=False, mins=None, maxs=None,frequency=False,bins=10,ylim=None):
         """ Plot histograms of dataset
 
             :param ncols: Number of columns in plot matrix
@@ -391,13 +393,15 @@ class DataSet(object):
         if maxs is None and self._maxs is not None: maxs = self._maxs
         hd = hist(self.recarray, ncols=ncols, figsize=figsize, title=title, tight=tight, mins=mins, maxs=maxs,frequency=frequency,bins=bins,ylim=ylim)
         return hd
-    def corr(self, type='pearson', plot=False, printout=True, figsize=None, title=None):
+    def corr(self, type='pearson', plot=False, printout=True, plotvals=True, figsize=None, title=None):
         """ Calculate correlation coefficients of dataset values
 
             :param type: Type of correlation coefficient (pearson by default, spearman also avaialable)
             :type type: str
             :param plot: If True, plot correlation matrix
             :type plot: bool
+            :param plotvals: If True, print correlation coefficients on plot matrix
+            :type plotvals: bool
             :param printout: If True, print correlation matrix with row and column headings
             :type printout: bool
             :param figsize: Width and height of figure in inches
@@ -406,8 +410,8 @@ class DataSet(object):
             :type title: str
             :returns: ndarray(fl64) -- Correlation coefficients
         """
-        return corr(self.recarray, self.recarray, type=type, plot=plot, printout=printout, figsize=figsize, title=title)
-    def panels(self, type='pearson', figsize=None, title=None, tight=True, symbol='.',fontsize=None,ms=5,mins=None,maxs=None,frequency=False,bins=10,ylim=None):
+        return corr(self.recarray, self.recarray, type=type, plot=plot, printout=printout, plotvals=plotvals, figsize=figsize, title=title)
+    def panels(self, type='pearson', figsize=None, title=None, tight=False, symbol='.',fontsize=None,ms=5,mins=None,maxs=None,frequency=False,bins=10,ylim=None):
         """ Plot histograms, scatterplots, and correlation coefficients in paired matrix
 
             :param type: Type of correlation coefficient (pearson by default, spearman also avaialable)
@@ -435,7 +439,7 @@ class DataSet(object):
         if maxs is None and self._maxs is not None: maxs = self._maxs
         panels( self.recarray, type=type, figsize=figsize, title=title, tight=tight, symbol=symbol,fontsize=fontsize,ms=ms,mins=mins,maxs=maxs,frequency=frequency,bins=bins,ylim=ylim)
 
-def corr(rc1, rc2, type='pearson', plot=False, printout=True, figsize=None, title=None):
+def corr(rc1, rc2, type='pearson', plot=False, printout=True, plotvals=True, figsize=None, title=None):
     """ Calculate correlation coefficients of parameters and responses
 
         :param rc1: Data
@@ -448,6 +452,8 @@ def corr(rc1, rc2, type='pearson', plot=False, printout=True, figsize=None, titl
         :type plot: bool
         :param printout: If True, print correlation matrix with row and column headings
         :type printout: bool
+        :param plotvals: If True, print correlation coefficients on plot matrix
+        :type plotvals: bool
         :param figsize: Width and height of figure in inches
         :type figsize: tuple(fl64,fl64)
         :param title: Title of plot
@@ -473,17 +479,21 @@ def corr(rc1, rc2, type='pearson', plot=False, printout=True, figsize=None, titl
         dum = ' '
         print string.rjust(dum, 8),
         for nm in rc2.dtype.names:
-            print string.rjust(nm, 20),
+            print string.rjust(nm, 8),
         print ''
         for i in range(corrcoef.shape[0]):
             print string.ljust(rc1.dtype.names[i], 8),
             for c in corrcoef[i]:
-                print string.rjust(`c`, 20),
+                print string.rjust('{:.2f}'.format(c), 8),
             print ''
     if plot and plotflag:
         # Plot
         plt.figure(figsize=figsize)
         plt.pcolor(numpy.flipud(corrcoef), vmin=-1, vmax=1)
+        if plotvals:
+            for i,ri in zip(range(corrcoef.shape[0]),reversed(range(corrcoef.shape[0]))):
+                for j in range(corrcoef.shape[1]):
+                    plt.text(j+0.4,i+0.4,'{:.2f}'.format(corrcoef[ri,j]),bbox=dict(facecolor='white'))
         plt.colorbar()
         if title:
             plt.title(title)
@@ -492,7 +502,7 @@ def corr(rc1, rc2, type='pearson', plot=False, printout=True, figsize=None, titl
         plt.show()
     return corrcoef
 
-def panels(rc, type='pearson', figsize=None, title=None, tight=True, symbol='o',fontsize=None,ms=None,mins=None,maxs=None,frequency=False,bins=10,ylim=None):
+def panels(rc, type='pearson', figsize=None, title=None, tight=False, symbol='o',fontsize=None,ms=None,mins=None,maxs=None,frequency=False,bins=10,ylim=None):
     if plotflag:
         if mins is None: mins = numpy.min(rc.tolist(),axis=0)
         if maxs is None: maxs = numpy.max(rc.tolist(),axis=0)
@@ -561,7 +571,7 @@ def panels(rc, type='pearson', figsize=None, title=None, tight=True, symbol='o',
     else:
         print "Matplotlib must be installed to plot histograms"
         return
-def hist(rc,ncols=4,figsize=None,title=None,tight=True,mins=None,maxs=None,frequency=False,bins=10,ylim=None):
+def hist(rc,ncols=4,figsize=None,title=None,tight=False,mins=None,maxs=None,frequency=False,bins=10,ylim=None):
     """ Plot histograms of dataset
 
         :param ncols: Number of columns in plot matrix

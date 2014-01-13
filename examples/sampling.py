@@ -1,4 +1,3 @@
-
 import sys,os
 try:
     import matk
@@ -21,8 +20,9 @@ from multiprocessing import freeze_support
 def dbexpl(p):
     t=arange(0,100,20.)
     y =  (p['par1']*exp(-p['par2']*t) + p['par3']*exp(-p['par4']*t))
-    nm =  ['o1','o2','o3','o4','o5']
-    return dict(zip(nm,y))
+    #nm =  ['o1','o2','o3','o4','o5']
+    #return dict(zip(nm,y))
+    return y
 
 def run():
 	# Setup MATK model with parameters
@@ -36,7 +36,7 @@ def run():
 	s = p.lhs('lhs', siz=500, seed=1000)
 	
 	# Look at sample parameter histograms, correlations, and panels
-	s.samples.hist(ncols=2,title='Parameter Histograms',tight=True)
+	s.samples.hist(ncols=2,title='Parameter Histograms')
 	parcor = s.samples.corr(plot=True, title='Parameter Correlations')
 	s.samples.panels(title='Parameter Panels')
 	
@@ -44,7 +44,7 @@ def run():
 	s.run( ncpus=2, outfile='results.dat', logfile='log.dat',verbose=False)
 	
 	# Look at response histograms, correlations, and panels
-	s.responses.hist(ncols=2,title='Model Response Histograms',tight=True)
+	s.responses.hist(ncols=2,title='Model Response Histograms')
 	rescor = s.responses.corr(plot=True, title='Model Response Correlations')
 	s.responses.panels(title='Response Panels')
 	
@@ -53,7 +53,7 @@ def run():
 	pcorr = s.corr(plot=True,title='Pearson Correlation Coefficients') 
 	print "\nSpearman Correlation Coefficients:"
 	scorr = s.corr(plot=True,type='spearman',title='Spearman Rank Correlation Coefficients') 
-	s.panels(tight=True,figsize=(10,8))
+	s.panels(figsize=(10,8))
 
 # Freeze support is necessary for multiprocessing on windows
 if __name__== "__main__":

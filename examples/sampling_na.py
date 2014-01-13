@@ -37,7 +37,7 @@ def run():
     s = p.lhs(siz=500, seed=1000)
     
     # Look at sample parameter histograms, correlations, and panels
-    s.samples.hist(ncols=2,title='Parameter Histograms',tight=True)
+    s.samples.hist(ncols=2,title='Parameter Histograms',tight=False)
     parcor = s.samples.corr(plot=True, title='Parameter Correlations')
     s.samples.panels(title='Parameter Panels')
     
@@ -45,7 +45,7 @@ def run():
     s.run( ncpus=2, outfile='results.dat', logfile='log.dat',verbose=False)
     
     # Look at sample response histograms, correlations, and panels
-    s.responses.hist(ncols=3,title='Model Response Histograms',tight=True)
+    s.responses.hist(ncols=3,title='Model Response Histograms',tight=False)
     
     # Copy sampleset and subset to only samples with nan responses
     snan = s.copy()
@@ -53,7 +53,7 @@ def run():
     
     # Evaluate parameter combination resulting in nans
     # Note that it is easy to identify that the culprit is par1 with values less than 0.5
-    snan.samples.hist(ncols=2,title='NAN Parameter Histograms',tight=True)
+    snan.samples.hist(ncols=2,title='NAN Parameter Histograms',tight=False)
     parcor = snan.samples.corr(plot=True, title='NAN Parameter Correlations')
     snan.samples.panels(title='NAN Parameter Panels')
     
