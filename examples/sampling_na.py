@@ -22,8 +22,7 @@ def dbexpl(p):
     if p['par1']<0.5:
         asdf
     y =  (p['par1']*exp(-p['par2']*t) + p['par3']*exp(-p['par4']*t))
-    nm =  ['o1','o2','o3','o4','o5']
-    return dict(zip(nm,y))
+    return y
 
 def run():
     # Setup MATK model with parameters
@@ -37,7 +36,7 @@ def run():
     s = p.lhs(siz=500, seed=1000)
     
     # Look at sample parameter histograms, correlations, and panels
-    s.samples.hist(ncols=2,title='Parameter Histograms',tight=False)
+    s.samples.hist(ncols=2,title='Parameter Histograms')
     parcor = s.samples.corr(plot=True, title='Parameter Correlations')
     s.samples.panels(title='Parameter Panels')
     
@@ -45,7 +44,7 @@ def run():
     s.run( ncpus=2, outfile='results.dat', logfile='log.dat',verbose=False)
     
     # Look at sample response histograms, correlations, and panels
-    s.responses.hist(ncols=3,title='Model Response Histograms',tight=False)
+    s.responses.hist(ncols=3,title='Model Response Histograms')
     
     # Copy sampleset and subset to only samples with nan responses
     snan = s.copy()
@@ -53,7 +52,7 @@ def run():
     
     # Evaluate parameter combination resulting in nans
     # Note that it is easy to identify that the culprit is par1 with values less than 0.5
-    snan.samples.hist(ncols=2,title='NAN Parameter Histograms',tight=False)
+    snan.samples.hist(ncols=2,title='NAN Parameter Histograms')
     parcor = snan.samples.corr(plot=True, title='NAN Parameter Correlations')
     snan.samples.panels(title='NAN Parameter Panels')
     

@@ -37,6 +37,7 @@ def run():
 	
 	# Look at sample parameter histograms, correlations, and panels
 	s.samples.hist(ncols=2,title='Parameter Histograms')
+	s.samples.hist(ncols=2,title='Parameter Histograms',frequency=True)
 	parcor = s.samples.corr(plot=True, title='Parameter Correlations')
 	s.samples.panels(title='Parameter Panels')
 	

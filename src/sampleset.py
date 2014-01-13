@@ -619,7 +619,8 @@ def hist(rc,ncols=4,figsize=None,title=None,tight=False,mins=None,maxs=None,freq
         for nm in rc.dtype.names: 
             ax.append(plt.subplot(nrows,ncols,ind+1))
             if ind==0 or (ind)%ncols==0:
-                plt.ylabel('Count')
+				if frequency: plt.ylabel('Frequency')
+				else: plt.ylabel('Count')
             if frequency:
                 n,b,patches = ax[-1].hist(rc[nm], range=(mins[ind],maxs[ind]), bins=bins, weights=numpy.ones(len(rc[nm])) / len(rc[nm]))
                 hist_dict[nm] = (n,b,patches)
