@@ -668,10 +668,10 @@ def hist(rc,ncols=4,figsize=None,title=None,tight=False,mins=None,maxs=None,freq
                     flag=True
                     for n in hist_dict[nm][0]:
                         if flag:
-                            print '{:12d}'.format(n),
+                            print '{:12.0f}'.format(n),
                             flag=False
                         else:
-                            print '{:8d}'.format(n),
+                            print '{:8.0f}'.format(n),
                 print '\n',
                 print ' Bins:',
                 flag=True

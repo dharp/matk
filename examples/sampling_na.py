@@ -19,7 +19,8 @@ from multiprocessing import freeze_support
 # Model function
 def dbexpl(p):
     t=arange(0,100,20.)
-    if p['par1']<0.5:
+    #if (p['par1']) < 0.5:
+    if (p['par1']+p['par3']) < 0.25:
         asdf
     y =  (p['par1']*exp(-p['par2']*t) + p['par3']*exp(-p['par4']*t))
     return y
@@ -48,7 +49,7 @@ def run():
     
     # Copy sampleset and subset to only samples with nan responses
     snan = s.copy()
-    snan.subset(numpy.isnan, obs='o1')
+    snan.subset(numpy.isnan, obs='obs1')
     
     # Evaluate parameter combination resulting in nans
     # Note that it is easy to identify that the culprit is par1 with values less than 0.5
