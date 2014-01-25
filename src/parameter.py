@@ -1,5 +1,5 @@
 import numpy
-from lmfit.parameter import Parameter
+from lmfit.parameter import Parameter as LMFitParameter
 import copy_reg, new
 
 # Use copy_reg to allow pickling of bound methods
@@ -10,60 +10,29 @@ def pickle_instancemethod(method):
 copy_reg.pickle(new.instancemethod, pickle_instancemethod,
 make_instancemethod)
 
-class Parameter(Parameter):
+class Parameter(LMFitParameter):
     """ MATK parameter class
     """
-    def __init__(self, name, **kwargs):
-        self._name = name
+    def __init__(self, name, value=None, vary=True, min=None, max=None, expr=None, **kwargs):
+        LMFitParameter.__init__(self, name=name, value=value, vary=vary, min=min, max=max, expr=expr)
         self._valuelist = []
-        self._val = None
-        self._min = None
-        self._max = None
         self._mean = None
         self._std = None
-        self._trans = 'none'
-        self._scale = 1.0
-        self._offset = 0.0
-        self._parchglim = None
-        self._pargrpnm = 'default'
         self._dist = ''
         self._dist_pars = ()
         self._nvals = 2
-        self._vary = True
-        self._expr = None
         self._parent = None
-        self.deps   = None
-        self.stderr = None
-        self.correl = None
         for k,v in kwargs.iteritems():
-            if k == 'value':
-                self._val = float(v)
-            elif k == 'min':
-                self.min = float(v)
-            elif k == 'max':
-                self.max = float(v)
-            elif k == 'mean':
+            if k == 'mean':
                 self.mean = float(v)
             elif k == 'std':
                 self.std = float(v)
-            elif k == 'trans':
-                self.trans = v
-            elif k == 'scale':
-                self.scale = float(v)
-            elif k == 'offset':
-                self.offset = float(v)
-            elif k == 'parchglim':
-                self.parchglim = v
             elif k == 'dist':
                 self.dist = v
             elif k == 'dist_pars':
                 self.dist_pars = v
             elif k == 'nvals':
                 self.nvals = v
-            elif k == 'vary':
-                self.vary = v
-            elif k == 'expr':
-                self.expr = v
             elif k == 'parent':
                 self._parent = v
             else:
@@ -87,37 +56,11 @@ class Parameter(Parameter):
                 print "Error: Mean and std. dev. required for normal distribution"
             else:
                 self.dist_pars = (self.mean, self.std)
-        self.user_value = self._val
-        self.init_value = self._val
     def __getstate__(self):
         odict = self.__dict__.copy()
         return odict
     def __setstate__(self,state):
         self.__dict__.update(state)
-    @property    
-    def name(self):
-        """ Parameter name
-        """
-        return self._name
-    @name.setter
-    def name(self,value):
-        self._name = value
-    @property
-    def min(self):
-        """ Parameter lower bound
-        """
-        return self._min
-    @min.setter
-    def min(self,value):
-        self._min = value
-    @property
-    def max(self):
-        """ Parameter upper bound
-        """
-        return self._max
-    @max.setter
-    def max(self,value):
-        self._max = value
     @property
     def mean(self):
         """ Parameter mean
@@ -134,12 +77,6 @@ class Parameter(Parameter):
     @std.setter
     def std(self,value):
         self._std = value
-    @property
-    def trans(self):
-        return self._trans
-    @trans.setter
-    def trans(self,value):
-        self._trans = value
     @property
     def value(self):
         """ Parameter value
@@ -162,28 +99,6 @@ class Parameter(Parameter):
         self._val = value
         if self._parent:
             self._parent._current = False
-    @property
-    def scale(self):
-        """ Scale factor to multiply parameter by
-        """
-        return self._scale
-    @scale.setter
-    def scale(self,value):
-        self._scale = value
-    @property
-    def offset(self):
-        """ Offset to add to parameter
-        """
-        return self._offset
-    @offset.setter
-    def offset(self,value):
-        self._offset = value
-    @property
-    def parchglim(self):
-        return self._parchglim
-    @parchglim.setter
-    def parchglim(self,value):
-        self._parchglim = value
     @property
     def dist(self):
         """ Probabilistic distribution of parameter belonging to scipy.stats
