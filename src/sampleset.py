@@ -525,6 +525,7 @@ def panels(rc, type='pearson', figsize=None, title=None, tight=False, symbol='o'
                 n,b,patches = ax[i,i].hist(rc[nm], range=(mins[i],maxs[i]), bins=bins, weights=numpy.ones(len(rc[nm])) / len(rc[nm]))
             else:
                 n,b,patches = ax[i,i].hist(rc[nm], range=(mins[i],maxs[i]), bins=bins)
+            ax[i,i].set_xlim([mins[i],maxs[i]])
             ns.append(n)
         # Set ylims of histograms
         if ylim is None:
@@ -616,26 +617,25 @@ def hist(rc,ncols=4,figsize=None,title=None,tight=False,mins=None,maxs=None,freq
         if figsize is None:
             figsize = (ncols*3,nrows*3)
         fig = plt.figure(figsize=figsize)
-        ind = 0
         if mins is None: mins = numpy.min(rc.tolist(),axis=0)
         if maxs is None: maxs = numpy.max(rc.tolist(),axis=0)
         hist_dict = OrderedDict()
         ns = []
         ax = []
-        for nm in rc.dtype.names: 
+        for ind,nm,mi,ma in zip(range(len(rc.dtype)),rc.dtype.names,mins,maxs): 
             ax.append(plt.subplot(nrows,ncols,ind+1))
             if ind==0 or (ind)%ncols==0:
 				if frequency: plt.ylabel('Frequency')
 				else: plt.ylabel('Count')
             if frequency:
-                n,b,patches = ax[-1].hist(rc[nm], range=(mins[ind],maxs[ind]), bins=bins, weights=numpy.ones(len(rc[nm])) / len(rc[nm]))
+                n,b,patches = ax[-1].hist(rc[nm], range=[mi,ma], bins=bins, weights=numpy.ones(len(rc[nm])) / len(rc[nm]))
                 hist_dict[nm] = (n,b,patches)
             else:
-                n,b,patches = ax[-1].hist(rc[nm], range=(mins[ind],maxs[ind]), bins=bins)
+                n,b,patches = ax[-1].hist(rc[nm], range=[mi,ma], bins=bins)
                 hist_dict[nm] = (n,b,patches)
+            ax[-1].set_xlim([mi,ma])
             ns.append(n)
             plt.xlabel(nm)
-            ind+=1
         # Set ylims of histograms
         if ylim is None:
             ymax = max([max(n) for n in ns])
