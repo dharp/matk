@@ -1,7 +1,13 @@
-import sys
-sys.path.append('C:\\Users\\264485\\python\\matk\\src')
+import os,sys
 import unittest
-import matk
+try:
+    import matk
+except:
+    try:
+        sys.path.append('..'+os.sep+'src')
+        import matk
+    except ImportError as err:
+        print 'Unable to load MATK module: '+str(err)
 from exp_model_int import dbexpl
 from sine_decay_model import sine_decay
 import numpy
