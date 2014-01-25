@@ -13,9 +13,23 @@ make_instancemethod)
 class Parameter(LMFitParameter):
     """ MATK parameter class
     """
-    def __init__(self, name, value=None, vary=True, min=None, max=None, expr=None, **kwargs):
+    def __init__(self, name, value=None, vary=True, min=None, max=None, expr=None, discrete_vals=[], discrete_counts=[], **kwargs):
         LMFitParameter.__init__(self, name=name, value=value, vary=vary, min=min, max=max, expr=expr)
-        self._valuelist = []
+        if len(discrete_counts) and (len(discrete_counts) != len(discrete_vals)):
+            print "ERROR: discrete_counts requires equal number of discrete_vals"
+            return
+        elif (min or max) and len(discrete_vals):
+            print "ERROR: discrete_vals cannot be set with min or max"
+            return
+        elif len(discrete_vals) and not len(discrete_counts):
+            self._discrete_vals = numpy.array(discrete_vals)
+            self._discrete_counts = numpy.ones(len(discrete_vals))
+        elif len(discrete_vals) and len(discrete_counts):
+            self._discrete_vals = numpy.array(discrete_vals)
+            self._discrete_counts = numpy.array(discrete_counts)
+        else:
+            self._discrete_vals = discrete_vals
+            self._discrete_counts = discrete_counts
         self._mean = None
         self._std = None
         self._dist = ''
@@ -84,18 +98,8 @@ class Parameter(LMFitParameter):
         return self._getval()
     @value.setter
     def value(self,value):
-    #    if not self._min is None and value < self._min:
-    #        print "Error: Attempted to set "+self.name+" below min ("+str(self._min)+")"
-    #        print self.name+" set to min"
-    #        self._value = self._min
-    #    elif not self._max is None and value > self._max:
-    #        print "Error: Attempted to set "+self.name+" above max ("+str(self._max)+")"
-    #        print self.name+" set to max"
-    #        self._value = self._max
-    #    else:
-    #        self._value = value
-    #    if not self.value is None:
-    #        self._valuelist.append(self.value)
+        if len(self._discrete_vals):
+            pass
         self._val = value
         if self._parent:
             self._parent._current = False
