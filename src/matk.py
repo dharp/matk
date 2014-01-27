@@ -178,7 +178,7 @@ class matk(object):
             :param kwargs: keyword arguments passed to parameter class
         """
         if name in self.pars: 
-            self.par[name] = Parameter(name,parent=self,**kwargs)
+            self.pars[name] = Parameter(name,parent=self,**kwargs)
         else:
             self.pars.__setitem__( name, Parameter(name,parent=self,**kwargs))
     def add_obs(self,name,**kwargs):
