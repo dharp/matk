@@ -227,7 +227,9 @@ class SampleSet(object):
         if outfile:
             f = open(outfile, 'w')
             f.write("Number of parameters: %d\n" % len(self.parnames) )
-            f.write("Number of responses: %d\n" % len(self.obsnames) )
+            if not self.responses is None:
+                f.write("Number of responses: %d\n" % len(self.obsnames) )
+            else: f.write("Number of responses: %d\n" % 0 ) 
             f.write("%-8s" % 'index' )
             # Print par names
             for nm in self.samples.names:
