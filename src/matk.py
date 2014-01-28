@@ -15,6 +15,7 @@ try:
     from collections import OrderedDict
 except ImportError:
     from ordereddict import OrderedDict
+from asteval import Interpreter
 
 class matk(object):
     """ Class for Model Analysis ToolKit (MATK) module
@@ -65,6 +66,7 @@ class matk(object):
         self.sampleset = OrderedDict()
         self.workdir_index = 0
         self._current = False # Flag indicating if simulated values are associated with current parameters
+        self.asteval = Interpreter()
     @property
     def model(self):
         """ Python function that runs model
@@ -583,6 +585,10 @@ class matk(object):
             eval( 'dists.append(stats.' + dist + ')' )
         dist_pars = self.pardist_pars
         x = lhs(dists, dist_pars, siz=siz, noCorrRestr=noCorrRestr, corrmat=corrmat, seed=seed)
+        for j,p in enumerate(self.pars.values()):
+            if p.expr is not None:
+                for i,r in enumerate(x):
+                    x[i,j] = self.__eval_expr( p.expr, r )
         return self.create_sampleset( x, name=name, index_start=index_start )
     def child( self, in_queue, out_list, reuse_dirs, save):
         for pars,smp_ind,lst_ind in iter(in_queue.get, (None,None,None)):
@@ -789,5 +795,20 @@ class matk(object):
         fitter = Minimizer(self)
         fitter.calibrate(ncpus=ncpus,maxiter=maxiter,lambdax=lambdax,minchange=minchange,
                          minlambdax=minlambdax,verbose=verbose,workdir=workdir,reuse_dirs=reuse_dirs,h=h)
+    def __eval_expr(self, exprstr, parset):
+        """
+        update parameter value, including setting bounds.
+        For a constrained parameter (one with an expr defined),
+        this first updates (recursively) all parameters on which
+        the parameter depends (using the 'deps' field).
+       """
+        # Has this param already been updated?
+        # if this is called as an expression dependency,
+        # it may have been!
+        #if self.updated[name]:
+        #    return
+        for val,nm in zip(parset,self.pars.keys()):
+            self.asteval.symtable[nm] = val
+        return self.asteval(exprstr)
 
 
