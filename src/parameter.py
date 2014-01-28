@@ -70,7 +70,7 @@ class Parameter(LMFitParameter):
                 print "Error: Mean and std. dev. required for normal distribution"
             else:
                 self.dist_pars = (self.mean, self.std)
-        if self.expr is not None:
+        if self.expr is not None and self.dist is '':
             self.dist='uniform'
     def __getstate__(self):
         odict = self.__dict__.copy()
