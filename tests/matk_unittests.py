@@ -116,24 +116,11 @@ class Tests(unittest.TestCase):
         lb = self.p.parmins
         ub = self.p.parmaxs
         # Test keyword args
-        ps = self.p.parstudy( par1=2, par2=2, par3=2, par4=2)
+        ps = self.p.parstudy( nvals=2)
         s = ps.samples.values
         mins = s.min(axis=0)
         maxs = s.max(axis=0)
         self.assertTrue( (maxs >= lb).any() and (mins <= ub).any(), 'Parstudy outside parameter bounds' )
-        ## Test dictionary
-        #pardict = {'par1':2,'par2':2,'par3':2,'par4':2}
-        #ps = self.p.parstudy( pardict )
-        #s = ps.samples.values
-        #mins = s.min(axis=0)
-        #maxs = s.max(axis=0)
-        #self.assertTrue( (maxs >= lb).any() and (mins <= ub).any(), 'Parstudy outside parameter bounds' )
-        ## Test list
-        #ps = self.p.parstudy( (2,2,2,2) )
-        #s = ps.samples.values
-        #mins = s.min(axis=0)
-        #maxs = s.max(axis=0)
-        #self.assertTrue( (maxs >= lb).any() and (mins <= ub).any(), 'Parstudy outside parameter bounds' )
 
     def fullfact(self):
         lb = self.p.parmins

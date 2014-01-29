@@ -30,11 +30,10 @@ class Parameter(LMFitParameter):
         else:
             self._discrete_vals = discrete_vals
             self._discrete_counts = discrete_counts
-        self._mean = None
-        self._std = None
-        self._dist = ''
-        self._dist_pars = ()
-        self._nvals = 2
+        self.mean = None
+        self.std = None
+        self._dist = 'uniform'
+        self._dist_pars = None
         self._parent = None
         for k,v in kwargs.iteritems():
             if k == 'mean':
@@ -45,54 +44,30 @@ class Parameter(LMFitParameter):
                 self.dist = v
             elif k == 'dist_pars':
                 self.dist_pars = v
-            elif k == 'nvals':
-                self.nvals = v
             elif k == 'parent':
                 self._parent = v
             else:
                 print k + ' is not a valid argument'
-        # If min and max are set, but dist is not, set to uniform
-        if not self.max is None and not self.min is None and self.dist is '': self.dist = 'uniform'
         if self.dist == 'uniform':
-            if self.min is None or self.max is None: 
-                print "Error: Max and min parameter value must be specified for uniform distribution"
-                return
-            if not self._val is None:
-                if not self.min <= self._val <= self.max:
-                    print "Error: Value is not within min and max values"
-                    return
-            else:
+            if self._val is None:
                 self._val = (self.max + self.min)/2.
-            range = self.max - self.min
-            self.dist_pars = (self.min, range)
+            if self.dist_pars is None:
+                # Set lower bound
+                if self.min is not None: mn = self.min
+                else: mn = numpy.nan_to_num(-numpy.inf)
+                # Set range
+                if self.min is not None and self.max is not None: rng = self.max - self.min
+                else: rng = numpy.nan_to_num(numpy.inf)
+                self.dist_pars = (mn,rng)
         elif self.dist == 'norm':
-            if self.mean is None or self.std is None:
-                print "Error: Mean and std. dev. required for normal distribution"
-            else:
-                self.dist_pars = (self.mean, self.std)
-        if self.expr is not None and self.dist is '':
-            self.dist='uniform'
+            if self.mean is None: self.mean = 0.
+            if self.std is None: self.std = 1.
+            self.dist_pars = (self.mean, self.std)
     def __getstate__(self):
         odict = self.__dict__.copy()
         return odict
     def __setstate__(self,state):
         self.__dict__.update(state)
-    @property
-    def mean(self):
-        """ Parameter mean
-        """
-        return self._mean
-    @mean.setter
-    def mean(self,value):
-        self._mean = value
-    @property
-    def std(self):
-        """ Parameter st. dev.
-        """
-        return self._std
-    @std.setter
-    def std(self,value):
-        self._std = value
     @property
     def value(self):
         """ Parameter value
@@ -120,20 +95,13 @@ class Parameter(LMFitParameter):
     @property
     def dist_pars(self):
         """ Distribution parameters required by self.dist 
-        (e.g. if dist == uniform, dist_pars = (min,max-min))
+        e.g. if dist == uniform, dist_pars = (min,max-min)
+             if dist == norm, dist_pars = (mean,stdev))
         """
         return self._dist_pars
     @dist_pars.setter
     def dist_pars(self,value):
         self._dist_pars = value              
-    @property
-    def nvals(self):
-        """ Number of values the paramter will take for parameter studies
-        """
-        return self._nvals
-    @nvals.setter
-    def nvals(self,value):
-        self._nvals = value              
     @property
     def vary(self):
         """ Boolean indicating whether or not to vary parameter

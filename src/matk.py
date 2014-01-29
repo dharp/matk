@@ -266,7 +266,6 @@ class matk(object):
         # create samples
         samples = data[:,1:npar+1]
         responses = data[:,npar+1:]
-        #self.sampleset[name] = SampleSet(name,samples,parent=self,responses=responses,indices=data[:,0])
         self.create_sampleset(samples,name=name,responses=responses,indices=data[:,0])
     def copy_sampleset(self,oldname,newname=None):
         """ Copy sampleset
@@ -277,11 +276,6 @@ class matk(object):
             :type newname: str
         """
         return self.create_sampleset(self.sampleset[oldname].samples.values,name=newname,responses=self.sampleset[oldname].responses.values,indices=self.sampleset[oldname].indices)
-        #if newname in self.sampleset: 
-        #    self.sampleset[newname] = self.sampleset[oldname]
-        #else:
-        #    self.sampleset.__setitem__( newname, deepcopy(self.sampleset[oldname]) )
-        #return self.sampleset[newname]
     @property
     def sim_values(self):
         """ Simulated values
@@ -343,11 +337,6 @@ class matk(object):
         """ Get parameter names
         """
         return [par.name for par in self.pars.values()]
-    @property
-    def parnvals(self):
-        """ Get parameter nvals (number of values for parameter studies)
-        """
-        return [par.nval for par in self.pars.values()]
     @property
     def obsvalues(self):
         """ Observation values
@@ -685,27 +674,26 @@ class matk(object):
         results = numpy.array(results)
 
         return results, parsets   
-    def parstudy(self, name=None, **kwargs):
+    def parstudy(self, name=None, nvals=2):
         ''' Generate parameter study samples
         
         :param name: Name of sample set to be created
         :type name: str
         :param outfile: Name of file where samples will be written. If outfile=None, no file is written.
         :type outfile: str
-        :param kwargs: keyword arguments where keyword is the parameter name and argument is the number of desired values
-        :type kwargs: dict(fl64)
+        :param nvals: number of values for each parameter
+        :type nvals: int or list(int)
         :returns: ndarray(fl64) -- Array of samples
         '''
 
-        for k,v in kwargs.iteritems():
-            if k is not 'name':
-                self.pars[k].nvals = v
+        if isinstance(nvals,int):
+            nvals = [nvals]*len(self.pars)
         x = []
-        for k,p in self.pars.items():
-            if p.nvals == 1 or not p.vary:
-                x.append(numpy.linspace(p.value, p.max, p.nvals))
-            elif p.nvals > 1:
-                x.append(numpy.linspace(p.min, p.max, p.nvals))
+        for p,n in zip(self.pars.values(),nvals):
+            if n == 1 or not p.vary:
+                x.append(numpy.linspace(p.value, p.max, n))
+            elif n > 1:
+                x.append(numpy.linspace(p.min, p.max, n))
 
         x = list(itertools.product(*x))
         x = numpy.array(x)
