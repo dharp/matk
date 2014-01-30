@@ -14,7 +14,13 @@ class Parameter(LMFitParameter):
     """ MATK parameter class
     """
     def __init__(self, name, value=None, vary=True, min=None, max=None, expr=None, discrete_vals=[], discrete_counts=[], **kwargs):
-        LMFitParameter.__init__(self, name=name, value=value, vary=vary, min=min, max=max, expr=expr)
+        #LMFitParameter.__init__(self, name=name, value=value, vary=vary, min=min, max=max, expr=expr)
+        self.name=name
+        self._val = value
+        self.vary = vary
+        self.min = min
+        self.max = max
+        self.expr = expr
         if len(discrete_counts) and (len(discrete_counts) != len(discrete_vals)):
             print "ERROR: discrete_counts requires equal number of discrete_vals"
             return
