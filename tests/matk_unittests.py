@@ -11,6 +11,7 @@ except:
 from exp_model_int import dbexpl
 from sine_decay_model import sine_decay
 import numpy
+from cPickle import dump, load, PicklingError
 
 def fv(a):
     ''' Exponential function from marquardt.py
@@ -155,6 +156,28 @@ class Tests(unittest.TestCase):
         self.c.parvalues = {'amp':10.,'decay':0.1,'shift':0.,'omega':3.0}
         self.c.calibrate()
         self.assertTrue( self.c.ssr < 1.e-27, 'Final SSR of marquardt model is incorrect ' + str(self.c.ssr) )
+
+    def pickle_test(self):
+        # Create sampleset
+        ss = self.p.lhs(siz=10 )
+        try: dump( self.p, open('test.p', 'wb'))
+        except PicklingError as errstr: 
+            print "Unable to pickle MATK object: "+errstr
+            dumpbool = False
+        else:
+            dumpbool = True
+            try: t = load( open('test.p', 'rb'))
+            except UnpicklingError as errstr:
+                print "Unable to unpickle MATK object: "+errstr
+                loadbool=False
+            else:
+                loadbool=True
+            os.remove('test.p')
+        self.assertTrue( dumpbool, 'MATK object cannot be pickled' )
+        self.assertTrue( loadbool, 'MATK object cannot be unpickled' )
+
+
+
         
 def suite(case):
     suite = unittest.TestSuite()
@@ -167,6 +190,7 @@ def suite(case):
         suite.addTest( Tests('jacobian') )
         suite.addTest( Tests('calibrate') )
         suite.addTest( Tests('correlation') )
+        suite.addTest( Tests('pickle_test') )
     if case == 'parallel' or case == 'all':
         suite.addTest( Tests('parallel') )
         suite.addTest( Tests('parallel_workdir') )
