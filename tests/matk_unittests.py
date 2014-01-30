@@ -175,9 +175,6 @@ class Tests(unittest.TestCase):
             os.remove('test.p')
         self.assertTrue( dumpbool, 'MATK object cannot be pickled' )
         self.assertTrue( loadbool, 'MATK object cannot be unpickled' )
-
-
-
         
 def suite(case):
     suite = unittest.TestSuite()
