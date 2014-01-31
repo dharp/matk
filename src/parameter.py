@@ -1,6 +1,7 @@
 import numpy
 from lmfit.parameter import Parameter as LMFitParameter
 import copy_reg, new
+import platform
 
 # Use copy_reg to allow pickling of bound methods
 def make_instancemethod(inst, methodname):
@@ -14,11 +15,12 @@ class Parameter(LMFitParameter):
     """ MATK parameter class
     """
     def __init__(self, name, value=None, vary=True, min=None, max=None, expr=None, discrete_vals=[], discrete_counts=[], **kwargs):
+        if expr is not None and platform.system() is 'Windows':
+            raise InputError('expr option not supported on Windows, similar functionality can be achieved using expressions in model functions')
         LMFitParameter.__init__(self, name=name, value=value, vary=vary, min=min, max=max, expr=expr)
         self.from_internal = self._nobound
         if len(discrete_counts) and (len(discrete_counts) != len(discrete_vals)):
             print "ERROR: discrete_counts requires equal number of discrete_vals"
-            return
         elif (min or max) and len(discrete_vals):
             print "ERROR: discrete_vals cannot be set with min or max"
             return
@@ -169,6 +171,22 @@ class Parameter(LMFitParameter):
             _val  = numpy.arcsin(2*(self._val - self.min)/(self.max - self.min) - 1)
         return _val
 
+class Error(Exception):
+    pass
              
+class InputError(Error):
+    """Exception raised for errors in the input.
+
+    Attributes:
+        expr -- input expression in which the error occurred
+        msg  -- explanation of the error
+    """
+
+    def __init__(self, msg):
+        self.msg = msg
+    def __str__(self):
+        return self.msg
+ 
+
 
 
