@@ -51,7 +51,14 @@ class Parameter(LMFitParameter):
                 print k + ' is not a valid argument'
         if self.dist == 'uniform':
             if self._val is None:
-                self._val = (self.max + self.min)/2.
+                if self.max is not None and self.min is not None:
+                    self._val = (self.max + self.min)/2.
+                elif self.max is not None:
+                    self._val = self.max
+                elif self.min is not None:
+                    self._val = self.min
+                else:
+                    self._val = 0
             if self.dist_pars is None:
                 # Set lower bound
                 if self.min is not None: mn = self.min
