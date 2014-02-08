@@ -639,7 +639,9 @@ class matk(object):
                 s += resp
                 s += "-"*60
                 print s
-                if logfile: f.write(s+'\n')
+                if logfile: 
+                    f.write(s+'\n')
+                    f.flush()
             else:
                 self._set_sim_values(resp)
                 results[lst_ind] = resp.values()
@@ -649,7 +651,9 @@ class matk(object):
                             s += " %16s" % nm
                         s += '\n'
                         if verbose: print s,
-                        if logfile: f.write( s )
+                        if logfile: 
+                            f.write( s )
+                            f.flush()
                         header = False
                     s = "%-8d" % smp_ind
                     for v in parsets[lst_ind]:
@@ -658,7 +662,9 @@ class matk(object):
                         s += " %16lf" % v
                     s += '\n'
                     if verbose: print s,
-                    if logfile: f.write( s )
+                    if logfile: 
+                        f.write( s )
+                        f.flush()
         if logfile: f.close()
 
         for i in range(len(results)):
