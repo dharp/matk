@@ -201,12 +201,13 @@ class SampleSet(object):
         else:
             print 'Error: number of cpus (ncpus) must be greater than zero'
             return
-        out = numpy.array(out)
-        if self.responses is None:
-            self.responses = DataSet(out,self._parent.obsnames) 
-        else:
-            self.responses.values = out 
-        self._obsnames = self._parent.obsnames
+        if out is not None:
+            out = numpy.array(out)
+            if self.responses is None:
+                self.responses = DataSet(out,self._parent.obsnames) 
+            else:
+                self.responses.values = out 
+            self._obsnames = self._parent.obsnames
         if not outfile is None:
             self.savetxt( outfile )
 

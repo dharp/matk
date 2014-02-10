@@ -459,11 +459,14 @@ class matk(object):
                     sims = self.model( pardict, **self.model_kwargs )
                 elif not self.model_args is None and not self.model_kwargs is None:
                     sims = self.model( pardict, *self.model_args, **self.model_kwargs )
-                self._set_sim_values(sims)
-                simdict = OrderedDict(zip(self.obsnames,self.sim_values))
                 self._current = True
                 if not curdir is None: os.chdir( curdir )
-                return simdict
+                if sims is not None:
+                    if len(sims):
+                        self._set_sim_values(sims)
+                        simdict = OrderedDict(zip(self.obsnames,self.sim_values))
+                        return simdict
+                else: return None
             except:
                 errstr = traceback.format_exc()                
                 if not curdir is None: os.chdir( curdir )
@@ -630,7 +633,7 @@ class matk(object):
                 s += " %16s" % nm
             header = True
 
-        results = [None]*len(parsets)
+        results = [[numpy.NAN]]*len(parsets)
         for i in range(len(parsets)):
             lst_ind, smp_ind, resp = resultsq.get()
             if isinstance( resp, str):
@@ -643,8 +646,9 @@ class matk(object):
                     f.write(s+'\n')
                     f.flush()
             else:
-                self._set_sim_values(resp)
-                results[lst_ind] = resp.values()
+                if isinstance( resp, OrderedDict):
+                    self._set_sim_values(resp)
+                    results[lst_ind] = resp.values()
                 if verbose or logfile:
                     if header:
                         for nm in self.obsnames:
@@ -658,8 +662,9 @@ class matk(object):
                     s = "%-8d" % smp_ind
                     for v in parsets[lst_ind]:
                         s += " %16lf" % v
-                    for v in results[lst_ind]:
-                        s += " %16lf" % v
+                    if results[lst_ind] is not numpy.NAN:
+                        for v in results[lst_ind]:
+                            s += " %16lf" % v
                     s += '\n'
                     if verbose: print s,
                     if logfile: 
@@ -668,8 +673,9 @@ class matk(object):
         if logfile: f.close()
 
         for i in range(len(results)):
-            if results[i] is None:
-                results[i] = [numpy.NAN]*len(self.obs)
+            if results[i] is numpy.NAN:
+                if len(self.obs) > 0:
+                    results[i] = [numpy.NAN]*len(self.obs)
 
         for p in pool:
             p.join()
@@ -677,6 +683,9 @@ class matk(object):
         # Clean parent
         self.workdir = saved_workdir
         results = numpy.array(results)
+        if results.shape[1] == 1:
+            if all(numpy.isnan(r[0]) for r in results):
+                results = None
 
         return results, parsets   
     def parstudy(self, name=None, nvals=2):
