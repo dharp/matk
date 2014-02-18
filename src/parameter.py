@@ -90,9 +90,10 @@ class Parameter(LMFitParameter):
     def value(self,value):
         if len(self._discrete_vals):
             pass
-        self._val = value
-        if self._parent:
-            self._parent._current = False
+        else:
+            self._val = value
+            if self._parent:
+                self._parent._current = False
     @property
     def dist(self):
         """ Probabilistic distribution of parameter belonging to scipy.stats
