@@ -333,8 +333,8 @@ class SampleSet(object):
         # create dictionary of parameter name and value
         pars = []
         for par,col in zip(self._parent.pars,self.samples._values.T):
-            min = self._parent.pars[par]._min
-            max = self._parent.pars[par]._max
+            min = self._parent.pars[par].min
+            max = self._parent.pars[par].max
             minN = list(col).count(min)
             maxN = list(col).count(max)
             pars.append((par+':min',[min,minN]))
