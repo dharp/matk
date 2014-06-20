@@ -11,6 +11,7 @@ from multiprocessing import Process, Manager, Pool, freeze_support
 from multiprocessing.queues import Queue, JoinableQueue
 import traceback
 from copy import deepcopy
+from pymc import Uniform, deterministic, Normal, MCMC, Matplot
 try:
     from collections import OrderedDict
 except ImportError:
@@ -778,7 +779,7 @@ class matk(object):
             (UPDEPP at Clarkfield, Pampanga)
 
             :param ncpus: Number of cpus to use
-            :type maxiter: int
+            :type ncpus: int
             :param maxiter: Maximum number of iterations
             :type maxiter: int
             :param lambdax: Initial Marquardt lambda
@@ -802,5 +803,43 @@ class matk(object):
         for val,nm in zip(parset,self.pars.keys()):
             aeval.symtable[nm] = val
         return aeval(exprstr)
+    def __mcmc_model( self ):
+        #priors
+        variables = []
+        sig = Uniform('error_std', 0.0, 100.0, value=1.)
+        variables.append( sig )
+        for nm,mn,mx in zip(self.parnames,self.parmins,self.parmaxs):
+            evalstr = "Uniform( '" + str(nm) + "', " +  str(mn) + ", " +  str(mx) + ")"
+            variables.append( eval(evalstr) )
+        #model
+        @deterministic()
+        def response( pars = variables, p=self ):
+            values = []
+            for i in range(1,len(pars)):
+                values.append(pars[i])
+            pardict = dict(zip(p.parnames,values))
+            p.forward(pardict=pardict)
+            return p.sim_values
+        #likelihood
+        y = Normal('y', mu=response, tau=1.0/sig**2, value=self.obsvalues, observed=True)
+        variables.append(y)
+        return variables
+    def MCMC( self, iter=10000, burn=1000, verbose=1 ):
+        ''' Perform Markov Chain Monte Carlo sampling using pymc package
+
+            :param iter: Number of MCMC iterations (samples)
+            :type iter: int
+            :param burn: Number of initial samples to burn (discard)
+            :type burn: int
+            :param verbose: verbosity of output
+            :type verbose: int
+            :returns: pymc MCMC object
+        '''
+
+        M = MCMC( self.__mcmc_model() )
+        M.sample(iter=iter,burn=burn,verbose=verbose)
+        return M
+    def MCMCplot( self, M ):
+        Matplot.plot(M)
 
 

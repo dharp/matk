@@ -23,6 +23,14 @@ def fv(a):
     out = a0 / (1. + a1 * numpy.exp( X * a2))
     return out 
 
+# Define basic function for mcmc
+def fmcmc(pars):
+    a = pars['a']
+    c = pars['c']
+    m=numpy.double(numpy.arange(20))
+    m=a*(m**2)+c
+    return m
+
 class Tests(unittest.TestCase):
 
     def setUp(self):
@@ -175,6 +183,24 @@ class Tests(unittest.TestCase):
             os.remove('test.p')
         self.assertTrue( dumpbool, 'MATK object cannot be pickled' )
         self.assertTrue( loadbool, 'MATK object cannot be unpickled' )
+
+    def mcmc(self):
+        self.m = matk.matk(model=fmcmc)
+        # Add parameters with 'true' parameters
+        self.m.add_par('a', min=0, max=10, value=2)
+        self.m.add_par('c', min=0, max=30, value=5)
+        # Run model using 'true' parameters
+        self.m.forward()
+        # Create 'true' observations with zero mean, 0.5 st. dev. gaussian noise added
+        self.m.obsvalues = self.m.sim_values + numpy.random.normal(0,1,len(self.m.sim_values))
+        # Run MCMC with 100000 samples burning (discarding) the first 10000
+        M = self.m.MCMC(iter=10000,burn=1000, verbose=-1)
+        mean_a = M.trace('a').stats()['mean']
+        mean_c = M.trace('c').stats()['mean']
+        mean_sig = M.trace('error_std').stats()['mean']
+        self.assertTrue( abs(mean_a - 2.) < 0.2, 'Mean of parameter a is not close to 2: mean(a) = ' + str(mean_a) )
+        self.assertTrue( abs(mean_c - 5.) < 1., 'Mean of parameter c is not close to 5: mean(c) = ' + str(mean_c) )
+        self.assertTrue( abs(mean_sig - 1) < 1., 'Mean of model error std. dev. is not close to 0.1: mean(sig) = ' + str(mean_sig) )
         
 def suite(case):
     suite = unittest.TestSuite()
@@ -188,6 +214,7 @@ def suite(case):
         suite.addTest( Tests('calibrate') )
         suite.addTest( Tests('correlation') )
         suite.addTest( Tests('pickle_test') )
+        suite.addTest( Tests('mcmc') )
     if case == 'parallel' or case == 'all':
         suite.addTest( Tests('parallel') )
         suite.addTest( Tests('parallel_workdir') )
