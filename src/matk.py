@@ -266,7 +266,7 @@ class matk(object):
         # create samples
         samples = data[:,1:npar+1]
         responses = data[:,npar+1:]
-        self.create_sampleset(samples,name=name,responses=responses,indices=data[:,0])
+        return self.create_sampleset(samples,name=name,responses=responses,indices=data[:,0])
     def copy_sampleset(self,oldname,newname=None):
         """ Copy sampleset
 
