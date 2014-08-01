@@ -254,6 +254,7 @@ class matk(object):
         nobs = int(fp.readline().rstrip().split(':')[1])
         headers = fp.readline().rstrip().split()
         data = numpy.array([[float(num) for num in line.split()] for line in fp])
+        indices = numpy.array([int(v) for v in data[:,0]])
         # add parameters
         for header,dat in zip(headers[1:npar+1],data[:,1:npar+1].T):
             if header not in self.pars:
@@ -264,8 +265,10 @@ class matk(object):
                 self.add_obs(header)
         # create samples
         samples = data[:,1:npar+1]
-        responses = data[:,npar+1:]
-        return self.create_sampleset(samples,name=name,responses=responses,indices=data[:,0])
+        if nobs > 0:
+            responses = data[:,npar+1:]
+        else: responses = None
+        return self.create_sampleset(samples,name=name,responses=responses,indices=indices)
     def copy_sampleset(self,oldname,newname=None):
         """ Copy sampleset
 
