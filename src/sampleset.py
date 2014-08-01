@@ -6,6 +6,7 @@ from shutil import rmtree
 from operator import itemgetter
 try:
     from matplotlib import pyplot as plt
+    from matplotlib.ticker import MaxNLocator
     plotflag = True
 except ImportError as exc:
     sys.stderr.write("Warning: failed to import matplotlib module. Plots will not be produced. ({})".format(exc))
@@ -165,8 +166,12 @@ class SampleSet(object):
             :param ylim: y-axis limits for histograms.
             :type ylim: tuples - 2 element tuples with y limits for histograms
         """
-        if mins is None and self.samples._mins is not None: mins = numpy.concatenate([self.samples._mins,numpy.min(self.responses.values,axis=0)])
-        if maxs is None and self.samples._maxs is not None: maxs = numpy.concatenate([self.samples._maxs,numpy.max(self.responses.values,axis=0)])
+        if self.responses is None:
+            if mins is None and self.samples._mins is not None: mins = self.samples._mins
+            if maxs is None and self.samples._maxs is not None: maxs = self.samples._maxs
+        else:
+            if mins is None and self.samples._mins is not None: mins = numpy.concatenate([self.samples._mins,numpy.min(self.responses.values,axis=0)])
+            if maxs is None and self.samples._maxs is not None: maxs = numpy.concatenate([self.samples._maxs,numpy.max(self.responses.values,axis=0)])
         panels( self.recarray, type=type, figsize=figsize, title=title, tight=tight, symbol=symbol,fontsize=fontsize,ms=ms,mins=mins,maxs=maxs,frequency=frequency,bins=bins,ylim=ylim)
     def run(self, ncpus=1, templatedir=None, workdir_base=None,
                     save=True, reuse_dirs=False, outfile=None, logfile=None, verbose=True ):
@@ -350,8 +355,10 @@ class DataSet(object):
     def __init__(self,samples,names,mins=None,maxs=None):
         self._values = samples
         self._names = names
-        self._mins = mins
-        self._maxs = maxs
+        if mins is None: self._mins = [None]*self._values.shape[1]
+        else: self._mins = mins
+        if maxs is None: self._maxs = [None]*self._values.shape[1]
+        else: self._maxs = maxs
     @property
     def names(self):
         """ Array of parameter names
@@ -513,15 +520,24 @@ def corr(rc1, rc2, type='pearson', plot=False, printout=True, plotvals=True, fig
 
 def panels(rc, type='pearson', figsize=None, title=None, tight=False, symbol='o',fontsize=None,ms=None,mins=None,maxs=None,frequency=False,bins=10,ylim=None):
     if plotflag:
-        if mins is None: mins = numpy.min(rc.tolist(),axis=0)
-        if maxs is None: maxs = numpy.max(rc.tolist(),axis=0)
+        smp_mins = numpy.min(rc.tolist(),axis=0)
+        smp_maxs = numpy.max(rc.tolist(),axis=0)
+        if mins is None: mins = smp_mins
+        else:
+            mins = [ smp_mins[i] if mins[i] is None else mins[i] for i in range(len(mins)) ]
+        if maxs is None: maxs = smp_maxs
+        else:
+            maxs = [ smp_maxs[i] if maxs[i] is None else maxs[i] for i in range(len(maxs)) ]
         if numpy.any(numpy.isnan(rc.tolist())):
             print "Error: Nan values exist probably due to failed simulations. Use subset (e.g. subset([('obs','!=',numpy.nan)]) to remove"
             return
         siz = len(rc.dtype)
         fig,ax = plt.subplots(siz,siz,figsize=figsize)
         ind = 1
-        # Plot histograms in diagonal plots
+        # Add axis labels to first column and last row
+        for i,nm in enumerate(rc.dtype.names): 
+            ax[i,0].set_ylabel(nm)
+            ax[siz-1,i].set_xlabel(nm)        # Plot histograms in diagonal plots
         ns = []
         for i,nm in enumerate(rc.dtype.names): 
             if frequency:
@@ -538,10 +554,7 @@ def panels(rc, type='pearson', figsize=None, title=None, tight=False, symbol='o'
         else:
             for i in range(len(rc.dtype)):
                 ax[i,i].set_ylim(ylim)
-        # Add axis labels to first column and last row
-        for i,nm in enumerate(rc.dtype.names): 
-            ax[i,0].set_ylabel(nm)
-            ax[siz-1,i].set_xlabel(nm)
+
         # Scatterplots in lower triangular matrix
         if fontsize is None: fontsize = 5*siz
         for i,nm1 in enumerate(rc.dtype.names): 
@@ -562,15 +575,17 @@ def panels(rc, type='pearson', figsize=None, title=None, tight=False, symbol='o'
                 if j > 0:
                     ax[i,j].get_yaxis().set_visible(False)
                 else:
-                    tk = ax[i,j].get_yticks()
-                    tk = [0.2*(tk[0]+tk[-1]),0.8*(tk[0]+tk[-1])]
-                    ax[i,j].set_yticks(tk)
+                    ax[i,j].yaxis.set_major_locator(MaxNLocator(2))
+                #    tk = ax[i,j].get_yticks()
+                #    tk = [0.2*(tk[0]+tk[-1]),0.8*(tk[0]+tk[-1])]
+                #    ax[i,j].set_yticks(tk)
                 if i < len(rc.dtype)-1:
                     ax[i,j].get_xaxis().set_visible(False)
                 else:
-                    tk = ax[i,j].get_xticks()
-                    tk = [0.2*(tk[0]+tk[-1]),0.8*(tk[0]+tk[-1])]
-                    ax[i,j].set_xticks(tk)
+                    ax[i,j].xaxis.set_major_locator(MaxNLocator(2))
+                #    tk = ax[i,j].get_xticks()
+                #    tk = [0.2*(tk[0]+tk[-1]),0.8*(tk[0]+tk[-1])]
+                #    ax[i,j].set_xticks(tk)
 
         if tight: 
             plt.tight_layout()
@@ -606,6 +621,14 @@ def hist(rc,ncols=4,figsize=None,title=None,tight=False,mins=None,maxs=None,freq
 
     """        
     if plotflag:
+        smp_mins = numpy.min(rc.tolist(),axis=0)
+        smp_maxs = numpy.max(rc.tolist(),axis=0)
+        if mins is None: mins = smp_mins
+        else:
+            mins = [ smp_mins[i] if mins[i] is None else mins[i] for i in range(len(mins)) ]
+        if maxs is None: maxs = smp_maxs
+        else:
+            maxs = [ smp_maxs[i] if maxs[i] is None else maxs[i] for i in range(len(maxs)) ]
         if numpy.any(numpy.isnan(rc.tolist())):
             print "Error: Nan values exist probably due to failed simulations. Use subset (e.g. subset([('obs','!=',numpy.nan)]) to remove"
             return
