@@ -11,6 +11,7 @@ from multiprocessing import Process, Manager, Pool, freeze_support
 from multiprocessing.queues import Queue, JoinableQueue
 import traceback
 from copy import deepcopy
+import pest_io
 try:
     from collections import OrderedDict
 except ImportError:
