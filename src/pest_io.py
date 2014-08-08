@@ -67,8 +67,12 @@ def read_par_files( *files ):
 
         :param files: Strings of file names, glob characters are supported
         :type files: str
-        :returns: numpy recarray of parameters
+        :param output_format: Format to return in
+        :type output_format: str ('numpy_array' or 'recarray')
+        :returns: parameter names list and numpy array of parameters or recarray of parameters
     '''
+
+    output_format = 'numpy_array' 
 
     ks = OrderedDict()
     ks_save = OrderedDict()
@@ -105,8 +109,11 @@ def read_par_files( *files ):
 
     # Create record array
     pars = array(pars)
-    pars_rc = pars.view(dtype=zip(names,['float64']*len(names))).copy()
-    return pars_rc
+    if output_format == 'numpy_array':
+        return names, pars
+    elif output_format == 'recarray':
+        pars_rc = pars.view(dtype=zip(names,['float64']*len(names))).copy()
+        return pars_rc
 
 
 
