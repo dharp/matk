@@ -173,15 +173,13 @@ class SampleSet(object):
             if mins is None and self.samples._mins is not None: mins = numpy.concatenate([self.samples._mins,numpy.min(self.responses.values,axis=0)])
             if maxs is None and self.samples._maxs is not None: maxs = numpy.concatenate([self.samples._maxs,numpy.max(self.responses.values,axis=0)])
         panels( self.recarray, type=type, figsize=figsize, title=title, tight=tight, symbol=symbol,fontsize=fontsize,ms=ms,mins=mins,maxs=maxs,frequency=frequency,bins=bins,ylim=ylim)
-    def run(self, ncpus=1, templatedir=None, workdir_base=None,
+    def run(self, ncpus=1, workdir_base=None,
                     save=True, reuse_dirs=False, outfile=None, logfile=None, verbose=True ):
         """ Run model using values in samples for parameter values
             If samples are not specified, LHS samples are produced
             
             :param ncpus: number of cpus to use to run models concurrently
             :type ncpus: int
-            :param templatedir: Name of folder including files needed to run model (e.g. template files, instruction files, executables, etc.)
-            :type templatedir: str
             :param workdir_base: Base name for model run folders, run index is appended to workdir_base
             :type workdir_base: str
             :param save: If True, model files and folders will not be deleted during parallel model execution
@@ -194,14 +192,12 @@ class SampleSet(object):
             :type logfile: str
             :returns: tuple(ndarray(fl64),ndarray(fl64)) - (Matrix of responses from sampled model runs siz rows by npar columns, Parameter samples, same as input samples if provided)
         """
-        if templatedir:
-            self._parent.templatedir = templatedir
         if workdir_base:
             self._parent.workdir_base = workdir_base
                 
         if ncpus > 0:
             out, samples = self._parent.parallel(ncpus, self.samples.values,
-                 indices=self.indices, templatedir=templatedir, workdir_base=workdir_base, 
+                 indices=self.indices, workdir_base=workdir_base, 
                  save=save, reuse_dirs=reuse_dirs, verbose=verbose, logfile=logfile)
         else:
             print 'Error: number of cpus (ncpus) must be greater than zero'

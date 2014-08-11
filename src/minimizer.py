@@ -67,7 +67,7 @@ class Minimizer(LmfitMinimizer):
             par = self.params[varname]
             par.value = par.from_internal(val)
 
-    def __jacobian( self, h=1.e-3, ncpus=1, templatedir=None, workdir_base=None,
+    def __jacobian( self, h=1.e-3, ncpus=1, workdir_base=None,
                     save=True, reuse_dirs=False ):
         ''' Numerical Jacobian calculation
 
@@ -94,7 +94,7 @@ class Minimizer(LmfitMinimizer):
         parset = numpy.array(parset)
         self._parent.create_sampleset(parset,name='_jac_')
 
-        self._parent.sampleset['_jac_'].run( ncpus=ncpus, templatedir=templatedir, verbose=False,
+        self._parent.sampleset['_jac_'].run( ncpus=ncpus, verbose=False,
                          workdir_base=workdir_base, save=save, reuse_dirs=reuse_dirs )
         # Perform simulations on parameter sets
         obs = self._parent.sampleset['_jac_'].responses.values

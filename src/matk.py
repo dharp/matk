@@ -22,8 +22,8 @@ class matk(object):
     """ Class for Model Analysis ToolKit (MATK) module
     """
     def __init__(self, model='', model_args=None, model_kwargs=None, ncpus=1,
-                 workdir_base=None, workdir=None, templatedir=None, results_file=None,
-                 parameters_file=None, seed=None, sample_size=10):
+                 workdir_base=None, workdir=None, results_file=None,
+                 seed=None, sample_size=10):
         '''Initialize MATK object
         :param model: Python function whose first argument is a dictionary of parameters and returns model outputs
         :type model: str
@@ -37,12 +37,8 @@ class matk(object):
         :type workdir_base: str
         :param workdir: Name of directory to use for model runs (serial run case)
         :type workdir: str
-        :param templatedir: Name of template directory
-        :type templatedir: str
         :param results_file: Name of file to write results
         :type results_file: str
-        :param parameters_file: Name of parameters file for parallel runs
-        :type parameters_file: str
         :param seed: Seed for random number generator
         :type seed: int
         :param sample_size: Size of sample to generate
@@ -55,9 +51,7 @@ class matk(object):
         self.ncpus = ncpus
         self.workdir_base = workdir_base
         self.workdir = workdir
-        self.templatedir = templatedir
         self.results_file = results_file
-        self.parameters_file = parameters_file
         self.seed = seed
         self.sample_size = sample_size
       
@@ -134,22 +128,6 @@ class matk(object):
     @workdir_index.setter
     def workdir_index(self,value):
         self._workdir_index = value
-    @property
-    def templatedir(self):
-        """ Set the name of the templatedir for parallel runs   
-        """
-        return self._templatedir
-    @templatedir.setter
-    def templatedir(self,value):
-        self._templatedir = value
-    @property
-    def parameters_file(self):
-        """ Set the name of the parameters_file for parallel runs   
-        """
-        return self._parameters_file
-    @parameters_file.setter
-    def parameters_file(self,value):
-        self._parameters_file = value
     @property
     def results_file(self):
         """ Set the name of the results_file for parallel runs   
@@ -604,7 +582,7 @@ class matk(object):
                 rmtree( self.workdir )
             in_queue.task_done()
         in_queue.task_done()
-    def parallel(self, ncpus, parsets, templatedir=None, workdir_base=None, save=True,
+    def parallel(self, ncpus, parsets, workdir_base=None, save=True,
                 reuse_dirs=False, indices=None, verbose=True, logfile=None):
 
         if not os.name is "posix":
@@ -737,7 +715,7 @@ class matk(object):
         mxs = numpy.array(self.parmaxs)
         parsets = mns + ds/(levels-1)*(mxs-mns)
         return self.create_sampleset(parsets, name=name)
-    def Jac( self, h=1.e-3, ncpus=1, templatedir=None, workdir_base=None,
+    def Jac( self, h=1.e-3, ncpus=1, workdir_base=None,
                     save=True, reuse_dirs=False ):
         ''' Numerical Jacobian calculation
 
@@ -763,7 +741,7 @@ class matk(object):
         parset = numpy.array(parset)
         self.create_sampleset(parset, name='_jac_')
 
-        self.sampleset['_jac_'].run( ncpus=ncpus, templatedir=templatedir, verbose=False,
+        self.sampleset['_jac_'].run( ncpus=ncpus, verbose=False,
                          workdir_base=workdir_base, save=save, reuse_dirs=reuse_dirs )
         # Perform simulations on parameter sets
         obs = self.sampleset['_jac_'].responses.values
