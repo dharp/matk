@@ -23,7 +23,7 @@ class matk(object):
     """
     def __init__(self, model='', model_args=None, model_kwargs=None, ncpus=1,
                  workdir_base=None, workdir=None, results_file=None,
-                 seed=None, sample_size=10):
+                 seed=None, sample_size=10, hosts=[], jobs_per_host=1):
         '''Initialize MATK object
         :param model: Python function whose first argument is a dictionary of parameters and returns model outputs
         :type model: str
@@ -43,6 +43,10 @@ class matk(object):
         :type seed: int
         :param sample_size: Size of sample to generate
         :type sample_size: int
+        :param hosts: Host names to run on (i.e. on a cluster), hostname provided as kwarg to model (hostname=<hostname>)
+        :type hosts: lst(str)
+        :param jobs_per_host: Number of jobs to run each host
+        :type jobs_per_host: int
         :returns: object -- MATK object
         '''
         self.model = model
@@ -54,6 +58,8 @@ class matk(object):
         self.results_file = results_file
         self.seed = seed
         self.sample_size = sample_size
+        self.hosts = hosts
+        self.jobs_per_host = jobs_per_host
       
         self.pars = OrderedDict()
         self.obs = OrderedDict()
@@ -407,7 +413,7 @@ class matk(object):
             else:
                 print "Error: " + self.workdir + " already exists"
                 return 1
-    def forward(self, pardict=None, workdir=None, reuse_dirs=False, job_number=None):
+    def forward(self, pardict=None, workdir=None, reuse_dirs=False, job_number=None, hostname=None):
         """ Run MATK model using current values
 
             :param pardict: Dictionary of parameter values keyed by parameter names
@@ -433,13 +439,17 @@ class matk(object):
                     pardict = dict([(k,par.value) for k,par in self.pars.items()])
                 else: self.parvalues = pardict
                 if self.model_args is None and self.model_kwargs is None:
-                    sims = self.model( pardict )
+                    if hostname is None: sims = self.model( pardict )
+                    else: sims = self.model( pardict, hostname=hostname )
                 elif not self.model_args is None and self.model_kwargs is None:
-                    sims = self.model( pardict, *self.model_args )
+                    if hostname is None: sims = self.model( pardict, *self.model_args )
+                    else: sims = self.model( pardict, *self.model_args, hostname=hostname )
                 elif self.model_args is None and not self.model_kwargs is None:
-                    sims = self.model( pardict, **self.model_kwargs )
+                    if hostname is None: sims = self.model( pardict, **self.model_kwargs )
+                    else: sims = self.model( pardict, hostname=hostname, **self.model_kwargs )
                 elif not self.model_args is None and not self.model_kwargs is None:
-                    sims = self.model( pardict, *self.model_args, **self.model_kwargs )
+                    if hostname is None: sims = self.model( pardict, *self.model_args, **self.model_kwargs )
+                    else: sims = self.model( pardict, *self.model_args, hostname=hostname, **self.model_kwargs )
                 self._current = True
                 if not curdir is None: os.chdir( curdir )
                 if sims is not None:
@@ -570,20 +580,21 @@ class matk(object):
                 for i,r in enumerate(x):
                     x[i,j] = self.__eval_expr( p.expr, r )
         return self.create_sampleset( x, name=name, index_start=index_start )
-    def child( self, in_queue, out_list, reuse_dirs, save):
+    def child( self, in_queue, out_list, reuse_dirs, save, hostname):
         for pars,smp_ind,lst_ind in iter(in_queue.get, (None,None,None)):
             self.workdir_index = smp_ind
             if self.workdir_base is not None:
                 self.workdir = self.workdir_base + '.' + str(self.workdir_index)
             self.parvalues = pars
-            status = self.forward(reuse_dirs=reuse_dirs, job_number=smp_ind)
+            status = self.forward(reuse_dirs=reuse_dirs, job_number=smp_ind, hostname=hostname)
             out_list.put([lst_ind, smp_ind, status])
             if not save and not self.workdir is None:
                 rmtree( self.workdir )
             in_queue.task_done()
         in_queue.task_done()
     def parallel(self, ncpus, parsets, workdir_base=None, save=True,
-                reuse_dirs=False, indices=None, verbose=True, logfile=None):
+                reuse_dirs=False, indices=None, verbose=True, logfile=None,
+                hosts=[], jobs_per_host=1):
 
         if not os.name is "posix":
             # Use freeze_support for PCs
@@ -593,6 +604,17 @@ class matk(object):
         saved_workdir = self.workdir # Save workdir to reset after parallel run
         if not workdir_base is None: self.workdir_base = workdir_base
         if self.workdir_base is None: self.workdir = None
+
+        if len(hosts) > 0:
+            ncpus = len(hosts)*jobs_per_host
+            hostnames = [h for h in hosts for n in range(jobs_per_host)]
+            self.hosts = hosts
+            self.jobs_per_host = jobs_per_host
+        elif len(self.hosts) > 0:
+            ncpus = len(self.hosts)*self.jobs_per_host
+            hostnames = [h for h in self.hosts for n in range(self.jobs_per_host)]
+        else:
+            hostnames = [None]*ncpus
 
         # Determine number of samples and adjust ncpus if samples < ncpus requested
         if isinstance( parsets, numpy.ndarray ): n = parsets.shape[0]
@@ -604,7 +626,7 @@ class matk(object):
         work = JoinableQueue()
         pool = []
         for i in range(ncpus):
-            p = Process(target=self.child, args=(work, resultsq, reuse_dirs, save))
+            p = Process(target=self.child, args=(work, resultsq, reuse_dirs, save, hostnames[i]))
             p.daemon = True
             p.start()
             pool.append(p)

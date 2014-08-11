@@ -173,8 +173,8 @@ class SampleSet(object):
             if mins is None and self.samples._mins is not None: mins = numpy.concatenate([self.samples._mins,numpy.min(self.responses.values,axis=0)])
             if maxs is None and self.samples._maxs is not None: maxs = numpy.concatenate([self.samples._maxs,numpy.max(self.responses.values,axis=0)])
         panels( self.recarray, type=type, figsize=figsize, title=title, tight=tight, symbol=symbol,fontsize=fontsize,ms=ms,mins=mins,maxs=maxs,frequency=frequency,bins=bins,ylim=ylim)
-    def run(self, ncpus=1, workdir_base=None,
-                    save=True, reuse_dirs=False, outfile=None, logfile=None, verbose=True ):
+    def run(self, ncpus=1, workdir_base=None, save=True, reuse_dirs=False, outfile=None, 
+            logfile=None, verbose=True, hosts=[], jobs_per_host=1 ):
         """ Run model using values in samples for parameter values
             If samples are not specified, LHS samples are produced
             
@@ -190,6 +190,10 @@ class SampleSet(object):
             :type outfile: str
             :param logfile: File to write details of run to during execution
             :type logfile: str
+            :param hosts: Host names to run on (i.e. on a cluster), hostname provided as kwarg to model (hostname=<hostname>); ncpus will be overwritten by len(hosts)*jobs_per_host
+            :type hosts: lst(str)
+            :param jobs_per_host: Number of jobs to run each host; ncpus will be overwritten by len(hosts)*jobs_per_host
+            :type jobs_per_host: int
             :returns: tuple(ndarray(fl64),ndarray(fl64)) - (Matrix of responses from sampled model runs siz rows by npar columns, Parameter samples, same as input samples if provided)
         """
         if workdir_base:
@@ -198,7 +202,8 @@ class SampleSet(object):
         if ncpus > 0:
             out, samples = self._parent.parallel(ncpus, self.samples.values,
                  indices=self.indices, workdir_base=workdir_base, 
-                 save=save, reuse_dirs=reuse_dirs, verbose=verbose, logfile=logfile)
+                 save=save, reuse_dirs=reuse_dirs, verbose=verbose, logfile=logfile,
+                 hosts=hosts, jobs_per_host=jobs_per_host)
         else:
             print 'Error: number of cpus (ncpus) must be greater than zero'
             return
