@@ -430,7 +430,7 @@ class matk(object):
             else:
                 print "Error: " + self.workdir + " already exists"
                 return 1
-    def forward(self, pardict=None, workdir=None, reuse_dirs=False):
+    def forward(self, pardict=None, workdir=None, reuse_dirs=False, job_number=None):
         """ Run MATK model using current values
 
             :param pardict: Dictionary of parameter values keyed by parameter names
@@ -474,7 +474,15 @@ class matk(object):
             except:
                 errstr = traceback.format_exc()                
                 if not curdir is None: os.chdir( curdir )
-                return errstr
+                s = "-"*60+'\n'
+                if job_number is not None:
+                    s += "Exception in job "+str(job_number)+":\n"
+                else:
+                    s += "Exception in model call:\n"
+                s += errstr
+                s += "-"*60
+                print s
+                return s
         else:
             print "Error: Model is not a Python function"
             if not curdir is None: os.chdir( curdir )
@@ -591,7 +599,7 @@ class matk(object):
             if self.workdir_base is not None:
                 self.workdir = self.workdir_base + '.' + str(self.workdir_index)
             self.parvalues = pars
-            status = self.forward(reuse_dirs=reuse_dirs)
+            status = self.forward(reuse_dirs=reuse_dirs, job_number=smp_ind)
             out_list.put([lst_ind, smp_ind, status])
             if not save and not self.workdir is None:
                 rmtree( self.workdir )
@@ -641,13 +649,8 @@ class matk(object):
         for i in range(len(parsets)):
             lst_ind, smp_ind, resp = resultsq.get()
             if isinstance( resp, str):
-                s = "-"*60+'\n'
-                s += "Exception in job "+str(smp_ind)+":"+'\n'
-                s += resp
-                s += "-"*60
-                print s
                 if logfile: 
-                    f.write(s+'\n')
+                    f.write(resp+'\n')
                     f.flush()
             else:
                 if isinstance( resp, OrderedDict):
