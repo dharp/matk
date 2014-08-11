@@ -21,46 +21,45 @@ from lmfit.asteval import Interpreter
 class matk(object):
     """ Class for Model Analysis ToolKit (MATK) module
     """
-    def __init__(self, **kwargs):
+    def __init__(self, model='', model_args=None, model_kwargs=None, ncpus=1,
+                 workdir_base=None, workdir=None, templatedir=None, results_file=None,
+                 parameters_file=None, seed=None, sample_size=10):
         '''Initialize MATK object
+        :param model: Python function whose first argument is a dictionary of parameters and returns model outputs
+        :type model: str
+        :param model_args: additional arguments to model
+        :type model_args: any
+        :param model_kwargs: additional keyword arguments to model
+        :type model_kwargs: any
+        :param ncpus: number of cpus to use
+        :type ncpus: int
+        :param workdir_base: Base name of directory to use for model runs (parallel run case), run numbers are appended to base name
+        :type workdir_base: str
+        :param workdir: Name of directory to use for model runs (serial run case)
+        :type workdir: str
+        :param templatedir: Name of template directory
+        :type templatedir: str
+        :param results_file: Name of file to write results
+        :type results_file: str
+        :param parameters_file: Name of parameters file for parallel runs
+        :type parameters_file: str
+        :param seed: Seed for random number generator
+        :type seed: int
+        :param sample_size: Size of sample to generate
+        :type sample_size: int
         :returns: object -- MATK object
         '''
-        self.model = ''
-        self.model_args = None
-        self.model_kwargs = None
-        self.ncpus = 1
-        self.workdir_base = None
-        self.workdir = None
-        self.templatedir = None
-        self.results_file = None
-        self.parameters_file = None
-        self.seed = None
-        self.sample_size = 10 
-        for k,v in kwargs.iteritems():
-            if 'sample_size' == k:
-                self.sample_size = int(v)
-            elif 'ncpus' == k:
-                self.ncpus == int(v)
-            elif 'workdir_base' == k:
-                self.workdir_base = v
-            elif 'workdir' == k:
-                self.workdir = v
-            elif 'templatedir' == k:
-                self.templatedir = v
-            elif 'model' == k:
-                self.model = v
-            elif 'model_args' == k:
-                self.model_args = v
-            elif 'model_kwargs' == k:
-                self.model_kwargs = v
-            elif 'parameters_file' == k:
-                self.parameters_file = v
-            elif 'results_file' == k:
-                self.results_file = v
-            elif 'templatedir' == k:
-                self.templatedir = v
-            else:
-                print k + ' is not a valid argument'
+        self.model = model
+        self.model_args = model_args
+        self.model_kwargs = model_kwargs
+        self.ncpus = ncpus
+        self.workdir_base = workdir_base
+        self.workdir = workdir
+        self.templatedir = templatedir
+        self.results_file = results_file
+        self.parameters_file = parameters_file
+        self.seed = seed
+        self.sample_size = sample_size
       
         self.pars = OrderedDict()
         self.obs = OrderedDict()
