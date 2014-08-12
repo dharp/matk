@@ -122,6 +122,19 @@ class SampleSet(object):
             data = numpy.column_stack([self.samples._values,self.responses._values])
             names = numpy.concatenate([self.samples._names,self.responses._names])
             return numpy.rec.fromarrays(data.T,names=names.tolist())
+    def pardict(self, index):
+        """ Get parameter dictionary for sample with specified index
+
+            :param index: Sample index
+            :type index: int
+            :returns: dict(fl64)
+        """
+        try:
+            row_index = numpy.where(self.indices==index)[0][0]
+        except:
+            print "\nIndex not found"
+            return
+        return dict(zip(self.parnames,self.samples.values[row_index]))
     def corr(self, type='pearson', plot=False, printout=True, plotvals=True, figsize=None, title=None):
         """ Calculate correlation coefficients of parameters and responses
 
