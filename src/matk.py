@@ -237,7 +237,7 @@ class matk(object):
         npar = int(fp.readline().rstrip().split(':')[1])
         nobs = int(fp.readline().rstrip().split(':')[1])
         headers = fp.readline().rstrip().split()
-        data = numpy.array([[float(num) for num in line.split()] for line in fp])
+        data = numpy.array([[float(num) for num in line.split()] for line in fp if not line.isspace()])
         indices = numpy.array([int(v) for v in data[:,0]])
         # add parameters
         for header,dat in zip(headers[1:npar+1],data[:,1:npar+1].T):
