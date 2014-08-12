@@ -134,7 +134,7 @@ class SampleSet(object):
         except:
             print "\nIndex not found"
             return
-        return dict(zip(self.parnames,self.samples.values[row_index]))
+        return OrderedDict(zip(self.parnames,self.samples.values[row_index]))
     def corr(self, type='pearson', plot=False, printout=True, plotvals=True, figsize=None, title=None):
         """ Calculate correlation coefficients of parameters and responses
 
