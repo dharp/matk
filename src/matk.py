@@ -166,17 +166,23 @@ class matk(object):
             self.pars[name] = Parameter(name,parent=self,**kwargs)
         else:
             self.pars.__setitem__( name, Parameter(name,parent=self,**kwargs))
-    def add_obs(self,name,**kwargs):
-        """ Add observation to problem
+    def add_obs(self,name, sim=None, weight=1.0, value=None):
+        ''' Add observation to problem
             
-            :param name: Name of observation
+            :param name: Observation name
             :type name: str
-            :param kwargs: keyword arguments passed to observation class
-        """
+            :param sim: Simulated value
+            :type sim: fl64
+            :param weight: Observation weight
+            :type weight: fl64
+            :param value: Value of observation
+            :type value: fl64
+            :returns: Observation object
+        '''
         if name in self.obs: 
-            self.obs[name] = Observation(name,**kwargs)
+            self.obs[name] = Observation(name,sim=sim,weight=weight,value=value)
         else:
-            self.obs.__setitem__( name, Observation(name,**kwargs))
+            self.obs.__setitem__( name, Observation(name,sim=sim,weight=weight,value=value))
     def create_sampleset(self,samples,name=None,responses=None,indices=None,index_start=1):
         """ Add sample set to problem
             
@@ -808,7 +814,7 @@ class matk(object):
         for val,nm in zip(parset,self.pars.keys()):
             aeval.symtable[nm] = val
         return aeval(exprstr)
-    def MCMC( self, iter=10000, burn=1000, max_error_std=100., verbose=1 ):
+    def MCMC( self, iter=10000, burn=1000, init_error_std=1., max_error_std=100., verbose=1 ):
         ''' Perform Markov Chain Monte Carlo sampling using pymc package
 
             :param iter: Number of MCMC iterations (samples)
@@ -817,20 +823,25 @@ class matk(object):
             :type burn: int
             :param verbose: verbosity of output
             :type verbose: int
+            :param init_error_std: Initial standard deviation of residuals
+            :type init_error_std: fl64
             :param max_error_std: Maximum standard deviation of residuals that will be considered
             :type max_error_std: fl64
             :returns: pymc MCMC object
         '''
+        if max_error_std < init_error_std:
+            print "Error: max_error_std must be greater than or equal to init_error_std"
+            return
         try:
             from pymc import Uniform, deterministic, Normal, MCMC, Matplot
         except ImportError as exc:
             sys.stderr.write("Warning: failed to import pymc module. ({})\n".format(exc))
             sys.stderr.write("If pymc is not installed, try installing:\n")
             sys.stderr.write("e.g. try using easy_install: easy_install pymc\n")
-        def __mcmc_model( self, max_error_std=100. ):
+        def __mcmc_model( self, init_error_std=1., max_error_std=100. ):
             #priors
             variables = []
-            sig = Uniform('error_std', 0.0, max_error_std, value=1.)
+            sig = Uniform('error_std', 0.0, max_error_std, value=init_error_std)
             variables.append( sig )
             for nm,mn,mx in zip(self.parnames,self.parmins,self.parmaxs):
                 evalstr = "Uniform( '" + str(nm) + "', " +  str(mn) + ", " +  str(mx) + ")"
@@ -849,7 +860,7 @@ class matk(object):
             variables.append(y)
             return variables
 
-        M = MCMC( __mcmc_model(self) )
+        M = MCMC( __mcmc_model(self, init_error_std=init_error_std, max_error_std=max_error_std) )
         M.sample(iter=iter,burn=burn,verbose=verbose)
         return M
     def MCMCplot( self, M ):

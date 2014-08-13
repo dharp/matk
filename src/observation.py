@@ -1,21 +1,24 @@
 class Observation(object):
     """ MATK observation class
     """
-    def __init__(self, name, **kwargs):
+    def __init__(self, name, sim=None, weight=1.0, value=None):
+        ''' Add observation to MATK object
+            
+            :param name: Observation name
+            :type name: str
+            :param sim: Simulated value
+            :type sim: fl64
+            :param weight: Observation weight
+            :type weight: fl64
+            :param value: Value of observation
+            :type value: fl64
+            :returns: Observation object
+        '''
         self._name = name
-        self._value = None
-        self._sim = None
+        self._value = value
+        self._sim = sim
         self._residual = None
-        self._weight = 1.0
-        for k,v in kwargs.iteritems():
-            if k == 'weight':
-                self._weight = v
-            elif k == 'value':
-                self._value = v
-            elif k == 'sim':
-                self._sim = v
-            else:
-                print k + ' is not a valid argument'
+        self._weight = weight
     @property
     def name(self):
         '''Observation name'''
