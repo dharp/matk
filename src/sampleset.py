@@ -272,7 +272,7 @@ class SampleSet(object):
                     if isinstance( row[i], str):
                         f.write(" %16s" % row[i] )
                     else:
-                        f.write(" %16lf" % row[i] )
+                        f.write(" %16g" % row[i] )
                 f.write('\n')
             f.close()
     def subset(self, boolfcn, obs, *args, **kwargs): 
