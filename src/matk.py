@@ -834,11 +834,11 @@ class matk(object):
         for val,nm in zip(parset,self.pars.keys()):
             aeval.symtable[nm] = val
         return aeval(exprstr)
-    def MCMC( self, iter=10000, burn=1000, init_error_std=1., max_error_std=100., verbose=1 ):
+    def MCMC( self, nruns=10000, burn=1000, init_error_std=1., max_error_std=100., verbose=1 ):
         ''' Perform Markov Chain Monte Carlo sampling using pymc package
 
-            :param iter: Number of MCMC iterations (samples)
-            :type iter: int
+            :param nruns: Number of MCMC iterations (samples)
+            :type nruns: int
             :param burn: Number of initial samples to burn (discard)
             :type burn: int
             :param verbose: verbosity of output
@@ -871,7 +871,7 @@ class matk(object):
             def residuals( pars = variables, p=self ):
                 values = []
                 for i in range(1,len(pars)):
-                    values.append(pars[i])
+                    values.append(float(pars[i]))
                 pardict = dict(zip(p.parnames,values))
                 p.forward(pardict=pardict)
                 return numpy.array(p.residuals)*numpy.array(p.obsweights)
@@ -881,7 +881,7 @@ class matk(object):
             return variables
 
         M = MCMC( __mcmc_model(self, init_error_std=init_error_std, max_error_std=max_error_std) )
-        M.sample(iter=iter,burn=burn,verbose=verbose)
+        M.sample(iter=nruns,burn=burn,verbose=verbose)
         return M
     def MCMCplot( self, M ):
         try:

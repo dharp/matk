@@ -194,7 +194,7 @@ class Tests(unittest.TestCase):
         # Create 'true' observations with zero mean, 0.5 st. dev. gaussian noise added
         self.m.obsvalues = self.m.sim_values + numpy.random.normal(0,1,len(self.m.sim_values))
         # Run MCMC with 100000 samples burning (discarding) the first 10000
-        M = self.m.MCMC(iter=10000,burn=1000, verbose=-1)
+        M = self.m.MCMC(nruns=10000,burn=1000, verbose=-1)
         mean_a = M.trace('a').stats()['mean']
         mean_c = M.trace('c').stats()['mean']
         mean_sig = M.trace('error_std').stats()['mean']
