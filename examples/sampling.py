@@ -17,18 +17,16 @@ except:
 from multiprocessing import freeze_support
 
 # Model function
-def dbexpl(p, hostname=None):
+def dbexpl(p):
     t=arange(0,100,20.)
     y =  (p['par1']*exp(-p['par2']*t) + p['par3']*exp(-p['par4']*t))
-    print hostname
     #nm =  ['o1','o2','o3','o4','o5']
     #return dict(zip(nm,y))
     return y
 
 def run():
 	# Setup MATK model with parameters
-	hosts = ['one','two','three']
-	p = matk.matk(model=dbexpl, hosts=hosts, jobs_per_host=2)
+	p = matk.matk(model=dbexpl)
 	p.add_par('par1',min=0,max=1)
 	p.add_par('par2',min=0,max=0.2)
 	p.add_par('par3',min=0,max=1)

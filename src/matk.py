@@ -23,7 +23,7 @@ class matk(object):
     """
     def __init__(self, model='', model_args=None, model_kwargs=None, ncpus=1,
                  workdir_base=None, workdir=None, results_file=None,
-                 seed=None, sample_size=10, hosts=[], jobs_per_host=1):
+                 seed=None, sample_size=10, hosts={}):
         '''Initialize MATK object
         :param model: Python function whose first argument is a dictionary of parameters and returns model outputs
         :type model: str
@@ -45,8 +45,6 @@ class matk(object):
         :type sample_size: int
         :param hosts: Host names to run on (i.e. on a cluster), hostname provided as kwarg to model (hostname=<hostname>)
         :type hosts: lst(str)
-        :param jobs_per_host: Number of jobs to run each host
-        :type jobs_per_host: int
         :returns: object -- MATK object
         '''
         self.model = model
@@ -59,7 +57,6 @@ class matk(object):
         self.seed = seed
         self.sample_size = sample_size
         self.hosts = hosts
-        self.jobs_per_host = jobs_per_host
       
         self.pars = OrderedDict()
         self.obs = OrderedDict()
@@ -628,16 +625,12 @@ class matk(object):
         if len(hosts) > 0:
             ncpus = sum([len(v) for v in hosts.values()])
             processors = [v for l in hosts.values() for v in l]
-            #ncpus = len(hosts)*jobs_per_host
             hostnames = [k for k,v in hosts.items() for n in v]
             self.hosts = hosts
-            #self.jobs_per_host = jobs_per_host
         elif len(self.hosts) > 0:
             ncpus = sum([len(v) for v in self.hosts.values()])
             processors = [v for l in self.hosts.values() for v in l]
-            #ncpus = len(self.hosts)*self.jobs_per_host
             hostnames = [k for k,v in self.hosts.items() for n in v]
-            #hostnames = [h for h in self.hosts for n in range(self.jobs_per_host)]
         else:
             hostnames = [None]*ncpus
             processors = [None]*ncpus
