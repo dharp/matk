@@ -149,7 +149,7 @@ class Tests(unittest.TestCase):
         # Look at calibrated fit
         self.c.forward()
         sims = self.c.sim_values
-        self.assertTrue( self.c.ssr < 1.e-27, 'Objective function value is ' + str(self.c.ssr) )
+        self.assertTrue( self.c.ssr < 1.e-20, 'Objective function value is ' + str(self.c.ssr) )
 
     def jacobian(self):
         # Check condition number
