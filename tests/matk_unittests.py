@@ -185,6 +185,12 @@ class Tests(unittest.TestCase):
         self.assertTrue( loadbool, 'MATK object cannot be unpickled' )
 
     def mcmc(self):
+        try:
+            import pymc
+        except:
+            print "\nPymc module not installed"
+            print "Skipping mcmc unittest"
+            return
         self.m = matk.matk(model=fmcmc)
         # Add parameters with 'true' parameters
         self.m.add_par('a', min=0, max=10, value=2)
