@@ -884,5 +884,24 @@ class matk(object):
             sys.stderr.write("If pymc is not installed, try installing:\n")
             sys.stderr.write("e.g. try using easy_install: easy_install pymc\n")
         Matplot.plot(M)
+    #def emcee( self ):
+    #    try:
+    #        import emcee	
+    #    except ImportError as exc:
+    #        sys.stderr.write("Warning: failed to import emcee module. ({})\n".format(exc))
 
-
+#class logposterior(object, prob):
+#    def __init__(self):
+#        self.prob = prob
+#        self.mins = prob.parmins
+#        self.maxs = prob.parmaxs
+#    def logprior(self,ts):
+#        for mn,mx,t in zip(self.mins,self.maxs,ts):
+#            if mn > t > mx: return -numpy.inf 
+#        return 0.0
+#    def loglhood(self,ts):
+#        pardict = dict(zip(self.parnames, ts))
+#        self.prob.forward(pardict=pardict)
+#        return -0.5*(numpy.sum((self.prob.residuals)**2#TODO
+#    def __call__(self, ts):
+#        return self.logprior(ts) + self.loglhood(ts)
