@@ -31,6 +31,10 @@ def fmcmc(pars):
     m=a*(m**2)+c
     return m
 
+#Define basic function for emcee
+def femcee(args):
+        return numpy.array([args["k"] * 1, args["k"] * 2, args["k"] * 3])
+
 class Tests(unittest.TestCase):
 
     def setUp(self):
@@ -207,7 +211,24 @@ class Tests(unittest.TestCase):
         self.assertTrue( abs(mean_a - 2.) < 0.2, 'Mean of parameter a is not close to 2: mean(a) = ' + str(mean_a) )
         self.assertTrue( abs(mean_c - 5.) < 1., 'Mean of parameter c is not close to 5: mean(c) = ' + str(mean_c) )
         self.assertTrue( abs(mean_sig - 1) < 1., 'Mean of model error std. dev. is not close to 0.1: mean(sig) = ' + str(mean_sig) )
-        
+
+    def emcee_test(self):
+        try:
+            import emcee
+        except:
+            print "\nemcee module not installed"
+            print "Skipping emcee unittest"
+            return
+        self.m = matk.matk(model=femcee)
+        self.m.add_par("k", value=.5, min=-10, max=10)
+        self.m.obsvalues = numpy.array([1., 2., 3.])
+        lp = matk.logposterior(self.m)
+        samples = self.m.emcee(lp, nwalkers=100, nsamples=1000, burnin=100)
+        mean = numpy.mean(samples)
+        std = numpy.std(samples)
+        self.assertTrue( abs(mean - 1.) < 0.1, 'Mean of parameter a is not close to 1: mean(samples) = ' + str(mean) )
+        self.assertTrue( abs(std - 0.267) < 0.0267, 'Standard deviation is not close to 0.267: std(samples) = ' + str(std) )
+       
 def suite(case):
     suite = unittest.TestSuite()
     if case == 'base' or case == 'all':
@@ -221,6 +242,7 @@ def suite(case):
         suite.addTest( Tests('correlation') )
         suite.addTest( Tests('pickle_test') )
         suite.addTest( Tests('mcmc') )
+        suite.addTest( Tests('emcee_test') )
     if case == 'parallel' or case == 'all':
         suite.addTest( Tests('parallel') )
         suite.addTest( Tests('parallel_workdir') )

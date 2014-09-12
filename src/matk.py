@@ -884,24 +884,36 @@ class matk(object):
             sys.stderr.write("If pymc is not installed, try installing:\n")
             sys.stderr.write("e.g. try using easy_install: easy_install pymc\n")
         Matplot.plot(M)
-    #def emcee( self ):
-    #    try:
-    #        import emcee	
-    #    except ImportError as exc:
-    #        sys.stderr.write("Warning: failed to import emcee module. ({})\n".format(exc))
+    def emcee( self, lnprob, nwalkers=100, nsamples=500, burnin=50, pos0=None ):
+        try:
+            import emcee
+        except ImportError as exc:
+            sys.stderr.write("Warning: failed to import emcee module. ({})\n".format(exc))
+        sampler = emcee.EnsembleSampler(nwalkers, len(self.parnames), lnprob, threads=self.ncpus)
+        if pos0 == None:
+            try:
+                from pyDOE import lhs
+                lh = lhs(len(self.parnames), samples=nwalkers)
+                pos0 = []
+                for i in range(nwalkers):
+                    pos0.append([pmin + (pmax - pmin) * lhval for lhval, pmin, pmax in zip(lh[i], self.parmins, self.parmaxs)])
+            except ImportError as exc:
+                sys.stderr.write("Warning: failed to import pyDOE module. ({})\n".format(exc))
+        sampler.run_mcmc(pos0, nsamples)
+        return sampler.chain[:, burnin:, :].reshape((-1, len(self.parnames)))
 
-#class logposterior(object, prob):
-#    def __init__(self):
-#        self.prob = prob
-#        self.mins = prob.parmins
-#        self.maxs = prob.parmaxs
-#    def logprior(self,ts):
-#        for mn,mx,t in zip(self.mins,self.maxs,ts):
-#            if mn > t > mx: return -numpy.inf 
-#        return 0.0
-#    def loglhood(self,ts):
-#        pardict = dict(zip(self.parnames, ts))
-#        self.prob.forward(pardict=pardict)
-#        return -0.5*(numpy.sum((self.prob.residuals)**2#TODO
-#    def __call__(self, ts):
-#        return self.logprior(ts) + self.loglhood(ts)
+class logposterior(object):
+    def __init__(self, prob):
+        self.prob = prob
+        self.mins = prob.parmins
+        self.maxs = prob.parmaxs
+    def logprior(self,ts):
+        for mn,mx,t in zip(self.mins,self.maxs,ts):
+            if mn > t > mx: return -numpy.inf 
+        return 0.0
+    def loglhood(self,ts):
+        pardict = dict(zip(self.prob.parnames, ts))
+        self.prob.forward(pardict=pardict)
+        return -0.5*(numpy.sum((numpy.array(self.prob.residuals))**2))
+    def __call__(self, ts):
+        return self.logprior(ts) + self.loglhood(ts)
