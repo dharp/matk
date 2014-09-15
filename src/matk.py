@@ -885,6 +885,20 @@ class matk(object):
             sys.stderr.write("e.g. try using easy_install: easy_install pymc\n")
         Matplot.plot(M)
     def emcee( self, lnprob=None, nwalkers=100, nsamples=500, burnin=50, pos0=None ):
+        ''' Perform Markov Chain Monte Carlo sampling using emcee package
+
+            :param lnprob: Function specifying the natural logarithm of the likelihood function
+            :type lnprob: function
+            :param nwalkers: Number of random walkers
+            :type nwalkers: int
+            :param nsamples: Number of samples per walker
+            :type nsamples: int
+            :param burnin: Number of "burn-in" samples per walker to be discarded
+            :type burnin: int
+            :param pos0: list of initial positions for the walkers
+			:type pos0: list
+            :returns: numpy array containing samples
+        '''
         try:
             import emcee
         except ImportError as exc:
