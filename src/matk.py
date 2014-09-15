@@ -884,11 +884,13 @@ class matk(object):
             sys.stderr.write("If pymc is not installed, try installing:\n")
             sys.stderr.write("e.g. try using easy_install: easy_install pymc\n")
         Matplot.plot(M)
-    def emcee( self, lnprob, nwalkers=100, nsamples=500, burnin=50, pos0=None ):
+    def emcee( self, lnprob=None, nwalkers=100, nsamples=500, burnin=50, pos0=None ):
         try:
             import emcee
         except ImportError as exc:
             sys.stderr.write("Warning: failed to import emcee module. ({})\n".format(exc))
+        if lnprob is None:
+            lnprob = logposterior(self)
         sampler = emcee.EnsembleSampler(nwalkers, len(self.parnames), lnprob, threads=self.ncpus)
         if pos0 == None:
             try:
