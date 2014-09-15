@@ -213,12 +213,7 @@ class Tests(unittest.TestCase):
         self.assertTrue( abs(mean_sig - 1) < 1., 'Mean of model error std. dev. is not close to 0.1: mean(sig) = ' + str(mean_sig) )
 
     def emcee_test(self):
-        try:
-            import emcee
-        except:
-            print "\nemcee module not installed"
-            print "Skipping emcee unittest"
-            return
+        import emcee
         self.m = matk.matk(model=femcee)
         self.m.add_par("k", value=.5, min=-10, max=10)
         self.m.obsvalues = numpy.array([1., 2., 3.])
