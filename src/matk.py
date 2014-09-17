@@ -896,7 +896,7 @@ class matk(object):
             :param burnin: Number of "burn-in" samples per walker to be discarded
             :type burnin: int
             :param pos0: list of initial positions for the walkers
-			:type pos0: list
+            :type pos0: list
             :returns: numpy array containing samples
         '''
         try:
@@ -919,17 +919,36 @@ class matk(object):
         return sampler.chain[:, burnin:, :].reshape((-1, len(self.parnames)))
 
 class logposterior(object):
-    def __init__(self, prob):
+    def __init__(self, prob, var=1):
         self.prob = prob
         self.mins = prob.parmins
         self.maxs = prob.parmaxs
+        self.var = var
     def logprior(self,ts):
         for mn,mx,t in zip(self.mins,self.maxs,ts):
-            if mn > t > mx: return -numpy.inf 
+            if mn > t or t > mx: return -numpy.inf 
         return 0.0
     def loglhood(self,ts):
         pardict = dict(zip(self.prob.parnames, ts))
         self.prob.forward(pardict=pardict)
-        return -0.5*(numpy.sum((numpy.array(self.prob.residuals))**2))
+        return -0.5*(numpy.sum((numpy.array(self.prob.residuals))**2)) / self.var - numpy.log(self.var)
     def __call__(self, ts):
-        return self.logprior(ts) + self.loglhood(ts)
+        lpri = self.logprior(ts)
+        if lpri == -numpy.inf:
+            return lpri
+        else:
+            return lpri + self.loglhood(ts)
+
+class logposteriorwithvariance(logposterior):
+    def __init__(self, prob, var="var"):
+        self.prob = prob
+        self.mins = prob.parmins
+        self.maxs = prob.parmaxs
+        self.var = var
+    def loglhood(self,ts):
+        pardict = dict(zip(self.prob.parnames, ts))
+        self.prob.forward(pardict=pardict)
+        #print "ts: " + str(ts)
+        #print "ssr: " + str(numpy.sum((numpy.array(self.prob.residuals))**2))
+        #print zip(self.prob.sim_values, self.prob.obsvalues)
+        return -0.5*(numpy.sum((numpy.array(self.prob.residuals))**2)) / self.prob.pars[self.var].value - numpy.log(self.prob.pars[self.var].value)

@@ -222,7 +222,32 @@ class Tests(unittest.TestCase):
         std = numpy.std(samples)
         self.assertTrue( abs(mean - 1.) < 0.1, 'Mean of parameter a is not close to 1: mean(samples) = ' + str(mean) )
         self.assertTrue( abs(std - 0.267) < 0.0267, 'Standard deviation is not close to 0.267: std(samples) = ' + str(std) )
-       
+
+    def emcee_test2(self):
+        import emcee
+        self.m = matk.matk(model=fmcmc)
+        # Add parameters with 'true' parameters
+        self.m.add_par('a', min=0, max=10, value=2)
+        self.m.add_par('c', min=0, max=30, value=5)
+        self.m.add_par('var', min=0, max=100)
+        # Run model using 'true' parameters
+        self.m.forward()
+        # Create 'true' observations with zero mean, 0.5 st. dev. gaussian noise added
+        self.m.obsvalues = self.m.sim_values + numpy.random.normal(0,1,len(self.m.sim_values))
+        # Run MCMC with 100000 samples burning (discarding) the first 10000
+        pos0 = [[2, 5, 1] + numpy.random.normal(0, 1, 3) for i in range(300)]
+        #lnprob = matk.logposteriorwithvariance(self.m)
+        #print lnprob([2., 5., 10.])
+        #print lnprob([2., 8., 10.])
+        samples = self.m.emcee(lnprob=matk.logposteriorwithvariance(self.m), nwalkers=300, nsamples=1000, burnin=100, pos0=pos0)
+        #print samples.shape
+        mean_a, mean_c, mean_sig = numpy.mean(samples, 0)
+        mean_sig = numpy.sqrt(mean_sig)
+        #print [mean_a, mean_c, mean_sig]
+        self.assertTrue( abs(mean_a - 2.) < 0.2, 'Mean of parameter a is not close to 2: mean(a) = ' + str(mean_a) )
+        self.assertTrue( abs(mean_c - 5.) < 1., 'Mean of parameter c is not close to 5: mean(c) = ' + str(mean_c) )
+        self.assertTrue( abs(mean_sig - 1) < 1., 'Mean of model error std. dev. is not close to 0.1: mean(sig) = ' + str(mean_sig) )
+      
 def suite(case):
     suite = unittest.TestSuite()
     if case == 'base' or case == 'all':
@@ -237,9 +262,13 @@ def suite(case):
         suite.addTest( Tests('pickle_test') )
         suite.addTest( Tests('mcmc') )
         suite.addTest( Tests('emcee_test') )
+        suite.addTest( Tests('emcee_test2') )
     if case == 'parallel' or case == 'all':
         suite.addTest( Tests('parallel') )
         suite.addTest( Tests('parallel_workdir') )
+    if case == 'mcmc':
+        #suite.addTest( Tests('mcmc') )
+        suite.addTest( Tests('emcee_test2') )
     return suite   
 
 if __name__ == '__main__':
