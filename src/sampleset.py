@@ -674,6 +674,7 @@ def hist(rc,ncols=4,figsize=None,title=None,tight=False,mins=None,maxs=None,freq
             ax[-1].set_xlim([mi,ma])
             ns.append(n)
             plt.xlabel(nm)
+            plt.locator_params(nbins=4)
         # Set ylims of histograms
         if ylim is None:
             ymax = max([max(n) for n in ns])
