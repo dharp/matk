@@ -61,13 +61,13 @@ class Tests(unittest.TestCase):
         self.j.add_par('a1', value=10.)
         self.j.add_par('a2', value=-0.4)
 
-    def forward(self):
+    def testforward(self):
         self.p.forward()
         results = self.p.sim_values
         self.p.obsvalues = results
         self.assertEqual(sum(self.p.residuals),0.0, 'Residual from forward run is not zero')
 
-    def sample(self):
+    def testsample(self):
         # Create 100 lhs samples and make sure they are within parameter bounds
         ss = self.p.lhs(siz=10)
         s = ss.samples.values
@@ -77,7 +77,7 @@ class Tests(unittest.TestCase):
         ub = self.p.parmaxs
         self.assertTrue( (maxs >= lb).any() and (mins <= ub).any(), 'Sample outside parameter bounds' )
 
-    def parallel(self):
+    def testparallel(self):
         # Without working directories
         ss = self.p.lhs(siz=10 )
         ss.run( ncpus=2, save=False, verbose=False)
@@ -87,7 +87,7 @@ class Tests(unittest.TestCase):
             self.p.obsvalues =  out
             self.assertTrue( sum(self.p.residuals) == 0., 'A parallel run does not match a forward run' )
 
-    def parallel_workdir(self):
+    def testparallel_workdir(self):
         # With working directories
         ss = self.p.lhs(siz=10 )
         ss.run( ncpus=2, save=True, verbose=False, workdir_base='workdir')
@@ -99,7 +99,7 @@ class Tests(unittest.TestCase):
             self.p.obsvalues = out 
             self.assertTrue( sum(self.p.residuals) == 0., 'A parallel run with a working directory does not match a forward run' )
 
-    def correlation(self):
+    def testcorrelation(self):
         samples = numpy.array([[  2.79514388e-01,   1.83572352e-01,   1.15954591e-01,   4.64518743e-02],
           [  7.03315739e-01,   7.84390758e-02,   3.01698515e-01,   1.88716879e-01],
           [  6.28705093e-01,   1.09417588e-01,   7.99492817e-01,   3.29320144e-02],
@@ -125,7 +125,7 @@ class Tests(unittest.TestCase):
         for t,c in zip(cor.flatten(),truecor.flatten()):
             self.assertTrue(numpy.abs(t-c)<1.e-10, 'Value in correlation matrix does not match')
 
-    def parstudy(self):
+    def testparstudy(self):
         lb = self.p.parmins
         ub = self.p.parmaxs
         # Test keyword args
@@ -135,7 +135,7 @@ class Tests(unittest.TestCase):
         maxs = s.max(axis=0)
         self.assertTrue( (maxs >= lb).any() and (mins <= ub).any(), 'Parstudy outside parameter bounds' )
 
-    def fullfact(self):
+    def testfullfact(self):
         lb = self.p.parmins
         ub = self.p.parmaxs
         ff = self.p.fullfact( levels=[2,2,2,2] )
@@ -144,7 +144,7 @@ class Tests(unittest.TestCase):
         maxs = s.max(axis=0)
         self.assertTrue( (maxs >= lb).any() and (mins <= ub).any(), 'Full factorial design outside parameter bounds' )
 
-    def calibrate_lmfit(self): 
+    def testcalibrate_lmfit(self): 
         # Look at initial fit
         self.c.forward()
         sims = self.c.sim_values
@@ -155,13 +155,13 @@ class Tests(unittest.TestCase):
         sims = self.c.sim_values
         self.assertTrue( self.c.ssr < 1.e-20, 'Objective function value is ' + str(self.c.ssr) )
 
-    def jacobian(self):
+    def testjacobian(self):
         # Check condition number
         J = self.j.Jac()
         C = numpy.linalg.cond(J)
         self.assertTrue(numpy.abs(C - 225.6849012361745395)<1.e-10, 'Condition number of Jacobian is incorrect')
 
-    def calibrate(self):
+    def testcalibrate(self):
         self.j.obsvalues = [5.308,7.24,9.638,12.866,17.069,23.192,31.443,38.558,50.156,62.948,75.995,91.972]
         self.j.calibrate()
         self.assertTrue( self.j.ssr < 2.587278, 'Final SSR of sine model is incorrect' + str(self.j.ssr) )
@@ -169,7 +169,7 @@ class Tests(unittest.TestCase):
         self.c.calibrate()
         self.assertTrue( self.c.ssr < 1.e-27, 'Final SSR of marquardt model is incorrect ' + str(self.c.ssr) )
 
-    def pickle_test(self):
+    def testpickle_test(self):
         # Create sampleset
         ss = self.p.lhs(siz=10 )
         try: dump( self.p, open('test.p', 'wb'))
@@ -188,7 +188,7 @@ class Tests(unittest.TestCase):
         self.assertTrue( dumpbool, 'MATK object cannot be pickled' )
         self.assertTrue( loadbool, 'MATK object cannot be unpickled' )
 
-    def mcmc(self):
+    def testmcmc(self):
         try:
             import pymc
         except:
@@ -212,7 +212,7 @@ class Tests(unittest.TestCase):
         self.assertTrue( abs(mean_c - 5.) < 1., 'Mean of parameter c is not close to 5: mean(c) = ' + str(mean_c) )
         self.assertTrue( abs(mean_sig - 1) < 1., 'Mean of model error std. dev. is not close to 0.1: mean(sig) = ' + str(mean_sig) )
 
-    def emcee_test(self):
+    def testemcee(self):
         import emcee
         self.m = matk.matk(model=femcee)
         self.m.add_par("k", value=.5, min=-10, max=10)
@@ -223,63 +223,64 @@ class Tests(unittest.TestCase):
         self.assertTrue( abs(mean - 1.) < 0.1, 'Mean of parameter a is not close to 1: mean(samples) = ' + str(mean) )
         self.assertTrue( abs(std - 0.267) < 0.0267, 'Standard deviation is not close to 0.267: std(samples) = ' + str(std) )
 
-    def emcee_test2(self):
+    def testemcee2(self):
         import emcee
         self.m = matk.matk(model=fmcmc)
         # Add parameters with 'true' parameters
         self.m.add_par('a', min=0, max=10, value=2)
         self.m.add_par('c', min=0, max=30, value=5)
-        self.m.add_par('var', min=0, max=100)
+        self.m.add_par('var', min=0, max=1)
         # Run model using 'true' parameters
         self.m.forward()
         # Create 'true' observations with zero mean, 0.5 st. dev. gaussian noise added
-        self.m.obsvalues = self.m.sim_values + numpy.random.normal(0,1,len(self.m.sim_values))
+        self.m.obsvalues = self.m.sim_values + numpy.random.normal(0,0.5,len(self.m.sim_values))
         # Run MCMC with 100000 samples burning (discarding) the first 10000
-        pos0 = [[2, 5, 1] + numpy.random.normal(0, 1, 3) for i in range(300)]
+        pos0 = [[2+numpy.random.normal(0, 1),5+numpy.random.normal(0, 1),0.5+numpy.random.normal(0, 0.1)] for i in range(100)]
         #lnprob = matk.logposteriorwithvariance(self.m)
         #print lnprob([2., 5., 10.])
         #print lnprob([2., 8., 10.])
-        samples = self.m.emcee(lnprob=matk.logposteriorwithvariance(self.m), nwalkers=300, nsamples=1000, burnin=100, pos0=pos0)
+        samples = self.m.emcee(lnprob=matk.logposteriorwithvariance(self.m), nwalkers=100, nsamples=2500, burnin=250, pos0=pos0)
         #print samples.shape
         mean_a, mean_c, mean_sig = numpy.mean(samples, 0)
         mean_sig = numpy.sqrt(mean_sig)
-        #print [mean_a, mean_c, mean_sig]
+        print [mean_a, mean_c, mean_sig]
         self.assertTrue( abs(mean_a - 2.) < 0.2, 'Mean of parameter a is not close to 2: mean(a) = ' + str(mean_a) )
         self.assertTrue( abs(mean_c - 5.) < 1., 'Mean of parameter c is not close to 5: mean(c) = ' + str(mean_c) )
-        self.assertTrue( abs(mean_sig - 1) < 1., 'Mean of model error std. dev. is not close to 0.1: mean(sig) = ' + str(mean_sig) )
+        self.assertTrue( abs(mean_sig - 0.5) < 0.1, 'Mean of model error std. dev. is not close to 0.1: mean(sig) = ' + str(mean_sig) )
       
 def suite(case):
     suite = unittest.TestSuite()
     if case == 'base' or case == 'all':
-        suite.addTest( Tests('forward') )
-        suite.addTest( Tests('sample') )
-        suite.addTest( Tests('parstudy') )
-        suite.addTest( Tests('fullfact') )
-        suite.addTest( Tests('calibrate_lmfit') )
-        suite.addTest( Tests('jacobian') )
-        suite.addTest( Tests('calibrate') )
-        suite.addTest( Tests('correlation') )
-        suite.addTest( Tests('pickle_test') )
-        suite.addTest( Tests('mcmc') )
-        suite.addTest( Tests('emcee_test') )
-        suite.addTest( Tests('emcee_test2') )
+        suite.addTest( Tests('testforward') )
+        suite.addTest( Tests('testsample') )
+        suite.addTest( Tests('testparstudy') )
+        suite.addTest( Tests('testfullfact') )
+        suite.addTest( Tests('testcalibrate_lmfit') )
+        suite.addTest( Tests('testjacobian') )
+        suite.addTest( Tests('testcalibrate') )
+        suite.addTest( Tests('testcorrelation') )
+        suite.addTest( Tests('testpickle_test') )
+        suite.addTest( Tests('testmcmc') )
+        suite.addTest( Tests('testemcee') )
+        suite.addTest( Tests('testemcee2') )
     if case == 'parallel' or case == 'all':
-        suite.addTest( Tests('parallel') )
-        suite.addTest( Tests('parallel_workdir') )
+        suite.addTest( Tests('testparallel') )
+        suite.addTest( Tests('testparallel_workdir') )
     if case == 'mcmc':
         #suite.addTest( Tests('mcmc') )
-        suite.addTest( Tests('emcee_test2') )
+        suite.addTest( Tests('testemcee2') )
     return suite   
 
 if __name__ == '__main__':
-    if len(sys.argv) > 1: case = sys.argv[1]
-    else: 
-        case = 'all'
-        print "\nAssuming all tests wanted"
-        print "USAGE: python matk_unittests.py <option>"
-        print "Option includes: all, parallel, base\n"
-    runner = unittest.TextTestRunner(verbosity=2)
-    test_suite = suite(case)
-    runner.run (test_suite)
+    unittest.main()
+    #if len(sys.argv) > 1: case = sys.argv[1]
+    #else: 
+    #    case = 'all'
+    #    print "\nAssuming all tests wanted"
+    #    print "USAGE: python matk_unittests.py <option>"
+    #    print "Option includes: all, parallel, base\n"
+    #runner = unittest.TextTestRunner(verbosity=2)
+    #test_suite = suite(case)
+    #runner.run (test_suite)
 
 
