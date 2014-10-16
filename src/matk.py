@@ -951,4 +951,6 @@ class logposteriorwithvariance(logposterior):
         #print "ts: " + str(ts)
         #print "ssr: " + str(numpy.sum((numpy.array(self.prob.residuals))**2))
         #print zip(self.prob.sim_values, self.prob.obsvalues)
-        return -0.5*(numpy.sum((numpy.array(self.prob.residuals))**2)) / self.prob.pars[self.var].value - numpy.log(self.prob.pars[self.var].value)
+        #return -0.5*(numpy.sum((numpy.array(self.prob.residuals))**2)) / self.prob.pars[self.var].value - numpy.log(self.prob.pars[self.var].value)
+        return -0.5*(numpy.sum((numpy.array(self.prob.residuals))**2)) / self.prob.pars[self.var].value - (len(self.prob.obs)/2)*numpy.log(self.prob.pars[self.var].value)
+
