@@ -235,18 +235,17 @@ class Tests(unittest.TestCase):
         # Create 'true' observations with zero mean, 0.5 st. dev. gaussian noise added
         self.m.obsvalues = self.m.sim_values + numpy.random.normal(0,0.5,len(self.m.sim_values))
         # Run MCMC with 100000 samples burning (discarding) the first 10000
-        pos0 = [[2+numpy.random.normal(0, 1),5+numpy.random.normal(0, 1),0.5+numpy.random.normal(0, 0.1)] for i in range(100)]
+        pos0 = [[2+numpy.random.normal(0, 1),5+numpy.random.normal(0, 1),0.5+numpy.random.normal(0, 0.1)] for i in range(10)]
         #lnprob = matk.logposteriorwithvariance(self.m)
         #print lnprob([2., 5., 10.])
         #print lnprob([2., 8., 10.])
-        samples = self.m.emcee(lnprob=matk.logposteriorwithvariance(self.m), nwalkers=100, nsamples=2500, burnin=250, pos0=pos0)
+        samples = self.m.emcee(lnprob=matk.logposteriorwithvariance(self.m), nwalkers=10, nsamples=10000, burnin=1000, pos0=pos0)
         #print samples.shape
         mean_a, mean_c, mean_sig = numpy.mean(samples, 0)
         mean_sig = numpy.sqrt(mean_sig)
-        print [mean_a, mean_c, mean_sig]
         self.assertTrue( abs(mean_a - 2.) < 0.2, 'Mean of parameter a is not close to 2: mean(a) = ' + str(mean_a) )
         self.assertTrue( abs(mean_c - 5.) < 1., 'Mean of parameter c is not close to 5: mean(c) = ' + str(mean_c) )
-        self.assertTrue( abs(mean_sig - 0.5) < 0.1, 'Mean of model error std. dev. is not close to 0.1: mean(sig) = ' + str(mean_sig) )
+        self.assertTrue( abs(mean_sig - 0.5) < 0.2, 'Mean of model error std. dev. is not close to 0.1: mean(sig) = ' + str(mean_sig) )
       
 def suite(case):
     suite = unittest.TestSuite()
