@@ -866,7 +866,7 @@ class matk(object):
                 for i in range(1,len(pars)):
                     values.append(float(pars[i]))
                 pardict = dict(zip(p.parnames,values))
-                p.forward(pardict=pardict)
+                p.forward(pardict=pardict, reuse_dirs=True)
                 return numpy.array(p.residuals)*numpy.array(p.obsweights)
             #likelihood
             y = Normal('y', mu=residuals, tau=1.0/sig**2, observed=True, value=numpy.zeros(len(self.obs)))
