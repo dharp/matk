@@ -135,6 +135,19 @@ class SampleSet(object):
             print "\nIndex not found"
             return
         return OrderedDict(zip(self.parnames,self.samples.values[row_index]))
+    def calc_sse(self):
+        """ Calculate sum of squared errors (sse) for all samples
+
+            :return: lst(fl64)
+        """
+        if len(self._parent.obsvalues) == 0:
+            print "Observations are not set (e.g. prob.obsvalues is empty)"
+            return 0
+        elif self.responses is None:
+            print "Responses have not been calculated. Run sampleset (e.g. sampleset.run())"
+            return 0
+        self.sse = [numpy.sum((self._parent.obsvalues - self.responses.values[i,:])**2) for i in range(len(self.responses.values))]
+        return self.sse
     def corr(self, type='pearson', plot=False, printout=True, plotvals=True, figsize=None, title=None):
         """ Calculate correlation coefficients of parameters and responses
 
