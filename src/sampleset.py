@@ -7,6 +7,7 @@ from operator import itemgetter
 try:
     from matplotlib import pyplot as plt
     from matplotlib.ticker import MaxNLocator
+    from matplotlib import rc as mplrc
     plotflag = True
 except ImportError as exc:
     sys.stderr.write("Warning: failed to import matplotlib module. Plots will not be produced. ({})".format(exc))
@@ -168,7 +169,7 @@ class SampleSet(object):
         corrcoef = corr(self.samples.recarray, self.responses.recarray, type=type, plot=plot, printout=printout, plotvals=plotvals, figsize=figsize, title=title)
         return corrcoef
     
-    def panels(self, type='pearson', figsize=None, title=None, tight=False, symbol='.',fontsize=None,ms=5,mins=None,maxs=None,frequency=False,bins=10, ylim=None):
+    def panels(self, type='pearson', figsize=None, title=None, tight=False, symbol='.',fontsize=None,corrfontsize=None,ms=5,mins=None,maxs=None,frequency=False,bins=10, ylim=None, labels=[], filename=None):
         """ Plot histograms, scatterplots, and correlation coefficients in paired matrix
 
             :param type: Type of correlation coefficient (pearson by default, spearman also avaialable)
@@ -181,8 +182,10 @@ class SampleSet(object):
             :type tight: bool
             :param symbol: matplotlib symbol for scatterplots
             :type symbol: str
-            :param fontsize: Size of font for correlation coefficients
+            :param fontsize: Size of font for axis labels
             :type fontsize: fl64
+            :param corrfontsize: Size of font for correlation coefficients
+            :type corrfontsize: fl64
             :param ms: Scatterplot marker size
             :type ms: fl64
             :param frequency: If True, the first element of the return tuple will be the counts normalized by the length of data, i.e., n/len(x)
@@ -191,6 +194,10 @@ class SampleSet(object):
             :type bins: int
             :param ylim: y-axis limits for histograms.
             :type ylim: tuples - 2 element tuples with y limits for histograms
+            :param labels: Names to use instead of parameter names in plot
+            :type labels: lst(str)
+            :param filename: Name of file to save plot. File ending determines plot type (pdf, png, ps, eps, etc.). Plot types available depends on the matplotlib backend in use on the system. Plot will not be displayed.
+            :type filename: str
         """
         if self.responses is None:
             if mins is None and self.samples._mins is not None: mins = self.samples._mins
@@ -198,7 +205,7 @@ class SampleSet(object):
         else:
             if mins is None and self.samples._mins is not None: mins = numpy.concatenate([self.samples._mins,numpy.min(self.responses.values,axis=0)])
             if maxs is None and self.samples._maxs is not None: maxs = numpy.concatenate([self.samples._maxs,numpy.max(self.responses.values,axis=0)])
-        panels( self.recarray, type=type, figsize=figsize, title=title, tight=tight, symbol=symbol,fontsize=fontsize,ms=ms,mins=mins,maxs=maxs,frequency=frequency,bins=bins,ylim=ylim)
+        panels( self.recarray, type=type, figsize=figsize, title=title, tight=tight, symbol=symbol,fontsize=fontsize,corrfontsize=corrfontsize,ms=ms,mins=mins,maxs=maxs,frequency=frequency,bins=bins,ylim=ylim,labels=labels,filename=filename)
     def run(self, ncpus=1, workdir_base=None, save=True, reuse_dirs=False, outfile=None, 
             logfile=None, verbose=True, hosts={} ):
         """ Run model using values in samples for parameter values
@@ -452,7 +459,7 @@ class DataSet(object):
             :returns: ndarray(fl64) -- Correlation coefficients
         """
         return corr(self.recarray, self.recarray, type=type, plot=plot, printout=printout, plotvals=plotvals, figsize=figsize, title=title)
-    def panels(self, type='pearson', figsize=None, title=None, tight=False, symbol='.',fontsize=None,ms=5,mins=None,maxs=None,frequency=False,bins=10,ylim=None):
+    def panels(self, type='pearson', figsize=None, title=None, tight=False, symbol='.',fontsize=None,corrfontsize=None,ms=5,mins=None,maxs=None,frequency=False,bins=10,ylim=None,labels=[],filename=None):
         """ Plot histograms, scatterplots, and correlation coefficients in paired matrix
 
             :param type: Type of correlation coefficient (pearson by default, spearman also avaialable)
@@ -465,7 +472,9 @@ class DataSet(object):
             :type tight: bool
             :param symbol: matplotlib symbol for scatterplots
             :type symbol: str
-            :param fontsize: Size of font for correlation coefficients
+            :param corrfontsize: Size of font for correlation coefficients
+            :type corrfontsize: fl64
+            :param fontsize: Size of font for axis labels
             :type fontsize: fl64
             :param ms: Scatterplot marker size
             :type ms: fl64
@@ -475,10 +484,14 @@ class DataSet(object):
             :type bins: int or lst(lst(int))
             :param ylim: y-axis limits for histograms.
             :type ylim: tuple - 2 element tuples with y limits for histograms
+            :param labels: Names to use instead of parameter names in plot
+            :type labels: lst(str)
+            :param filename: Name of file to save plot. File ending determines plot type (pdf, png, ps, eps, etc.). Plot types available depends on the matplotlib backend in use on the system. Plot will not be displayed.
+            :type filename: str
         """
         if mins is None and self._mins is not None: mins = self._mins
         if maxs is None and self._maxs is not None: maxs = self._maxs
-        panels( self.recarray, type=type, figsize=figsize, title=title, tight=tight, symbol=symbol,fontsize=fontsize,ms=ms,mins=mins,maxs=maxs,frequency=frequency,bins=bins,ylim=ylim)
+        panels( self.recarray, type=type, figsize=figsize, title=title, tight=tight, symbol=symbol,fontsize=fontsize,corrfontsize=corrfontsize,ms=ms,mins=mins,maxs=maxs,frequency=frequency,bins=bins,ylim=ylim,labels=labels,filename=filename)
 
 def corr(rc1, rc2, type='pearson', plot=False, printout=True, plotvals=True, figsize=None, title=None):
     """ Calculate correlation coefficients of parameters and responses
@@ -543,8 +556,12 @@ def corr(rc1, rc2, type='pearson', plot=False, printout=True, plotvals=True, fig
         plt.show()
     return corrcoef
 
-def panels(rc, type='pearson', figsize=None, title=None, tight=False, symbol='o',fontsize=None,ms=None,mins=None,maxs=None,frequency=False,bins=10,ylim=None):
+def panels(rc, type='pearson', figsize=None, title=None, tight=False, symbol='o',fontsize=None,corrfontsize=None,ms=None,mins=None,maxs=None,frequency=False,bins=10,ylim=None,labels=[],filename=None):
     if plotflag:
+        # Set font for scatterplot labels
+        if not fontsize is None:
+            font = {'size': fontsize}
+            mplrc('font', **font)
         smp_mins = numpy.min(rc.tolist(),axis=0)
         smp_maxs = numpy.max(rc.tolist(),axis=0)
         if mins is None: mins = smp_mins
@@ -560,7 +577,12 @@ def panels(rc, type='pearson', figsize=None, title=None, tight=False, symbol='o'
         fig,ax = plt.subplots(siz,siz,figsize=figsize)
         ind = 1
         # Add axis labels to first column and last row
-        for i,nm in enumerate(rc.dtype.names): 
+        if len(labels) == 0:
+            labels = rc.dtype.names
+        elif not len(labels) == len(rc.dtype.names):
+            print "Error: number of labels does not match number of parameters"
+            return
+        for i,nm in enumerate(labels): 
             ax[i,0].set_ylabel(nm)
             ax[siz-1,i].set_xlabel(nm)        # Plot histograms in diagonal plots
         ns = []
@@ -581,7 +603,7 @@ def panels(rc, type='pearson', figsize=None, title=None, tight=False, symbol='o'
                 ax[i,i].set_ylim(ylim)
 
         # Scatterplots in lower triangular matrix
-        if fontsize is None: fontsize = 5*siz
+        #if corrfontsize is None: corrfontsize = 2*siz
         for i,nm1 in enumerate(rc.dtype.names): 
             for j,nm2 in enumerate(rc.dtype.names): 
                 if j<i:
@@ -593,7 +615,7 @@ def panels(rc, type='pearson', figsize=None, title=None, tight=False, symbol='o'
             for j,nm2 in enumerate(rc.dtype.names): 
                 if j<i:
                     #ax[j,i].axis('off')
-                    ax[j,i].text(0.5,0.5,str(numpy.round(corrcoef[j,i],2)),ha='center',va='center',size=20,weight='bold')
+                    ax[j,i].text(0.5,0.5,str(numpy.round(corrcoef[j,i],2)),ha='center',va='center',size=corrfontsize,weight='bold')
 
         for i,nm1 in enumerate(rc.dtype.names): 
             for j,nm2 in enumerate(rc.dtype.names): 
@@ -617,7 +639,11 @@ def panels(rc, type='pearson', figsize=None, title=None, tight=False, symbol='o'
             if title:
                 plt.subplots_adjust(top=0.925) 
         if title: plt.suptitle(title)
-        plt.show()
+        if filename is None:
+            plt.show()
+        else:
+            fmt = filename.split('.')[-1]
+            plt.savefig(filename,format=fmt)
     else:
         print "Matplotlib must be installed to plot histograms"
         return
