@@ -416,7 +416,7 @@ class DataSet(object):
         """ Structured (record) array of samples
         """
         return numpy.rec.fromarrays(self._values.T,names=self._names)
-    def hist(self, ncols=4, figsize=None, title=None, tight=False, mins=None, maxs=None,frequency=False,bins=10,ylim=None,printout=True):
+    def hist(self, ncols=4, figsize=None, title=None, tight=False, mins=None, maxs=None,frequency=False,bins=10,ylim=None,printout=True,labels=[],filename=None,fontsize=None,xticks=3):
         """ Plot histograms of dataset
 
             :param ncols: Number of columns in plot matrix
@@ -436,10 +436,18 @@ class DataSet(object):
             :type ylim: tuple - 2 element tuple with y limits for histograms
             :param printout: If True, histogram values are printed to the terminal
             :type printout: bool
+            :param labels: Names to use instead of parameter names in plot
+            :type labels: lst(str)
+            :param filename: Name of file to save plot. File ending determines plot type (pdf, png, ps, eps, etc.). Plot types available depends on the matplotlib backend in use on the system. Plot will not be displayed.
+            :type filename: str
+            :param fontsize: Size of font 
+            :type fontsize: fl64
+            :param xticks: Number of ticks along x axes
+            :type xticks: int
         """        
         if mins is None and self._mins is not None: mins = self._mins
         if maxs is None and self._maxs is not None: maxs = self._maxs
-        hd = hist(self.recarray, ncols=ncols, figsize=figsize, title=title, tight=tight, mins=mins, maxs=maxs,frequency=frequency,bins=bins,ylim=ylim,printout=printout)
+        hd = hist(self.recarray, ncols=ncols, figsize=figsize, title=title, tight=tight, mins=mins, maxs=maxs,frequency=frequency,bins=bins,ylim=ylim,printout=printout,labels=labels,filename=filename,fontsize=fontsize,xticks=xticks)
         return hd
     def corr(self, type='pearson', plot=False, printout=True, plotvals=True, figsize=None, title=None):
         """ Calculate correlation coefficients of dataset values
@@ -556,7 +564,7 @@ def corr(rc1, rc2, type='pearson', plot=False, printout=True, plotvals=True, fig
         plt.show()
     return corrcoef
 
-def panels(rc, type='pearson', figsize=None, title=None, tight=False, symbol='o',fontsize=None,corrfontsize=None,ms=None,mins=None,maxs=None,frequency=False,bins=10,ylim=None,labels=[],filename=None):
+def panels(rc, type='pearson', figsize=None, title=None, tight=False, symbol='.',fontsize=None,corrfontsize=None,ms=None,mins=None,maxs=None,frequency=False,bins=10,ylim=None,labels=[],filename=None):
     if plotflag:
         # Set font for scatterplot labels
         if not fontsize is None:
@@ -647,7 +655,7 @@ def panels(rc, type='pearson', figsize=None, title=None, tight=False, symbol='o'
     else:
         print "Matplotlib must be installed to plot histograms"
         return
-def hist(rc,ncols=4,figsize=None,title=None,tight=False,mins=None,maxs=None,frequency=False,bins=10,ylim=None,printout=True):
+def hist(rc,ncols=4,figsize=None,title=None,tight=False,mins=None,maxs=None,frequency=False,bins=10,ylim=None,printout=True,labels=[],filename=None,fontsize=None,xticks=3):
     """ Plot histograms of dataset
 
         :param ncols: Number of columns in plot matrix
@@ -669,9 +677,27 @@ def hist(rc,ncols=4,figsize=None,title=None,tight=False,mins=None,maxs=None,freq
         :type bins: int or lst(lst(int))
         :param ylim: y-axis limits for histograms.
         :type ylim: tuples - 2 element tuple with y limits for histograms
+        :param labels: Names to use instead of parameter names in plot
+        :type labels: lst(str)
+        :param filename: Name of file to save plot. File ending determines plot type (pdf, png, ps, eps, etc.). Plot types available depends on the matplotlib backend in use on the system. Plot will not be displayed.
+        :type filename: str
+        :param fontsize: Size of font 
+        :type fontsize: fl64
+        :param xticks: Number of ticks on xaxes
+        :type xticks: int
 
     """        
     if plotflag:
+        # Set font for scatterplot labels
+        if not fontsize is None:
+            font = {'size': fontsize}
+            mplrc('font', **font)
+        # Add axis labels to first column and last row
+        if len(labels) == 0:
+            labels = rc.dtype.names
+        elif not len(labels) == len(rc.dtype.names):
+            print "Error: number of labels does not match number of parameters"
+            return
         smp_mins = numpy.min(rc.tolist(),axis=0)
         smp_maxs = numpy.max(rc.tolist(),axis=0)
         if mins is None: mins = smp_mins
@@ -699,11 +725,12 @@ def hist(rc,ncols=4,figsize=None,title=None,tight=False,mins=None,maxs=None,freq
         hist_dict = OrderedDict()
         ns = []
         ax = []
-        for ind,nm,mi,ma in zip(range(len(rc.dtype)),rc.dtype.names,mins,maxs): 
+        for ind,nm,mi,ma,lb in zip(range(len(rc.dtype)),rc.dtype.names,mins,maxs,labels): 
             ax.append(plt.subplot(nrows,ncols,ind+1))
             if ind==0 or (ind)%ncols==0:
 				if frequency: plt.ylabel('Frequency')
 				else: plt.ylabel('Count')
+            else: ax[-1].get_yaxis().set_visible(False)
             if frequency:
                 n,b,patches = ax[-1].hist(rc[nm], range=[mi,ma], bins=bins, weights=numpy.ones(len(rc[nm])) / len(rc[nm]))
                 hist_dict[nm] = (n,b,patches)
@@ -712,22 +739,27 @@ def hist(rc,ncols=4,figsize=None,title=None,tight=False,mins=None,maxs=None,freq
                 hist_dict[nm] = (n,b,patches)
             ax[-1].set_xlim([mi,ma])
             ns.append(n)
-            plt.xlabel(nm)
+            plt.xlabel(lb)
             plt.locator_params(nbins=4)
+            ax[-1].xaxis.set_major_locator(MaxNLocator(xticks))
         # Set ylims of histograms
         if ylim is None:
             ymax = max([max(n) for n in ns])
-            for i in range(len(rc.dtype.names)):
+            for i in range(len(labels)):
                 ax[i].set_ylim([0,ymax])
         else:
-            for i in range(len(rc.dtype.names)):
+            for i in range(len(labels)):
                 ax[i].set_ylim(ylim)
         if tight: 
             plt.tight_layout()
             if title:
                 plt.subplots_adjust(top=0.925) 
         if title: plt.suptitle(title)
-        plt.show()
+        if filename is None:
+            plt.show()
+        else:
+            fmt = filename.split('.')[-1]
+            plt.savefig(filename,format=fmt)
         if printout:
             for nm in hist_dict.keys():
                 print '\n'
