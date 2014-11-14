@@ -3,7 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to matk's documentation!
+Welcome to MATK's documentation!
 ================================
 
 Contents:
@@ -11,19 +11,10 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-.. automodule:: matk
-
-.. autoclass:: matk
-    :members:
-
-.. autoclass:: Parameter
-    :members:
-
-.. autoclass:: Observation
-    :members:
-
-.. autoclass:: SampleSet
-    :members:
+   matk.rst
+   Parameter.rst
+   Observation.rst
+   SampleSet.rst
 
 Indices and tables
 ==================

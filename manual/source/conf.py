@@ -183,7 +183,7 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'matk.tex', u'matk Documentation',
+  ('index', 'matk.tex', u'Model Analysis ToolKit (MATK) Documentation',
    u'Dylan R. Harp', 'manual'),
 ]
 
