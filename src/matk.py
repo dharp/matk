@@ -1,4 +1,5 @@
 import sys, os
+import pdb
 from parameter import Parameter
 from observation import Observation
 from sampleset import SampleSet
@@ -930,7 +931,7 @@ class logposterior(object):
         return 0.0
     def loglhood(self,ts):
         pardict = dict(zip(self.prob.parnames, ts))
-        self.prob.forward(pardict=pardict)
+        self.prob.forward(pardict=pardict, reuse_dirs=True)
         return -0.5*(numpy.sum((numpy.array(self.prob.residuals))**2)) / self.var - numpy.log(self.var)
     def __call__(self, ts):
         lpri = self.logprior(ts)
@@ -947,7 +948,7 @@ class logposteriorwithvariance(logposterior):
         self.var = var
     def loglhood(self,ts):
         pardict = dict(zip(self.prob.parnames, ts))
-        self.prob.forward(pardict=pardict)
+        self.prob.forward(pardict=pardict, reuse_dirs=True)
         #print "ts: " + str(ts)
         #print "ssr: " + str(numpy.sum((numpy.array(self.prob.residuals))**2))
         #print zip(self.prob.sim_values, self.prob.obsvalues)
