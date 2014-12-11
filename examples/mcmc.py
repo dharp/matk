@@ -23,7 +23,7 @@ prob.forward()
 prob.obsvalues = prob.sim_values + random.normal(0,0.1,len(prob.sim_values))
 
 # Run MCMC with 100000 samples burning (discarding) the first 10000
-M = prob.MCMC(iter=100000,burn=10000)
+M = prob.MCMC(nruns=100000,burn=10000)
 
 # Plot results, PNG files will be created in current directory
 prob.MCMCplot(M)
