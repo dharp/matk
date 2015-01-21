@@ -169,11 +169,13 @@ class SampleSet(object):
         corrcoef = corr(self.samples.recarray, self.responses.recarray, type=type, plot=plot, printout=printout, plotvals=plotvals, figsize=figsize, title=title)
         return corrcoef
     
-    def panels(self, type='pearson', figsize=None, title=None, tight=False, symbol='.',fontsize=None,corrfontsize=None,ms=5,mins=None,maxs=None,frequency=False,bins=10, ylim=None, labels=[], filename=None):
+    def panels(self, type='pearson', alpha=0.2, figsize=None, title=None, tight=False, symbol='.',fontsize=None,corrfontsize=None,ms=5,mins=None,maxs=None,frequency=False,bins=10, ylim=None, labels=[], filename=None, xticks=2, yticks=2):
         """ Plot histograms, scatterplots, and correlation coefficients in paired matrix
 
             :param type: Type of correlation coefficient (pearson by default, spearman also avaialable)
             :type type: str
+            :param alpha: Histogram color shading
+            :type alpha: float
             :param figsize: Width and height of figure in inches
             :type figsize: tuple(fl64,fl64)
             :param title: Title of plot
@@ -198,6 +200,10 @@ class SampleSet(object):
             :type labels: lst(str)
             :param filename: Name of file to save plot. File ending determines plot type (pdf, png, ps, eps, etc.). Plot types available depends on the matplotlib backend in use on the system. Plot will not be displayed.
             :type filename: str
+            :param xticks: Number of ticks along x axes 
+            :type filename: int
+            :param yticks: Number of ticks along y axes 
+            :type filename: int
         """
         if self.responses is None:
             if mins is None and self.samples._mins is not None: mins = self.samples._mins
@@ -205,7 +211,7 @@ class SampleSet(object):
         else:
             if mins is None and self.samples._mins is not None: mins = numpy.concatenate([self.samples._mins,numpy.min(self.responses.values,axis=0)])
             if maxs is None and self.samples._maxs is not None: maxs = numpy.concatenate([self.samples._maxs,numpy.max(self.responses.values,axis=0)])
-        panels( self.recarray, type=type, figsize=figsize, title=title, tight=tight, symbol=symbol,fontsize=fontsize,corrfontsize=corrfontsize,ms=ms,mins=mins,maxs=maxs,frequency=frequency,bins=bins,ylim=ylim,labels=labels,filename=filename)
+        panels( self.recarray, type=type, alpha=alpha, figsize=figsize, title=title, tight=tight, symbol=symbol,fontsize=fontsize,corrfontsize=corrfontsize,ms=ms,mins=mins,maxs=maxs,frequency=frequency,bins=bins,ylim=ylim,labels=labels,filename=filename,xticks=xticks,yticks=yticks)
     def run(self, ncpus=1, workdir_base=None, save=True, reuse_dirs=False, outfile=None, 
             logfile=None, verbose=True, hosts={} ):
         """ Run model using values in samples for parameter values
@@ -416,11 +422,13 @@ class DataSet(object):
         """ Structured (record) array of samples
         """
         return numpy.rec.fromarrays(self._values.T,names=self._names)
-    def hist(self, ncols=4, figsize=None, title=None, tight=False, mins=None, maxs=None,frequency=False,bins=10,ylim=None,printout=True,labels=[],filename=None,fontsize=None,xticks=3):
+    def hist(self, ncols=4, alpha=0.2, figsize=None, title=None, tight=False, mins=None, maxs=None,frequency=False,bins=10,ylim=None,printout=True,labels=[],filename=None,fontsize=None,xticks=3):
         """ Plot histograms of dataset
 
             :param ncols: Number of columns in plot matrix
             :type ncols: int
+            :param alpha: Histogram color shading
+            :type alpha: float
             :param figsize: Width and height of figure in inches
             :type figsize: tuple(fl64,fl64)
             :param title: Title of plot
@@ -447,7 +455,7 @@ class DataSet(object):
         """        
         if mins is None and self._mins is not None: mins = self._mins
         if maxs is None and self._maxs is not None: maxs = self._maxs
-        hd = hist(self.recarray, ncols=ncols, figsize=figsize, title=title, tight=tight, mins=mins, maxs=maxs,frequency=frequency,bins=bins,ylim=ylim,printout=printout,labels=labels,filename=filename,fontsize=fontsize,xticks=xticks)
+        hd = hist(self.recarray, ncols=ncols, alpha=alpha, figsize=figsize, title=title, tight=tight, mins=mins, maxs=maxs,frequency=frequency,bins=bins,ylim=ylim,printout=printout,labels=labels,filename=filename,fontsize=fontsize,xticks=xticks)
         return hd
     def corr(self, type='pearson', plot=False, printout=True, plotvals=True, figsize=None, title=None):
         """ Calculate correlation coefficients of dataset values
@@ -467,11 +475,13 @@ class DataSet(object):
             :returns: ndarray(fl64) -- Correlation coefficients
         """
         return corr(self.recarray, self.recarray, type=type, plot=plot, printout=printout, plotvals=plotvals, figsize=figsize, title=title)
-    def panels(self, type='pearson', figsize=None, title=None, tight=False, symbol='.',fontsize=None,corrfontsize=None,ms=5,mins=None,maxs=None,frequency=False,bins=10,ylim=None,labels=[],filename=None):
+    def panels(self, type='pearson', alpha=0.2, figsize=None, title=None, tight=False, symbol='.',fontsize=None,corrfontsize=None,ms=5,mins=None,maxs=None,frequency=False,bins=10,ylim=None,labels=[],filename=None,xticks=2,yticks=2):
         """ Plot histograms, scatterplots, and correlation coefficients in paired matrix
 
             :param type: Type of correlation coefficient (pearson by default, spearman also avaialable)
             :type type: str
+            :param alpha: Histogram color shading
+            :type alpha: float
             :param figsize: Width and height of figure in inches
             :type figsize: tuple(fl64,fl64)
             :param title: Title of plot
@@ -496,10 +506,14 @@ class DataSet(object):
             :type labels: lst(str)
             :param filename: Name of file to save plot. File ending determines plot type (pdf, png, ps, eps, etc.). Plot types available depends on the matplotlib backend in use on the system. Plot will not be displayed.
             :type filename: str
+            :param xticks: Number of ticks along x axes 
+            :type filename: int
+            :param yticks: Number of ticks along y axes 
+            :type filename: int
         """
         if mins is None and self._mins is not None: mins = self._mins
         if maxs is None and self._maxs is not None: maxs = self._maxs
-        panels( self.recarray, type=type, figsize=figsize, title=title, tight=tight, symbol=symbol,fontsize=fontsize,corrfontsize=corrfontsize,ms=ms,mins=mins,maxs=maxs,frequency=frequency,bins=bins,ylim=ylim,labels=labels,filename=filename)
+        panels( self.recarray, type=type, alpha=alpha, figsize=figsize, title=title, tight=tight, symbol=symbol,fontsize=fontsize,corrfontsize=corrfontsize,ms=ms,mins=mins,maxs=maxs,frequency=frequency,bins=bins,ylim=ylim,labels=labels,filename=filename,xticks=xticks,yticks=yticks)
 
 def corr(rc1, rc2, type='pearson', plot=False, printout=True, plotvals=True, figsize=None, title=None):
     """ Calculate correlation coefficients of parameters and responses
@@ -564,7 +578,7 @@ def corr(rc1, rc2, type='pearson', plot=False, printout=True, plotvals=True, fig
         plt.show()
     return corrcoef
 
-def panels(rc, type='pearson', figsize=None, title=None, tight=False, symbol='.',fontsize=None,corrfontsize=None,ms=None,mins=None,maxs=None,frequency=False,bins=10,ylim=None,labels=[],filename=None):
+def panels(rc, type='pearson', alpha=0.2, figsize=None, title=None, tight=False, symbol='.',fontsize=None,corrfontsize=None,ms=None,mins=None,maxs=None,frequency=False,bins=10,ylim=None,labels=[],filename=None,xticks=2,yticks=2):
     if plotflag:
         # Set font for scatterplot labels
         if not fontsize is None:
@@ -596,9 +610,9 @@ def panels(rc, type='pearson', figsize=None, title=None, tight=False, symbol='.'
         ns = []
         for i,nm in enumerate(rc.dtype.names): 
             if frequency:
-                n,b,patches = ax[i,i].hist(rc[nm], range=(mins[i],maxs[i]), bins=bins, weights=numpy.ones(len(rc[nm])) / len(rc[nm]))
+                n,b,patches = ax[i,i].hist(rc[nm], alpha=alpha, range=(mins[i],maxs[i]), bins=bins, weights=numpy.ones(len(rc[nm])) / len(rc[nm]))
             else:
-                n,b,patches = ax[i,i].hist(rc[nm], range=(mins[i],maxs[i]), bins=bins)
+                n,b,patches = ax[i,i].hist(rc[nm], alpha=alpha, range=(mins[i],maxs[i]), bins=bins)
             ax[i,i].set_xlim([mins[i],maxs[i]])
             ns.append(n)
         # Set ylims of histograms
@@ -630,14 +644,14 @@ def panels(rc, type='pearson', figsize=None, title=None, tight=False, symbol='.'
                 if j > 0:
                     ax[i,j].get_yaxis().set_visible(False)
                 else:
-                    ax[i,j].yaxis.set_major_locator(MaxNLocator(2))
+                    ax[i,j].yaxis.set_major_locator(MaxNLocator(yticks))
                 #    tk = ax[i,j].get_yticks()
                 #    tk = [0.2*(tk[0]+tk[-1]),0.8*(tk[0]+tk[-1])]
                 #    ax[i,j].set_yticks(tk)
                 if i < len(rc.dtype)-1:
                     ax[i,j].get_xaxis().set_visible(False)
                 else:
-                    ax[i,j].xaxis.set_major_locator(MaxNLocator(2))
+                    ax[i,j].xaxis.set_major_locator(MaxNLocator(xticks))
                 #    tk = ax[i,j].get_xticks()
                 #    tk = [0.2*(tk[0]+tk[-1]),0.8*(tk[0]+tk[-1])]
                 #    ax[i,j].set_xticks(tk)
@@ -655,13 +669,15 @@ def panels(rc, type='pearson', figsize=None, title=None, tight=False, symbol='.'
     else:
         print "Matplotlib must be installed to plot histograms"
         return
-def hist(rc,ncols=4,figsize=None,title=None,tight=False,mins=None,maxs=None,frequency=False,bins=10,ylim=None,printout=True,labels=[],filename=None,fontsize=None,xticks=3):
+def hist(rc,ncols=4,figsize=None,alpha=0.2,title=None,tight=False,mins=None,maxs=None,frequency=False,bins=10,ylim=None,printout=True,labels=[],filename=None,fontsize=None,xticks=3):
     """ Plot histograms of dataset
 
         :param ncols: Number of columns in plot matrix
         :type ncols: int
         :param figsize: Width and height of figure in inches
         :type figsize: tuple(fl64,fl64)
+        :param alpha: Histogram color shading
+        :type alpha: float
         :param title: Title of plot
         :type title: str
         :param tight: Use matplotlib tight layout
@@ -732,10 +748,10 @@ def hist(rc,ncols=4,figsize=None,title=None,tight=False,mins=None,maxs=None,freq
 				else: plt.ylabel('Count')
             else: ax[-1].get_yaxis().set_visible(False)
             if frequency:
-                n,b,patches = ax[-1].hist(rc[nm], range=[mi,ma], bins=bins, weights=numpy.ones(len(rc[nm])) / len(rc[nm]))
+                n,b,patches = ax[-1].hist(rc[nm], range=[mi,ma], alpha=alpha, bins=bins, weights=numpy.ones(len(rc[nm])) / len(rc[nm]))
                 hist_dict[nm] = (n,b,patches)
             else:
-                n,b,patches = ax[-1].hist(rc[nm], range=[mi,ma], bins=bins)
+                n,b,patches = ax[-1].hist(rc[nm], range=[mi,ma], alpha=alpha, bins=bins)
                 hist_dict[nm] = (n,b,patches)
             ax[-1].set_xlim([mi,ma])
             ns.append(n)
