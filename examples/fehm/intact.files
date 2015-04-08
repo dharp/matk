@@ -1,0 +1,7 @@
+root:  intact
+input: intact.dat
+outpu: intact.out
+grida: ../1dgrid.grid
+stori: ../1dgrid.stor
+
+none
