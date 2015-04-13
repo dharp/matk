@@ -1,5 +1,12 @@
 import numpy as np
-import matk
+try:
+    import matk
+except:
+    try:
+        sys.path.append('..'+os.sep+'src')
+        import matk
+    except ImportError as err:
+        print 'Unable to load MATK module: '+str(err)
 
 def fv(a):
     a0 = a['a0']

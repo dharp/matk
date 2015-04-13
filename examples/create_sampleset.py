@@ -1,7 +1,14 @@
 ''' Reads in PEST parameter files based on glob pattern, creates sampleset, and 
     writes sampleset into a file.
 '''
-import matk
+try:
+    import matk
+except:
+    try:
+        sys.path.append('..'+os.sep+'src')
+        import matk
+    except ImportError as err:
+        print 'Unable to load MATK module: '+str(err)
 
 nms, pars = matk.pest_io.read_par_files( '*.par' )
 

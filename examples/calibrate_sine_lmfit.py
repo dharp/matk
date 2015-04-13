@@ -1,6 +1,13 @@
 # Calibration example modified from lmfit webpage
 # (http://cars9.uchicago.edu/software/python/lmfit/parameters.html)
-import matk
+try:
+    import matk
+except:
+    try:
+        sys.path.append('..'+os.sep+'src')
+        import matk
+    except ImportError as err:
+        print 'Unable to load MATK module: '+str(err)
 import numpy as np
 from matplotlib import pyplot as plt
 

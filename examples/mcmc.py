@@ -1,5 +1,12 @@
 from numpy import array, double, arange, random
-import matk
+try:
+    import matk
+except:
+    try:
+        sys.path.append('..'+os.sep+'src')
+        import matk
+    except ImportError as err:
+        print 'Unable to load MATK module: '+str(err)
 
 # Define basic function
 def f(pars):
