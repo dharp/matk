@@ -1,7 +1,8 @@
 # Calibration example modified from lmfit webpage
 # (http://cars9.uchicago.edu/software/python/lmfit/parameters.html)
+import sys,os
 try:
-    import matk
+    import atk
 except:
     try:
         sys.path.append('..'+os.sep+'src')
@@ -27,6 +28,7 @@ def sine_decay(params, x):
 
 # create data to be fitted
 x = np.linspace(0, 15, 301)
+np.random.seed(1000)
 data = (5. * np.sin(2 * x - 0.1) * np.exp(-x*x*0.025) +
         np.random.normal(size=len(x), scale=0.2) )
 
@@ -51,7 +53,7 @@ plt.title("Before Calibration")
 plt.show(block=True)
 
 # Calibrate parameters to data, results are printed to screen
-p.lmfit()
+p.lmfit(ncpus=2)
 
 # Look at calibrated fit
 plt.plot(x,data, 'k+')

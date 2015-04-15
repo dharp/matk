@@ -492,7 +492,7 @@ class matk(object):
             print "Error: Model is not a Python function"
             if not curdir is None: os.chdir( curdir )
             return 1
-    def lmfit(self,workdir=None,reuse_dirs=False,report_fit=True):
+    def lmfit(self,workdir=None,workdir_base=None,reuse_dirs=False,report_fit=True,ncpus=1):
         """ Calibrate MATK model using lmfit package
 
             :param workdir: Name of directory where model will be run. It will be created if it does not exist
@@ -508,18 +508,17 @@ class matk(object):
         except ImportError as exc:
             sys.stderr.write("Warning: failed to import lmfit module. ({})".format(exc))
             return
-        def residual(params, prob):
-            nm = [params[p.name].name for k,p in prob.pars.items()]
-            vs = [params[p.name].value for k,p in prob.pars.items()]
-            prob.forward(pardict=dict(zip(nm,vs)),workdir=workdir,reuse_dirs=reuse_dirs)
-            return prob.residuals
+        self.ncpus = ncpus
+        if not workdir_base is None:
+            self.workdir_base = workdir_base
 
         # Create lmfit parameter object
         params = lmfit.Parameters()
         for k,p in self.pars.items():
             params.add(k,value=p.value,vary=p.vary,min=p.min,max=p.max,expr=p.expr) 
 
-        out = lmfit.minimize(residual, params, args=(self,))
+        out = lmfit.minimize(self.__lmfit_residual, params, args=(workdir,ncpus), Dfun=self.__jacobian)
+        #out = lmfit.minimize(residual, params, args=(self,), Dfun=self.__jacobian)
 
         # Make sure that self.pars are set to final values of params
         nm = [params[k].name for k in self.pars.keys()]
@@ -532,6 +531,52 @@ class matk(object):
             print lmfit.report_fit(params)
             print 'SSR: ',self.ssr
         return out
+    def __lmfit_residual(self, params, workdir=None, ncpus=1):
+        pardict = dict([(k,n.value) for k,n in params.items()])
+        self.forward(pardict=pardict,workdir=workdir,reuse_dirs=True)
+        return self.residuals
+    def __jacobian( self, params, workdir=None, ncpus=1, epsfcn=None, save=True, reuse_dirs=False ):
+        ''' Numerical Jacobian calculation
+
+            :param h: Parameter increment, single value or array with npar values
+            :type h: fl64 or ndarray(fl64)
+            :returns: ndarray(fl64) -- Jacobian matrix
+        '''
+        # Collect parameter values
+        a = numpy.array([k.value for k in params.values()])
+        # Determine finite difference increment for each parameter
+        if epsfcn is None:
+            hs = numpy.sqrt(numpy.finfo(float).eps)*a
+            hs[numpy.where(hs==0)[0]] = numpy.sqrt(numpy.finfo(float).eps)
+        else:
+            hs = epsfcn * numpy.ones(len(a))
+        #epsfcn = numpy.sqrt(numpy.finfo(float).eps)
+        #hs =  0.1 * numpy.ones(len(a))
+        #hlmat = numpy.identity(len(a))*(-h)
+        # Forward differences
+        humat = numpy.identity(len(a))*hs
+        parset = [a]*humat.shape[0] + humat
+        parset = numpy.append(parset,[a],axis=0)
+        #for hs in humat:
+        #    int_pars = hs+a
+        #    parset.append(int_pars)
+        #parset = numpy.array(parset)
+        self.create_sampleset(parset,name='_jac_')
+
+        # Perform simulations on parameter sets
+        self.sampleset['_jac_'].run( ncpus=ncpus, verbose=False,
+                         workdir_base=self.workdir_base, save=save, reuse_dirs=reuse_dirs )
+        sims = self.sampleset['_jac_'].responses.values
+        #a_ls = obs[0:len(a)]
+        diffsims = sims[:len(a)]
+        zerosims = sims[-1]
+        ##print 'diffsims: ', diffsims, diffsims.shape
+        #print 'zerosims: ', zerosims, zerosims.shape
+        J = []
+        for h,d in zip(hs,diffsims):
+            J.append((zerosims-d)/h)
+        self.parvalues = a
+        return numpy.array(J).T
 
     def levmar(self,workdir=None,reuse_dirs=False,max_iter=1000,full_output=True):
         """ Calibrate MATK model using levmar package
