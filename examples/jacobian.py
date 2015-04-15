@@ -7,6 +7,7 @@ except:
     except ImportError as err:
         print 'Unable to load MATK module: '+str(err)
 import numpy as np
+from multiprocessing import freeze_support
 
 def fv(a):
     a0 = a['a0']
@@ -20,11 +21,18 @@ def fv(a):
     #return dict(zip(obsnames,out))
 
 
-p = matk.matk(model=fv)
-p.add_par('a0', value=0.7)
-p.add_par('a1', value=10.)
-p.add_par('a2', value=-0.4)
+def run():
+    p = matk.matk(model=fv)
+    p.add_par('a0', value=0.7)
+    p.add_par('a1', value=10.)
+    p.add_par('a2', value=-0.4)
 
-J = p.Jac()
+    J = p.Jac()
 
-print np.dot(J.T,J)
+    print np.dot(J.T,J)
+
+# Freeze support is necessary for multiprocessing on windows
+if __name__== "__main__":
+	freeze_support()
+	run()
+
