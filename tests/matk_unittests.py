@@ -1,10 +1,10 @@
 import os,sys
 import unittest
 try:
-    import matk
+    import mtk
 except:
     try:
-        sys.path.append('..'+os.sep+'src')
+        sys.path.append(os.path.join('..','src','matk'))
         import matk
     except ImportError as err:
         print 'Unable to load MATK module: '+str(err)
@@ -213,7 +213,6 @@ class Tests(unittest.TestCase):
         self.assertTrue( abs(mean_sig - 1) < 1., 'Mean of model error std. dev. is not close to 0.1: mean(sig) = ' + str(mean_sig) )
 
     def testemcee(self):
-        import emcee
         self.m = matk.matk(model=femcee)
         self.m.add_par("k", value=.5, min=-10, max=10)
         self.m.obsvalues = numpy.array([1., 2., 3.])
@@ -224,7 +223,6 @@ class Tests(unittest.TestCase):
         self.assertTrue( abs(std - 0.267) < 0.0267, 'Standard deviation is not close to 0.267: std(samples) = ' + str(std) )
 
     def testemcee2(self):
-        import emcee
         self.m = matk.matk(model=fmcmc)
         # Add parameters with 'true' parameters
         self.m.add_par('a', min=0, max=10, value=2)

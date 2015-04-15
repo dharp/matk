@@ -2,10 +2,10 @@
 # (http://cars9.uchicago.edu/software/python/lmfit/parameters.html)
 import sys,os
 try:
-    import atk
+    import matk
 except:
     try:
-        sys.path.append('..'+os.sep+'src')
+        sys.path.append(os.path.join('..','src','matk'))
         import matk
     except ImportError as err:
         print 'Unable to load MATK module: '+str(err)

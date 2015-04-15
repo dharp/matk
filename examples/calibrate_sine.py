@@ -4,7 +4,7 @@ try:
     import matk
 except:
     try:
-        sys.path.append('..'+os.sep+'src')
+        sys.path.append(os.path.join('..','src','matk'))
         import matk
     except ImportError as err:
         print 'Unable to load MATK module: '+str(err)
