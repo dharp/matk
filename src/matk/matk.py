@@ -492,7 +492,7 @@ class matk(object):
             print "Error: Model is not a Python function"
             if not curdir is None: os.chdir( curdir )
             return 1
-    def lmfit(self,workdir=None,workdir_base=None,reuse_dirs=False,report_fit=True,ncpus=1):
+    def lmfit(self,workdir=None,workdir_base=None,reuse_dirs=False,report_fit=True,ncpus=1,epsfcn=None):
         """ Calibrate MATK model using lmfit package
 
             :param workdir: Name of directory where model will be run. It will be created if it does not exist
@@ -501,6 +501,10 @@ class matk(object):
             :type reuse_dirs: bool
             :param report_fit: If True, parameter statistics and correlations are printed to the screen
             :type report_fit: bool
+            :param ncpus: Number of cpus to use for concurrent simulations during jacobian approximation
+            :type ncpus: int
+            :param epsfcn: jacobian finite difference approximation increment
+            :type epsfcn: float
             :returns: lmfit minimizer object
         """
            
@@ -517,7 +521,7 @@ class matk(object):
         for k,p in self.pars.items():
             params.add(k,value=p.value,vary=p.vary,min=p.min,max=p.max,expr=p.expr) 
 
-        out = lmfit.minimize(self.__lmfit_residual, params, args=(workdir,ncpus), Dfun=self.__jacobian)
+        out = lmfit.minimize(self.__lmfit_residual, params, args=(workdir,ncpus,epsfcn), Dfun=self.__jacobian)
         #out = lmfit.minimize(residual, params, args=(self,), Dfun=self.__jacobian)
 
         # Make sure that self.pars are set to final values of params
@@ -531,7 +535,7 @@ class matk(object):
             print lmfit.report_fit(params)
             print 'SSR: ',self.ssr
         return out
-    def __lmfit_residual(self, params, workdir=None, ncpus=1):
+    def __lmfit_residual(self, params, workdir=None, ncpus=1, epsfcn=None):
         pardict = dict([(k,n.value) for k,n in params.items()])
         self.forward(pardict=pardict,workdir=workdir,reuse_dirs=True)
         return self.residuals
