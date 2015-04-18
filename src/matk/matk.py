@@ -492,11 +492,14 @@ class matk(object):
             print "Error: Model is not a Python function"
             if not curdir is None: os.chdir( curdir )
             return 1
-    def lmfit(self,workdir=None,workdir_base=None,reuse_dirs=False,report_fit=True,ncpus=1,epsfcn=None):
+    def lmfit(self,maxfev=0,workdir=None,workdir_base=None,reuse_dirs=False,
+            report_fit=True,ncpus=1,epsfcn=None,xtol=1.e-7,ftol=1.e-7,**kwargs):
         """ Calibrate MATK model using lmfit package
 
             :param workdir: Name of directory where model will be run. It will be created if it does not exist
             :type workdir: str
+            :param maxfev: Max number of function evaluations, if 0, 100*(npars+1) will be used
+            :type maxfev: int
             :param reuse_dirs: If True and workdir exists, the model will reuse the directory
             :type reuse_dirs: bool
             :param report_fit: If True, parameter statistics and correlations are printed to the screen
@@ -505,7 +508,14 @@ class matk(object):
             :type ncpus: int
             :param epsfcn: jacobian finite difference approximation increment
             :type epsfcn: float
+            :param xtol: Relative error in approximate solution
+            :type xtol: float
+            :param ftol: Relative error in the desired sum of squares
+            :type ftol: float
             :returns: lmfit minimizer object
+
+            Additional keyword argments will be passed to scipy leastsq function:
+            http://docs.scipy.org/doc/scipy-0.15.1/reference/generated/scipy.optimize.leastsq.html
         """
            
         try: import lmfit
@@ -521,7 +531,8 @@ class matk(object):
         for k,p in self.pars.items():
             params.add(k,value=p.value,vary=p.vary,min=p.min,max=p.max,expr=p.expr) 
 
-        out = lmfit.minimize(self.__lmfit_residual, params, args=(workdir,ncpus,epsfcn), Dfun=self.__jacobian)
+        out = lmfit.minimize(self.__lmfit_residual, params, args=(workdir,ncpus,epsfcn), 
+                maxfev=maxfev,xtol=xtol,ftol=ftol,Dfun=self.__jacobian, **kwargs)
         #out = lmfit.minimize(residual, params, args=(self,), Dfun=self.__jacobian)
 
         # Make sure that self.pars are set to final values of params
