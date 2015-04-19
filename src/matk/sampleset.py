@@ -212,13 +212,13 @@ class SampleSet(object):
             if mins is None and self.samples._mins is not None: mins = numpy.concatenate([self.samples._mins,numpy.min(self.responses.values,axis=0)])
             if maxs is None and self.samples._maxs is not None: maxs = numpy.concatenate([self.samples._maxs,numpy.max(self.responses.values,axis=0)])
         panels( self.recarray, type=type, alpha=alpha, figsize=figsize, title=title, tight=tight, symbol=symbol,fontsize=fontsize,corrfontsize=corrfontsize,ms=ms,mins=mins,maxs=maxs,frequency=frequency,bins=bins,ylim=ylim,labels=labels,filename=filename,xticks=xticks,yticks=yticks)
-    def run(self, ncpus=1, workdir_base=None, save=True, reuse_dirs=False, outfile=None, 
+    def run(self, cpus=1, workdir_base=None, save=True, reuse_dirs=False, outfile=None, 
             logfile=None, verbose=True, hosts={} ):
         """ Run model using values in samples for parameter values
             If samples are not specified, LHS samples are produced
             
-            :param ncpus: number of cpus to use to run models concurrently
-            :type ncpus: int
+            :param cpus: number of cpus; alternatively, dictionary of lists of processor ids keyed by hostnames to run models on (i.e. on a cluster); hostname provided as kwarg to model (hostname=<hostname>); processor id provided as kwarg to model (processor=<processor id>)
+            :type cpus: int,dict(lst)
             :param workdir_base: Base name for model run folders, run index is appended to workdir_base
             :type workdir_base: str
             :param save: If True, model files and folders will not be deleted during parallel model execution
@@ -229,20 +229,23 @@ class SampleSet(object):
             :type outfile: str
             :param logfile: File to write details of run to during execution
             :type logfile: str
-            :param hosts: Dictionary of lists of processor ids keyed by hostnames to run models on (i.e. on a cluster); hostname provided as kwarg to model (hostname=<hostname>); processor id provided as kwarg to model (processor=<processor id>); ncpus will be overwritten by len(hosts)*jobs_per_host
+            :param hosts: Option deprecated, use cpus instead
             :type hosts: lst(str)
             :returns: tuple(ndarray(fl64),ndarray(fl64)) - (Matrix of responses from sampled model runs siz rows by npar columns, Parameter samples, same as input samples if provided)
         """
         if workdir_base:
             self._parent.workdir_base = workdir_base
+
+        if len(hosts) > 0:
+            print "Error: host option deprecated, use cpus instead. cpus accepts an integer or dictionary of lists of processor ids keyed by hostnames in the same way that the hosts argument functioned"
+            return
                 
-        if ncpus > 0:
-            out, samples = self._parent.parallel(ncpus, self.samples.values,
+        if cpus > 0:
+            out, samples = self._parent.parallel(self.samples.values, cpus, 
                  indices=self.indices, workdir_base=workdir_base, 
-                 save=save, reuse_dirs=reuse_dirs, verbose=verbose, logfile=logfile,
-                 hosts=hosts)
+                 save=save, reuse_dirs=reuse_dirs, verbose=verbose, logfile=logfile)
         else:
-            print 'Error: number of cpus (ncpus) must be greater than zero'
+            print 'Error: number of cpus must be greater than zero'
             return
         if out is not None:
             out = numpy.array(out)

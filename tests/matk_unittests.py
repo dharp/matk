@@ -80,7 +80,7 @@ class Tests(unittest.TestCase):
     def testparallel(self):
         # Without working directories
         ss = self.p.lhs(siz=10 )
-        ss.run( ncpus=2, save=False, verbose=False)
+        ss.run( cpus=2, save=False, verbose=False)
         for smp,out in zip(ss.samples.values,ss.responses.values):
             self.p.parvalues = smp
             self.p.forward()
@@ -90,9 +90,9 @@ class Tests(unittest.TestCase):
     def testparallel_workdir(self):
         # With working directories
         ss = self.p.lhs(siz=10 )
-        ss.run( ncpus=2, save=True, verbose=False, workdir_base='workdir')
+        ss.run( cpus=2, save=True, verbose=False, workdir_base='workdir')
         # Test to make sure reusing directories works
-        ss.run( ncpus=2, verbose=False, workdir_base='workdir', save=False, reuse_dirs=True)
+        ss.run( cpus=2, verbose=False, workdir_base='workdir', save=False, reuse_dirs=True)
         for smp,out in zip(ss.samples.values,ss.responses.values):
             self.p.parvalues = smp
             self.p.forward()

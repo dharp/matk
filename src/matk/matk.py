@@ -22,7 +22,7 @@ from lmfit.asteval import Interpreter
 class matk(object):
     """ Class for Model Analysis ToolKit (MATK) module
     """
-    def __init__(self, model='', model_args=None, model_kwargs=None, ncpus=1,
+    def __init__(self, model='', model_args=None, model_kwargs=None, cpus=1,
                  workdir_base=None, workdir=None, results_file=None,
                  seed=None, sample_size=10, hosts={}):
         '''Initialize MATK object
@@ -32,8 +32,8 @@ class matk(object):
         :type model_args: any
         :param model_kwargs: additional keyword arguments to model
         :type model_kwargs: any
-        :param ncpus: number of cpus to use
-        :type ncpus: int
+        :param cpus: number of cpus to use
+        :type cpus: int
         :param workdir_base: Base name of directory to use for model runs (parallel run case), run numbers are appended to base name
         :type workdir_base: str
         :param workdir: Name of directory to use for model runs (serial run case)
@@ -51,7 +51,7 @@ class matk(object):
         self.model = model
         self.model_args = model_args
         self.model_kwargs = model_kwargs
-        self.ncpus = ncpus
+        self.cpus = cpus
         self.workdir_base = workdir_base
         self.workdir = workdir
         self.results_file = results_file
@@ -101,13 +101,13 @@ class matk(object):
         else:
             self._model_kwargs = value       
     @property
-    def ncpus(self):
+    def cpus(self):
         """ Set number of cpus to use for concurrent model evaluations
         """
-        return self._ncpus
-    @ncpus.setter
-    def ncpus(self,value):
-        self._ncpus = value
+        return self._cpus
+    @cpus.setter
+    def cpus(self,value):
+        self._cpus = value
     @property
     def workdir_base(self):
         """ Set the base name for parallel working directories
@@ -493,7 +493,7 @@ class matk(object):
             if not curdir is None: os.chdir( curdir )
             return 1
     def lmfit(self,maxfev=0,workdir=None,workdir_base=None,reuse_dirs=False,
-            report_fit=True,ncpus=1,epsfcn=None,xtol=1.e-7,ftol=1.e-7,**kwargs):
+            report_fit=True,cpus=1,epsfcn=None,xtol=1.e-7,ftol=1.e-7,**kwargs):
         """ Calibrate MATK model using lmfit package
 
             :param workdir: Name of directory where model will be run. It will be created if it does not exist
@@ -504,8 +504,8 @@ class matk(object):
             :type reuse_dirs: bool
             :param report_fit: If True, parameter statistics and correlations are printed to the screen
             :type report_fit: bool
-            :param ncpus: Number of cpus to use for concurrent simulations during jacobian approximation
-            :type ncpus: int
+            :param cpus: Number of cpus to use for concurrent simulations during jacobian approximation
+            :type cpus: int
             :param epsfcn: jacobian finite difference approximation increment
             :type epsfcn: float
             :param xtol: Relative error in approximate solution
@@ -522,7 +522,7 @@ class matk(object):
         except ImportError as exc:
             sys.stderr.write("Warning: failed to import lmfit module. ({})".format(exc))
             return
-        self.ncpus = ncpus
+        self.cpus = cpus
         if not workdir_base is None:
             self.workdir_base = workdir_base
 
@@ -531,7 +531,7 @@ class matk(object):
         for k,p in self.pars.items():
             params.add(k,value=p.value,vary=p.vary,min=p.min,max=p.max,expr=p.expr) 
 
-        out = lmfit.minimize(self.__lmfit_residual, params, args=(workdir,ncpus,epsfcn), 
+        out = lmfit.minimize(self.__lmfit_residual, params, args=(workdir,cpus,epsfcn), 
                 maxfev=maxfev,xtol=xtol,ftol=ftol,Dfun=self.__jacobian, **kwargs)
         #out = lmfit.minimize(residual, params, args=(self,), Dfun=self.__jacobian)
 
@@ -546,11 +546,11 @@ class matk(object):
             print lmfit.report_fit(params)
             print 'SSR: ',self.ssr
         return out
-    def __lmfit_residual(self, params, workdir=None, ncpus=1, epsfcn=None):
+    def __lmfit_residual(self, params, workdir=None, cpus=1, epsfcn=None):
         pardict = dict([(k,n.value) for k,n in params.items()])
         self.forward(pardict=pardict,workdir=workdir,reuse_dirs=True)
         return self.residuals
-    def __jacobian( self, params, workdir=None, ncpus=1, epsfcn=None, save=True, reuse_dirs=False ):
+    def __jacobian( self, params, workdir=None, cpus=1, epsfcn=None, save=True, reuse_dirs=False ):
         ''' Numerical Jacobian calculation
 
             :param h: Parameter increment, single value or array with npar values
@@ -579,7 +579,7 @@ class matk(object):
         self.create_sampleset(parset,name='_jac_')
 
         # Perform simulations on parameter sets
-        self.sampleset['_jac_'].run( ncpus=ncpus, verbose=False,
+        self.sampleset['_jac_'].run( cpus=cpus, verbose=False,
                          workdir_base=self.workdir_base, save=save, reuse_dirs=reuse_dirs )
         sims = self.sampleset['_jac_'].responses.values
         #a_ls = obs[0:len(a)]
@@ -670,9 +670,8 @@ class matk(object):
                 rmtree( self.workdir )
             in_queue.task_done()
         in_queue.task_done()
-    def parallel(self, ncpus, parsets, workdir_base=None, save=True,
-                reuse_dirs=False, indices=None, verbose=True, logfile=None,
-                hosts={}):
+    def parallel(self, parsets, cpus=1, workdir_base=None, save=True,
+                reuse_dirs=False, indices=None, verbose=True, logfile=None):
 
         if not os.name is "posix":
             # Use freeze_support for PCs
@@ -683,37 +682,43 @@ class matk(object):
         if not workdir_base is None: self.workdir_base = workdir_base
         if self.workdir_base is None: self.workdir = None
 
-        if len(hosts) > 0:
-            ncpus = sum([len(v) for v in hosts.values()])
+        #if len(hosts) > 0:
+        if isinstance( cpus, dict):
+            hosts = cpus
+            cpus = sum([len(v) for v in hosts.values()])
             processors = [v for l in hosts.values() for v in l]
             hostnames = [k for k,v in hosts.items() for n in v]
-            self.hosts = hosts
-        elif len(self.hosts) > 0:
-            ncpus = sum([len(v) for v in self.hosts.values()])
-            processors = [v for l in self.hosts.values() for v in l]
-            hostnames = [k for k,v in self.hosts.items() for n in v]
+            self.cpus = hosts
+        elif isinstance(self.cpus,dict) and len(self.cpus) > 0:
+            hosts = self.cpus
+            cpus = sum([len(v) for v in hosts.values()])
+            processors = [v for l in hosts.values() for v in l]
+            hostnames = [k for k,v in hosts.items() for n in v]
+        elif isinstance(cpus, int):
+            hostnames = [None]*cpus
+            processors = [None]*cpus
         else:
-            hostnames = [None]*ncpus
-            processors = [None]*ncpus
+            print "Error: cpus argument is neither an integer nor a dictionary!"
+            return
 
-        # Determine number of samples and adjust ncpus if samples < ncpus requested
+        # Determine number of samples and adjust cpus if samples < cpus requested
         if isinstance( parsets, numpy.ndarray ): n = parsets.shape[0]
         elif isinstance( parsets, list ): n = len(parsets)
-        if n < ncpus: ncpus = n
+        if n < cpus: cpus = n
 
-        # Start ncpus model runs
+        # Start cpus model runs
         resultsq = Queue()
         work = JoinableQueue()
         pool = []
-        for i in range(ncpus):
+        for i in range(cpus):
             p = Process(target=self.child, args=(work, resultsq, reuse_dirs, save, hostnames[i],processors[i]))
             p.daemon = True
             p.start()
             pool.append(p)
 
-        iter_args = itertools.chain( parsets, (None,)*ncpus )
-        iter_smpind = itertools.chain( indices, (None,)*ncpus )
-        iter_lstind = itertools.chain( range(len(parsets)), (None,)*ncpus )
+        iter_args = itertools.chain( parsets, (None,)*cpus )
+        iter_smpind = itertools.chain( indices, (None,)*cpus )
+        iter_lstind = itertools.chain( range(len(parsets)), (None,)*cpus )
         for item in zip(iter_args,iter_smpind,iter_lstind):
             work.put(item)
         
@@ -817,7 +822,7 @@ class matk(object):
         mxs = numpy.array(self.parmaxs)
         parsets = mns + ds/(levels-1)*(mxs-mns)
         return self.create_sampleset(parsets, name=name)
-    def Jac( self, h=1.e-3, ncpus=1, workdir_base=None,
+    def Jac( self, h=1.e-3, cpus=1, workdir_base=None,
                     save=True, reuse_dirs=False ):
         ''' Numerical Jacobian calculation
 
@@ -843,7 +848,7 @@ class matk(object):
         parset = numpy.array(parset)
         self.create_sampleset(parset, name='_jac_')
 
-        self.sampleset['_jac_'].run( ncpus=ncpus, verbose=False,
+        self.sampleset['_jac_'].run( cpus=cpus, verbose=False,
                          workdir_base=workdir_base, save=save, reuse_dirs=reuse_dirs )
         # Perform simulations on parameter sets
         obs = self.sampleset['_jac_'].responses.values
@@ -857,14 +862,14 @@ class matk(object):
         if self._current:
             self._set_sim_values(sims)
         return numpy.array(J).T
-    def calibrate( self, ncpus=1, maxiter=100, lambdax=0.001, minchange=1.0e-16, minlambdax=1.0e-6, verbose=False,
+    def calibrate( self, cpus=1, maxiter=100, lambdax=0.001, minchange=1.0e-16, minlambdax=1.0e-6, verbose=False,
                   workdir=None, reuse_dirs=False, h=1.e-6):
         """ Calibrate MATK model using Levenberg-Marquardt algorithm based on 
             original code written by Ernesto P. Adorio PhD. 
             (UPDEPP at Clarkfield, Pampanga)
 
-            :param ncpus: Number of cpus to use
-            :type ncpus: int
+            :param cpus: Number of cpus to use
+            :type cpus: int
             :param maxiter: Maximum number of iterations
             :type maxiter: int
             :param lambdax: Initial Marquardt lambda
@@ -881,7 +886,7 @@ class matk(object):
         """
         from minimizer import Minimizer
         fitter = Minimizer(self)
-        fitter.calibrate(ncpus=ncpus,maxiter=maxiter,lambdax=lambdax,minchange=minchange,
+        fitter.calibrate(cpus=cpus,maxiter=maxiter,lambdax=lambdax,minchange=minchange,
                          minlambdax=minlambdax,verbose=verbose,workdir=workdir,reuse_dirs=reuse_dirs,h=h)
     def __eval_expr(self, exprstr, parset):
         aeval = Interpreter()
@@ -966,7 +971,7 @@ class matk(object):
             sys.stderr.write("Warning: failed to import emcee module. ({})\n".format(exc))
         if lnprob is None:
             lnprob = logposterior(self)
-        sampler = emcee.EnsembleSampler(nwalkers, len(self.parnames), lnprob, threads=self.ncpus)
+        sampler = emcee.EnsembleSampler(nwalkers, len(self.parnames), lnprob, threads=self.cpus)
         if pos0 == None:
             try:
                 from pyDOE import lhs

@@ -42,7 +42,7 @@ def run():
     s.samples.panels(title='Parameter Panels')
     
     # Run model with parameter samples
-    s.run( ncpus=2, outfile='results.dat', logfile='log.dat',verbose=False)
+    s.run( cpus=2, outfile='results.dat', logfile='log.dat',verbose=False)
     
     # Look at sample response histograms, correlations, and panels
     s.responses.hist(ncols=3,title='Model Response Histograms')

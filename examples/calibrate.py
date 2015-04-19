@@ -31,7 +31,7 @@ def run():
     #p.forward()
     p.obsvalues = [5.308,7.24,9.638,12.866,17.069,23.192,31.443,38.558,50.156,62.948,75.995,91.972]
 
-    p.calibrate(ncpus=6,verbose=True)
+    p.calibrate(cpus=6,verbose=True)
 
 # Freeze support is necessary for multiprocessing on windows
 if __name__== "__main__":

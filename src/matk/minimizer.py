@@ -67,7 +67,7 @@ class Minimizer(LmfitMinimizer):
             par = self.params[varname]
             par.value = par.from_internal(val)
 
-    def __jacobian( self, h=1.e-3, ncpus=1, workdir_base=None,
+    def __jacobian( self, h=1.e-3, cpus=1, workdir_base=None,
                     save=True, reuse_dirs=False ):
         ''' Numerical Jacobian calculation
 
@@ -94,7 +94,7 @@ class Minimizer(LmfitMinimizer):
         parset = numpy.array(parset)
         self._parent.create_sampleset(parset,name='_jac_')
 
-        self._parent.sampleset['_jac_'].run( ncpus=ncpus, verbose=False,
+        self._parent.sampleset['_jac_'].run( cpus=cpus, verbose=False,
                          workdir_base=workdir_base, save=save, reuse_dirs=reuse_dirs )
         # Perform simulations on parameter sets
         obs = self._parent.sampleset['_jac_'].responses.values
@@ -109,13 +109,13 @@ class Minimizer(LmfitMinimizer):
             self._parent._set_sim_values(sims)
         return numpy.array(J).T
 
-    def calibrate( self, ncpus=1, maxiter=100, lambdax=0.001, minchange=1.0e-16, minlambdax=1.0e-6, verbose=False,
+    def calibrate( self, cpus=1, maxiter=100, lambdax=0.001, minchange=1.0e-16, minlambdax=1.0e-6, verbose=False,
                   workdir=None, reuse_dirs=False, h=1.e-6):
         """ Calibrate MATK model using Levenberg-Marquardt algorithm based on 
             original code written by Ernesto P. Adorio PhD. 
             (UPDEPP at Clarkfield, Pampanga)
 
-            :param ncpus: Number of cpus to use
+            :param cpus: Number of cpus to use
             :type maxiter: int
             :param maxiter: Maximum number of iterations
             :type maxiter: int
@@ -148,7 +148,7 @@ class Minimizer(LmfitMinimizer):
             # If iscomp, recalculate JtJ and beta
             if (iscomp) :
                 # Compute Jacobian
-                J = self.__jacobian( ncpus=ncpus, h=h )
+                J = self.__jacobian( cpus=cpus, h=h )
                 # Compute Hessian
                 JtJ = numpy.dot(J.T,J)
                 if (lambdax == 0.0) :

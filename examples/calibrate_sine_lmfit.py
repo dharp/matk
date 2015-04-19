@@ -55,7 +55,7 @@ def run():
     plt.show(block=True)
 
     # Calibrate parameters to data, results are printed to screen
-    p.lmfit(ncpus=2)
+    p.lmfit(cpus=2)
 
     # Look at calibrated fit
     plt.plot(x,data, 'k+')

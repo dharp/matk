@@ -44,7 +44,7 @@ def run():
 	s.samples.hist(ncols=2,title='Parameter Histograms',frequency=True)
 	
 	# Run model with parameter samples
-	s.run( ncpus=2, outfile='results.dat', logfile='log.dat',verbose=False)
+	s.run( cpus=2, outfile='results.dat', logfile='log.dat',verbose=False)
 	
 	# Look at response histograms, correlations, and panels
 	s.responses.hist(ncols=2, bins=30, title='Model Response Histograms')
