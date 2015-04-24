@@ -492,16 +492,11 @@ class matk(object):
             print "Error: Model is not a Python function"
             if not curdir is None: os.chdir( curdir )
             return 1
-    def lmfit(self,maxfev=0,workdir=None,workdir_base=None,reuse_dirs=False,
-            report_fit=True,cpus=1,epsfcn=None,xtol=1.e-7,ftol=1.e-7,**kwargs):
+    def lmfit(self,maxfev=0,report_fit=True,cpus=1,epsfcn=None,xtol=1.e-7,ftol=1.e-7,**kwargs):
         """ Calibrate MATK model using lmfit package
 
-            :param workdir: Name of directory where model will be run. It will be created if it does not exist
-            :type workdir: str
             :param maxfev: Max number of function evaluations, if 0, 100*(npars+1) will be used
             :type maxfev: int
-            :param reuse_dirs: If True and workdir exists, the model will reuse the directory
-            :type reuse_dirs: bool
             :param report_fit: If True, parameter statistics and correlations are printed to the screen
             :type report_fit: bool
             :param cpus: Number of cpus to use for concurrent simulations during jacobian approximation
@@ -523,15 +518,13 @@ class matk(object):
             sys.stderr.write("Warning: failed to import lmfit module. ({})".format(exc))
             return
         self.cpus = cpus
-        if not workdir_base is None:
-            self.workdir_base = workdir_base
 
         # Create lmfit parameter object
         params = lmfit.Parameters()
         for k,p in self.pars.items():
             params.add(k,value=p.value,vary=p.vary,min=p.min,max=p.max,expr=p.expr) 
 
-        out = lmfit.minimize(self.__lmfit_residual, params, args=(workdir,cpus,epsfcn), 
+        out = lmfit.minimize(self.__lmfit_residual, params, args=(cpus,epsfcn), 
                 maxfev=maxfev,xtol=xtol,ftol=ftol,Dfun=self.__jacobian, **kwargs)
         #out = lmfit.minimize(residual, params, args=(self,), Dfun=self.__jacobian)
 
@@ -540,17 +533,36 @@ class matk(object):
         vs = [params[k].value for k in self.pars.keys()]
         self.parvalues = dict(zip(nm,vs))
         # Run forward model to set simulated values
-        self.forward(workdir=workdir, reuse_dirs=reuse_dirs)
+        if isinstance( cpus, int):
+            self.forward(workdir='_forward_',reuse_dirs=True)
+        elif isinstance( cpus, dict):
+            hostname = cpus.keys()[0]
+            processor = cpus[hostname][0]
+            self.forward(workdir='_forward_',reuse_dirs=True,
+                         hostname=hostname,processor=processor)
+        else:
+            print 'Error: cpus argument type not recognized'
+            return
 
         if report_fit:
             print lmfit.report_fit(params)
             print 'SSR: ',self.ssr
         return out
-    def __lmfit_residual(self, params, workdir=None, cpus=1, epsfcn=None):
+    def __lmfit_residual(self, params, cpus=1, epsfcn=None, workdir='_forward_',save=False):
         pardict = dict([(k,n.value) for k,n in params.items()])
-        self.forward(pardict=pardict,workdir=workdir,reuse_dirs=True)
+        if isinstance( cpus, int):
+            self.forward(pardict=pardict,workdir=workdir,reuse_dirs=True)
+        elif isinstance( cpus, dict):
+            hostname = cpus.keys()[0]
+            processor = cpus[hostname][0]
+            self.forward(pardict=pardict,workdir=workdir,reuse_dirs=True,
+                         hostname=hostname,processor=processor)
+        else:
+            print 'Error: cpus argument type not recognized'
+            return
         return self.residuals
-    def __jacobian( self, params, workdir=None, cpus=1, epsfcn=None, save=True, reuse_dirs=False ):
+    def __jacobian( self, params, cpus=1, epsfcn=None, save=False,
+                   reuse_dirs=True, workdir_base='_jac_' ):
         ''' Numerical Jacobian calculation
 
             :param h: Parameter increment, single value or array with npar values
@@ -580,7 +592,7 @@ class matk(object):
 
         # Perform simulations on parameter sets
         self.sampleset['_jac_'].run( cpus=cpus, verbose=False,
-                         workdir_base=self.workdir_base, save=save, reuse_dirs=reuse_dirs )
+                         workdir_base=workdir_base, save=False, reuse_dirs=reuse_dirs )
         sims = self.sampleset['_jac_'].responses.values
         #a_ls = obs[0:len(a)]
         diffsims = sims[:len(a)]
