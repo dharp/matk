@@ -492,7 +492,8 @@ class matk(object):
             print "Error: Model is not a Python function"
             if not curdir is None: os.chdir( curdir )
             return 1
-    def lmfit(self,maxfev=0,report_fit=True,cpus=1,epsfcn=None,xtol=1.e-7,ftol=1.e-7,**kwargs):
+    def lmfit(self,maxfev=0,report_fit=True,cpus=1,epsfcn=None,xtol=1.e-7,ftol=1.e-7,
+              workdir=None, **kwargs):
         """ Calibrate MATK model using lmfit package
 
             :param maxfev: Max number of function evaluations, if 0, 100*(npars+1) will be used
@@ -507,6 +508,8 @@ class matk(object):
             :type xtol: float
             :param ftol: Relative error in the desired sum of squares
             :type ftol: float
+            :param workdir: Name of directory to use for model runs, calibrated parameters will be run there after calibration 
+            :type workdir: str
             :returns: lmfit minimizer object
 
             Additional keyword argments will be passed to scipy leastsq function:
@@ -524,7 +527,7 @@ class matk(object):
         for k,p in self.pars.items():
             params.add(k,value=p.value,vary=p.vary,min=p.min,max=p.max,expr=p.expr) 
 
-        out = lmfit.minimize(self.__lmfit_residual, params, args=(cpus,epsfcn), 
+        out = lmfit.minimize(self.__lmfit_residual, params, args=(cpus,epsfcn,workdir), 
                 maxfev=maxfev,xtol=xtol,ftol=ftol,Dfun=self.__jacobian, **kwargs)
         #out = lmfit.minimize(residual, params, args=(self,), Dfun=self.__jacobian)
 
@@ -534,11 +537,11 @@ class matk(object):
         self.parvalues = dict(zip(nm,vs))
         # Run forward model to set simulated values
         if isinstance( cpus, int):
-            self.forward(workdir='_forward_',reuse_dirs=True)
+            self.forward(workdir=workdir,reuse_dirs=True)
         elif isinstance( cpus, dict):
             hostname = cpus.keys()[0]
             processor = cpus[hostname][0]
-            self.forward(workdir='_forward_',reuse_dirs=True,
+            self.forward(workdir=workdir,reuse_dirs=True,
                          hostname=hostname,processor=processor)
         else:
             print 'Error: cpus argument type not recognized'
@@ -548,7 +551,7 @@ class matk(object):
             print lmfit.report_fit(params)
             print 'SSR: ',self.ssr
         return out
-    def __lmfit_residual(self, params, cpus=1, epsfcn=None, workdir='_forward_',save=False):
+    def __lmfit_residual(self, params, cpus=1, epsfcn=None, workdir=None,save=False):
         pardict = dict([(k,n.value) for k,n in params.items()])
         if isinstance( cpus, int):
             self.forward(pardict=pardict,workdir=workdir,reuse_dirs=True)
@@ -561,8 +564,8 @@ class matk(object):
             print 'Error: cpus argument type not recognized'
             return
         return self.residuals
-    def __jacobian( self, params, cpus=1, epsfcn=None, save=False,
-                   reuse_dirs=True, workdir_base='_jac_' ):
+    def __jacobian( self, params, cpus=1, epsfcn=None, workdir_base=None,save=False,
+                   reuse_dirs=True):
         ''' Numerical Jacobian calculation
 
             :param h: Parameter increment, single value or array with npar values
