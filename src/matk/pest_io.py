@@ -40,7 +40,7 @@ def tpl_write( pardict, f, outflnm ):
         t = re.sub( lh+'\n', '', t)
 
     # Complile regex pattern
-    p = re.compile(k[1]+'[^.'+k[1]+']*'+k[1])
+    p = re.compile(tok+'[^'+tok+']*'+tok)
     # Find all parameter identifiers in file
     ms = p.findall(t)
     pd = {} # Pattern dictionary
@@ -50,12 +50,12 @@ def tpl_write( pardict, f, outflnm ):
         aeval.symtable[k] = v
     # Evaluate all unique expressions
     for m in ms:
-        pstr = m.split('%')[1]
+        pstr = m.split(tok)[1].strip()
         if pstr not in pd:
             pd[m] = aeval(pstr)
     # Perform substitutions
     for k,v in pd.items():
-        t = re.sub( k, str(v), t)
+        t = re.sub( re.escape(k), str(v), t)
 
     # Write output file
     fout = open( outflnm, 'w' )
