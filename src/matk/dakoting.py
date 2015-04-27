@@ -171,7 +171,7 @@ def read_dakota_files(prob, workdir=None):
             results.append( f.readline().strip() )
 
     results = array(results)
-    prob.set_sim_values( results )
+    prob.set_simvalues( results )
 
 def write_dakota_files(prob, workdir=None):
     """ Write parameter file in aprepro format (dprepro utility provided free with DAKOTA)
@@ -198,7 +198,7 @@ def write_dakota_files(prob, workdir=None):
 #    of = 0.0
 #    for obsgrp in prob.obsgrp:
 #        for obs in obsgrp.observation:
-#            of += ( float(obs.value) - float(obs.sim_value) )**2
+#            of += ( float(obs.value) - float(obs.simvalue) )**2
 #    return of
 #            
  

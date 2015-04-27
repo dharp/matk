@@ -53,7 +53,7 @@ class Tests(unittest.TestCase):
         self.c.add_par('shift', value=-0.1, min=-numpy.pi/2., max=numpy.pi/2.)
         self.c.add_par('omega', value=2.0)
         self.c.forward()
-        self.c.obsvalues = self.c.sim_values
+        self.c.obsvalues = self.c.simvalues
         self.c.parvalues = {'amp':10.,'decay':0.1,'shift':0.,'omega':3.0}
         # Model for testing jacobian
         self.j = matk.matk(model=fv)
@@ -63,7 +63,7 @@ class Tests(unittest.TestCase):
 
     def testforward(self):
         self.p.forward()
-        results = self.p.sim_values
+        results = self.p.simvalues
         self.p.obsvalues = results
         self.assertEqual(sum(self.p.residuals),0.0, 'Residual from forward run is not zero')
 
@@ -147,12 +147,12 @@ class Tests(unittest.TestCase):
     def testcalibrate_lmfit(self): 
         # Look at initial fit
         self.c.forward()
-        sims = self.c.sim_values
+        sims = self.c.simvalues
         # Calibrate parameters to data, results are printed to screen
         self.c.lmfit(report_fit=False)
         # Look at calibrated fit
         self.c.forward()
-        sims = self.c.sim_values
+        sims = self.c.simvalues
         self.assertTrue( self.c.ssr < 1.e-10, 'Objective function value is ' + str(self.c.ssr) )
 
     def testjacobian(self):
@@ -202,7 +202,7 @@ class Tests(unittest.TestCase):
         # Run model using 'true' parameters
         self.m.forward()
         # Create 'true' observations with zero mean, 0.5 st. dev. gaussian noise added
-        self.m.obsvalues = self.m.sim_values + numpy.random.normal(0,1,len(self.m.sim_values))
+        self.m.obsvalues = self.m.simvalues + numpy.random.normal(0,1,len(self.m.simvalues))
         # Run MCMC with 100000 samples burning (discarding) the first 10000
         M = self.m.MCMC(nruns=10000,burn=1000, verbose=-1)
         mean_a = M.trace('a').stats()['mean']
@@ -231,7 +231,7 @@ class Tests(unittest.TestCase):
         # Run model using 'true' parameters
         self.m.forward()
         # Create 'true' observations with zero mean, 0.5 st. dev. gaussian noise added
-        self.m.obsvalues = self.m.sim_values + numpy.random.normal(0,0.5,len(self.m.sim_values))
+        self.m.obsvalues = self.m.simvalues + numpy.random.normal(0,0.5,len(self.m.simvalues))
         # Run MCMC with 100000 samples burning (discarding) the first 10000
         pos0 = [[2+numpy.random.normal(0, 1),5+numpy.random.normal(0, 1),0.5+numpy.random.normal(0, 0.1)] for i in range(10)]
         #lnprob = matk.logposteriorwithvariance(self.m)

@@ -47,7 +47,7 @@ def run():
     # Look at initial fit
     p.forward()
     plt.plot(x,data, 'k+')
-    plt.plot(x,p.sim_values, 'r')
+    plt.plot(x,p.simvalues, 'r')
     plt.title("Before Calibration")
     plt.show(block=True)
 
@@ -56,7 +56,7 @@ def run():
 
     # Look at calibrated fit
     plt.plot(x,data, 'k+')
-    plt.plot(x,p.sim_values, 'r')
+    plt.plot(x,p.simvalues, 'r')
     plt.title("After Calibration")
     plt.show()
 

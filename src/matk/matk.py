@@ -267,12 +267,12 @@ class matk(object):
         """
         return self.create_sampleset(self.sampleset[oldname].samples.values,name=newname,responses=self.sampleset[oldname].responses.values,indices=self.sampleset[oldname].indices)
     @property
-    def sim_values(self):
+    def simvalues(self):
         """ Simulated values
             :returns: lst(fl64) -- simulated values in order of matk.obs.keys()
         """
         return [obs.sim for obs in self.obs.values()]
-    def _set_sim_values(self, *args, **kwargs):
+    def _set_simvalues(self, *args, **kwargs):
         """ Set simulated values using a tuple, list, numpy.ndarray, dictionary or keyword arguments
         """
         if len(args) > 0 and len(kwargs) > 0:
@@ -357,11 +357,6 @@ class matk(object):
                     self.obs[k].value = v
         else:
             print "Error: tuple, list, numpy.ndarray, or dictionary expected"
-    @property
-    def simvalues(self):
-        """ Simulated values
-        """
-        return [o._sim for o in self.obs.values()]
     @property
     def obsnames(self):
         """ Get observation names
@@ -477,8 +472,8 @@ class matk(object):
                 if not curdir is None: os.chdir( curdir )
                 if sims is not None:
                     if len(sims):
-                        self._set_sim_values(sims)
-                        simdict = OrderedDict(zip(self.obsnames,self.sim_values))
+                        self._set_simvalues(sims)
+                        simdict = OrderedDict(zip(self.obsnames,self.simvalues))
                         return simdict
                 else: return None
             except:
@@ -639,7 +634,7 @@ class matk(object):
             vs = [p._func_value(v) for v,p in zip(pars,prob.pars.values())]
             print nm,vs
             prob.forward(pardict=dict(zip(nm,vs)),workdir=workdir,reuse_dirs=reuse_dirs)
-            return prob.sim_values
+            return prob.simvalues
         vs = [p.from_internal for p in self.pars.values()]
         meas = self.obsvalues
         if full_output: full_output = 1
@@ -762,7 +757,7 @@ class matk(object):
                     f.flush()
             else:
                 if isinstance( resp, OrderedDict):
-                    self._set_sim_values(resp)
+                    self._set_simvalues(resp)
                     results[lst_ind] = resp.values()
                 if verbose or logfile:
                     if header:
@@ -858,7 +853,7 @@ class matk(object):
         a = numpy.copy(numpy.array(self.parvalues))
         # If current simulated values are associated with current parameter values...
         if self._current:
-            sims = self.sim_values
+            sims = self.simvalues
         if isinstance(h, (tuple,list)):
             h = numpy.array(h)
         elif not isinstance(h, numpy.ndarray):
@@ -884,7 +879,7 @@ class matk(object):
         self.parvalues = a
         # If current simulated values are associated with current parameter values...
         if self._current:
-            self._set_sim_values(sims)
+            self._set_simvalues(sims)
         return numpy.array(J).T
     def calibrate( self, cpus=1, maxiter=100, lambdax=0.001, minchange=1.0e-16, minlambdax=1.0e-6, verbose=False,
                   workdir=None, reuse_dirs=False, h=1.e-6):
@@ -1040,7 +1035,7 @@ class logposteriorwithvariance(logposterior):
         self.prob.forward(pardict=pardict, reuse_dirs=True)
         #print "ts: " + str(ts)
         #print "ssr: " + str(numpy.sum((numpy.array(self.prob.residuals))**2))
-        #print zip(self.prob.sim_values, self.prob.obsvalues)
+        #print zip(self.prob.simvalues, self.prob.obsvalues)
         #return -0.5*(numpy.sum((numpy.array(self.prob.residuals))**2)) / self.prob.pars[self.var].value - numpy.log(self.prob.pars[self.var].value)
         return -0.5*(numpy.sum((numpy.array(self.prob.residuals))**2)) / self.prob.pars[self.var].value - (len(self.prob.obs)/2)*numpy.log(self.prob.pars[self.var].value)
 

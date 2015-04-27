@@ -139,7 +139,7 @@ def read_pest_files(prob, workdir=None):
                 if '!' in val:
                     obsnm = re.sub("!","", val)
                     values = model_file_lines[line_index].split()
-                    prob.set_sim_value( obsnm, values[col_index])
+                    prob.set_simvalue( obsnm, values[col_index])
 
 def write_pest_files(prob, workdir=None):
     """ Write model from pest template file using current values
@@ -238,7 +238,7 @@ def obj_fun(prob):
     of = 0.0
     for obsgrp in prob.obsgrp:
         for obs in obsgrp.observation:
-            of += ( float(obs.value) - float(obs.sim_value) )**2
+            of += ( float(obs.value) - float(obs.simvalue) )**2
     return of
             
  

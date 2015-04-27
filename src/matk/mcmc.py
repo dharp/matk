@@ -50,7 +50,7 @@ def create_pymc_model( prob, filename = 'model.py' ):
     f.write( "        values = array( values ) \n")
     f.write( "        prob.set_parameters( values ) \n")
     f.write( "        prob.forward() \n")
-    f.write( "        return prob.get_sim_values() \n")
+    f.write( "        return prob.get_simvalues() \n")
     f.write( "\n    #likelihood \n")
     f.write( "    y = Normal('y', mu=response, tau=1.0/sig**2, value=obs, observed=True) \n")
     f.write( "    variables.append(y) \n")

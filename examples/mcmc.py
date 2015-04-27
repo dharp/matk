@@ -29,7 +29,7 @@ def run():
     prob.forward()
 
     # Create 'true' observations with zero mean, 0.5 st. dev. gaussian noise added
-    prob.obsvalues = prob.sim_values + random.normal(0,0.1,len(prob.sim_values))
+    prob.obsvalues = prob.simvalues + random.normal(0,0.1,len(prob.simvalues))
 
     # Run MCMC with 100000 samples burning (discarding) the first 10000
     M = prob.MCMC(nruns=100000,burn=10000)

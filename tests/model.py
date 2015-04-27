@@ -27,7 +27,7 @@ def model(prob):
         values = array( values ) 
         prob.set_parameters( values ) 
         prob.forward() 
-        return prob.get_sim_values() 
+        return prob.get_simvalues() 
 
     #likelihood 
     y = Normal('y', mu=response, tau=1.0/sig**2, value=obs, observed=True) 

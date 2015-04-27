@@ -79,7 +79,7 @@ class Minimizer(LmfitMinimizer):
         a = self.vars
         # If current simulated values are associated with current parameter values...
         if self._parent._current:
-            sims = self._parent.sim_values
+            sims = self._parent.simvalues
         if isinstance(h, (tuple,list)):
             h = numpy.array(h)
         elif not isinstance(h, numpy.ndarray):
@@ -106,7 +106,7 @@ class Minimizer(LmfitMinimizer):
         self._parent.parvalues = a
         # If current simulated values are associated with current parameter values...
         if self._parent._current:
-            self._parent._set_sim_values(sims)
+            self._parent._set_simvalues(sims)
         return numpy.array(J).T
 
     def calibrate( self, cpus=1, maxiter=100, lambdax=0.001, minchange=1.0e-16, minlambdax=1.0e-6, verbose=False,
