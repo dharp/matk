@@ -498,7 +498,7 @@ class matk(object):
             if not curdir is None: os.chdir( curdir )
             return 1
     def lmfit(self,maxfev=0,report_fit=True,cpus=1,epsfcn=None,xtol=1.e-7,ftol=1.e-7,
-              workdir=None, **kwargs):
+              workdir=None, verbose=False, **kwargs):
         """ Calibrate MATK model using lmfit package
 
             :param maxfev: Max number of function evaluations, if 0, 100*(npars+1) will be used
@@ -515,6 +515,8 @@ class matk(object):
             :type ftol: float
             :param workdir: Name of directory to use for model runs, calibrated parameters will be run there after calibration 
             :type workdir: str
+            :param verbose: If true, print diagnostic information to the screen
+            :type verbose: bool
             :returns: lmfit minimizer object
 
             Additional keyword argments will be passed to scipy leastsq function:
@@ -532,7 +534,7 @@ class matk(object):
         for k,p in self.pars.items():
             params.add(k,value=p.value,vary=p.vary,min=p.min,max=p.max,expr=p.expr) 
 
-        out = lmfit.minimize(self.__lmfit_residual, params, args=(cpus,epsfcn,workdir), 
+        out = lmfit.minimize(self.__lmfit_residual, params, args=(cpus,epsfcn,workdir,verbose), 
                 maxfev=maxfev,xtol=xtol,ftol=ftol,Dfun=self.__jacobian, **kwargs)
         #out = lmfit.minimize(residual, params, args=(self,), Dfun=self.__jacobian)
 
@@ -556,7 +558,8 @@ class matk(object):
             print lmfit.report_fit(params)
             print 'SSR: ',self.ssr
         return out
-    def __lmfit_residual(self, params, cpus=1, epsfcn=None, workdir=None,save=False):
+    def __lmfit_residual(self, params, cpus=1, epsfcn=None, workdir=None,verbose=False,save=False):
+        if verbose: print 'forward run: ',params
         pardict = dict([(k,n.value) for k,n in params.items()])
         if isinstance( cpus, int):
             self.forward(pardict=pardict,workdir=workdir,reuse_dirs=True)
@@ -568,8 +571,9 @@ class matk(object):
         else:
             print 'Error: cpus argument type not recognized'
             return
+        if verbose: print 'SSR: ', numpy.sum([v**2 for v in self.residuals])
         return self.residuals
-    def __jacobian( self, params, cpus=1, epsfcn=None, workdir_base=None,save=False,
+    def __jacobian( self, params, cpus=1, epsfcn=None, workdir_base=None,verbose=False,save=False,
                    reuse_dirs=True):
         ''' Numerical Jacobian calculation
 
