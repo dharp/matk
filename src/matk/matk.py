@@ -334,7 +334,7 @@ class matk(object):
         return [o.value for o in self.obs.values()]
     @obsvalues.setter
     def obsvalues(self, value):
-        """ Set simulated values using a tuple, list, numpy.ndarray, or dictionary
+        """ Set observed values using a tuple, list, numpy.ndarray, or dictionary
         """
         if isinstance( value, dict ):
             for k,v in value.iteritems():
@@ -357,6 +357,11 @@ class matk(object):
                     self.obs[k].value = v
         else:
             print "Error: tuple, list, numpy.ndarray, or dictionary expected"
+    @property
+    def simvalues(self):
+        """ Simulated values
+        """
+        return [o._sim for o in self.obs.values()]
     @property
     def obsnames(self):
         """ Get observation names
