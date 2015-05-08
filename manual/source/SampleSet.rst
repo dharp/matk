@@ -1,6 +1,6 @@
 SampleSet Class
 ===============
-.. automodule:: matk
+.. automodule:: matk.sampleset
 
 .. autoclass:: SampleSet
     :members:

@@ -1,7 +1,7 @@
 Parameter Class
 ===============
 
-.. automodule:: matk
+.. automodule:: matk.parameter
 
 .. autoclass:: Parameter
     :members:

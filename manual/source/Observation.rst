@@ -1,7 +1,7 @@
 Observation Class
 =================
 
-.. automodule:: matk
+.. automodule:: matk.observation
 
 .. autoclass:: Observation
     :members:
