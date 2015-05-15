@@ -16,8 +16,9 @@ Currently supported functionality includes:
     - model calibration using lmfit package
     - model calibration using levmar package
 	- Markov Chain Monte Carlo using pymc package
+	- Markov Chain Monte Carlo using emcee package
 
 MATK facilitates model analysis using:
-    - scipy - calibration (scipy.optimize)
+    - lmfit - calibration (scipy.optimize)
     - rpy2 - Python interface to R
 
