@@ -13,8 +13,8 @@ Currently supported functionality includes:
 	- multi-dimensional parameter studies
 	- parallel execution of parameter samples
 	- model calibration using internal Levenberg-Marquardt algorithm
-    - model calibration using lmfit package
-    - model calibration using levmar package
+	- model calibration using lmfit package
+	- model calibration using levmar package
 	- Markov Chain Monte Carlo using pymc package
 	- Markov Chain Monte Carlo using emcee package
 
