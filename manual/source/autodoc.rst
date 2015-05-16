@@ -1,7 +1,8 @@
 .. automodule:: matk.sampleset
 
-MATK Classes
-============
+Class Documentation
+===================
+
 .. toctree::
 
     MATK <autodoc_matk.rst>

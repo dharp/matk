@@ -7,9 +7,11 @@ MATK: Model Analysis ToolKit
 ============================
 
 .. toctree::
-   :maxdepth: 3
+    :maxdepth: 3
 
-    Examples <example.rst>
+    installation
+
+    example
 
     Class Documentation <autodoc.rst>
 

@@ -1,12 +1,16 @@
 .. automodule:: matk.sampleset
 
-MATK Classes
-============
+.. toctree::
+    :maxdepth: 2
+
+Examples
+========
+
 .. toctree::
 
-    Latin Hypercube Sampling <example_sampling.rst>
+    example_sampling
 
-    Calibrate <example_calibrate.rst>
+    example_calibrate
 
 
 
