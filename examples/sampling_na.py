@@ -9,11 +9,6 @@ except:
         print 'Unable to load MATK module: '+str(err)
 import numpy
 from scipy import arange, randn, exp
-try:
-    from collections import OrderedDict as dict
-except:
-    print "Warning: collections module is not installed"
-    print "Ordering of observations will not be maintained in output"
 from multiprocessing import freeze_support
 
 # Model function

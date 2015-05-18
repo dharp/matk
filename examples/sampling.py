@@ -9,11 +9,6 @@ except:
         print 'Unable to load MATK module: '+str(err)
 import numpy
 from scipy import arange, randn, exp
-try:
-    from collections import OrderedDict as dict
-except:
-    print "Warning: collections module is not installed"
-    print "Ordering of observations will not be maintained in output"
 from multiprocessing import freeze_support
 
 # Model function
@@ -36,8 +31,8 @@ def run():
 	s = p.lhs('lhs', siz=500, seed=1000)
 	
 	# Look at sample parameter histograms, correlations, and panels
-	s.samples.hist(ncols=2,title='Parameter Histograms')
-	s.samples.hist(ncols=2,title='Parameter Histograms',frequency=True)
+	s.samples.hist(ncols=2,title='Parameter Histograms by Counts')
+	s.samples.hist(ncols=2,title='Parameter Histograms by Frequency',frequency=True)
 	parcor = s.samples.corr(plot=True, title='Parameter Correlations')
 	s.samples.panels(title='Parameter Panels')
 	
@@ -45,8 +40,8 @@ def run():
 	s.run( cpus=2, outfile='results.dat', logfile='log.dat',verbose=False)
 	
 	# Look at response histograms, correlations, and panels
-	s.responses.hist(ncols=2,title='Model Response Histograms')
-	s.responses.hist(ncols=2,title='Model Response Histograms',frequency=True)
+	s.responses.hist(ncols=3,title='Model Response Histograms by Counts')
+	s.responses.hist(ncols=3,title='Model Response Histograms by Frequency',frequency=True)
 	rescor = s.responses.corr(plot=True, title='Model Response Correlations')
 	s.responses.panels(title='Response Panels')
 	

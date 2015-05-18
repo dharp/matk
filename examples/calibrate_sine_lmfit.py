@@ -49,22 +49,25 @@ def run():
 
     # Look at initial fit
     p.forward()
-    plt.plot(x,data, 'k+')
-    plt.plot(x,p.simvalues, 'r')
-    plt.title("Before Calibration")
-    plt.show(block=True)
+    f, (ax1,ax2) = plt.subplots(2,sharex=True)
+    ax1.plot(x,data, 'k+')
+    ax1.plot(x,p.simvalues, 'r')
+    ax1.set_ylabel("Model Response")
+    ax1.set_title("Before Calibration")
 
     # Calibrate parameters to data, results are printed to screen
     p.lmfit(cpus=2)
 
     # Look at calibrated fit
-    plt.plot(x,data, 'k+')
-    plt.plot(x,p.simvalues, 'r')
-    plt.title("After Calibration")
-    plt.show()
+    ax2.plot(x,data, 'k+')
+    ax2.plot(x,p.simvalues, 'r')
+    ax2.set_ylabel("Model Response")
+    ax2.set_xlabel("x")
+    ax2.set_title("After Calibration")
+    f.show()
 
 # Freeze support is necessary for multiprocessing on windows
 if __name__== "__main__":
-	freeze_support()
-	run()
+    freeze_support()
+    run()
 
