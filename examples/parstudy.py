@@ -9,19 +9,12 @@ except:
         print 'Unable to load MATK module: '+str(err)
 import numpy
 from scipy import arange, randn, exp
-try:
-    from collections import OrderedDict as dict
-except:
-    print "Warning: collections module is not installed"
-    print "Ordering of observations will not be maintained in output"
 from multiprocessing import freeze_support
 
 # Model function
 def dbexpl(p):
     t=arange(0,100,20.)
     y =  (p['par1']*exp(-p['par2']*t) + p['par3']*exp(-p['par4']*t))
-    #nm =  ['o1','o2','o3','o4','o5']
-    #return dict(zip(nm,y))
     return y
 
 def run():
@@ -40,8 +33,8 @@ def run():
 	print s.samples.values
 
 	# Look at sample parameter histograms
-	s.samples.hist(ncols=2,title='Parameter Histograms')
-	s.samples.hist(ncols=2,title='Parameter Histograms',frequency=True)
+	s.samples.hist(ncols=2,title='Parameter Histograms by Counts')
+	s.samples.hist(ncols=2,title='Parameter Histograms by Frequency',frequency=True)
 	
 	# Run model with parameter samples
 	s.run( cpus=2, outfile='results.dat', logfile='log.dat',verbose=False)
