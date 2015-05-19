@@ -107,7 +107,7 @@ class Parameter(LMFitParameter):
     def dist_pars(self):
         """ Distribution parameters required by self.dist 
         e.g. if dist == uniform, dist_pars = (min,max-min)
-             if dist == norm, dist_pars = (mean,stdev))
+        if dist == norm, dist_pars = (mean,stdev))
         """
         return self._dist_pars
     @dist_pars.setter

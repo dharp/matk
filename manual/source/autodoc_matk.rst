@@ -1,6 +1,6 @@
 MATK
 ----
-.. automodule:: matk
+.. automodule:: matk.matk
 
 .. autoclass:: matk
     :members:

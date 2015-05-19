@@ -1,4 +1,4 @@
-.. automodule:: matk.sampleset
+.. .. automodule:: matk.sampleset
 
 Class Documentation
 ===================
