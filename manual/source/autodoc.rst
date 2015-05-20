@@ -13,5 +13,7 @@ Class Documentation
 
     SampleSet <autodoc_sampleset.rst>
 
+    pest_io <autodoc_pest_io.rst>
+
 
 
