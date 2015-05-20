@@ -5,7 +5,7 @@ try:
     import matk
 except:
     try:
-        sys.path.append(os.path.join('..','src','matk'))
+        sys.path.append(os.path.join('..','src'))
         import matk
     except ImportError as err:
         print 'Unable to load MATK module: '+str(err)
@@ -64,7 +64,7 @@ def run():
     ax2.set_ylabel("Model Response")
     ax2.set_xlabel("x")
     ax2.set_title("After Calibration")
-    f.show()
+    plt.show(block=True)
 
 # Freeze support is necessary for multiprocessing on windows
 if __name__== "__main__":

@@ -1,4 +1,3 @@
-.. automodule:: matk.sampleset
 
 .. toctree::
     :maxdepth: 2
@@ -14,6 +13,9 @@ Examples
 
     example_calibrate
 
+    example_pymc
+
+    example_fehm
 
 
 
