@@ -471,6 +471,7 @@ class matk(object):
                 self._current = True
                 if not curdir is None: os.chdir( curdir )
                 if sims is not None:
+                    if isinstance(sims,(float,int)): sims = [sims]
                     if len(sims):
                         self._set_simvalues(sims)
                         simdict = OrderedDict(zip(self.obsnames,self.simvalues))
