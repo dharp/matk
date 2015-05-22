@@ -11,6 +11,8 @@ MATK: Model Analysis ToolKit
 
     installation
 
+    getting_started
+
     example
 
     Class Documentation <autodoc.rst>
