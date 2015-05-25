@@ -1,3 +1,5 @@
+.. _ext-sim:
+
 External Simulator
 ------------------
 

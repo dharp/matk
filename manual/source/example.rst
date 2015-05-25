@@ -1,6 +1,7 @@
-
 .. toctree::
     :maxdepth: 2
+
+.. _examples:
 
 Examples
 ========
