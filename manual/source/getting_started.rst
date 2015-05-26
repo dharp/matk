@@ -95,7 +95,7 @@ As mentioned, while dictionary ordering may be desirable, it is not required by 
 Create MATK Object
 ------------------
 
-Create an instance of the MATK class specifying the function created above as the *model* using a keyword argument:
+Create an instance of the MATK class (:func:`matk <matk.matk.matk>`) specifying the function created above as the *model* using a keyword argument:
 
 .. testcode::
 
@@ -104,7 +104,7 @@ Create an instance of the MATK class specifying the function created above as th
 Add Parameters
 --------------
 
-Add parameters to the model analysis matching those in the MATK model:
+Add parameters to the model analysis matching those in the MATK model using :func:`add_par <matk.matk.matk.add_par>`:
 
 .. testcode::
 
@@ -204,7 +204,7 @@ Observations are values that you want to compare model results to. These may be 
 
     observations = [ 1., 0.14, 0.021, 2.4e-3, 3.4e-4]
 
-We'll add these to the model analysis using generic names as:
+We'll add these to the model analysis with generic names using :func:`add_obs <matk.matk.matk.add_obs>`:
 
 .. testcode::
 
@@ -233,13 +233,79 @@ Similar to parameters, observations can be accessed using the *obs* dictionary:
 
 .. testcode::
     
+    print p.obs
+
+.. testoutput::
+
+    OrderedDict([('obs1', <Observation 'obs1', observed=1.0, weight=1.0>), ('obs2', <Observation 'obs2', observed=0.14, weight=1.0>), ('obs3', <Observation 'obs3', observed=0.021, weight=1.0>), ('obs4', <Observation 'obs4', observed=0.0024, weight=1.0>), ('obs5', <Observation 'obs5', observed=0.00034, weight=1.0>)])
+
+.. testcode::
+    
+    print p.obs['obs1']
+
+.. testoutput::
+
+    <Observation 'obs1', observed=1.0, weight=1.0>
+
+.. testcode::
+    
     print p.obs['obs1'].value
 
 .. testoutput::
 
     1.0
 
+.. testcode::
+    
+    print p.obs['obs1'].weight
 
+.. testoutput::
 
+    1.0
 
+Run Forward Model
+-----------------
 
+A single forward run of the model using the current parameter values can be performed with the :func:`forward <matk.matk.matk.forward>` method as: 
+
+.. testcode::
+
+    sims = p.forward()
+    print sims
+
+.. testoutput::
+
+    OrderedDict([('obs1', 1.0), ('obs2', 0.1353352832366127), ('obs3', 0.018315638888734179), ('obs4', 0.0024787521766663585), ('obs5', 0.00033546262790251185)])
+
+Now if we look at the *obs* dictionary, we see that it includes simulated values:
+
+.. testcode::
+
+    print p.obs
+
+.. testoutput::
+
+    OrderedDict([('obs1', <Observation 'obs1', observed=1.0, simulated=1.0, weight=1.0>), ('obs2', <Observation 'obs2', observed=0.14, simulated=0.1353352832366127, weight=1.0>), ('obs3', <Observation 'obs3', observed=0.021, simulated=0.018315638888734179, weight=1.0>), ('obs4', <Observation 'obs4', observed=0.0024, simulated=0.0024787521766663585, weight=1.0>), ('obs5', <Observation 'obs5', observed=0.00034, simulated=0.00033546262790251185, weight=1.0>)])
+
+The simulated values can be accessed directly also:
+
+.. testcode::
+
+    print p.simvalues
+
+.. testoutput::
+
+    [1.0, 0.1353352832366127, 0.018315638888734179, 0.0024787521766663585, 0.00033546262790251185]
+
+The sum-of-squares can be calculated using the :func:`ssr <matk.matk.matk.ssr>` method:
+
+.. testcode::
+
+    print p.ssr
+
+.. testoutput::
+
+    2.89715995514e-05
+
+You have now completed the most basic model analysis using MATK, the forward model run.
+The next step is to take a look at the :ref:`examples` section for details on more useful model analyses involving many forward model runs. 
