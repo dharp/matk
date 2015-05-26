@@ -18,5 +18,5 @@ Examples
 
     example_fehm
 
-
+    example_cluster
 
