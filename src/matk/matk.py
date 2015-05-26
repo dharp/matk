@@ -153,17 +153,31 @@ class matk(object):
         """ Sum of squared residuals
         """
         return sum(numpy.array(self.residuals)**2)
-    def add_par(self, name, **kwargs):
+    def add_par(self, name, value=None, vary=True, min=None, max=None, expr=None, discrete_vals=[], discrete_counts=[], **kwargs):
         """ Add parameter to problem
 
             :param name: Name of parameter
             :type name: str
+            :param value: Initial parameter value
+            :type value: float
+            :param vary: Whether parameter should be varied or not, currently only used with lmfit
+            :type vary: bool
+            :param min: Minimum bound
+            :type min: float
+            :param max: Maximum bound
+            :type max: float
+            :param expr: Mathematical expression to use to calculate parameter value
+            :type expr: str
+            :param discrete_vals: list of values defining histogram bins
+            :type discrete_vals: [float]
+            :param discrete_counts: list of counts associated with discrete_vals
+            :type discrete_counts: [int]
             :param kwargs: keyword arguments passed to parameter class
         """
         if name in self.pars: 
-            self.pars[name] = Parameter(name,parent=self,**kwargs)
+            self.pars[name] = Parameter(name,parent=self,value=value,vary=vary,min=min,max=max,expr=expr,discrete_vals=[],discrete_counts=[],**kwargs)
         else:
-            self.pars.__setitem__( name, Parameter(name,parent=self,**kwargs))
+            self.pars.__setitem__( name, Parameter(name,parent=self,value=value,vary=vary,min=min,max=max,expr=expr,discrete_vals=[],discrete_counts=[],**kwargs))
     def add_obs(self,name, sim=None, weight=1.0, value=None):
         ''' Add observation to problem
             
