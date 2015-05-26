@@ -19,6 +19,19 @@ class Observation(object):
         self._sim = sim
         self._residual = None
         self._weight = weight
+    def __repr__(self):
+        s = []
+        s.append("'%s'" % self.name)
+        if self._value is not None:
+            sval = repr(self._value)
+            sval = "observed=%s" % (sval)
+            s.append(sval)
+        if self._sim is not None:
+            sval = repr(self._sim)
+            sval = "simulated=%s" % (sval)
+            s.append(sval)
+        s.append("weight=%s" % (repr(self.weight)))
+        return "<Observation %s>" % ', '.join(s)
     @property
     def name(self):
         '''Observation name'''
