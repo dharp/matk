@@ -3,5 +3,5 @@
 Copyright and License
 =====================
 
-.. include:: ../../LICENSE.rst
+.. include:: ../../LICENSE
 
