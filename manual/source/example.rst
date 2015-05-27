@@ -16,6 +16,8 @@ Examples
 
     example_pymc
 
+    example_external
+
     example_fehm
 
     example_cluster

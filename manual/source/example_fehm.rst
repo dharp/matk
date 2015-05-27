@@ -1,7 +1,7 @@
 .. _ext-sim:
 
-External Simulator
-------------------
+External Simulator (FEHM Groundwater Flow Simulator)
+-------------------------
 
 This example demonstrates a simple parameter study with an external simulator (FEHM groundwater simulator) using the subprocess call (`<https://docs.python.org/2/library/subprocess.html>`_) function to make system calls. MATK's :func:`pest_io.tpl_write <matk.pest_io.tpl_write>` is used to create model input files with parameters in the correct locations. 
 
