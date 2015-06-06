@@ -517,8 +517,8 @@ class matk(object):
             :type report_fit: bool
             :param cpus: Number of cpus to use for concurrent simulations during jacobian approximation
             :type cpus: int
-            :param epsfcn: jacobian finite difference approximation increment
-            :type epsfcn: float
+            :param epsfcn: jacobian finite difference approximation increment (single float of list of npar floats)
+            :type epsfcn: float or lst[float]
             :param xtol: Relative error in approximate solution
             :type xtol: float
             :param ftol: Relative error in the desired sum of squares
@@ -546,7 +546,6 @@ class matk(object):
 
         out = lmfit.minimize(self.__lmfit_residual, params, args=(cpus,epsfcn,workdir,verbose), 
                 maxfev=maxfev,xtol=xtol,ftol=ftol,Dfun=self.__jacobian, **kwargs)
-        #out = lmfit.minimize(residual, params, args=(self,), Dfun=self.__jacobian)
 
         # Make sure that self.pars are set to final values of params
         nm = [params[k].name for k in self.pars.keys()]
@@ -586,10 +585,6 @@ class matk(object):
     def __jacobian( self, params, cpus=1, epsfcn=None, workdir_base=None,verbose=False,save=False,
                    reuse_dirs=True):
         ''' Numerical Jacobian calculation
-
-            :param h: Parameter increment, single value or array with npar values
-            :type h: fl64 or ndarray(fl64)
-            :returns: ndarray(fl64) -- Jacobian matrix
         '''
         # Collect parameter values
         a = numpy.array([k.value for k in params.values()])
@@ -597,26 +592,20 @@ class matk(object):
         if epsfcn is None:
             hs = numpy.sqrt(numpy.finfo(float).eps)*a
             hs[numpy.where(hs==0)[0]] = numpy.sqrt(numpy.finfo(float).eps)
-        else:
+        elif isinstance(epsfcn,float):
             hs = epsfcn * numpy.ones(len(a))
-        #epsfcn = numpy.sqrt(numpy.finfo(float).eps)
-        #hs =  0.1 * numpy.ones(len(a))
-        #hlmat = numpy.identity(len(a))*(-h)
+        else:
+            hs = numpy.array(epsfcn)
         # Forward differences
         humat = numpy.identity(len(a))*hs
         parset = [a]*humat.shape[0] + humat
         parset = numpy.append(parset,[a],axis=0)
-        #for hs in humat:
-        #    int_pars = hs+a
-        #    parset.append(int_pars)
-        #parset = numpy.array(parset)
         self.create_sampleset(parset,name='_jac_')
 
         # Perform simulations on parameter sets
         self.sampleset['_jac_'].run( cpus=cpus, verbose=False,
                          workdir_base=workdir_base, save=False, reuse_dirs=reuse_dirs )
         sims = self.sampleset['_jac_'].responses.values
-        #a_ls = obs[0:len(a)]
         diffsims = sims[:len(a)]
         zerosims = sims[-1]
         ##print 'diffsims: ', diffsims, diffsims.shape
@@ -856,46 +845,26 @@ class matk(object):
         mxs = numpy.array(self.parmaxs)
         parsets = mns + ds/(levels-1)*(mxs-mns)
         return self.create_sampleset(parsets, name=name)
-    def Jac( self, h=1.e-3, cpus=1, workdir_base=None,
-                    save=True, reuse_dirs=False ):
+    def Jac( self, h=None, cpus=1, workdir_base=None,
+                    save=True, reuse_dirs=False, verbose=False ):
         ''' Numerical Jacobian calculation
 
             :param h: Parameter increment, single value or array with npar values
             :type h: fl64 or ndarray(fl64)
             :returns: ndarray(fl64) -- Jacobian matrix
         '''
-        # Collect parameter sets
-        a = numpy.copy(numpy.array(self.parvalues))
-        # If current simulated values are associated with current parameter values...
-        if self._current:
-            sims = self.simvalues
-        if isinstance(h, (tuple,list)):
-            h = numpy.array(h)
-        elif not isinstance(h, numpy.ndarray):
-            h = numpy.ones(len(a))*h
-        hlmat = numpy.identity(len(self.pars))*-h
-        humat = numpy.identity(len(self.pars))*h
-        hmat = numpy.concatenate([hlmat,humat])
-        parset = []
-        for hs in hmat:
-            parset.append(hs+a)
-        parset = numpy.array(parset)
-        self.create_sampleset(parset, name='_jac_')
+        try: import lmfit
+        except ImportError as exc:
+            sys.stderr.write("Warning: failed to import lmfit module. ({})".format(exc))
+            return
 
-        self.sampleset['_jac_'].run( cpus=cpus, verbose=False,
-                         workdir_base=workdir_base, save=save, reuse_dirs=reuse_dirs )
-        # Perform simulations on parameter sets
-        obs = self.sampleset['_jac_'].responses.values
-        a_ls = obs[0:len(a)]
-        a_us = obs[len(a):]
-        J = []
-        for a_l,a_u,hs in zip(a_ls,a_us,h):
-            J.append((a_l-a_u)/(2*hs))
-        self.parvalues = a
-        # If current simulated values are associated with current parameter values...
-        if self._current:
-            self._set_simvalues(sims)
-        return numpy.array(J).T
+        # Create lmfit parameter object
+        params = lmfit.Parameters()
+        for k,p in self.pars.items():
+            params.add(k,value=p.value,vary=p.vary,min=p.min,max=p.max,expr=p.expr) 
+
+        return self.__jacobian( params, cpus=cpus, epsfcn=h, workdir_base=workdir_base,verbose=verbose,save=save, reuse_dirs=reuse_dirs)
+
     def calibrate( self, cpus=1, maxiter=100, lambdax=0.001, minchange=1.0e-16, minlambdax=1.0e-6, verbose=False,
                   workdir=None, reuse_dirs=False, h=1.e-6):
         """ Calibrate MATK model using Levenberg-Marquardt algorithm based on 

@@ -159,7 +159,7 @@ class Tests(unittest.TestCase):
         # Check condition number
         J = self.j.Jac()
         C = numpy.linalg.cond(J)
-        self.assertTrue(numpy.abs(C - 225.6849012361745395)<1.e-10, 'Condition number of Jacobian is incorrect')
+        self.assertTrue(numpy.abs(C - 225.684681059)<1.e-8, 'Condition number ('+str(C)+') of Jacobian is incorrect')
 
     def testcalibrate(self):
         self.j.obsvalues = [5.308,7.24,9.638,12.866,17.069,23.192,31.443,38.558,50.156,62.948,75.995,91.972]
