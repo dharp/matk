@@ -14,7 +14,6 @@ def fv(a):
     a1 = a['a1']
     a2 = a['a2']
     X = np.array([1.,2.,3.,4.,5.,6.,7.,8.,9.,10.,11.,12.])
-
     out = a0 / (1. + a1 * np.exp( X * a2))
     return out
     #obsnames = ['obs'+str(i) for i in range(1,len(out)+1)]
