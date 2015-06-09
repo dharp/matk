@@ -693,7 +693,7 @@ class matk(object):
                     x[i,j] = self.__eval_expr( p.expr, r )
         return self.create_sampleset( x, name=name, index_start=index_start )
     def child( self, in_queue, out_list, reuse_dirs, save, hostname, processor):
-        for pars,smp_ind,lst_ind in iter(in_queue.get, (None,None,None)):
+        for pars,smp_ind,lst_ind in iter(in_queue.get, ('','','')):
             self.workdir_index = smp_ind
             if self.workdir_base is not None:
                 self.workdir = self.workdir_base + '.' + str(self.workdir_index)
@@ -750,9 +750,9 @@ class matk(object):
             p.start()
             pool.append(p)
 
-        iter_args = itertools.chain( parsets, (None,)*cpus )
-        iter_smpind = itertools.chain( indices, (None,)*cpus )
-        iter_lstind = itertools.chain( range(len(parsets)), (None,)*cpus )
+        iter_args = itertools.chain( parsets, ('',)*cpus )
+        iter_smpind = itertools.chain( indices, ('',)*cpus )
+        iter_lstind = itertools.chain( range(len(parsets)), ('',)*cpus )
         for item in zip(iter_args,iter_smpind,iter_lstind):
             work.put(item)
         
