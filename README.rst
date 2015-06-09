@@ -1,7 +1,7 @@
 Model Analysis ToolKit (MATK) - Python toolkit for model analysis
 =================================================================
 
-Homepage: <http://matk.lanl.gov>_
+Homepage: http://matk.lanl.gov
 
 MATK facilitates model analysis within the Python computational environment.
 MATK expects a *model* defined as a Python function that accepts a dictionary of parameter values as the first argument and returns model results as a dictionary, array, integer, or float. 
