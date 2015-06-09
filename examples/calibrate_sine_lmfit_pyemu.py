@@ -31,10 +31,10 @@ data = (5. * np.sin(2 * x - 0.1) * np.exp(-x*x*0.025) +
 p = matk.matk(model=sine_decay, model_args=(x,data,))
 
 # Create parameters
-p.add_par('amp', value=10, min=0.)
-p.add_par('decay', value=0.1)
+p.add_par('amp', value=10, min=5., max=15.)
+p.add_par('decay', value=0.1, min=0, max=10)
 p.add_par('shift', value=0.0, min=-np.pi/2., max=np.pi/2.)
-p.add_par('omega', value=3.0)
+p.add_par('omega', value=3.0, min=0, max=10)
 
 # Create observation names and set observation values
 for i in range(len(data)):
@@ -60,12 +60,12 @@ ax2.set_title("After Calibration")
 plt.show(block=True)
 
 J = p.Jac(cpus=2)
-#print np.dot(J.T,J)
 
 m = matrix(x=J,row_names=p.obsnames,col_names=p.parnames)
-#parcov = cov(lm.covar,names=p.parnames)
-parcov = cov(np.linalg.inv(np.dot(J.T,J)),names=p.parnames)
-obscov = cov(np.linalg.inv(np.dot(J,J.T)),names=p.obsnames)
+parcov_arr = np.array([((mx-mn)/4.)**2 for mx,mn in zip(p.parmaxs,p.parmins)])*np.eye(len(p.pars))
+parcov = cov(parcov_arr,names=p.parnames)
+obscov_arr = np.eye(len(p.obs))
+obscov = cov(obscov_arr,names=p.obsnames)
 
 la = pyemu.errvar(jco=m,parcov=parcov,obscov=obscov)
 #la = pyemu.errvar(jco=m,parcov=parcov,obscov=obscov,forecasts=['obs1'])
