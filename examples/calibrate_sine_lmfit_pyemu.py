@@ -67,8 +67,8 @@ parcov = cov(parcov_arr,names=p.parnames)
 obscov_arr = np.eye(len(p.obs))
 obscov = cov(obscov_arr,names=p.obsnames)
 
-la = pyemu.errvar(jco=m,parcov=parcov,obscov=obscov)
-#la = pyemu.errvar(jco=m,parcov=parcov,obscov=obscov,forecasts=['obs1'])
+la = pyemu.errvar(jco=m,parcov=parcov,obscov=obscov,forecasts=['obs1'])
+#la = pyemu.errvar(jco=m,parcov=parcov,obscov=obscov,forecasts=['obs1'],omitted_parameters=['par2'])
 
 s = la.qhalfx.s
 plt.plot(s.x)
