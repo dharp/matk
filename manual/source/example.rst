@@ -14,6 +14,8 @@ Examples
 
     example_calibrate
 
+    example_pyemu
+
     example_pymc
 
     example_external
