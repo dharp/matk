@@ -59,20 +59,34 @@ ax2.set_xlabel("x")
 ax2.set_title("After Calibration")
 plt.show(block=True)
 
+# Recompute jacobian at calibration point
 J = p.Jac(cpus=2)
 
+# Use pyemu module to analyze identifiability of parameters within calibration 
+# Create matrix object of jacobian for pyemu
 m = matrix(x=J,row_names=p.obsnames,col_names=p.parnames)
+# Create prior parameter covariance matrix using parameter bounds (uniform priors)
 parcov_arr = np.array([((mx-mn)/4.)**2 for mx,mn in zip(p.parmaxs,p.parmins)])*np.eye(len(p.pars))
 parcov = cov(parcov_arr,names=p.parnames)
-obscov_arr = np.eye(len(p.obs))
+# Create prior observation covariance matrix based on observation weights (p.obsweights)
+# In this case, it is an identity matrix since all weights are one
+obscov_arr = np.eye(len(p.obs))*p.obsweights
 obscov = cov(obscov_arr,names=p.obsnames)
 
+# Create pyemu error variance object using jacobian and parameter and observation covariances
+#la = pyemu.errvar(jco=m,parcov=parcov,obscov=obscov,forecasts=['obs1'],omitted_parameters=['omega'])
 la = pyemu.errvar(jco=m,parcov=parcov,obscov=obscov,forecasts=['obs1'])
-#la = pyemu.errvar(jco=m,parcov=parcov,obscov=obscov,forecasts=['obs1'],omitted_parameters=['par2'])
 
+# Plot the singular values from the eigenanalysis of the jacobian
 s = la.qhalfx.s
+plt.title("Singular spectrum")
+plt.ylabel("Power")
+plt.xlabel("Singular value")
 plt.plot(s.x)
 plt.show()
 
+# Print identifiability of parameters
+# The results indicate that 'amp' has low identifiability relative to other parameters
 ident_df = la.get_identifiability_dataframe(3)
-print ident_df
+print "\nIdentifiability of parameters:"
+print ident_df['ident']
