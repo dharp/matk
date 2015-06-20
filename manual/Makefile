@@ -42,6 +42,7 @@ clean:
 	-rm -rf $(BUILDDIR)/*
 
 html:
+	cd source; ipython nbconvert  --to rst ../../examples/calibrate_sine_lmfit.ipynb
 	cd source; ipython nbconvert  --to rst ../../examples/calibrate_sine_lmfit_pyemu.ipynb
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo
