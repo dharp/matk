@@ -244,6 +244,22 @@ class Tests(unittest.TestCase):
         self.assertTrue( abs(mean_a - 2.) < 0.2, 'Mean of parameter a is not close to 2: mean(a) = ' + str(mean_a) )
         self.assertTrue( abs(mean_c - 5.) < 1., 'Mean of parameter c is not close to 5: mean(c) = ' + str(mean_c) )
         self.assertTrue( abs(mean_sig - 0.5) < 0.2, 'Mean of model error std. dev. is not close to 0.1: mean(sig) = ' + str(mean_sig) )
+
+    def testminimize(self):
+        def fun(pars): 
+            o = (pars['x1'] - 1)**2 + (pars['x2'] - 2.5)**2
+            return -o
+        cons = ({'type': 'ineq', 'fun': lambda x:  x[0] - 2 * x[1] + 2},
+            {'type': 'ineq', 'fun': lambda x: -x[0] - 2 * x[1] + 6},
+            {'type': 'ineq', 'fun': lambda x: -x[0] + 2 * x[1] + 2})
+        self.m = matk.matk(model=fun)
+        self.m.add_par('x1',min=0,value=2)
+        self.m.add_par('x2',min=0,value=0)
+        self.m.add_obs('obs1',value=0)
+        r = self.m.minimize(constraints=cons,options={'eps':1.4901161193847656e-08})
+        self.assertTrue( abs(r['x'][0] - 1.4) < 1.e-8, 'Calibrated parameter 1 should be 1.4 but is ' + str(r['x'][0]) )
+        self.assertTrue( abs(r['x'][1] - 1.7) < 1.e-8, 'Calibrated parameter 1 should be 1.4 but is ' + str(r['x'][0]) )
+
       
 def suite(case):
     suite = unittest.TestSuite()

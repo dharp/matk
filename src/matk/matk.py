@@ -616,6 +616,31 @@ class matk(object):
         self.parvalues = a
         return numpy.array(J).T
 
+    def minimize(self,method='SLSQP',maxiter=100,workdir=None,bounds=(),constraints=(),options={'eps':1.e-3}):
+        """ Minimize a scalar function of one or more variables
+
+            :param maxiter: Max number of iterations
+            :type maxiter: int
+            :param workdir: Name of directory to use for model runs, calibrated parameters will be run there after calibration 
+            :type workdir: str
+            :returns: OptimizeResult
+        """
+        try: from scipy.optimize import minimize
+        except ImportError as exc:
+            sys.stderr.write("Error: failed to import scipy.optimize.minimize module. ({})".format(exc))
+            return
+        if len(bounds) == 0:
+            bounds = zip(self.parmins,self.parmaxs)
+        x0 = self.parvalues
+        res = minimize(self.__minimize_residual,x0,args=(workdir,),method=method,bounds=bounds,constraints=constraints,options=options)
+        return res
+
+    def __minimize_residual(self, x, workdir):
+        pardict = dict([(k,n) for k,n in zip(self.parnames,x)])
+        self.forward(pardict=pardict,workdir=workdir)
+        self.forward(pardict=pardict,workdir=workdir)
+        return self.residuals[0]
+
     def levmar(self,workdir=None,reuse_dirs=False,max_iter=1000,full_output=True):
         """ Calibrate MATK model using levmar package
 
