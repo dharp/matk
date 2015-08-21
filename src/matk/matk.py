@@ -639,7 +639,7 @@ class matk(object):
         pardict = dict([(k,n) for k,n in zip(self.parnames,x)])
         self.forward(pardict=pardict,workdir=workdir)
         self.forward(pardict=pardict,workdir=workdir)
-        return self.residuals[0]
+        return numpy.abs(self.residuals[0])
 
     def levmar(self,workdir=None,reuse_dirs=False,max_iter=1000,full_output=True):
         """ Calibrate MATK model using levmar package
