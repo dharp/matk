@@ -616,29 +616,33 @@ class matk(object):
         self.parvalues = a
         return numpy.array(J).T
 
-    def minimize(self,method='SLSQP',maxiter=100,workdir=None,bounds=(),constraints=(),options={'eps':1.e-3}):
+    def minimize(self,method='SLSQP',maxiter=100,workdir=None,bounds=(),constraints=(),options={'eps':1.e-3},save_evals=False):
         """ Minimize a scalar function of one or more variables
 
             :param maxiter: Max number of iterations
             :type maxiter: int
             :param workdir: Name of directory to use for model runs, calibrated parameters will be run there after calibration 
             :type workdir: str
-            :returns: OptimizeResult
+            :returns: OptimizeResult; if save_evals=True, also returns a MATK sampleset of calibration function evaluation parameters and responses
         """
         try: from scipy.optimize import minimize
         except ImportError as exc:
             sys.stderr.write("Error: failed to import scipy.optimize.minimize module. ({})".format(exc))
             return
+        if save_evals: self._minimize_pars = []; self._minimize_sims = []
         if len(bounds) == 0:
             bounds = zip(self.parmins,self.parmaxs)
         x0 = self.parvalues
-        res = minimize(self.__minimize_residual,x0,args=(workdir,),method=method,bounds=bounds,constraints=constraints,options=options)
-        return res
+        res = minimize(self.__minimize_residual,x0,args=(workdir,save_evals),method=method,bounds=bounds,constraints=constraints,options=options)
+        if save_evals:
+            return res, self.create_sampleset(self._minimize_pars, responses=self._minimize_sims)
+        else: return res
 
-    def __minimize_residual(self, x, workdir):
+    def __minimize_residual(self, x, workdir, save_evals):
         pardict = dict([(k,n) for k,n in zip(self.parnames,x)])
         self.forward(pardict=pardict,workdir=workdir)
-        self.forward(pardict=pardict,workdir=workdir)
+        self._minimize_pars.append(self.parvalues)
+        self._minimize_sims.append(self.simvalues)
         return numpy.abs(self.residuals[0])
 
     def levmar(self,workdir=None,reuse_dirs=False,max_iter=1000,full_output=True):
