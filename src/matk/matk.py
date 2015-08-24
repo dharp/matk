@@ -327,13 +327,13 @@ class matk(object):
         """
         if isinstance( value, dict ):
             for k,v in value.iteritems():
-                self.pars[k].value = v
+                self.pars[k]._value = v
         elif isinstance( value, (list,tuple,numpy.ndarray)):
             if not len(value) == len(self.pars): 
                 print "Error: Number of parameter values in ndarray does not match created parameters"
                 return
-            for v,k in zip(value,self.pars.keys()):
-                self.pars[k].value = v
+            for k,v in zip(self.parnames,value):
+                self.pars[k]._value = v
         else:
             print "Error: tuple, list, numpy.ndarray, or dictionary expected"
     @property
@@ -406,6 +406,26 @@ class matk(object):
         """ Get parameters needed by parameter distributions
         """
         return [par.dist_pars for par in self.pars.values()]
+    @property
+    def nomvalues(self):
+        """ Nominal parameter values used in info gap analyses
+        """
+        return [par.nominal for par in self.pars.values()]
+    @nomvalues.setter
+    def nomvalues(self, value):
+        """ Set nominal parameter values using a tuple, list, numpy.ndarray, or dictionary
+        """
+        if isinstance( value, dict ):
+            for k,v in value.iteritems():
+                self.pars[k].nominal = v
+        elif isinstance( value, (list,tuple,numpy.ndarray)):
+            if not len(value) == len(self.pars): 
+                print "Error: Number of parameter values in ndarray does not match created parameters"
+                return
+            for v,k in zip(value,self.pars.keys()):
+                self.pars[k].nominal = v
+        else:
+            print "Error: tuple, list, numpy.ndarray, or dictionary expected"
     def __iter__(self):
         return self
     def make_workdir(self, workdir=None, reuse_dirs=False):
@@ -461,7 +481,9 @@ class matk(object):
             try:
                 if pardict is None:
                     pardict = dict([(k,par.value) for k,par in self.pars.items()])
-                else: self.parvalues = pardict
+                else: 
+                    self.parvalues = pardict
+                    pardict = dict(zip(self.parnames,self.parvalues))
                 if self.model_args is None and self.model_kwargs is None:
                     if hostname is None: sims = self.model( pardict )
                     else: 

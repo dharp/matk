@@ -14,9 +14,10 @@ make_instancemethod)
 class Parameter(LMFitParameter):
     """ MATK parameter class
     """
-    def __init__(self, name, value=None, vary=True, min=None, max=None, expr=None, discrete_vals=[], discrete_counts=[], **kwargs):
+    def __init__(self, name, value=None, vary=True, min=None, max=None, expr=None, nominal=None, discrete_vals=[], discrete_counts=[], **kwargs):
         if expr is not None and platform.system() is 'Windows':
             raise InputError('expr option not supported on Windows, similar functionality can be achieved using expressions in model functions')
+        if nominal is not None and value is None: value=nominal
         LMFitParameter.__init__(self, name=name, value=value, vary=vary, min=min, max=max, expr=expr)
         self.from_internal = self._nobound
         if len(discrete_counts) and (len(discrete_counts) != len(discrete_vals)):
@@ -38,6 +39,7 @@ class Parameter(LMFitParameter):
         self._dist = 'uniform'
         self._dist_pars = None
         self._parent = None
+        self._nominal = nominal
         for k,v in kwargs.iteritems():
             if k == 'mean':
                 self.mean = float(v)
@@ -94,6 +96,14 @@ class Parameter(LMFitParameter):
             self._val = value
             if self._parent:
                 self._parent._current = False
+    @property
+    def nominal(self):
+        """ Nominal parameter value, used in info gap decision analyses
+        """
+        return self._nominal
+    @nominal.setter
+    def nominal(self,value):
+        self._nominal = value
     @property
     def dist(self):
         """ Probabilistic distribution of parameter belonging to scipy.stats
