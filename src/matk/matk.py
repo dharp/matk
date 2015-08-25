@@ -320,20 +320,20 @@ class matk(object):
     def parvalues(self):
         """ Parameter values
         """
-        return [par.value for par in self.pars.values()]
+        return [par._val for par in self.pars.values()]
     @parvalues.setter
     def parvalues(self, value):
         """ Set parameter values using a tuple, list, numpy.ndarray, or dictionary
         """
         if isinstance( value, dict ):
             for k,v in value.iteritems():
-                self.pars[k]._value = v
+                self.pars[k]._val = v
         elif isinstance( value, (list,tuple,numpy.ndarray)):
             if not len(value) == len(self.pars): 
                 print "Error: Number of parameter values in ndarray does not match created parameters"
                 return
             for k,v in zip(self.parnames,value):
-                self.pars[k]._value = v
+                self.pars[k]._val = v
         else:
             print "Error: tuple, list, numpy.ndarray, or dictionary expected"
     @property
