@@ -64,6 +64,21 @@ class matk(object):
         self.sampleset = OrderedDict()
         self.workdir_index = 0
         self._current = False # Flag indicating if simulated values are associated with current parameters
+    def __repr__(self):
+        s = 'MATK Model Analysis Object\n\n'
+        s += 'Model: '+self.model.func_name+'\n\n'
+        s += 'Number of Parameters: '+str(len(self.pars))+'\n'
+        if len(self.pars) < 11:
+            s+='Parameters:\n'
+            for k,v in self.pars.iteritems(): s += repr(v); s+='\n'
+        s += '\nNumber of Observations: '+str(len(self.obs))+'\n'
+        if len(self.obs) < 11:
+            s+='Observations:\n'
+            for k,v in self.obs.iteritems(): s += repr(v); s+='\n'
+        else:
+            s+='Too many observations to display\n'
+            s+='Use "obs" attribute to return observation dictionary\n'
+        return s
     @property
     def model(self):
         """ Python function that runs model
