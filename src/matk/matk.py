@@ -678,8 +678,9 @@ class matk(object):
     def __minimize_residual(self, x, workdir, save_evals):
         pardict = dict([(k,n) for k,n in zip(self.parnames,x)])
         self.forward(pardict=pardict,workdir=workdir)
-        self._minimize_pars.append(self.parvalues)
-        self._minimize_sims.append(self.simvalues)
+        if save_evals:
+            self._minimize_pars.append(self.parvalues)
+            self._minimize_sims.append(self.simvalues)
         return numpy.abs(self.residuals[0])
 
     def levmar(self,workdir=None,reuse_dirs=False,max_iter=1000,full_output=True):
