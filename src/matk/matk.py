@@ -633,8 +633,14 @@ class matk(object):
             hs = epsfcn * numpy.ones(len(a))
         else:
             hs = numpy.array(epsfcn)
+        # Collect array of 1s and 0s to indicate variable or fixed parameters
+        vary = numpy.array([int(k.vary) for k in params.values()])
+        # Make fixed hs values zero
+        hs = hs*vary
         # Forward differences
         humat = numpy.identity(len(a))*hs
+        # Remove zero rows associated with fixed parameters
+        humat = humat[~numpy.all(humat == 0, axis=1)]
         parset = [a]*humat.shape[0] + humat
         parset = numpy.append(parset,[a],axis=0)
         self.create_sampleset(parset,name='_jac_')
