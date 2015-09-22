@@ -624,7 +624,7 @@ class matk(object):
         ''' Numerical Jacobian calculation
         '''
         # Collect parameter values
-        a = numpy.array([k.value for k in params.values()])
+        a = numpy.array([k.value for k in params.values() if k.vary])
         # Determine finite difference increment for each parameter
         if epsfcn is None:
             hs = numpy.sqrt(numpy.finfo(float).eps)*a
