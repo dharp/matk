@@ -653,6 +653,8 @@ class matk(object):
         zerosims = sims[-1]
         ##print 'diffsims: ', diffsims, diffsims.shape
         #print 'zerosims: ', zerosims, zerosims.shape
+        # Delete hs's associated with fixed parameters
+        hs = numpy.delete(hs,numpy.where(hs==0))
         J = []
         for h,d in zip(hs,diffsims):
             J.append((zerosims-d)/h)
