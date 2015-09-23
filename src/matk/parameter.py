@@ -147,40 +147,40 @@ class Parameter(LMFitParameter):
         return self.max + 1 - numpy.sqrt(val*val + 1)
     def _bound(self,val):
         return self.min + (numpy.sin(val) + 1) * (self.max - self.min) / 2
-    def setup_bounds(self):
-        """set up Minuit-style internal/external parameter transformation
-        of min/max bounds.
+    #def setup_bounds(self):
+    #    """set up Minuit-style internal/external parameter transformation
+    #    of min/max bounds.
 
-        returns internal value for parameter from self.value (which holds
-        the external, user-expected value).   This internal values should
-        actually be used in a fit....
+    #    returns internal value for parameter from self.value (which holds
+    #    the external, user-expected value).   This internal values should
+    #    actually be used in a fit....
 
-        As a side-effect, this also defines the self.from_internal method
-        used to re-calculate self.value from the internal value, applying
-        the inverse Minuit-style transformation.  This method should be
-        called prior to passing a Parameter to the user-defined objective
-        function.
+    #    As a side-effect, this also defines the self.from_internal method
+    #    used to re-calculate self.value from the internal value, applying
+    #    the inverse Minuit-style transformation.  This method should be
+    #    called prior to passing a Parameter to the user-defined objective
+    #    function.
 
-        This code borrows heavily from JJ Helmus' leastsqbound.py
-        """
-        if self.min in (None, -numpy.inf) and self.max in (None, numpy.inf):
-            #self.from_internal = lambda val: val
-            self.from_internal = self._nobound
-            _val  = self._val
-        elif self.max in (None, numpy.inf):
-            #self.from_internal = lambda val: self.min - 1 + sqrt(val*val + 1)
-            self.from_internal = self._minbound
-            _val  = numpy.sqrt((self._val - self.min + 1)**2 - 1)
-        elif self.min in (None, -numpy.inf):
-            #self.from_internal = lambda val: self.max + 1 - sqrt(val*val + 1)
-            self.from_internal = self._maxbound
-            _val  = numpy.sqrt((self.max - self._val + 1)**2 - 1)
-        else:
-            #self.from_internal = lambda val: self.min + (sin(val) + 1) * \
-            #                     (self.max - self.min) / 2
-            self.from_internal = self._bound 
-            _val  = numpy.arcsin(2*(self._val - self.min)/(self.max - self.min) - 1)
-        return _val
+    #    This code borrows heavily from JJ Helmus' leastsqbound.py
+    #    """
+    #    if self.min in (None, -numpy.inf) and self.max in (None, numpy.inf):
+    #        #self.from_internal = lambda val: val
+    #        self.from_internal = self._nobound
+    #        _val  = self._val
+    #    elif self.max in (None, numpy.inf):
+    #        #self.from_internal = lambda val: self.min - 1 + sqrt(val*val + 1)
+    #        self.from_internal = self._minbound
+    #        _val  = numpy.sqrt((self._val - self.min + 1)**2 - 1)
+    #    elif self.min in (None, -numpy.inf):
+    #        #self.from_internal = lambda val: self.max + 1 - sqrt(val*val + 1)
+    #        self.from_internal = self._maxbound
+    #        _val  = numpy.sqrt((self.max - self._val + 1)**2 - 1)
+    #    else:
+    #        #self.from_internal = lambda val: self.min + (sin(val) + 1) * \
+    #        #                     (self.max - self.min) / 2
+    #        self.from_internal = self._bound 
+    #        _val  = numpy.arcsin(2*(self._val - self.min)/(self.max - self.min) - 1)
+    #    return _val
 
 class Error(Exception):
     pass
