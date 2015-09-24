@@ -301,6 +301,12 @@ class matk(object):
             :returns: lst(fl64) -- simulated values in order of matk.obs.keys()
         """
         return [obs.sim for obs in self.obs.values()]
+    @property
+    def simdict(self):
+        """ Simulated values
+            :returns: lst(fl64) -- simulated values in order of matk.obs.keys()
+        """
+        return dict(zip(self.obsnames,self.simvalues))
     def _set_simvalues(self, *args, **kwargs):
         """ Set simulated values using a tuple, list, numpy.ndarray, dictionary or keyword arguments
         """
