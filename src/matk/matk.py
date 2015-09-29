@@ -830,7 +830,7 @@ class matk(object):
             if logfile: f = open(logfile, 'w')
             s = "%-8s" % 'index'
             for nm in self.parnames:
-                s += " %16s" % nm
+                s += " %19s" % nm
             header = True
 
         results = [[numpy.NAN]]*len(parsets)
@@ -847,7 +847,7 @@ class matk(object):
                 if verbose or logfile:
                     if header:
                         for nm in self.obsnames:
-                            s += " %16s" % nm
+                            s += " %19s" % nm
                         s += '\n'
                         if verbose: print s,
                         if logfile: 
@@ -856,10 +856,10 @@ class matk(object):
                         header = False
                     s = "%-8d" % smp_ind
                     for v in parsets[lst_ind]:
-                        s += " %16lf" % v
+                        s += " %19.16g" % v
                     if results[lst_ind] is not numpy.NAN:
                         for v in results[lst_ind]:
-                            s += " %16lf" % v
+                            s += " %19.16g" % v
                     s += '\n'
                     if verbose: print s,
                     if logfile: 
