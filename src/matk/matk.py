@@ -609,7 +609,7 @@ class matk(object):
         if report_fit:
             print lmfit.report_fit(params)
             print 'SSR: ',self.ssr
-        return out
+        return out,params
     def __lmfit_residual(self, params, cpus=1, epsfcn=None, workdir=None,verbose=False,save=False):
         if verbose: print 'forward run: ',params
         pardict = dict([(k,n.value) for k,n in params.items()])
