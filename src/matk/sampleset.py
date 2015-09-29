@@ -297,15 +297,15 @@ class SampleSet(object):
             f.write("%-8s" % 'index' )
             # Print par names
             for nm in self.samples.names:
-                f.write(" %19s" % nm )
+                f.write(" %22s" % nm )
             # Print obs names if responses exist
             if not self.responses is None:
                 if len(self.obsnames) == 0:
                     for i in range(self.responses.values.shape[1]):
-                        f.write("%19s" % 'obs'+str(i+1) )
+                        f.write("%22s" % 'obs'+str(i+1) )
                 else:
                     for nm in self.obsnames:
-                        f.write(" %19s" % nm )
+                        f.write(" %22s" % nm )
             f.write('\n')
             for row in x:
                 if isinstance( row[0], str ):
@@ -314,9 +314,9 @@ class SampleSet(object):
                     f.write("%-8d" % row[0] )
                 for i in range(1,len(row)):
                     if isinstance( row[i], str):
-                        f.write(" %19.16s" % row[i] )
+                        f.write(" %22.16s" % row[i] )
                     else:
-                        f.write(" %19.16lf" % row[i] )
+                        f.write(" %22.16g" % row[i] )
                 f.write('\n')
             f.close()
     def subset(self, boolfcn, obs, *args, **kwargs): 
