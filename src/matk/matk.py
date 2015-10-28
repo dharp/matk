@@ -49,8 +49,8 @@ class matk(object):
         :returns: object -- MATK object
         '''
         self.model = model
-        self.model_args = model_args
-        self.model_kwargs = model_kwargs
+        self._model_args = model_args
+        self._model_kwargs = model_kwargs
         self.cpus = cpus
         self.workdir_base = workdir_base
         self.workdir = workdir
