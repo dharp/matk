@@ -18,7 +18,7 @@ from numpy.linalg import LinAlgError
 
 from scipy.optimize import leastsq as scipy_leastsq
 from scipy.optimize import fmin as scipy_fmin
-from scipy.optimize import anneal as scipy_anneal
+#from scipy.optimize import anneal as scipy_anneal
 from scipy.optimize.lbfgsb import fmin_l_bfgs_b as scipy_lbfgsb
 
 # check for scipy.optimize.minimize
@@ -264,24 +264,24 @@ or set  leastsq_kws['maxfev']  to increase this maximum."""
         self.update_constraints()
         self.__prepared = True
 
-    def anneal(self, schedule='cauchy', **kws):
-        """
-        use simulated annealing
-        """
-        sched = 'fast'
-        if schedule in ('cauchy', 'boltzmann'):
-            sched = schedule
+    #def anneal(self, schedule='cauchy', **kws):
+    #    """
+    #    use simulated annealing
+    #    """
+    #    sched = 'fast'
+    #    if schedule in ('cauchy', 'boltzmann'):
+    #        sched = schedule
 
-        self.prepare_fit()
-        sakws = dict(full_output=1, schedule=sched,
-                     maxiter = 2000 * (self.nvarys + 1))
+    #    self.prepare_fit()
+    #    sakws = dict(full_output=1, schedule=sched,
+    #                 maxiter = 2000 * (self.nvarys + 1))
 
-        sakws.update(self.kws)
-        sakws.update(kws)
-        print("WARNING:  scipy anneal appears unusable!")
-        saout = scipy_anneal(self.penalty, self.vars, **sakws)
-        self.sa_out = saout
-        return
+    #    sakws.update(self.kws)
+    #    sakws.update(kws)
+    #    print("WARNING:  scipy anneal appears unusable!")
+    #    saout = scipy_anneal(self.penalty, self.vars, **sakws)
+    #    self.sa_out = saout
+    #    return
 
     def lbfgsb(self, **kws):
         """
