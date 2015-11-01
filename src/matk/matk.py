@@ -1069,7 +1069,7 @@ class matk(object):
             except ImportError as exc:
                 sys.stderr.write("Warning: failed to import pyDOE module. ({})\n".format(exc))
         sampler.run_mcmc(pos0, nsamples)
-        return sampler.chain[:, burnin:, :].reshape((-1, len(self.parnames)))
+        return sampler.chain[:, burnin:, :].reshape((-1, len(self.parnames))), sampler.lnprobability[:, burnin:].flatten()
 
 class logposterior(object):
     def __init__(self, prob, var=1):
