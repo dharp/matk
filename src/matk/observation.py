@@ -66,7 +66,7 @@ class Observation(object):
     @property
     def residual(self):
         '''Observation value minus simulated value'''
-        self._residual = (self._value - self._sim) / self._weight
+        self._residual = (self._value - self._sim) * self._weight
         return self._residual
     @residual.setter
     def residual(self,value):
