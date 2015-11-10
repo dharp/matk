@@ -155,6 +155,17 @@ class Tests(unittest.TestCase):
         sims = self.c.simvalues
         self.assertTrue( self.c.ssr < 1.e-10, 'Objective function value is ' + str(self.c.ssr) )
 
+    def testcalibrate_lmfit_mp(self): 
+        # Look at initial fit
+        self.c.forward()
+        sims = self.c.simvalues
+        # Calibrate parameters to data, results are printed to screen
+        self.c.lmfit(cpus=4,report_fit=False)
+        # Look at calibrated fit
+        self.c.forward()
+        sims = self.c.simvalues
+        self.assertTrue( self.c.ssr < 1.e-10, 'Objective function value is ' + str(self.c.ssr) )
+
     def testjacobian(self):
         # Check condition number
         J = self.j.Jac()
