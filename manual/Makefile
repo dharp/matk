@@ -44,6 +44,7 @@ clean:
 html:
 	cd source; ipython nbconvert  --to rst ../../examples/calibrate_sine_lmfit.ipynb
 	cd source; ipython nbconvert  --to rst ../../examples/calibrate_sine_lmfit_pyemu.ipynb
+	cd source; ipython nbconvert  --to rst ../../examples/sampling.ipynb
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
