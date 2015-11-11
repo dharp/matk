@@ -300,7 +300,7 @@ class matk(object):
         """ Simulated values
             :returns: lst(fl64) -- simulated values in order of matk.obs.keys()
         """
-        return [obs.sim for obs in self.obs.values()]
+        return numpy.array([obs.sim for obs in self.obs.values()])
     @property
     def simdict(self):
         """ Simulated values
@@ -341,7 +341,7 @@ class matk(object):
     def parvalues(self):
         """ Parameter values
         """
-        return [par._val for par in self.pars.values()]
+        return numpy.array([par._val for par in self.pars.values()])
     @parvalues.setter
     def parvalues(self, value):
         """ Set parameter values using a tuple, list, numpy.ndarray, or dictionary
@@ -366,7 +366,7 @@ class matk(object):
     def obsvalues(self):
         """ Observation values
         """
-        return [o.value for o in self.obs.values()]
+        return numpy.array([o.value for o in self.obs.values()])
     @obsvalues.setter
     def obsvalues(self, value):
         """ Set observed values using a tuple, list, numpy.ndarray, or dictionary
@@ -399,24 +399,24 @@ class matk(object):
         return [o.name for o in self.obs.values()]
     @property
     def obsweights(self):
-        """ Get observation names
+        """ Get observation weights
         """
-        return [o.weight for o in self.obs.values()]
+        return numpy.array([o.weight for o in self.obs.values()])
     @property
     def residuals(self):
         """ Get least squares values
         """
-        return [o.residual for o in self.obs.values()]
+        return numpy.array([o.residual for o in self.obs.values()])
     @property
     def parmins(self):
         """ Get parameter lower bounds
         """
-        return [par.min for par in self.pars.values()]
+        return numpy.array([par.min for par in self.pars.values()])
     @property
     def parmaxs(self):
-        """ Get parameter lower bounds
+        """ Get parameter upper bounds
         """
-        return [par.max for par in self.pars.values()]
+        return numpy.array([par.max for par in self.pars.values()])
     @property
     def pardists(self):
         """ Get parameter probabilistic distributions
@@ -426,12 +426,12 @@ class matk(object):
     def pardist_pars(self):
         """ Get parameters needed by parameter distributions
         """
-        return [par.dist_pars for par in self.pars.values()]
+        return numpy.array([par.dist_pars for par in self.pars.values()])
     @property
     def nomvalues(self):
         """ Nominal parameter values used in info gap analyses
         """
-        return [par.nominal for par in self.pars.values()]
+        return numpy.array([par.nominal for par in self.pars.values()])
     @nomvalues.setter
     def nomvalues(self, value):
         """ Set nominal parameter values using a tuple, list, numpy.ndarray, or dictionary
