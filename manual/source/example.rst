@@ -10,6 +10,8 @@ Examples
 
     example_sampling
 
+    example_sampling_na
+
     example_parstudy
 
     example_calibrate
