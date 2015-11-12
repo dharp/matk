@@ -20,6 +20,8 @@ Examples
 
     example_pymc
 
+    example_emcee
+
     example_external
 
     example_fehm
