@@ -1037,7 +1037,7 @@ class matk(object):
             sys.stderr.write("If pymc is not installed, try installing:\n")
             sys.stderr.write("e.g. try using easy_install: easy_install pymc\n")
         Matplot.plot(M)
-    def emcee( self, lnprob=None, nwalkers=100, nsamples=500, burnin=50, pos0=None ):
+    def emcee( self, lnprob=None, lnprob_args=(), nwalkers=100, nsamples=500, burnin=50, pos0=None, ncpus=1 ):
         ''' Perform Markov Chain Monte Carlo sampling using emcee package
 
             :param lnprob: Function specifying the natural logarithm of the likelihood function
@@ -1050,6 +1050,8 @@ class matk(object):
             :type burnin: int
             :param pos0: list of initial positions for the walkers
             :type pos0: list
+            :param ncpus: number of cpus
+            :type ncpus: int
             :returns: numpy array containing samples
         '''
         try:
@@ -1058,7 +1060,7 @@ class matk(object):
             sys.stderr.write("Warning: failed to import emcee module. ({})\n".format(exc))
         if lnprob is None:
             lnprob = logposterior(self)
-        sampler = emcee.EnsembleSampler(nwalkers, len(self.parnames), lnprob, threads=self.cpus)
+        sampler = emcee.EnsembleSampler(nwalkers, len(self.parnames), lnprob, args=lnprob_args, threads=ncpus)
         if pos0 == None:
             try:
                 from pyDOE import lhs
@@ -1068,8 +1070,11 @@ class matk(object):
                     pos0.append([pmin + (pmax - pmin) * lhval for lhval, pmin, pmax in zip(lh[i], self.parmins, self.parmaxs)])
             except ImportError as exc:
                 sys.stderr.write("Warning: failed to import pyDOE module. ({})\n".format(exc))
-        sampler.run_mcmc(pos0, nsamples)
-        return sampler.chain[:, burnin:, :].reshape((-1, len(self.parnames))), sampler.lnprobability[:, burnin:].flatten()
+        pos,prob,state = sampler.run_mcmc(pos0, burnin)
+        sampler.reset()
+        sampler.run_mcmc(pos, nsamples)
+        #return sampler.chain[:, burnin:, :].reshape((-1, len(self.parnames))), sampler.lnprobability[:, burnin:].flatten()
+        return sampler
 
 class logposterior(object):
     def __init__(self, prob, var=1):
