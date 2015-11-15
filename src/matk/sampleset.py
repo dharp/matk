@@ -16,6 +16,7 @@ try:
     from collections import OrderedDict
 except ImportError:
     from ordereddict import OrderedDict
+from corner import corner
 
 class SampleSet(object):
     """ MATK SampleSet class - Stores information related to a sample
@@ -218,9 +219,9 @@ class SampleSet(object):
             :param filename: Name of file to save plot. File ending determines plot type (pdf, png, ps, eps, etc.). Plot types available depends on the matplotlib backend in use on the system. Plot will not be displayed.
             :type filename: str
             :param xticks: Number of ticks along x axes 
-            :type filename: int
+            :type xticks: int
             :param yticks: Number of ticks along y axes 
-            :type filename: int
+            :type yticks: int
         """
         if self.responses is None:
             if mins is None and self.samples._mins is not None: mins = self.samples._mins
@@ -229,6 +230,16 @@ class SampleSet(object):
             if mins is None and self.samples._mins is not None: mins = numpy.concatenate([self.samples._mins,numpy.min(self.responses.values,axis=0)])
             if maxs is None and self.samples._maxs is not None: maxs = numpy.concatenate([self.samples._maxs,numpy.max(self.responses.values,axis=0)])
         panels( self.recarray, type=type, alpha=alpha, figsize=figsize, title=title, tight=tight, symbol=symbol,fontsize=fontsize,corrfontsize=corrfontsize,ms=ms,mins=mins,maxs=maxs,frequency=frequency,bins=bins,ylim=ylim,labels=labels,filename=filename,xticks=xticks,yticks=yticks)
+    def corner(self,bins=20, range=None, weights=None, color=u'k', smooth=None, smooth1d=None, labels=None, label_kwargs=None, show_titles=False, title_fmt=u'.2f', title_kwargs=None, truths=None, truth_color=u'#4682b4', scale_hist=False, quantiles=None, verbose=False, fig=None, max_n_ticks=5, top_ticks=False, use_math_text=False, hist_kwargs=None, **hist2d_kwargs):
+        """ Plot corner plot using the corner package written by Dan Foreman-Mackey (https://pypi.python.org/pypi/corner/1.0.0)
+        """
+        rc = self.recarray
+        if labels is None:
+            labels = rc.dtype.names
+        elif not len(labels) == len(rc.dtype.names):
+            print "Error: number of labels does not match number of parameters"
+            return
+        return corner(rc.tolist(),bins=bins,range=range,weights=weights,color=color,smooth=smooth,smooth1d=smooth1d,labels=labels,label_kwargs=label_kwargs,show_titles=show_titles,title_fmt=title_fmt,title_kwargs=title_kwargs,truths=truths,truth_color=truth_color,scale_hist=scale_hist,quantiles=quantiles,verbose=verbose,fig=fig,max_n_ticks=max_n_ticks,top_ticks=top_ticks,use_math_text=use_math_text,hist_kwargs=hist_kwargs,**hist2d_kwargs)
     def run(self, cpus=1, workdir_base=None, save=True, reuse_dirs=False, outfile=None, 
             logfile=None, verbose=True, hosts={} ):
         """ Run model using values in samples for parameter values
@@ -537,14 +548,24 @@ class DataSet(object):
             :param filename: Name of file to save plot. File ending determines plot type (pdf, png, ps, eps, etc.). Plot types available depends on the matplotlib backend in use on the system. Plot will not be displayed.
             :type filename: str
             :param xticks: Number of ticks along x axes 
-            :type filename: int
+            :type xticks: int
             :param yticks: Number of ticks along y axes 
-            :type filename: int
+            :type yticks: int
         """
         if mins is None and self._mins is not None: mins = self._mins
         if maxs is None and self._maxs is not None: maxs = self._maxs
         panels( self.recarray, type=type, alpha=alpha, figsize=figsize, title=title, tight=tight, symbol=symbol,fontsize=fontsize,corrfontsize=corrfontsize,ms=ms,mins=mins,maxs=maxs,frequency=frequency,bins=bins,ylim=ylim,labels=labels,filename=filename,xticks=xticks,yticks=yticks)
-
+    def corner(self,bins=20, range=None, weights=None, color=u'k', smooth=None, smooth1d=None, labels=None, label_kwargs=None, show_titles=False, title_fmt=u'.2f', title_kwargs=None, truths=None, truth_color=u'#4682b4', scale_hist=False, quantiles=None, verbose=False, fig=None, max_n_ticks=5, top_ticks=False, use_math_text=False, hist_kwargs=None, **hist2d_kwargs):
+        """ Plot corner plot using the corner package written by Dan Foreman-Mackey (https://pypi.python.org/pypi/corner/1.0.0)
+        """
+        rc = self.recarray
+        if labels is None:
+            labels = rc.dtype.names
+        elif not len(labels) == len(rc.dtype.names):
+            print "Error: number of labels does not match number of parameters"
+            return
+        return corner(self.values,bins=bins,range=range,weights=weights,color=color,smooth=smooth,smooth1d=smooth1d,labels=labels,label_kwargs=label_kwargs,show_titles=show_titles,title_fmt=title_fmt,title_kwargs=title_kwargs,truths=truths,truth_color=truth_color,scale_hist=scale_hist,quantiles=quantiles,verbose=verbose,fig=fig,max_n_ticks=max_n_ticks,top_ticks=top_ticks,use_math_text=use_math_text,hist_kwargs=hist_kwargs,**hist2d_kwargs)
+ 
 def corr(rc1, rc2, type='pearson', plot=False, printout=True, plotvals=True, figsize=None, title=None):
     """ Calculate correlation coefficients of parameters and responses
 

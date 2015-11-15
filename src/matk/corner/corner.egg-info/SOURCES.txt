@@ -1,0 +1,9 @@
+LICENSE
+MANIFEST.in
+README.rst
+corner.py
+setup.py
+corner.egg-info/PKG-INFO
+corner.egg-info/SOURCES.txt
+corner.egg-info/dependency_links.txt
+corner.egg-info/top_level.txt
