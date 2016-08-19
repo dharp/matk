@@ -1075,6 +1075,31 @@ class matk(object):
         sampler.run_mcmc(pos, nsamples)
         #return sampler.chain[:, burnin:, :].reshape((-1, len(self.parnames))), sampler.lnprobability[:, burnin:].flatten()
         return sampler
+    def differential_evolution(self,bounds=(), workdir=None, strategy='best1bin',maxiter=1000, popsize=15, tol=0.01,
+                               mutation=(0.5, 1), recombination=0.7, seed=None, callback=None, disp=False, polish=True,
+                               init='latinhypercube',save_evals=False):
+        ''' Perform differential evolution calibration using scipy.optimize.differential_evolution
+        '''
+        try: from scipy.optimize import differential_evolution
+        except ImportError as exc:
+            sys.stderr.write("Error: failed to import scipy.optimize.differential_evolution module. ({})".format(exc))
+            return
+        if save_evals: self._minimize_pars = []; self._minimize_sims = []
+        if len(bounds) == 0:
+            bounds = zip(self.parmins,self.parmaxs)
+        res = differential_evolution(self.__ssr,bounds,args=(workdir,save_evals),strategy=strategy,maxiter=maxiter,popsize=popsize,
+                                     tol=tol,mutation=mutation,recombination=recombination,seed=seed,callback=callback,disp=disp,
+                                     polish=polish,init=init)
+        if save_evals:
+            return res, self.create_sampleset(self._minimize_pars, responses=self._minimize_sims)
+        else: return res
+    def __ssr(self, x, workdir, save_evals):
+        pardict = dict([(k,n) for k,n in zip(self.parnames,x)])
+        self.forward(pardict=pardict,workdir=workdir)
+        if save_evals:
+            self._minimize_pars.append(self.parvalues)
+            self._minimize_sims.append(self.simvalues)
+        return self.ssr
 
 class logposterior(object):
     def __init__(self, prob, var=1):

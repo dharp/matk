@@ -12,6 +12,7 @@ from exp_model_int import dbexpl
 from sine_decay_model import sine_decay
 import numpy
 from cPickle import dump, load, PicklingError
+from scipy.optimize import rosen
 
 def fv(a):
     ''' Exponential function from marquardt.py
@@ -273,6 +274,29 @@ class Tests(unittest.TestCase):
         self.assertTrue( abs(r['x'][0] - 1.4) < 1.e-8, 'Calibrated parameter 1 should be 1.4 but is ' + str(r['x'][0]) )
         self.assertTrue( abs(r['x'][1] - 1.7) < 1.e-8, 'Calibrated parameter 1 should be 1.4 but is ' + str(r['x'][0]) )
 
+    def testdifferential_evolution(self):
+        def myrosen(pars):
+                return rosen(pars.values())
+        self.m = matk.matk(model=myrosen)
+        self.m.add_par('p1',min=0,max=2)
+        self.m.add_par('p2',min=0,max=2)
+        self.m.add_par('p3',min=0,max=2)
+        self.m.add_par('p4',min=0,max=2)
+        self.m.add_obs('o1',value=0)
+        result = self.m.differential_evolution()
+        self.assertTrue( result.fun < 1.e-8, 'Objective function of Rosenbrock problem is larger than tolerance of 1.e-8: ' + str(result.fun) )
+
+        def ackley(pars):
+            x = pars.values()
+            arg1 = -0.2 * numpy.sqrt(0.5 * (x[0] ** 2 + x[1] ** 2))
+            arg2 = 0.5 * (numpy.cos(2. * numpy.pi * x[0]) + numpy.cos(2. * numpy.pi * x[1]))
+            return -20. * numpy.exp(arg1) - numpy.exp(arg2) + 20. + numpy.e
+        self.m2 = matk.matk(model=ackley)
+        self.m2.add_par('p1',min=-5,max=5)
+        self.m2.add_par('p2',min=-5,max=5)
+        self.m2.add_obs('o1',value=0)
+        result2 = self.m2.differential_evolution()
+        self.assertTrue( result2.fun < 1.e-8, 'Objective function for Ackley problem is larger than tolerance of 1.e-8: ' + str(result.fun) )
       
 def suite(case):
     suite = unittest.TestSuite()
@@ -289,6 +313,7 @@ def suite(case):
         suite.addTest( Tests('testmcmc') )
         suite.addTest( Tests('testemcee') )
         suite.addTest( Tests('testemcee2') )
+        suite.addTest( Tests('testdifferentialevolution') )
     if case == 'parallel' or case == 'all':
         suite.addTest( Tests('testparallel') )
         suite.addTest( Tests('testparallel_workdir') )
