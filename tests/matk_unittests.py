@@ -272,7 +272,7 @@ class Tests(unittest.TestCase):
         self.m.add_obs('obs1',value=0)
         r = self.m.minimize(constraints=cons,options={'eps':1.4901161193847656e-08})
         self.assertTrue( abs(r['x'][0] - 1.4) < 1.e-8, 'Calibrated parameter 1 should be 1.4 but is ' + str(r['x'][0]) )
-        self.assertTrue( abs(r['x'][1] - 1.7) < 1.e-8, 'Calibrated parameter 1 should be 1.4 but is ' + str(r['x'][0]) )
+        self.assertTrue( abs(r['x'][1] - 1.7) < 1.e-8, 'Calibrated parameter 1 should be 1.7 but is ' + str(r['x'][1]) )
 
     def testdifferential_evolution(self):
         def myrosen(pars):
