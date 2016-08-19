@@ -1198,7 +1198,7 @@ class matk(object):
         else: return res
     def __ssr(self, x, workdir, save_evals):
         pardict = dict([(k,n) for k,n in zip(self.parnames,x)])
-        self.forward(pardict=pardict,workdir=workdir)
+        self.forward(pardict=pardict,workdir=workdir,reuse_dirs=True)
         if save_evals:
             self._minimize_pars.append(self.parvalues)
             self._minimize_sims.append(self.simvalues)
