@@ -1085,10 +1085,9 @@ class matk(object):
         space, but often requires larger numbers of function evaluations than
         conventional gradient based techniques.
 
-        The algorithm is due to Storn and Price [1]_.
+        The algorithm is due to Storn and Price.
 
         Parameters
-        ----------
         func : callable
             The objective function to be minimized.  Must be in the form
             ``f(x, *args)``, where ``x`` is the argument in the form of a 1-D array

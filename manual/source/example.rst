@@ -16,6 +16,8 @@ Examples
 
     example_calibrate
 
+    example_minimize_constraints
+
     example_differential_evolution
 
     example_pyemu

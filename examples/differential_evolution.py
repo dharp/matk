@@ -1,5 +1,5 @@
 from matk import matk
-from scipy.optimize import rosen,differential_evolution
+from scipy.optimize import rosen
 import numpy as np
 
 def myrosen(pars):

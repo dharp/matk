@@ -19,7 +19,7 @@
     LICENSE
 
 Other useful python modules:
-======================
+============================
     `PYEMU <https://github.com/jtwhite79/pyemu>`_: Jeremy White's linear-based computer model uncertainty analysis python module; used in :ref:`pyemu` example.
 
 Indices and tables
