@@ -16,6 +16,8 @@ Examples
 
     example_calibrate
 
+    example_differential_evolution
+
     example_pyemu
 
     example_pymc
