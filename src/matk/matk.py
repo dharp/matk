@@ -649,12 +649,18 @@ class matk(object):
         humat = humat[~numpy.all(humat == 0, axis=1)]
         parset = [a]*humat.shape[0] + humat
         parset = numpy.append(parset,[a],axis=0)
-        self.create_sampleset(parset,name='_jac_')
+        if cpus > 1:
+            self.create_sampleset(parset,name='_jac_')
 
-        # Perform simulations on parameter sets
-        self.sampleset['_jac_'].run( cpus=cpus, verbose=False,
-                         workdir_base=workdir_base, save=False, reuse_dirs=reuse_dirs )
-        sims = self.sampleset['_jac_'].responses.values
+            # Perform simulations on parameter sets
+            self.sampleset['_jac_'].run( cpus=cpus, verbose=False,
+                             workdir_base=workdir_base, save=False, reuse_dirs=reuse_dirs )
+            sims = self.sampleset['_jac_'].responses.values
+        else:
+            sims = []
+            for ps in parset:
+                self.forward(pardict=dict(zip(self.parnames,ps)),workdir=workdir_base,reuse_dirs=True)
+                sims.append(self.simvalues)
         diffsims = sims[:len(a)]
         zerosims = sims[-1]
         ##print 'diffsims: ', diffsims, diffsims.shape
