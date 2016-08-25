@@ -687,7 +687,7 @@ class matk(object):
             sys.stderr.write("Error: failed to import scipy.optimize.minimize module. ({})".format(exc))
             return
         if save_evals: self._minimize_pars = []; self._minimize_sims = []
-        if len(bounds) == 0:
+        if len(bounds) == 0 and method is not 'Nelder-Mead':
             bounds = zip(self.parmins,self.parmaxs)
         x0 = self.parvalues
         res = minimize(self.__minimize_residual,x0,args=(workdir,save_evals),method=method,bounds=bounds,constraints=constraints,options=options)
