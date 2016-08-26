@@ -4,19 +4,26 @@ import string
 from scipy import stats
 from shutil import rmtree
 from operator import itemgetter
-try:
-    from matplotlib import pyplot as plt
-    from matplotlib.ticker import MaxNLocator
-    from matplotlib import rc as mplrc
-    plotflag = True
-except ImportError as exc:
-    sys.stderr.write("Warning: failed to import matplotlib module. Plots will not be produced. ({})".format(exc))
-    plotflag = False
+import os
+if 'DISPLAY' in os.environ:
+    if os.environ['DISPLAY']:
+        try:
+            from matplotlib import pyplot as plt
+            from matplotlib.ticker import MaxNLocator
+            from matplotlib import rc as mplrc
+            from corner import corner
+            plotflag = True
+        except ImportError as exc:
+            sys.stderr.write("Warning: failed to import matplotlib module. Plots will not be produced. ({})".format(exc))
+            plotflag = False
+    else:
+        plotflag=False
+else:
+    plotflag=False
 try:
     from collections import OrderedDict
 except ImportError:
     from ordereddict import OrderedDict
-from corner import corner
 
 class SampleSet(object):
     """ MATK SampleSet class - Stores information related to a sample
@@ -233,13 +240,17 @@ class SampleSet(object):
     def corner(self,bins=20, range=None, weights=None, color=u'k', smooth=None, smooth1d=None, labels=None, label_kwargs=None, show_titles=False, title_fmt=u'.2f', title_kwargs=None, truths=None, truth_color=u'#4682b4', scale_hist=False, quantiles=None, verbose=False, fig=None, max_n_ticks=5, top_ticks=False, use_math_text=False, hist_kwargs=None, **hist2d_kwargs):
         """ Plot corner plot using the corner package written by Dan Foreman-Mackey (https://pypi.python.org/pypi/corner/1.0.0)
         """
-        rc = self.recarray
-        if labels is None:
-            labels = rc.dtype.names
-        elif not len(labels) == len(rc.dtype.names):
-            print "Error: number of labels does not match number of parameters"
+        if plotflag:
+            rc = self.recarray
+            if labels is None:
+                labels = rc.dtype.names
+            elif not len(labels) == len(rc.dtype.names):
+                print "Error: number of labels does not match number of parameters"
+                return
+            return corner(rc.tolist(),bins=bins,range=range,weights=weights,color=color,smooth=smooth,smooth1d=smooth1d,labels=labels,label_kwargs=label_kwargs,show_titles=show_titles,title_fmt=title_fmt,title_kwargs=title_kwargs,truths=truths,truth_color=truth_color,scale_hist=scale_hist,quantiles=quantiles,verbose=verbose,fig=fig,max_n_ticks=max_n_ticks,top_ticks=top_ticks,use_math_text=use_math_text,hist_kwargs=hist_kwargs,**hist2d_kwargs)
+        else:
+            print 'Plotting capabilities not enabled, ensure x connnection'
             return
-        return corner(rc.tolist(),bins=bins,range=range,weights=weights,color=color,smooth=smooth,smooth1d=smooth1d,labels=labels,label_kwargs=label_kwargs,show_titles=show_titles,title_fmt=title_fmt,title_kwargs=title_kwargs,truths=truths,truth_color=truth_color,scale_hist=scale_hist,quantiles=quantiles,verbose=verbose,fig=fig,max_n_ticks=max_n_ticks,top_ticks=top_ticks,use_math_text=use_math_text,hist_kwargs=hist_kwargs,**hist2d_kwargs)
     def run(self, cpus=1, workdir_base=None, save=True, reuse_dirs=False, outfile=None, 
             logfile=None, verbose=True, hosts={} ):
         """ Run model using values in samples for parameter values
@@ -558,13 +569,17 @@ class DataSet(object):
     def corner(self,bins=20, range=None, weights=None, color=u'k', smooth=None, smooth1d=None, labels=None, label_kwargs=None, show_titles=False, title_fmt=u'.2f', title_kwargs=None, truths=None, truth_color=u'#4682b4', scale_hist=False, quantiles=None, verbose=False, fig=None, max_n_ticks=5, top_ticks=False, use_math_text=False, hist_kwargs=None, **hist2d_kwargs):
         """ Plot corner plot using the corner package written by Dan Foreman-Mackey (https://pypi.python.org/pypi/corner/1.0.0)
         """
-        rc = self.recarray
-        if labels is None:
-            labels = rc.dtype.names
-        elif not len(labels) == len(rc.dtype.names):
-            print "Error: number of labels does not match number of parameters"
+        if plotflag:
+            rc = self.recarray
+            if labels is None:
+                labels = rc.dtype.names
+            elif not len(labels) == len(rc.dtype.names):
+                print "Error: number of labels does not match number of parameters"
+                return
+            return corner(self.values,bins=bins,range=range,weights=weights,color=color,smooth=smooth,smooth1d=smooth1d,labels=labels,label_kwargs=label_kwargs,show_titles=show_titles,title_fmt=title_fmt,title_kwargs=title_kwargs,truths=truths,truth_color=truth_color,scale_hist=scale_hist,quantiles=quantiles,verbose=verbose,fig=fig,max_n_ticks=max_n_ticks,top_ticks=top_ticks,use_math_text=use_math_text,hist_kwargs=hist_kwargs,**hist2d_kwargs)
+        else:
+            print 'Plotting capabilities not enabled, ensure x connnection'
             return
-        return corner(self.values,bins=bins,range=range,weights=weights,color=color,smooth=smooth,smooth1d=smooth1d,labels=labels,label_kwargs=label_kwargs,show_titles=show_titles,title_fmt=title_fmt,title_kwargs=title_kwargs,truths=truths,truth_color=truth_color,scale_hist=scale_hist,quantiles=quantiles,verbose=verbose,fig=fig,max_n_ticks=max_n_ticks,top_ticks=top_ticks,use_math_text=use_math_text,hist_kwargs=hist_kwargs,**hist2d_kwargs)
  
 def corr(rc1, rc2, type='pearson', plot=False, printout=True, plotvals=True, figsize=None, title=None):
     """ Calculate correlation coefficients of parameters and responses
