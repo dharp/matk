@@ -52,6 +52,7 @@ html:
 	cd source; ipython nbconvert  --to rst ../../examples/emcee.ipynb
 	cd source; ipython nbconvert  --to rst ../../examples/differential_evolution.ipynb
 	cd source; ipython nbconvert  --to rst ../../examples/minimize_constraints.ipynb
+	cd source; ipython nbconvert  --to rst ../../examples/sampleset_restart.ipynb
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."

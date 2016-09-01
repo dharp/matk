@@ -12,6 +12,8 @@ Examples
 
     example_sampling_na
 
+    example_sampleset_restart
+
     example_parstudy
 
     example_calibrate

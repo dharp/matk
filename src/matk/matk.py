@@ -832,15 +832,15 @@ class matk(object):
         for item in zip(iter_args,iter_smpind,iter_lstind):
             work.put(item)
         
-        if verbose or logfile: 
-            if logfile: 
-                f = open(logfile, 'w')
-                f.write("Number of parameters: %d\n" % len(self.pars) )
-                f.write("Number of responses: %d\n" % len(self.obs) )
-            s = "%-8s" % 'index'
-            for nm in self.parnames:
-                s += " %22s" % nm
-            header = True
+        #if verbose or logfile: 
+        #    if logfile: 
+        #        f = open(logfile, 'w')
+        #        f.write("Number of parameters: %d\n" % len(self.pars) )
+        #        f.write("Number of responses: %d\n" % len(self.obs) )
+        #    s = "%-8s" % 'index'
+        #    for nm in self.parnames:
+        #        s += " %22s" % nm
+        #    header = True
 
         results = [[numpy.NAN]]*len(parsets)
         for i in range(len(parsets)):
@@ -854,6 +854,15 @@ class matk(object):
                     self._set_simvalues(resp)
                     results[lst_ind] = resp.values()
                 if verbose or logfile:
+                    if i == 0:
+                        if logfile: 
+                            f = open(logfile, 'w')
+                            f.write("Number of parameters: %d\n" % len(self.pars) )
+                            f.write("Number of responses: %d\n" % len(self.obs) )
+                        s = "%-8s" % 'index'
+                        for nm in self.parnames:
+                            s += " %22s" % nm
+                        header = True
                     if header:
                         for nm in self.obsnames:
                             s += " %22s" % nm
