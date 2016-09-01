@@ -252,7 +252,7 @@ class SampleSet(object):
             print 'Plotting capabilities not enabled, ensure x connnection'
             return
     def run(self, cpus=1, workdir_base=None, save=True, reuse_dirs=False, outfile=None, 
-            logfile=None, verbose=True, hosts={} ):
+            logfile=None, restart_logfile=None, verbose=True, hosts={} ):
         """ Run model using values in samples for parameter values
             If samples are not specified, LHS samples are produced
             
@@ -268,6 +268,8 @@ class SampleSet(object):
             :type outfile: str
             :param logfile: File to write details of run to during execution
             :type logfile: str
+            :param restart_logfile: Existing logfile containing completed runs, used to complete an incomplete sampling; Warning: sample indices are expected to match!
+            :type restart_logfile: str
             :param hosts: Option deprecated, use cpus instead
             :type hosts: lst(str)
             :returns: tuple(ndarray(fl64),ndarray(fl64)) - (Matrix of responses from sampled model runs siz rows by npar columns, Parameter samples, same as input samples if provided)
@@ -278,14 +280,37 @@ class SampleSet(object):
         if len(hosts) > 0:
             print "Error: host option deprecated, use cpus instead. cpus accepts an integer or dictionary of lists of processor ids keyed by hostnames in the same way that the hosts argument functioned"
             return
+
+        samples = self.samples.values
+        indices = self.indices
+        # If restart logfile provided, remove completed runs from samples to run
+        if not restart_logfile is None:
+            sdone = self._parent.read_sampleset(restart_logfile)
+            ir = []
+            for i in sdone.indices:
+                ir += numpy.where(self.indices==i)[0].tolist()
+            samples = numpy.delete(samples,ir,0)
+            indices = numpy.delete(indices,ir,0)
                 
         if cpus > 0:
-            out, samples = self._parent.parallel(self.samples.values, cpus, 
-                 indices=self.indices, workdir_base=workdir_base, 
+            out, retsamples = self._parent.parallel(samples, cpus, 
+                 indices=indices, workdir_base=workdir_base, 
                  save=save, reuse_dirs=reuse_dirs, verbose=verbose, logfile=logfile)
         else:
             print 'Error: number of cpus must be greater than zero'
             return
+
+        # If restart logfile provided, combine output
+        if not restart_logfile is None:
+            indices = numpy.concatenate([sdone.indices,indices])
+            sorted_inds = numpy.argsort(indices)
+            indices = indices[sorted_inds]
+            samples = numpy.concatenate([sdone.samples.values,samples])
+            samples = samples[sorted_inds]
+            if out is not None and sdone.responses is not None:
+                out = numpy.concatenate([sdone.responses.values,out])
+                out = out[sorted_inds]
+
         if out is not None:
             out = numpy.array(out)
             if self.responses is None:
