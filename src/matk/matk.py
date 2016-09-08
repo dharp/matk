@@ -845,6 +845,7 @@ class matk(object):
         results = [[numpy.NAN]]*len(parsets)
         for i in range(len(parsets)):
             lst_ind, smp_ind, resp = resultsq.get()
+            if logfile: f = open(logfile, 'w')
             if isinstance( resp, str):
                 if logfile: 
                     f.write(resp+'\n')
@@ -856,7 +857,6 @@ class matk(object):
                 if verbose or logfile:
                     if i == 0:
                         if logfile: 
-                            f = open(logfile, 'w')
                             f.write("Number of parameters: %d\n" % len(self.pars) )
                             f.write("Number of responses: %d\n" % len(self.obs) )
                         s = "%-8s" % 'index'
