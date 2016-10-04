@@ -1,0 +1,254 @@
+
+
+<!doctype html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Sampling &mdash; MATK 0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/bizstyle.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/bizstyle.js"></script>
+    <link rel="top" title="MATK 0 documentation" href="index.html" />
+    <link rel="up" title="Examples" href="example.html" />
+    <link rel="next" title="Subsetting samples based on model output" href="example_sampling_na.html" />
+    <link rel="prev" title="Examples" href="example.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="example_sampling_na.html" title="Subsetting samples based on model output"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="example.html" title="Examples"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">MATK 0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="example.html" accesskey="U">Examples</a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="example.html"
+                        title="previous chapter">Examples</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="example_sampling_na.html"
+                        title="next chapter">Subsetting samples based on model output</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/example_sampling.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="sampling">
+<span id="id1"></span><h1>Sampling<a class="headerlink" href="#sampling" title="Permalink to this headline">¶</a></h1>
+<p>This example demonstrates a Latin Hypercube Sampling of a 4 parameter 5 response model using the <a class="reference internal" href="autodoc_matk.html#matk.matk.matk.lhs" title="matk.matk.matk.lhs"><code class="xref py py-func docutils literal"><span class="pre">lhs</span></code></a> function.
+The models of the parameter study are run using the <a class="reference internal" href="autodoc_sampleset.html#matk.sampleset.SampleSet.run" title="matk.sampleset.SampleSet.run"><code class="xref py py-func docutils literal"><span class="pre">run</span></code></a> function.
+The generation of diagnostic plots is demonstrated using <a class="reference internal" href="autodoc_sampleset.html#matk.sampleset.hist" title="matk.sampleset.hist"><code class="xref py py-func docutils literal"><span class="pre">hist</span></code></a>, <a class="reference internal" href="autodoc_sampleset.html#matk.sampleset.SampleSet.panels" title="matk.sampleset.SampleSet.panels"><code class="xref py py-func docutils literal"><span class="pre">panels</span></code></a>, and <a class="reference internal" href="autodoc_sampleset.html#matk.sampleset.corr" title="matk.sampleset.corr"><code class="xref py py-func docutils literal"><span class="pre">corr</span></code></a>.</p>
+<div class="code python highlight-python"><div class="highlight"><pre>%matplotlib inline
+import sys,os
+try:
+    import matk
+except:
+    try:
+        sys.path.append(os.path.join(&#39;..&#39;,&#39;src&#39;))
+        import matk
+    except ImportError as err:
+        print &#39;Unable to load MATK module: &#39;+str(err)
+import numpy
+from scipy import arange, randn, exp
+from multiprocessing import freeze_support
+
+# Model function
+def dbexpl(p):
+    t=arange(0,100,20.)
+    y =  (p[&#39;par1&#39;]*exp(-p[&#39;par2&#39;]*t) + p[&#39;par3&#39;]*exp(-p[&#39;par4&#39;]*t))
+    #nm =  [&#39;o1&#39;,&#39;o2&#39;,&#39;o3&#39;,&#39;o4&#39;,&#39;o5&#39;]
+    #return dict(zip(nm,y))
+    return y
+
+# Setup MATK model with parameters
+p = matk.matk(model=dbexpl)
+p.add_par(&#39;par1&#39;,min=0,max=1)
+p.add_par(&#39;par2&#39;,min=0,max=0.2)
+p.add_par(&#39;par3&#39;,min=0,max=1)
+p.add_par(&#39;par4&#39;,min=0,max=0.2)
+</pre></div>
+</div>
+<div class="code python highlight-python"><div class="highlight"><pre><span class="c"># Create LHS sample</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">lhs</span><span class="p">(</span><span class="n">siz</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+
+<span class="c"># Look at sample parameter histograms, correlations, and panels</span>
+<span class="n">out</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">samples</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="n">title</span><span class="o">=</span><span class="s">&#39;Parameter Histograms by Counts&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="_images/sampling_1_0.png" src="_images/sampling_1_0.png" />
+<div class="highlight-python"><div class="highlight"><pre>par1:
+Count:           50       50       50       50       50       50       50       50       50       50
+ Bins:        0      0.1      0.2      0.3      0.4      0.5      0.6      0.7      0.8      0.9        1
+
+par2:
+Count:           50       50       50       50       50       50       50       50       50       50
+ Bins:        0     0.02     0.04     0.06     0.08      0.1     0.12     0.14     0.16     0.18      0.2
+
+par3:
+Count:           50       50       50       50       50       50       50       50       50       50
+ Bins:        0      0.1      0.2      0.3      0.4      0.5      0.6      0.7      0.8      0.9        1
+
+par4:
+Count:           50       50       50       50       50       50       50       50       50       50
+ Bins:        0     0.02     0.04     0.06     0.08      0.1     0.12     0.14     0.16     0.18      0.2
+</pre></div>
+</div>
+<div class="code python highlight-python"><div class="highlight"><pre><span class="n">out</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">samples</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="n">title</span><span class="o">=</span><span class="s">&#39;Parameter Histograms by Frequency&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span><span class="n">printout</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="_images/sampling_2_0.png" src="_images/sampling_2_0.png" />
+<div class="code python highlight-python"><div class="highlight"><pre><span class="n">parcor</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">samples</span><span class="o">.</span><span class="n">corr</span><span class="p">(</span><span class="n">plot</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s">&#39;Parameter Correlations&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre>             par1     par2     par3     par4
+par1         1.00     0.00    -0.01    -0.01
+par2         0.00     1.00    -0.00     0.01
+par3        -0.01    -0.00     1.00     0.03
+par4        -0.01     0.01     0.03     1.00
+</pre></div>
+</div>
+<img alt="_images/sampling_3_1.png" src="_images/sampling_3_1.png" />
+<div class="code python highlight-python"><div class="highlight"><pre><span class="n">out</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">samples</span><span class="o">.</span><span class="n">panels</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s">&#39;Parameter Panels&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="_images/sampling_4_0.png" src="_images/sampling_4_0.png" />
+<div class="code python highlight-python"><div class="highlight"><pre><span class="c"># Run model with parameter samples</span>
+<span class="n">s</span><span class="o">.</span><span class="n">run</span><span class="p">(</span> <span class="n">cpus</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">outfile</span><span class="o">=</span><span class="s">&#39;results.dat&#39;</span><span class="p">,</span> <span class="n">logfile</span><span class="o">=</span><span class="s">&#39;log.dat&#39;</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+<span class="c"># Look at response histograms, correlations, and panels</span>
+<span class="n">out</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">responses</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">ncols</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span><span class="n">title</span><span class="o">=</span><span class="s">&#39;Model Response Histograms by Counts&#39;</span><span class="p">,</span> <span class="n">printout</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="_images/sampling_5_0.png" src="_images/sampling_5_0.png" />
+<div class="code python highlight-python"><div class="highlight"><pre><span class="n">out</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">responses</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">ncols</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span><span class="n">title</span><span class="o">=</span><span class="s">&#39;Model Response Histograms by Frequency&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span><span class="n">printout</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="_images/sampling_6_0.png" src="_images/sampling_6_0.png" />
+<div class="code python highlight-python"><div class="highlight"><pre><span class="n">rescor</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">responses</span><span class="o">.</span><span class="n">corr</span><span class="p">(</span><span class="n">plot</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s">&#39;Model Response Correlations&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre>             obs1     obs2     obs3     obs4     obs5
+obs1         1.00     0.43     0.29     0.25     0.23
+obs2         0.43     1.00     0.95     0.89     0.83
+obs3         0.29     0.95     1.00     0.98     0.95
+obs4         0.25     0.89     0.98     1.00     0.99
+obs5         0.23     0.83     0.95     0.99     1.00
+</pre></div>
+</div>
+<img alt="_images/sampling_7_1.png" src="_images/sampling_7_1.png" />
+<div class="code python highlight-python"><div class="highlight"><pre><span class="n">out</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">responses</span><span class="o">.</span><span class="n">panels</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s">&#39;Response Panels&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="_images/sampling_8_0.png" src="_images/sampling_8_0.png" />
+<div class="code python highlight-python"><div class="highlight"><pre><span class="c"># Print and plot parameter/response correlations</span>
+<span class="k">print</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">Pearson Correlation Coefficients:&quot;</span>
+<span class="n">pcorr</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">corr</span><span class="p">(</span><span class="n">plot</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span><span class="n">title</span><span class="o">=</span><span class="s">&#39;Pearson Correlation Coefficients&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre>Pearson Correlation Coefficients:
+             obs1     obs2     obs3     obs4     obs5
+par1         0.70     0.30     0.18     0.14     0.12
+par2         0.00    -0.47    -0.40    -0.33    -0.29
+par3         0.70     0.31     0.23     0.22     0.21
+par4         0.01    -0.51    -0.46    -0.41    -0.37
+</pre></div>
+</div>
+<img alt="_images/sampling_9_1.png" src="_images/sampling_9_1.png" />
+<div class="code python highlight-python"><div class="highlight"><pre><span class="n">scorr</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">corr</span><span class="p">(</span><span class="n">plot</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span><span class="nb">type</span><span class="o">=</span><span class="s">&#39;spearman&#39;</span><span class="p">,</span><span class="n">title</span><span class="o">=</span><span class="s">&#39;Spearman Rank Correlation Coefficients&#39;</span><span class="p">,</span><span class="n">printout</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="_images/sampling_10_0.png" src="_images/sampling_10_0.png" />
+<div class="code python highlight-python"><div class="highlight"><pre><span class="n">out</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">panels</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">8</span><span class="p">))</span>
+</pre></div>
+</div>
+<img alt="_images/sampling_11_0.png" src="_images/sampling_11_0.png" />
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="example_sampling_na.html" title="Subsetting samples based on model output"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="example.html" title="Examples"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">MATK 0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="example.html" >Examples</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2013, Dylan R. Harp.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,249 @@
+
+
+<!doctype html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Linear Analysis of Calibration Using PYEMU &mdash; MATK 0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/bizstyle.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/bizstyle.js"></script>
+    <link rel="top" title="MATK 0 documentation" href="index.html" />
+    <link rel="up" title="Examples" href="example.html" />
+    <link rel="next" title="Markov Chain Monte Carlo Using PYMC" href="example_pymc.html" />
+    <link rel="prev" title="Differential Evolution" href="example_differential_evolution.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="example_pymc.html" title="Markov Chain Monte Carlo Using PYMC"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="example_differential_evolution.html" title="Differential Evolution"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">MATK 0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="example.html" accesskey="U">Examples</a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="example_differential_evolution.html"
+                        title="previous chapter">Differential Evolution</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="example_pymc.html"
+                        title="next chapter">Markov Chain Monte Carlo Using PYMC</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/example_pyemu.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="linear-analysis-of-calibration-using-pyemu">
+<span id="pyemu"></span><h1>Linear Analysis of Calibration Using PYEMU<a class="headerlink" href="#linear-analysis-of-calibration-using-pyemu" title="Permalink to this headline">¶</a></h1>
+<p>This example demonstrates a linear analysis of the <a class="reference internal" href="example_calibrate.html#calibrate"><span>Calibration Using LMFIT</span></a> example using the pyemu module (<a class="reference external" href="https://github.com/jtwhite79/pyemu">https://github.com/jtwhite79/pyemu</a>). Singular values from pyemu&#8217;s eigenanalysis of the jacobian are plotted and identifiability of parameters are printed. The resulting identifiability values indicate that one of the parameters (<strong>amp</strong>) is significantly less identifiable than the others.</p>
+<div class="code python highlight-python"><div class="highlight"><pre># %load calibrate_sine_lmfit_pyemu.py
+%matplotlib inline
+</pre></div>
+</div>
+<div class="code python highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span><span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">matk</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">freeze_support</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;/Users/dharp/source-mac/pyemu&#39;</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">pyemu</span>
+<span class="kn">from</span> <span class="nn">mat_handler</span> <span class="kn">import</span> <span class="n">matrix</span><span class="p">,</span><span class="n">cov</span>
+
+<span class="c"># define objective function: returns the array to be minimized</span>
+<span class="k">def</span> <span class="nf">sine_decay</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; model decaying sine wave, subtract data&quot;&quot;&quot;</span>
+    <span class="n">amp</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s">&#39;amp&#39;</span><span class="p">]</span>
+    <span class="n">shift</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s">&#39;shift&#39;</span><span class="p">]</span>
+    <span class="n">omega</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s">&#39;omega&#39;</span><span class="p">]</span>
+    <span class="n">decay</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s">&#39;decay&#39;</span><span class="p">]</span>
+
+    <span class="n">model</span> <span class="o">=</span> <span class="n">amp</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="n">omega</span> <span class="o">+</span> <span class="n">shift</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="o">*</span><span class="n">x</span><span class="o">*</span><span class="n">decay</span><span class="p">)</span>
+
+    <span class="n">obsnames</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;obs&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)]</span>
+    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">obsnames</span><span class="p">,</span><span class="n">model</span><span class="p">))</span>
+
+
+<span class="c"># create data to be fitted</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">301</span><span class="p">)</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="p">(</span><span class="mf">5.</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">x</span> <span class="o">-</span> <span class="mf">0.1</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="o">*</span><span class="n">x</span><span class="o">*</span><span class="mf">0.025</span><span class="p">)</span> <span class="o">+</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span> <span class="p">)</span>
+
+<span class="c"># Create MATK object</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">matk</span><span class="o">.</span><span class="n">matk</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">sine_decay</span><span class="p">,</span> <span class="n">model_args</span><span class="o">=</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">data</span><span class="p">,))</span>
+
+<span class="c"># Create parameters</span>
+<span class="n">p</span><span class="o">.</span><span class="n">add_par</span><span class="p">(</span><span class="s">&#39;amp&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="mf">5.</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mf">15.</span><span class="p">)</span>
+<span class="n">p</span><span class="o">.</span><span class="n">add_par</span><span class="p">(</span><span class="s">&#39;decay&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">p</span><span class="o">.</span><span class="n">add_par</span><span class="p">(</span><span class="s">&#39;shift&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="nb">min</span><span class="o">=-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mf">2.</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mf">2.</span><span class="p">)</span>
+<span class="n">p</span><span class="o">.</span><span class="n">add_par</span><span class="p">(</span><span class="s">&#39;omega&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+<span class="c"># Create observation names and set observation values</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)):</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">add_obs</span><span class="p">(</span><span class="s">&#39;obs&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="n">value</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+<span class="c"># Look at initial fit</span>
+<span class="n">p</span><span class="o">.</span><span class="n">forward</span><span class="p">()</span>
+<span class="n">f</span><span class="p">,</span> <span class="p">(</span><span class="n">ax1</span><span class="p">,</span><span class="n">ax2</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">sharex</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">data</span><span class="p">,</span> <span class="s">&#39;k+&#39;</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">p</span><span class="o">.</span><span class="n">simvalues</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">&quot;Model Response&quot;</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">&quot;Before Calibration&quot;</span><span class="p">)</span>
+
+<span class="c"># Calibrate parameters to data, results are printed to screen</span>
+<span class="n">lm</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">lmfit</span><span class="p">(</span><span class="n">cpus</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="c"># Look at calibrated fit</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">data</span><span class="p">,</span> <span class="s">&#39;k+&#39;</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">p</span><span class="o">.</span><span class="n">simvalues</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">&quot;Model Response&quot;</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">&quot;x&quot;</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">&quot;After Calibration&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre>[[Variables]]
+     amp:       5.011593 +/- 0.013966 (0.28%) initial =  10.000000
+     decay:     0.024837 +/- 0.000231 (0.93%) initial =  0.100000
+     omega:     1.999111 +/- 0.013378 (0.67%) initial =  3.000000
+     shift:    -0.106200 +/- 0.016466 (15.50%) initial =  0.000000
+[[Correlations]] (unreported correlations are &lt;  0.100)
+    C(omega, shift)              = -0.785
+    C(amp, decay)                =  0.584
+    C(amp, shift)                = -0.117
+None
+SSR:  12.8161392911
+</pre></div>
+</div>
+<img alt="_images/calibrate_sine_lmfit_pyemu_1_1.png" src="_images/calibrate_sine_lmfit_pyemu_1_1.png" />
+<div class="code python highlight-python"><div class="highlight"><pre><span class="c"># Recompute jacobian at calibration point</span>
+<span class="n">J</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">Jac</span><span class="p">(</span><span class="n">cpus</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="c"># Use pyemu module to analyze identifiability of parameters within calibration</span>
+<span class="c"># Create matrix object of jacobian for pyemu</span>
+<span class="n">m</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">J</span><span class="p">,</span><span class="n">row_names</span><span class="o">=</span><span class="n">p</span><span class="o">.</span><span class="n">obsnames</span><span class="p">,</span><span class="n">col_names</span><span class="o">=</span><span class="n">p</span><span class="o">.</span><span class="n">parnames</span><span class="p">)</span>
+<span class="c"># Create prior parameter covariance matrix using parameter bounds (uniform priors)</span>
+<span class="n">parcov_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([((</span><span class="n">mx</span><span class="o">-</span><span class="n">mn</span><span class="p">)</span><span class="o">/</span><span class="mf">4.</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="k">for</span> <span class="n">mx</span><span class="p">,</span><span class="n">mn</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">parmaxs</span><span class="p">,</span><span class="n">p</span><span class="o">.</span><span class="n">parmins</span><span class="p">)])</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">pars</span><span class="p">))</span>
+<span class="n">parcov</span> <span class="o">=</span> <span class="n">cov</span><span class="p">(</span><span class="n">parcov_arr</span><span class="p">,</span><span class="n">names</span><span class="o">=</span><span class="n">p</span><span class="o">.</span><span class="n">parnames</span><span class="p">)</span>
+<span class="c"># Create prior observation covariance matrix based on observation weights (p.obsweights)</span>
+<span class="c"># In this case, it is an identity matrix since all weights are one</span>
+<span class="n">obscov_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">obs</span><span class="p">))</span><span class="o">*</span><span class="n">p</span><span class="o">.</span><span class="n">obsweights</span>
+<span class="n">obscov</span> <span class="o">=</span> <span class="n">cov</span><span class="p">(</span><span class="n">obscov_arr</span><span class="p">,</span><span class="n">names</span><span class="o">=</span><span class="n">p</span><span class="o">.</span><span class="n">obsnames</span><span class="p">)</span>
+
+<span class="c"># Create pyemu error variance object using jacobian and parameter and observation covariances</span>
+<span class="c">#la = pyemu.errvar(jco=m,parcov=parcov,obscov=obscov,forecasts=[&#39;obs1&#39;],omitted_parameters=[&#39;omega&#39;])</span>
+<span class="n">la</span> <span class="o">=</span> <span class="n">pyemu</span><span class="o">.</span><span class="n">errvar</span><span class="p">(</span><span class="n">jco</span><span class="o">=</span><span class="n">m</span><span class="p">,</span><span class="n">parcov</span><span class="o">=</span><span class="n">parcov</span><span class="p">,</span><span class="n">obscov</span><span class="o">=</span><span class="n">obscov</span><span class="p">,</span><span class="n">forecasts</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;obs1&#39;</span><span class="p">])</span>
+
+<span class="c"># Plot the singular values from the eigenanalysis of the jacobian</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">la</span><span class="o">.</span><span class="n">qhalfx</span><span class="o">.</span><span class="n">s</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">&quot;Singular spectrum&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">&quot;Power&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">&quot;Singular value&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="c"># Print identifiability of parameters</span>
+<span class="c"># The results indicate that &#39;amp&#39; has low identifiability relative to other parameters</span>
+<span class="n">ident_df</span> <span class="o">=</span> <span class="n">la</span><span class="o">.</span><span class="n">get_identifiability_dataframe</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="k">print</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">Identifiability of parameters:&quot;</span>
+<span class="k">print</span> <span class="n">ident_df</span><span class="p">[</span><span class="s">&#39;ident&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<img alt="_images/calibrate_sine_lmfit_pyemu_2_0.png" src="_images/calibrate_sine_lmfit_pyemu_2_0.png" />
+<div class="highlight-python"><div class="highlight"><pre>Identifiability of parameters:
+amp      0.001426
+decay    0.999956
+shift    0.998698
+omega    0.999919
+Name: ident, dtype: float64
+</pre></div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="example_pymc.html" title="Markov Chain Monte Carlo Using PYMC"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="example_differential_evolution.html" title="Differential Evolution"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">MATK 0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="example.html" >Examples</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2013, Dylan R. Harp.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

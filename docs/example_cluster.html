@@ -1,0 +1,227 @@
+
+
+<!doctype html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Running on Cluster &mdash; MATK 0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/bizstyle.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/bizstyle.js"></script>
+    <link rel="top" title="MATK 0 documentation" href="index.html" />
+    <link rel="up" title="Examples" href="example.html" />
+    <link rel="next" title="Class Documentation" href="autodoc.html" />
+    <link rel="prev" title="External Simulator (FEHM Groundwater Flow Simulator)" href="example_fehm.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="autodoc.html" title="Class Documentation"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="example_fehm.html" title="External Simulator (FEHM Groundwater Flow Simulator)"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">MATK 0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="example.html" accesskey="U">Examples</a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="example_fehm.html"
+                        title="previous chapter">External Simulator (FEHM Groundwater Flow Simulator)</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="autodoc.html"
+                        title="next chapter">Class Documentation</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/example_cluster.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="running-on-cluster">
+<span id="cluster"></span><h1>Running on Cluster<a class="headerlink" href="#running-on-cluster" title="Permalink to this headline">¶</a></h1>
+<p>This example demonstrates the same calibration as <a class="reference internal" href="example_calibrate.html#calibrate"><span>Calibration Using LMFIT</span></a>, but sets up the MATK model as an external simulator to demonstrate how to utilize cluster resources. Similar to the <a class="reference internal" href="example_fehm.html#ext-sim"><span>External Simulator (FEHM Groundwater Flow Simulator)</span></a> example, the subprocess call (<a class="reference external" href="https://docs.python.org/2/library/subprocess.html">https://docs.python.org/2/library/subprocess.html</a>) method is used to make system calls to run the <em>model</em> and MATK&#8217;s <a class="reference internal" href="autodoc_pest_io.html#matk.pest_io.tpl_write" title="matk.pest_io.tpl_write"><code class="xref py py-func docutils literal"><span class="pre">pest_io.tpl_write</span></code></a> is used to create model input files with parameters in the correct locations. The pickle package (<a class="reference external" href="https://docs.python.org/2/library/pickle.html">https://docs.python.org/2/library/pickle.html</a>) is used for I/O of the model results between the external simulator (sine.tpl) and the MATK model. This example is designed for a cluster using slurm and moab and will have to be modified for use on clusters using other resource managers.</p>
+<p><a class="reference download internal" href="_downloads/calibrate_sine_lmfit_cluster.py"><code class="xref download docutils literal"><span class="pre">DOWNLOAD</span> <span class="pre">SCRIPT</span></code></a></p>
+<p><a class="reference download internal" href="_downloads/sine.tpl"><code class="xref download docutils literal"><span class="pre">DOWNLOAD</span> <span class="pre">MODEL</span> <span class="pre">TEMPLATE</span> <span class="pre">FILE</span></code></a></p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># Calibration example modified from lmfit webpage</span>
+<span class="c"># (http://cars9.uchicago.edu/software/python/lmfit/parameters.html)</span>
+<span class="c"># This example demonstrates how to utilize cluster resources</span>
+<span class="c"># for calibration with an external simulator.</span>
+<span class="c"># The idea is to replace `python sine.py` in run_extern with any</span>
+<span class="c"># terminal command to run your model.</span>
+<span class="c"># Also note that the hosts dictionary can contain any remote hosts</span>
+<span class="c"># accessible by passwordless ssh, for instance other workstations</span>
+<span class="c"># on your network.</span>
+<span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span><span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">freeze_support</span>
+<span class="kn">from</span> <span class="nn">subprocess</span> <span class="kn">import</span> <span class="n">Popen</span><span class="p">,</span><span class="n">PIPE</span><span class="p">,</span><span class="n">call</span>
+<span class="kn">from</span> <span class="nn">matk</span> <span class="kn">import</span> <span class="n">matk</span><span class="p">,</span> <span class="n">pest_io</span>
+<span class="kn">import</span> <span class="nn">cPickle</span> <span class="kn">as</span> <span class="nn">pickle</span>
+
+<span class="k">def</span> <span class="nf">run_extern</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">hostname</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">processor</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="n">pest_io</span><span class="o">.</span><span class="n">tpl_write</span><span class="p">(</span><span class="n">params</span><span class="p">,</span><span class="s">&#39;../sine.tpl&#39;</span><span class="p">,</span><span class="s">&#39;sine.py&#39;</span><span class="p">)</span>
+    <span class="n">ierr</span> <span class="o">=</span> <span class="n">call</span><span class="p">(</span><span class="s">&#39;ssh &#39;</span><span class="o">+</span><span class="n">hostname</span><span class="o">+</span><span class="s">&quot; &#39;cd &quot;</span><span class="o">+</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span><span class="o">+</span><span class="s">&quot; &amp;&amp; python sine.py&#39;&quot;</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="s">&#39;sine.pkl&#39;</span><span class="p">,</span><span class="s">&#39;rb&#39;</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+<span class="c"># Automatically determine the hostnames available on system using slurm resource manager</span>
+<span class="c"># This will have to be modified for other resource managers</span>
+<span class="n">hostnames</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">([</span><span class="s">&quot;scontrol&quot;</span><span class="p">,</span><span class="s">&quot;show&quot;</span><span class="p">,</span><span class="s">&quot;hostnames&quot;</span><span class="p">],</span><span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">)</span><span class="o">.</span><span class="n">communicate</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">hostnames</span> <span class="o">=</span> <span class="n">hostnames</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">host</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&#39;HOST&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="c">#hostnames.remove(host) # Remove host to use as designated master if desired</span>
+
+<span class="c"># Create dictionary of lists of processor ids to use keyed by hostname</span>
+<span class="n">hosts</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">hostnames</span><span class="p">:</span>
+    <span class="n">hosts</span><span class="p">[</span><span class="n">h</span><span class="p">]</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">16</span><span class="p">,</span><span class="mi">6</span><span class="p">)</span> <span class="c"># create lists of processor numbers for each host</span>
+<span class="k">print</span> <span class="s">&#39;host dictionary: &#39;</span><span class="p">,</span> <span class="n">hosts</span>
+
+<span class="c"># create data to be fitted</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">301</span><span class="p">)</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="p">(</span><span class="mf">5.</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">x</span> <span class="o">-</span> <span class="mf">0.1</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="o">*</span><span class="n">x</span><span class="o">*</span><span class="mf">0.025</span><span class="p">)</span> <span class="o">+</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span> <span class="p">)</span>
+
+<span class="c"># Create MATK object</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">matk</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">run_extern</span><span class="p">)</span>
+
+<span class="c"># Create parameters</span>
+<span class="n">p</span><span class="o">.</span><span class="n">add_par</span><span class="p">(</span><span class="s">&#39;amp&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="mf">0.</span><span class="p">)</span>
+<span class="n">p</span><span class="o">.</span><span class="n">add_par</span><span class="p">(</span><span class="s">&#39;decay&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+<span class="n">p</span><span class="o">.</span><span class="n">add_par</span><span class="p">(</span><span class="s">&#39;shift&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="nb">min</span><span class="o">=-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mf">2.</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mf">2.</span><span class="p">)</span>
+<span class="n">p</span><span class="o">.</span><span class="n">add_par</span><span class="p">(</span><span class="s">&#39;omega&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mf">3.0</span><span class="p">)</span>
+
+<span class="c"># Create observation names and set observation values</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)):</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">add_obs</span><span class="p">(</span><span class="s">&#39;obs&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="n">value</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+<span class="c"># Look at initial fit</span>
+<span class="n">init_vals</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">workdir</span><span class="o">=</span><span class="s">&#39;initial&#39;</span><span class="p">,</span><span class="n">hostname</span><span class="o">=</span><span class="n">hosts</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span><span class="n">processor</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">reuse_dirs</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">data</span><span class="p">,</span> <span class="s">&#39;k+&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">p</span><span class="o">.</span><span class="n">sim_values</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">&quot;Before Calibration&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="c"># Calibrate parameters to data, results are printed to screen</span>
+<span class="n">p</span><span class="o">.</span><span class="n">lmfit</span><span class="p">(</span><span class="n">cpus</span><span class="o">=</span><span class="n">hosts</span><span class="p">,</span><span class="n">workdir</span><span class="o">=</span><span class="s">&#39;calib&#39;</span><span class="p">)</span>
+
+<span class="c"># Look at calibrated fit</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">data</span><span class="p">,</span> <span class="s">&#39;k+&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">p</span><span class="o">.</span><span class="n">sim_values</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">&quot;After Calibration&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Template file used by <a class="reference internal" href="autodoc_pest_io.html#matk.pest_io.tpl_write" title="matk.pest_io.tpl_write"><code class="xref py py-func docutils literal"><span class="pre">pest_io.tpl_write</span></code></a>. Note the header <strong>ptf %</strong> and parameter locations indicated by <strong>%</strong> in the file.</p>
+<div class="highlight-python"><div class="highlight"><pre>ptf %
+import numpy as np
+import cPickle as pickle
+
+# define objective function: returns the array to be minimized
+def sine_decay():
+    &quot;&quot;&quot; model decaying sine wave, subtract data&quot;&quot;&quot;
+    amp = %amp%
+    shift = %shift%
+    omega = %omega%
+    decay = %decay%
+
+    x = np.linspace(0, 15, 301)
+    model = amp * np.sin(x * omega + shift) * np.exp(-x*x*decay)
+
+    obsnames = [&#39;obs&#39;+str(i) for i in range(1,model.shape[0]+1)]
+    return dict(zip(obsnames,model))
+
+
+if __name__== &quot;__main__&quot;:
+    out = sine_decay()
+    pickle.dump(out,open(&#39;sine.pkl&#39;, &#39;wb&#39;))
+</pre></div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="autodoc.html" title="Class Documentation"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="example_fehm.html" title="External Simulator (FEHM Groundwater Flow Simulator)"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">MATK 0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="example.html" >Examples</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2013, Dylan R. Harp.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,240 @@
+
+
+<!doctype html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>&lt;no title&gt; &mdash; MATK 0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/bizstyle.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/bizstyle.js"></script>
+    <link rel="top" title="MATK 0 documentation" href="index.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">MATK 0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/sampleset_restart.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="code python highlight-python"><div class="highlight"><pre>%matplotlib inline
+import sys,os
+try:
+    import matk
+except:
+    try:
+        sys.path.append(os.path.join(&#39;..&#39;,&#39;src&#39;))
+        import matk
+    except ImportError as err:
+        print &#39;Unable to load MATK module: &#39;+str(err)
+import numpy
+from scipy import arange, randn, exp
+from multiprocessing import freeze_support
+
+# Model function
+def dbexpl(p):
+    t=arange(0,100,20.)
+    y =  (p[&#39;par1&#39;]*exp(-p[&#39;par2&#39;]*t) + p[&#39;par3&#39;]*exp(-p[&#39;par4&#39;]*t))
+    #nm =  [&#39;o1&#39;,&#39;o2&#39;,&#39;o3&#39;,&#39;o4&#39;,&#39;o5&#39;]
+    #return dict(zip(nm,y))
+    return y
+
+# Setup MATK model with parameters
+p = matk.matk(model=dbexpl)
+p.add_par(&#39;par1&#39;,min=0,max=1)
+p.add_par(&#39;par2&#39;,min=0,max=0.2)
+p.add_par(&#39;par3&#39;,min=0,max=1)
+p.add_par(&#39;par4&#39;,min=0,max=0.2)
+</pre></div>
+</div>
+<div class="code python highlight-python"><div class="highlight"><pre><span class="c"># Create LHS sample</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">parstudy</span><span class="p">(</span><span class="n">nvals</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">])</span>
+<span class="k">print</span> <span class="n">s</span><span class="o">.</span><span class="n">samples</span><span class="o">.</span><span class="n">values</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre>[[ 0.   0.   0.   0. ]
+ [ 0.   0.   0.   0.2]
+ [ 0.   0.   1.   0. ]
+ [ 0.   0.   1.   0.2]
+ [ 0.   0.2  0.   0. ]
+ [ 0.   0.2  0.   0.2]
+ [ 0.   0.2  1.   0. ]
+ [ 0.   0.2  1.   0.2]
+ [ 1.   0.   0.   0. ]
+ [ 1.   0.   0.   0.2]
+ [ 1.   0.   1.   0. ]
+ [ 1.   0.   1.   0.2]
+ [ 1.   0.2  0.   0. ]
+ [ 1.   0.2  0.   0.2]
+ [ 1.   0.2  1.   0. ]
+ [ 1.   0.2  1.   0.2]]
+</pre></div>
+</div>
+<div class="code python highlight-python"><div class="highlight"><pre><span class="c"># Run model with parameter samples</span>
+<span class="n">out</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">run</span><span class="p">(</span> <span class="n">cpus</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">outfile</span><span class="o">=</span><span class="s">&#39;results.dat&#39;</span><span class="p">,</span> <span class="n">logfile</span><span class="o">=</span><span class="s">&#39;log.dat&#39;</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="code python highlight-python"><div class="highlight"><pre><span class="c"># To imitate an incomlete sample run, we will delete some lines in log.dat</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">&#39;log.dat&#39;</span><span class="p">,</span><span class="s">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+    <span class="n">lns</span> <span class="o">=</span> <span class="n">fh</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+
+<span class="c"># Remove last 5 lines of file</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">&#39;log.dat&#39;</span><span class="p">,</span><span class="s">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">lns</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">5</span><span class="p">]:</span>
+        <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+
+<span class="c"># Remove results.dat so that it is generated from scratch</span>
+<span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s">&#39;results.dat&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="code python highlight-python"><div class="highlight"><pre><span class="c"># Rerun using restart_logfile option so that only incomplete runs are executed</span>
+<span class="c"># Change name of logfile so that results can be inspected</span>
+<span class="n">out</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">run</span><span class="p">(</span> <span class="n">cpus</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">outfile</span><span class="o">=</span><span class="s">&#39;results.dat&#39;</span><span class="p">,</span> <span class="n">logfile</span><span class="o">=</span><span class="s">&#39;log2.dat&#39;</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span><span class="n">restart_logfile</span><span class="o">=</span><span class="s">&#39;log.dat&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="code python highlight-python"><div class="highlight"><pre><span class="c"># Now take a look at log.dat, log2.dat and results.dat</span>
+<span class="c"># log.dat will be missing 5 samples</span>
+<span class="c"># log2.dat will contain the 5 missing samples</span>
+<span class="c"># results.dat will contain all samples in order</span>
+</pre></div>
+</div>
+<div class="code python highlight-python"><div class="highlight"><pre><span class="k">print</span> <span class="n">s</span><span class="o">.</span><span class="n">samples</span><span class="o">.</span><span class="n">values</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre>[[ 0.   0.   0.   0. ]
+ [ 0.   0.   0.   0.2]
+ [ 0.   0.   1.   0. ]
+ [ 0.   0.   1.   0.2]
+ [ 0.   0.2  0.   0. ]
+ [ 0.   0.2  0.   0.2]
+ [ 0.   0.2  1.   0. ]
+ [ 0.   0.2  1.   0.2]
+ [ 1.   0.   0.   0. ]
+ [ 1.   0.   0.   0.2]
+ [ 1.   0.   1.   0. ]
+ [ 1.   0.   1.   0.2]
+ [ 1.   0.2  0.   0. ]
+ [ 1.   0.2  0.   0.2]
+ [ 1.   0.2  1.   0. ]
+ [ 1.   0.2  1.   0.2]]
+</pre></div>
+</div>
+<div class="code python highlight-python"><div class="highlight"><pre><span class="k">print</span> <span class="n">s</span><span class="o">.</span><span class="n">responses</span><span class="o">.</span><span class="n">values</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre>[[  0.00000000e+00   0.00000000e+00   0.00000000e+00   0.00000000e+00
+    0.00000000e+00]
+ [  0.00000000e+00   0.00000000e+00   0.00000000e+00   0.00000000e+00
+    0.00000000e+00]
+ [  1.00000000e+00   1.00000000e+00   1.00000000e+00   1.00000000e+00
+    1.00000000e+00]
+ [  1.00000000e+00   1.83156389e-02   3.35462628e-04   6.14421235e-06
+    1.12535175e-07]
+ [  0.00000000e+00   0.00000000e+00   0.00000000e+00   0.00000000e+00
+    0.00000000e+00]
+ [  0.00000000e+00   0.00000000e+00   0.00000000e+00   0.00000000e+00
+    0.00000000e+00]
+ [  1.00000000e+00   1.00000000e+00   1.00000000e+00   1.00000000e+00
+    1.00000000e+00]
+ [  1.00000000e+00   1.83156389e-02   3.35462628e-04   6.14421235e-06
+    1.12535175e-07]
+ [  1.00000000e+00   1.00000000e+00   1.00000000e+00   1.00000000e+00
+    1.00000000e+00]
+ [  1.00000000e+00   1.00000000e+00   1.00000000e+00   1.00000000e+00
+    1.00000000e+00]
+ [  2.00000000e+00   2.00000000e+00   2.00000000e+00   2.00000000e+00
+    2.00000000e+00]
+ [  2.00000000e+00   1.01831564e+00   1.00033546e+00   1.00000614e+00
+    1.00000011e+00]
+ [  1.00000000e+00   1.83156389e-02   3.35462628e-04   6.14421235e-06
+    1.12535175e-07]
+ [  1.00000000e+00   1.83156389e-02   3.35462628e-04   6.14421235e-06
+    1.12535175e-07]
+ [  2.00000000e+00   1.01831564e+00   1.00033546e+00   1.00000614e+00
+    1.00000011e+00]
+ [  2.00000000e+00   3.66312778e-02   6.70925256e-04   1.22884247e-05
+    2.25070349e-07]]
+</pre></div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">MATK 0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2013, Dylan R. Harp.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

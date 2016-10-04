@@ -1,0 +1,368 @@
+
+
+<!doctype html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Getting Started &mdash; MATK 0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/bizstyle.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/bizstyle.js"></script>
+    <link rel="top" title="MATK 0 documentation" href="index.html" />
+    <link rel="next" title="Examples" href="example.html" />
+    <link rel="prev" title="Obtaining MATK" href="installation.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="example.html" title="Examples"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="installation.html" title="Obtaining MATK"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">MATK 0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Getting Started</a><ul>
+<li><a class="reference internal" href="#load-matk-module">Load MATK module</a></li>
+<li><a class="reference internal" href="#define-model">Define Model</a></li>
+<li><a class="reference internal" href="#create-matk-object">Create MATK Object</a></li>
+<li><a class="reference internal" href="#add-parameters">Add Parameters</a></li>
+<li><a class="reference internal" href="#add-observations">Add Observations</a></li>
+<li><a class="reference internal" href="#run-forward-model">Run Forward Model</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="installation.html"
+                        title="previous chapter">Obtaining MATK</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="example.html"
+                        title="next chapter">Examples</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/getting_started.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="getting-started">
+<h1>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
+<p>The easiest way to get started with MATK is to open an ipython/python terminal and copy and paste the example code below into your terminal. After that, the <a class="reference internal" href="example.html#examples"><span>Examples</span></a> section can be explored for additional ideas of how MATK can facilitate your model analysis.</p>
+<div class="toctree-wrapper compound">
+<ul class="simple">
+</ul>
+</div>
+<div class="section" id="load-matk-module">
+<h2>Load MATK module<a class="headerlink" href="#load-matk-module" title="Permalink to this headline">¶</a></h2>
+<p>Start by importing the MATK module:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">matk</span>
+</pre></div>
+</div>
+<p>We&#8217;ll use numpy and some scipy functions also, so load those modules:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">arange</span><span class="p">,</span> <span class="n">randn</span><span class="p">,</span> <span class="n">exp</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="define-model">
+<h2>Define Model<a class="headerlink" href="#define-model" title="Permalink to this headline">¶</a></h2>
+<p>To perform a model analysis, MATK needs a model in the form of a python function that accepts a dictionary of parameter values keyed by parameter names as the first argument and returns an integer, float, array, or dictionary of model results keyed by result names.
+For demonstration purposes, we&#8217;ll define a simple python function that computes a summation of exponential function and returns the results as an array:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">dbexpl</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
+    <span class="n">t</span><span class="o">=</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">100</span><span class="p">,</span><span class="mf">20.</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s">&#39;par1&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">p</span><span class="p">[</span><span class="s">&#39;par2&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">t</span><span class="p">)</span> <span class="o">+</span> <span class="n">p</span><span class="p">[</span><span class="s">&#39;par3&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">p</span><span class="p">[</span><span class="s">&#39;par4&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">t</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">y</span>
+</pre></div>
+</div>
+<p>Of course the python function can be much more complicated, including advanced scipy (<a class="reference external" href="http://www.scipy.org">http://www.scipy.org</a>) functions or calls to external programs (e.g. <a class="reference internal" href="example_fehm.html#ext-sim"><span>External Simulator (FEHM Groundwater Flow Simulator)</span></a>).</p>
+<p>To test that the function does what you expect it to do, you can create a parameter dictionary and pass it to the function:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">pars</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;par1&#39;</span><span class="p">:</span><span class="mf">0.5</span><span class="p">,</span><span class="s">&#39;par2&#39;</span><span class="p">:</span><span class="mf">0.1</span><span class="p">,</span><span class="s">&#39;par3&#39;</span><span class="p">:</span><span class="mf">0.5</span><span class="p">,</span><span class="s">&#39;par4&#39;</span><span class="p">:</span><span class="mf">0.1</span><span class="p">}</span>
+<span class="k">print</span> <span class="n">dbexpl</span><span class="p">(</span><span class="n">pars</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre>[  1.00000000e+00   1.35335283e-01   1.83156389e-02   2.47875218e-03
+   3.35462628e-04]
+</pre></div>
+</div>
+<p>This is only to test the function, MATK will be generating the parameter dictionaries during the model analysis.</p>
+<p>If you haven&#8217;t added observations to your MATK object, the first time the MATK <em>model</em> is called, observations are automatically created and given default names of <em>obs1</em>, <em>obs2</em>, ..., <em>obsN</em>, where <em>N</em> is the number of observations. If you have added observations to your MATK object and your <em>model</em> returns an array, the array ordering must match the order in which you added observations. If your <em>model</em> returns a dictionary, the order is irrelevant. However, if your <em>model</em> returns a dictionary and you have defined observations in your MATK object, your <em>model</em> must return a dictionary with keys that match all the defined observations. An example of <em>dbexpl</em> that returns a dictionary is:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">dbexpl</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
+    <span class="n">t</span><span class="o">=</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">100</span><span class="p">,</span><span class="mf">20.</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s">&#39;par1&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">p</span><span class="p">[</span><span class="s">&#39;par2&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">t</span><span class="p">)</span> <span class="o">+</span> <span class="n">p</span><span class="p">[</span><span class="s">&#39;par3&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">p</span><span class="p">[</span><span class="s">&#39;par4&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">t</span><span class="p">))</span>
+    <span class="n">ydict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">([(</span><span class="s">&#39;obs&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="n">v</span><span class="p">)</span>  <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">y</span><span class="p">)])</span>
+    <span class="k">return</span> <span class="n">ydict</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">print</span> <span class="n">dbexpl</span><span class="p">(</span><span class="n">pars</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre>{&#39;obs4&#39;: 0.0024787521766663585, &#39;obs5&#39;: 0.00033546262790251185, &#39;obs2&#39;: 0.1353352832366127, &#39;obs3&#39;: 0.018315638888734179, &#39;obs1&#39;: 1.0}
+</pre></div>
+</div>
+<p>Note that the dictionary is out of order. As mentioned above, this is irrelevant since the keys indicate to which observation the values are associated.</p>
+<p>To maintain the order of the returned dictionary, you can return an <em>OrderedDict</em> from the <em>collections</em> package (<a class="reference external" href="https://docs.python.org/2/library/collections.html">https://docs.python.org/2/library/collections.html</a>) included in MATK:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">matk.ordereddict</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+
+<span class="k">def</span> <span class="nf">dbexpl</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
+    <span class="n">t</span><span class="o">=</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">100</span><span class="p">,</span><span class="mf">20.</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s">&#39;par1&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">p</span><span class="p">[</span><span class="s">&#39;par2&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">t</span><span class="p">)</span> <span class="o">+</span> <span class="n">p</span><span class="p">[</span><span class="s">&#39;par3&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">p</span><span class="p">[</span><span class="s">&#39;par4&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">t</span><span class="p">))</span>
+    <span class="n">ydict</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">([(</span><span class="s">&#39;obs&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="n">v</span><span class="p">)</span>  <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">y</span><span class="p">)])</span>
+    <span class="k">return</span> <span class="n">ydict</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">print</span> <span class="n">dbexpl</span><span class="p">(</span><span class="n">pars</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre>OrderedDict([(&#39;obs1&#39;, 1.0), (&#39;obs2&#39;, 0.1353352832366127), (&#39;obs3&#39;, 0.018315638888734179), (&#39;obs4&#39;, 0.0024787521766663585), (&#39;obs5&#39;, 0.00033546262790251185)])
+</pre></div>
+</div>
+<p>As mentioned, while dictionary ordering may be desirable, it is not required by MATK.</p>
+</div>
+<div class="section" id="create-matk-object">
+<h2>Create MATK Object<a class="headerlink" href="#create-matk-object" title="Permalink to this headline">¶</a></h2>
+<p>Create an instance of the MATK class (<a class="reference internal" href="autodoc_matk.html#matk.matk.matk" title="matk.matk.matk"><code class="xref py py-func docutils literal"><span class="pre">matk</span></code></a>) specifying the function created above as the <em>model</em> using a keyword argument:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">p</span> <span class="o">=</span> <span class="n">matk</span><span class="o">.</span><span class="n">matk</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">dbexpl</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="add-parameters">
+<h2>Add Parameters<a class="headerlink" href="#add-parameters" title="Permalink to this headline">¶</a></h2>
+<p>Add parameters to the model analysis matching those in the MATK model using <a class="reference internal" href="autodoc_matk.html#matk.matk.matk.add_par" title="matk.matk.matk.add_par"><code class="xref py py-func docutils literal"><span class="pre">add_par</span></code></a>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">p</span><span class="o">.</span><span class="n">add_par</span><span class="p">(</span><span class="s">&#39;par1&#39;</span><span class="p">,</span><span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="nb">max</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">value</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">p</span><span class="o">.</span><span class="n">add_par</span><span class="p">(</span><span class="s">&#39;par2&#39;</span><span class="p">,</span><span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="nb">max</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span><span class="n">value</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+<span class="n">p</span><span class="o">.</span><span class="n">add_par</span><span class="p">(</span><span class="s">&#39;par3&#39;</span><span class="p">,</span><span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="nb">max</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">value</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">p</span><span class="o">.</span><span class="n">add_par</span><span class="p">(</span><span class="s">&#39;par4&#39;</span><span class="p">,</span><span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="nb">max</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span><span class="n">value</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Check current parameter values:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">print</span> <span class="n">p</span><span class="o">.</span><span class="n">parvalues</span>
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre>[0.5, 0.1, 0.5, 0.1]
+</pre></div>
+</div>
+<p>and parameter names:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">print</span> <span class="n">p</span><span class="o">.</span><span class="n">parnames</span>
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre>[&#39;par1&#39;, &#39;par2&#39;, &#39;par3&#39;, &#39;par4&#39;]
+</pre></div>
+</div>
+<p>and other useful information:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">print</span> <span class="n">p</span><span class="o">.</span><span class="n">parmins</span>
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre>[0, 0, 0, 0]
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">print</span> <span class="n">p</span><span class="o">.</span><span class="n">parmaxs</span>
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre>[1, 0.2, 1, 0.2]
+</pre></div>
+</div>
+<p>You can also access parameters using the MATK <em>pars</em> dictionary:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">print</span> <span class="n">p</span><span class="o">.</span><span class="n">pars</span>
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre>OrderedDict([(&#39;par1&#39;, &lt;Parameter &#39;par1&#39;, 0.5, bounds=[0:1]&gt;), (&#39;par2&#39;, &lt;Parameter &#39;par2&#39;, 0.1, bounds=[0:0.2]&gt;), (&#39;par3&#39;, &lt;Parameter &#39;par3&#39;, 0.5, bounds=[0:1]&gt;), (&#39;par4&#39;, &lt;Parameter &#39;par4&#39;, 0.1, bounds=[0:0.2]&gt;)])
+</pre></div>
+</div>
+<p>Individual parameters can be accessed using the <em>pars</em> dictionary as:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">print</span> <span class="n">p</span><span class="o">.</span><span class="n">pars</span><span class="p">[</span><span class="s">&#39;par1&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre>&lt;Parameter &#39;par1&#39;, 0.5, bounds=[0:1]&gt;
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">print</span> <span class="n">p</span><span class="o">.</span><span class="n">pars</span><span class="p">[</span><span class="s">&#39;par1&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre>0.5
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">print</span> <span class="n">p</span><span class="o">.</span><span class="n">pars</span><span class="p">[</span><span class="s">&#39;par1&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span>
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre>0
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">print</span> <span class="n">p</span><span class="o">.</span><span class="n">pars</span><span class="p">[</span><span class="s">&#39;par1&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span>
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre>1
+</pre></div>
+</div>
+</div>
+<div class="section" id="add-observations">
+<h2>Add Observations<a class="headerlink" href="#add-observations" title="Permalink to this headline">¶</a></h2>
+<p>Observations are values that you want to compare model results to. These may be measurements that have been collected from the system you are modeling. Let&#8217;s assume we have the following measurements for our system:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">observations</span> <span class="o">=</span> <span class="p">[</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">0.14</span><span class="p">,</span> <span class="mf">0.021</span><span class="p">,</span> <span class="mf">2.4e-3</span><span class="p">,</span> <span class="mf">3.4e-4</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>We&#8217;ll add these to the model analysis with generic names using <a class="reference internal" href="autodoc_matk.html#matk.matk.matk.add_obs" title="matk.matk.matk.add_obs"><code class="xref py py-func docutils literal"><span class="pre">add_obs</span></code></a>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">o</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">observations</span><span class="p">):</span> <span class="n">p</span><span class="o">.</span><span class="n">add_obs</span><span class="p">(</span> <span class="s">&#39;obs&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="n">value</span><span class="o">=</span><span class="n">o</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In cases where there are no observations (measurements) for comparison, the <em>value</em> keyword argument can be omitted.
+Check observation values and names:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">print</span> <span class="n">p</span><span class="o">.</span><span class="n">obsvalues</span>
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre>[1.0, 0.14, 0.021, 0.0024, 0.00034]
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">print</span> <span class="n">p</span><span class="o">.</span><span class="n">obsnames</span>
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre>[&#39;obs1&#39;, &#39;obs2&#39;, &#39;obs3&#39;, &#39;obs4&#39;, &#39;obs5&#39;]
+</pre></div>
+</div>
+<p>Similar to parameters, observations can be accessed using the <em>obs</em> dictionary:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">print</span> <span class="n">p</span><span class="o">.</span><span class="n">obs</span>
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre>OrderedDict([(&#39;obs1&#39;, &lt;Observation &#39;obs1&#39;, observed=1.0, weight=1.0&gt;), (&#39;obs2&#39;, &lt;Observation &#39;obs2&#39;, observed=0.14, weight=1.0&gt;), (&#39;obs3&#39;, &lt;Observation &#39;obs3&#39;, observed=0.021, weight=1.0&gt;), (&#39;obs4&#39;, &lt;Observation &#39;obs4&#39;, observed=0.0024, weight=1.0&gt;), (&#39;obs5&#39;, &lt;Observation &#39;obs5&#39;, observed=0.00034, weight=1.0&gt;)])
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">print</span> <span class="n">p</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s">&#39;obs1&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre>&lt;Observation &#39;obs1&#39;, observed=1.0, weight=1.0&gt;
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">print</span> <span class="n">p</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s">&#39;obs1&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre>1.0
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">print</span> <span class="n">p</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s">&#39;obs1&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">weight</span>
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre>1.0
+</pre></div>
+</div>
+</div>
+<div class="section" id="run-forward-model">
+<h2>Run Forward Model<a class="headerlink" href="#run-forward-model" title="Permalink to this headline">¶</a></h2>
+<p>A single forward run of the model using the current parameter values can be performed with the <a class="reference internal" href="autodoc_matk.html#matk.matk.matk.forward" title="matk.matk.matk.forward"><code class="xref py py-func docutils literal"><span class="pre">forward</span></code></a> method as:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">sims</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">forward</span><span class="p">()</span>
+<span class="k">print</span> <span class="n">sims</span>
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre>OrderedDict([(&#39;obs1&#39;, 1.0), (&#39;obs2&#39;, 0.1353352832366127), (&#39;obs3&#39;, 0.018315638888734179), (&#39;obs4&#39;, 0.0024787521766663585), (&#39;obs5&#39;, 0.00033546262790251185)])
+</pre></div>
+</div>
+<p>Now if we look at the <em>obs</em> dictionary, we see that it includes simulated values:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">print</span> <span class="n">p</span><span class="o">.</span><span class="n">obs</span>
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre>OrderedDict([(&#39;obs1&#39;, &lt;Observation &#39;obs1&#39;, observed=1.0, simulated=1.0, weight=1.0&gt;), (&#39;obs2&#39;, &lt;Observation &#39;obs2&#39;, observed=0.14, simulated=0.1353352832366127, weight=1.0&gt;), (&#39;obs3&#39;, &lt;Observation &#39;obs3&#39;, observed=0.021, simulated=0.018315638888734179, weight=1.0&gt;), (&#39;obs4&#39;, &lt;Observation &#39;obs4&#39;, observed=0.0024, simulated=0.0024787521766663585, weight=1.0&gt;), (&#39;obs5&#39;, &lt;Observation &#39;obs5&#39;, observed=0.00034, simulated=0.00033546262790251185, weight=1.0&gt;)])
+</pre></div>
+</div>
+<p>The simulated values can be accessed directly also:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">print</span> <span class="n">p</span><span class="o">.</span><span class="n">simvalues</span>
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre>[1.0, 0.1353352832366127, 0.018315638888734179, 0.0024787521766663585, 0.00033546262790251185]
+</pre></div>
+</div>
+<p>The sum-of-squares can be calculated using the <a class="reference internal" href="autodoc_matk.html#matk.matk.matk.ssr" title="matk.matk.matk.ssr"><code class="xref py py-func docutils literal"><span class="pre">ssr</span></code></a> method:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">print</span> <span class="n">p</span><span class="o">.</span><span class="n">ssr</span>
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre>2.89715995514e-05
+</pre></div>
+</div>
+<p>You have now completed the most basic model analysis using MATK, the forward model run.
+The next step is to take a look at the <a class="reference internal" href="example.html#examples"><span>Examples</span></a> section for details on more useful model analyses involving many forward model runs.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="example.html" title="Examples"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="installation.html" title="Obtaining MATK"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">MATK 0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2013, Dylan R. Harp.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

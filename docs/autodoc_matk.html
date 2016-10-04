@@ -1,0 +1,758 @@
+
+
+<!doctype html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>MATK &mdash; MATK 0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/bizstyle.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/bizstyle.js"></script>
+    <link rel="top" title="MATK 0 documentation" href="index.html" />
+    <link rel="up" title="Class Documentation" href="autodoc.html" />
+    <link rel="next" title="Parameter" href="autodoc_parameter.html" />
+    <link rel="prev" title="Class Documentation" href="autodoc.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="autodoc_parameter.html" title="Parameter"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="autodoc.html" title="Class Documentation"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">MATK 0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="autodoc.html" accesskey="U">Class Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="autodoc.html"
+                        title="previous chapter">Class Documentation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="autodoc_parameter.html"
+                        title="next chapter">Parameter</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/autodoc_matk.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-matk.matk">
+<span id="matk"></span><h1>MATK<a class="headerlink" href="#module-matk.matk" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="matk.matk.matk">
+<em class="property">class </em><code class="descclassname">matk.matk.</code><code class="descname">matk</code><span class="sig-paren">(</span><em>model=''</em>, <em>model_args=None</em>, <em>model_kwargs=None</em>, <em>cpus=1</em>, <em>workdir_base=None</em>, <em>workdir=None</em>, <em>results_file=None</em>, <em>seed=None</em>, <em>sample_size=10</em>, <em>hosts={}</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.matk.matk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class for Model Analysis ToolKit (MATK) module</p>
+<dl class="method">
+<dt id="matk.matk.matk.Jac">
+<code class="descname">Jac</code><span class="sig-paren">(</span><em>h=None</em>, <em>cpus=1</em>, <em>workdir_base=None</em>, <em>save=True</em>, <em>reuse_dirs=False</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.matk.matk.Jac" title="Permalink to this definition">¶</a></dt>
+<dd><p>Numerical Jacobian calculation</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>h</strong> (<em>fl64 or ndarray(fl64)</em>) &#8211; Parameter increment, single value or array with npar values</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">ndarray(fl64) &#8211; Jacobian matrix</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="matk.matk.matk.MCMC">
+<code class="descname">MCMC</code><span class="sig-paren">(</span><em>nruns=10000</em>, <em>burn=1000</em>, <em>init_error_std=1.0</em>, <em>max_error_std=100.0</em>, <em>verbose=1</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.matk.matk.MCMC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform Markov Chain Monte Carlo sampling using pymc package</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>nruns</strong> (<em>int</em>) &#8211; Number of MCMC iterations (samples)</li>
+<li><strong>burn</strong> (<em>int</em>) &#8211; Number of initial samples to burn (discard)</li>
+<li><strong>verbose</strong> (<em>int</em>) &#8211; verbosity of output</li>
+<li><strong>init_error_std</strong> (<em>fl64</em>) &#8211; Initial standard deviation of residuals</li>
+<li><strong>max_error_std</strong> (<em>fl64</em>) &#8211; Maximum standard deviation of residuals that will be considered</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">pymc MCMC object</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="matk.matk.matk.add_obs">
+<code class="descname">add_obs</code><span class="sig-paren">(</span><em>name</em>, <em>sim=None</em>, <em>weight=1.0</em>, <em>value=None</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.matk.matk.add_obs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add observation to problem</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>name</strong> (<em>str</em>) &#8211; Observation name</li>
+<li><strong>sim</strong> (<em>fl64</em>) &#8211; Simulated value</li>
+<li><strong>weight</strong> (<em>fl64</em>) &#8211; Observation weight</li>
+<li><strong>value</strong> (<em>fl64</em>) &#8211; Value of observation</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Observation object</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="matk.matk.matk.add_par">
+<code class="descname">add_par</code><span class="sig-paren">(</span><em>name</em>, <em>value=None</em>, <em>vary=True</em>, <em>min=None</em>, <em>max=None</em>, <em>expr=None</em>, <em>discrete_vals=[]</em>, <em>discrete_counts=[]</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.matk.matk.add_par" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add parameter to problem</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> (<em>str</em>) &#8211; Name of parameter</li>
+<li><strong>value</strong> (<em>float</em>) &#8211; Initial parameter value</li>
+<li><strong>vary</strong> (<em>bool</em>) &#8211; Whether parameter should be varied or not, currently only used with lmfit</li>
+<li><strong>min</strong> (<em>float</em>) &#8211; Minimum bound</li>
+<li><strong>max</strong> (<em>float</em>) &#8211; Maximum bound</li>
+<li><strong>expr</strong> (<em>str</em>) &#8211; Mathematical expression to use to calculate parameter value</li>
+<li><strong>discrete_vals</strong> (<em>[float]</em>) &#8211; list of values defining histogram bins</li>
+<li><strong>discrete_counts</strong> (<em>[int]</em>) &#8211; list of counts associated with discrete_vals</li>
+<li><strong>kwargs</strong> &#8211; keyword arguments passed to parameter class</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="matk.matk.matk.calibrate">
+<code class="descname">calibrate</code><span class="sig-paren">(</span><em>cpus=1</em>, <em>maxiter=100</em>, <em>lambdax=0.001</em>, <em>minchange=1e-16</em>, <em>minlambdax=1e-06</em>, <em>verbose=False</em>, <em>workdir=None</em>, <em>reuse_dirs=False</em>, <em>h=1e-06</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.matk.matk.calibrate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calibrate MATK model using Levenberg-Marquardt algorithm based on 
+original code written by Ernesto P. Adorio PhD. 
+(UPDEPP at Clarkfield, Pampanga)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>cpus</strong> (<em>int</em>) &#8211; Number of cpus to use</li>
+<li><strong>maxiter</strong> (<em>int</em>) &#8211; Maximum number of iterations</li>
+<li><strong>lambdax</strong> (<em>fl64</em>) &#8211; Initial Marquardt lambda</li>
+<li><strong>minchange</strong> (<em>fl64</em>) &#8211; Minimum change between successive ChiSquares</li>
+<li><strong>minlambdax</strong> (<em>fl4</em>) &#8211; Minimum lambda value</li>
+<li><strong>verbose</strong> (<em>bool</em>) &#8211; If True, additional information written to screen during calibration</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">best fit parameters found by routine</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">best Sum of squares.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">covariance matrix</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="matk.matk.matk.copy_sampleset">
+<code class="descname">copy_sampleset</code><span class="sig-paren">(</span><em>oldname</em>, <em>newname=None</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.matk.matk.copy_sampleset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copy sampleset</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>oldname</strong> (<em>str</em>) &#8211; Name of sampleset to copy</li>
+<li><strong>newname</strong> (<em>str</em>) &#8211; Name of new sampleset</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.matk.matk.cpus">
+<code class="descname">cpus</code><a class="headerlink" href="#matk.matk.matk.cpus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set number of cpus to use for concurrent model evaluations</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="matk.matk.matk.create_sampleset">
+<code class="descname">create_sampleset</code><span class="sig-paren">(</span><em>samples</em>, <em>name=None</em>, <em>responses=None</em>, <em>indices=None</em>, <em>index_start=1</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.matk.matk.create_sampleset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add sample set to problem</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> (<em>str</em>) &#8211; Name of sample set</li>
+<li><strong>samples</strong> (<em>list(fl64),ndarray(fl64)</em>) &#8211; Matrix of parameter samples with npar columns in order of matk.pars.keys()</li>
+<li><strong>responses</strong> (<em>list(fl64),ndarray(fl64)</em>) &#8211; Matrix of associated responses with nobs columns in order matk.obs.keys() if observation exists (existence of observations is not required)</li>
+<li><strong>indices</strong> (<em>list(int),ndarray(int)</em>) &#8211; Sample indices to use when creating working directories and output files</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="matk.matk.matk.differential_evolution">
+<code class="descname">differential_evolution</code><span class="sig-paren">(</span><em>bounds=()</em>, <em>workdir=None</em>, <em>strategy='best1bin'</em>, <em>maxiter=1000</em>, <em>popsize=15</em>, <em>tol=0.01</em>, <em>mutation=(0.5</em>, <em>1)</em>, <em>recombination=0.7</em>, <em>seed=None</em>, <em>callback=None</em>, <em>disp=False</em>, <em>polish=True</em>, <em>init='latinhypercube'</em>, <em>save_evals=False</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.matk.matk.differential_evolution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform differential evolution calibration using scipy.optimize.differential_evolution:</p>
+<p>Differential Evolution is stochastic in nature (does not use gradient
+methods) to find the minimium, and can search large areas of candidate
+space, but often requires larger numbers of function evaluations than
+conventional gradient based techniques.</p>
+<p>The algorithm is due to Storn and Price.</p>
+<p>Parameters
+func : callable</p>
+<blockquote>
+<div>The objective function to be minimized.  Must be in the form
+<code class="docutils literal"><span class="pre">f(x,</span> <span class="pre">*args)</span></code>, where <code class="docutils literal"><span class="pre">x</span></code> is the argument in the form of a 1-D array
+and <code class="docutils literal"><span class="pre">args</span></code> is a  tuple of any additional fixed parameters needed to
+completely specify the function.</div></blockquote>
+<dl class="docutils">
+<dt>bounds <span class="classifier-delimiter">:</span> <span class="classifier">sequence</span></dt>
+<dd>Bounds for variables.  <code class="docutils literal"><span class="pre">(min,</span> <span class="pre">max)</span></code> pairs for each element in <code class="docutils literal"><span class="pre">x</span></code>,
+defining the lower and upper bounds for the optimizing argument of
+<cite>func</cite>. It is required to have <code class="docutils literal"><span class="pre">len(bounds)</span> <span class="pre">==</span> <span class="pre">len(x)</span></code>.
+<code class="docutils literal"><span class="pre">len(bounds)</span></code> is used to determine the number of parameters in <code class="docutils literal"><span class="pre">x</span></code>.</dd>
+<dt>strategy <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
+<dd><p class="first">The differential evolution strategy to use. Should be one of:</p>
+<blockquote>
+<div><ul class="simple">
+<li>&#8216;best1bin&#8217;</li>
+<li>&#8216;best1exp&#8217;</li>
+<li>&#8216;rand1exp&#8217;</li>
+<li>&#8216;randtobest1exp&#8217;</li>
+<li>&#8216;best2exp&#8217;</li>
+<li>&#8216;rand2exp&#8217;</li>
+<li>&#8216;randtobest1bin&#8217;</li>
+<li>&#8216;best2bin&#8217;</li>
+<li>&#8216;rand2bin&#8217;</li>
+<li>&#8216;rand1bin&#8217;</li>
+</ul>
+</div></blockquote>
+<p class="last">The default is &#8216;best1bin&#8217;.</p>
+</dd>
+<dt>maxiter <span class="classifier-delimiter">:</span> <span class="classifier">int, optional</span></dt>
+<dd>The maximum number of generations over which the entire population is
+evolved. The maximum number of function evaluations (with no polishing)
+is: <code class="docutils literal"><span class="pre">(maxiter</span> <span class="pre">+</span> <span class="pre">1)</span> <span class="pre">*</span> <span class="pre">popsize</span> <span class="pre">*</span> <span class="pre">len(x)</span></code></dd>
+<dt>popsize <span class="classifier-delimiter">:</span> <span class="classifier">int, optional</span></dt>
+<dd>A multiplier for setting the total population size.  The population has
+<code class="docutils literal"><span class="pre">popsize</span> <span class="pre">*</span> <span class="pre">len(x)</span></code> individuals.</dd>
+<dt>tol <span class="classifier-delimiter">:</span> <span class="classifier">float, optional</span></dt>
+<dd>When the mean of the population energies, multiplied by tol,
+divided by the standard deviation of the population energies
+is greater than 1 the solving process terminates:
+<code class="docutils literal"><span class="pre">convergence</span> <span class="pre">=</span> <span class="pre">mean(pop)</span> <span class="pre">*</span> <span class="pre">tol</span> <span class="pre">/</span> <span class="pre">stdev(pop)</span> <span class="pre">&gt;</span> <span class="pre">1</span></code></dd>
+<dt>mutation <span class="classifier-delimiter">:</span> <span class="classifier">float or tuple(float, float), optional</span></dt>
+<dd>The mutation constant. In the literature this is also known as
+differential weight, being denoted by F.
+If specified as a float it should be in the range [0, 2].
+If specified as a tuple <code class="docutils literal"><span class="pre">(min,</span> <span class="pre">max)</span></code> dithering is employed. Dithering
+randomly changes the mutation constant on a generation by generation
+basis. The mutation constant for that generation is taken from
+<code class="docutils literal"><span class="pre">U[min,</span> <span class="pre">max)</span></code>. Dithering can help speed convergence significantly.
+Increasing the mutation constant increases the search radius, but will
+slow down convergence.</dd>
+<dt>recombination <span class="classifier-delimiter">:</span> <span class="classifier">float, optional</span></dt>
+<dd>The recombination constant, should be in the range [0, 1]. In the
+literature this is also known as the crossover probability, being
+denoted by CR. Increasing this value allows a larger number of mutants
+to progress into the next generation, but at the risk of population
+stability.</dd>
+<dt>seed <span class="classifier-delimiter">:</span> <span class="classifier">int or <cite>np.random.RandomState</cite>, optional</span></dt>
+<dd>If <cite>seed</cite> is not specified the <cite>np.RandomState</cite> singleton is used.
+If <cite>seed</cite> is an int, a new <cite>np.random.RandomState</cite> instance is used,
+seeded with seed.
+If <cite>seed</cite> is already a <cite>np.random.RandomState instance</cite>, then that
+<cite>np.random.RandomState</cite> instance is used.
+Specify <cite>seed</cite> for repeatable minimizations.</dd>
+<dt>disp <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
+<dd>Display status messages</dd>
+<dt>callback <span class="classifier-delimiter">:</span> <span class="classifier">callable, <cite>callback(xk, convergence=val)</cite>, optional</span></dt>
+<dd>A function to follow the progress of the minimization. <code class="docutils literal"><span class="pre">xk</span></code> is
+the current value of <code class="docutils literal"><span class="pre">x0</span></code>. <code class="docutils literal"><span class="pre">val</span></code> represents the fractional
+value of the population convergence.  When <code class="docutils literal"><span class="pre">val</span></code> is greater than one
+the function halts. If callback returns <cite>True</cite>, then the minimization
+is halted (any polishing is still carried out).</dd>
+<dt>polish <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
+<dd>If True (default), then <cite>scipy.optimize.minimize</cite> with the <cite>L-BFGS-B</cite>
+method is used to polish the best population member at the end, which
+can improve the minimization slightly.</dd>
+<dt>init <span class="classifier-delimiter">:</span> <span class="classifier">string, optional</span></dt>
+<dd><p class="first">Specify how the population initialization is performed. Should be
+one of:</p>
+<blockquote>
+<div><ul class="simple">
+<li>&#8216;latinhypercube&#8217;</li>
+<li>&#8216;random&#8217;</li>
+</ul>
+</div></blockquote>
+<p class="last">The default is &#8216;latinhypercube&#8217;. Latin Hypercube sampling tries to
+maximize coverage of the available parameter space. &#8216;random&#8217; initializes
+the population randomly - this has the drawback that clustering can
+occur, preventing the whole of parameter space being covered.</p>
+</dd>
+</dl>
+<dl class="docutils">
+<dt>res <span class="classifier-delimiter">:</span> <span class="classifier">OptimizeResult</span></dt>
+<dd>The optimization result represented as a <cite>OptimizeResult</cite> object.
+Important attributes are: <code class="docutils literal"><span class="pre">x</span></code> the solution array, <code class="docutils literal"><span class="pre">success</span></code> a
+Boolean flag indicating if the optimizer exited successfully and
+<code class="docutils literal"><span class="pre">message</span></code> which describes the cause of the termination. See
+<cite>OptimizeResult</cite> for a description of other attributes.  If <cite>polish</cite>
+was employed, and a lower minimum was obtained by the polishing, then
+OptimizeResult also contains the <code class="docutils literal"><span class="pre">jac</span></code> attribute.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="matk.matk.matk.emcee">
+<code class="descname">emcee</code><span class="sig-paren">(</span><em>lnprob=None</em>, <em>lnprob_args=()</em>, <em>nwalkers=100</em>, <em>nsamples=500</em>, <em>burnin=50</em>, <em>pos0=None</em>, <em>ncpus=1</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.matk.matk.emcee" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform Markov Chain Monte Carlo sampling using emcee package</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>lnprob</strong> (<em>function</em>) &#8211; Function specifying the natural logarithm of the likelihood function</li>
+<li><strong>nwalkers</strong> (<em>int</em>) &#8211; Number of random walkers</li>
+<li><strong>nsamples</strong> (<em>int</em>) &#8211; Number of samples per walker</li>
+<li><strong>burnin</strong> (<em>int</em>) &#8211; Number of &#8220;burn-in&#8221; samples per walker to be discarded</li>
+<li><strong>pos0</strong> (<em>list</em>) &#8211; list of initial positions for the walkers</li>
+<li><strong>ncpus</strong> (<em>int</em>) &#8211; number of cpus</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">numpy array containing samples</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="matk.matk.matk.forward">
+<code class="descname">forward</code><span class="sig-paren">(</span><em>pardict=None</em>, <em>workdir=None</em>, <em>reuse_dirs=False</em>, <em>job_number=None</em>, <em>hostname=None</em>, <em>processor=None</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.matk.matk.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run MATK model using current values</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>pardict</strong> (<em>dict</em>) &#8211; Dictionary of parameter values keyed by parameter names</li>
+<li><strong>workdir</strong> (<em>str</em>) &#8211; Name of directory where model will be run. It will be created if it does not exist</li>
+<li><strong>reuse_dirs</strong> (<em>bool</em>) &#8211; If True and workdir exists, the model will reuse the directory</li>
+<li><strong>job_number</strong> (<em>int</em>) &#8211; Sample id</li>
+<li><strong>hostname</strong> (<em>str</em>) &#8211; Name of host to run job on, will be passed to MATK model as kwarg &#8216;hostname&#8217;</li>
+<li><strong>processor</strong> (<em>str or int</em>) &#8211; Processor id to run job on, will be passed to MATK model as kwarg &#8216;processor&#8217;</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">int &#8211; 0: Successful run, 1: workdir exists</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="matk.matk.matk.levmar">
+<code class="descname">levmar</code><span class="sig-paren">(</span><em>workdir=None</em>, <em>reuse_dirs=False</em>, <em>max_iter=1000</em>, <em>full_output=True</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.matk.matk.levmar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calibrate MATK model using levmar package</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>workdir</strong> (<em>str</em>) &#8211; Name of directory where model will be run. It will be created if it does not exist</li>
+<li><strong>reuse_dirs</strong> (<em>bool</em>) &#8211; If True and workdir exists, the model will reuse the directory</li>
+<li><strong>max_iter</strong> (<em>int</em>) &#8211; Maximum number of iterations</li>
+<li><strong>full_output</strong> &#8211; If True, additional output displayed during calibration</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">levmar output</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="matk.matk.matk.lhs">
+<code class="descname">lhs</code><span class="sig-paren">(</span><em>name=None</em>, <em>siz=None</em>, <em>noCorrRestr=False</em>, <em>corrmat=None</em>, <em>seed=None</em>, <em>index_start=1</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.matk.matk.lhs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw lhs samples of parameter values from scipy.stats module distribution</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>name</strong> (<em>str</em>) &#8211; Name of sample set to be created</li>
+<li><strong>siz</strong> (<em>int</em>) &#8211; Number of samples to generate, ignored if samples are provided</li>
+<li><strong>noCorrRestr</strong> (<em>bool</em>) &#8211; If True, correlation structure is not enforced on sample, use if siz is less than number of parameters</li>
+<li><strong>corrmat</strong> (<em>matrix</em>) &#8211; Correlation matrix</li>
+<li><strong>seed</strong> (<em>int</em>) &#8211; Random seed to allow replication of samples</li>
+<li><strong>index_start</strong> &#8211; Starting value for sample indices</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Type:</th><td class="field-body"><p class="first">int</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">matrix &#8211; Parameter samples</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="matk.matk.matk.lmfit">
+<code class="descname">lmfit</code><span class="sig-paren">(</span><em>maxfev=0</em>, <em>report_fit=True</em>, <em>cpus=1</em>, <em>epsfcn=None</em>, <em>xtol=1e-07</em>, <em>ftol=1e-07</em>, <em>workdir=None</em>, <em>verbose=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.matk.matk.lmfit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calibrate MATK model using lmfit package</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>maxfev</strong> (<em>int</em>) &#8211; Max number of function evaluations, if 0, 100*(npars+1) will be used</li>
+<li><strong>report_fit</strong> (<em>bool</em>) &#8211; If True, parameter statistics and correlations are printed to the screen</li>
+<li><strong>cpus</strong> (<em>int</em>) &#8211; Number of cpus to use for concurrent simulations during jacobian approximation</li>
+<li><strong>epsfcn</strong> (<em>float or lst[float]</em>) &#8211; jacobian finite difference approximation increment (single float of list of npar floats)</li>
+<li><strong>xtol</strong> (<em>float</em>) &#8211; Relative error in approximate solution</li>
+<li><strong>ftol</strong> (<em>float</em>) &#8211; Relative error in the desired sum of squares</li>
+<li><strong>workdir</strong> (<em>str</em>) &#8211; Name of directory to use for model runs, calibrated parameters will be run there after calibration</li>
+<li><strong>verbose</strong> (<em>bool</em>) &#8211; If true, print diagnostic information to the screen</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">lmfit minimizer object</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Additional keyword argments will be passed to scipy leastsq function:
+<a class="reference external" href="http://docs.scipy.org/doc/scipy-0.15.1/reference/generated/scipy.optimize.leastsq.html">http://docs.scipy.org/doc/scipy-0.15.1/reference/generated/scipy.optimize.leastsq.html</a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="matk.matk.matk.make_workdir">
+<code class="descname">make_workdir</code><span class="sig-paren">(</span><em>workdir=None</em>, <em>reuse_dirs=False</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.matk.matk.make_workdir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a working directory</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>workdir</strong> (<em>str</em>) &#8211; Name of directory where model will be run. It will be created if it does not exist</li>
+<li><strong>reuse_dirs</strong> (<em>bool</em>) &#8211; If True and workdir exists, the model will reuse the directory</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">int &#8211; 0: Successful run, 1: workdir exists</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="matk.matk.matk.minimize">
+<code class="descname">minimize</code><span class="sig-paren">(</span><em>method='SLSQP'</em>, <em>maxiter=100</em>, <em>workdir=None</em>, <em>bounds=()</em>, <em>constraints=()</em>, <em>options={'eps': 0.001}</em>, <em>save_evals=False</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.matk.matk.minimize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Minimize a scalar function of one or more variables</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>maxiter</strong> (<em>int</em>) &#8211; Max number of iterations</li>
+<li><strong>workdir</strong> (<em>str</em>) &#8211; Name of directory to use for model runs, calibrated parameters will be run there after calibration</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">OptimizeResult; if save_evals=True, also returns a MATK sampleset of calibration function evaluation parameters and responses</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.matk.matk.model">
+<code class="descname">model</code><a class="headerlink" href="#matk.matk.matk.model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Python function that runs model</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.matk.matk.model_args">
+<code class="descname">model_args</code><a class="headerlink" href="#matk.matk.matk.model_args" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tuple of extra arguments to MATK model expected to come after parameter dictionary</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.matk.matk.model_kwargs">
+<code class="descname">model_kwargs</code><a class="headerlink" href="#matk.matk.matk.model_kwargs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dictionary of extra keyword arguments to MATK model expected to come after parameter dictionary and model_args</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.matk.matk.nomvalues">
+<code class="descname">nomvalues</code><a class="headerlink" href="#matk.matk.matk.nomvalues" title="Permalink to this definition">¶</a></dt>
+<dd><p>Nominal parameter values used in info gap analyses</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.matk.matk.obsnames">
+<code class="descname">obsnames</code><a class="headerlink" href="#matk.matk.matk.obsnames" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get observation names</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.matk.matk.obsvalues">
+<code class="descname">obsvalues</code><a class="headerlink" href="#matk.matk.matk.obsvalues" title="Permalink to this definition">¶</a></dt>
+<dd><p>Observation values</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.matk.matk.obsweights">
+<code class="descname">obsweights</code><a class="headerlink" href="#matk.matk.matk.obsweights" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get observation weights</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.matk.matk.pardist_pars">
+<code class="descname">pardist_pars</code><a class="headerlink" href="#matk.matk.matk.pardist_pars" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get parameters needed by parameter distributions</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.matk.matk.pardists">
+<code class="descname">pardists</code><a class="headerlink" href="#matk.matk.matk.pardists" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get parameter probabilistic distributions</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.matk.matk.parmaxs">
+<code class="descname">parmaxs</code><a class="headerlink" href="#matk.matk.matk.parmaxs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get parameter upper bounds</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.matk.matk.parmins">
+<code class="descname">parmins</code><a class="headerlink" href="#matk.matk.matk.parmins" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get parameter lower bounds</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.matk.matk.parnames">
+<code class="descname">parnames</code><a class="headerlink" href="#matk.matk.matk.parnames" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get parameter names</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="matk.matk.matk.parstudy">
+<code class="descname">parstudy</code><span class="sig-paren">(</span><em>name=None</em>, <em>nvals=2</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.matk.matk.parstudy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate parameter study samples</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>name</strong> (<em>str</em>) &#8211; Name of sample set to be created</li>
+<li><strong>outfile</strong> (<em>str</em>) &#8211; Name of file where samples will be written. If outfile=None, no file is written.</li>
+<li><strong>nvals</strong> (<em>int or list(int)</em>) &#8211; number of values for each parameter</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">ndarray(fl64) &#8211; Array of samples</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.matk.matk.parvalues">
+<code class="descname">parvalues</code><a class="headerlink" href="#matk.matk.matk.parvalues" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parameter values</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="matk.matk.matk.read_sampleset">
+<code class="descname">read_sampleset</code><span class="sig-paren">(</span><em>file</em>, <em>name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.matk.matk.read_sampleset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read MATK output file and assemble corresponding sampleset with responses.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> (<em>str</em>) &#8211; Name of sample set</li>
+<li><strong>file</strong> (<em>str</em>) &#8211; Path to MATK output file</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.matk.matk.residuals">
+<code class="descname">residuals</code><a class="headerlink" href="#matk.matk.matk.residuals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get least squares values</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.matk.matk.results_file">
+<code class="descname">results_file</code><a class="headerlink" href="#matk.matk.matk.results_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the name of the results_file for parallel runs</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.matk.matk.seed">
+<code class="descname">seed</code><a class="headerlink" href="#matk.matk.matk.seed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the seed for random sampling</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.matk.matk.simdict">
+<code class="descname">simdict</code><a class="headerlink" href="#matk.matk.matk.simdict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simulated values
+:returns: lst(fl64) &#8211; simulated values in order of matk.obs.keys()</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.matk.matk.simvalues">
+<code class="descname">simvalues</code><a class="headerlink" href="#matk.matk.matk.simvalues" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simulated values
+:returns: lst(fl64) &#8211; simulated values in order of matk.obs.keys()</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.matk.matk.ssr">
+<code class="descname">ssr</code><a class="headerlink" href="#matk.matk.matk.ssr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sum of squared residuals</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.matk.matk.workdir">
+<code class="descname">workdir</code><a class="headerlink" href="#matk.matk.matk.workdir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the base name for parallel working directories</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.matk.matk.workdir_base">
+<code class="descname">workdir_base</code><a class="headerlink" href="#matk.matk.matk.workdir_base" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the base name for parallel working directories</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.matk.matk.workdir_index">
+<code class="descname">workdir_index</code><a class="headerlink" href="#matk.matk.matk.workdir_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the working directory index for parallel runs</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="autodoc_parameter.html" title="Parameter"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="autodoc.html" title="Class Documentation"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">MATK 0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="autodoc.html" >Class Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2013, Dylan R. Harp.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>
