@@ -529,6 +529,9 @@ class matk(object):
                 if not curdir is None: os.chdir( curdir )
                 if sims is not None:
                     if isinstance(sims,(float,int)): sims = [sims]
+                    # Remove extra sims items if not in current observations
+                    if isinstance(sims,(dict,OrderedDict)) and len(self.obs) > 0: 
+                        sims = OrderedDict([(k,v) for k,v in sims.iteritems() if k in self.obs])
                     if len(sims):
                         self._set_simvalues(sims)
                         simdict = OrderedDict(zip(self.obsnames,self.simvalues))
