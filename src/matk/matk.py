@@ -18,6 +18,7 @@ try:
 except ImportError:
     from ordereddict import OrderedDict
 from lmfit.asteval import Interpreter
+import warnings
 
 class matk(object):
     """ Class for Model Analysis ToolKit (MATK) module
@@ -772,16 +773,19 @@ class matk(object):
                     x[i,j] = self.__eval_expr( p.expr, r )
         return self.create_sampleset( x, name=name, index_start=index_start )
     def child( self, in_queue, out_list, reuse_dirs, save, hostname, processor):
-        for pars,smp_ind,lst_ind in iter(in_queue.get, ('','','')):
-            self.workdir_index = smp_ind
-            if self.workdir_base is not None:
-                self.workdir = self.workdir_base + '.' + str(self.workdir_index)
-            self.parvalues = pars
-            status = self.forward(reuse_dirs=reuse_dirs, job_number=smp_ind, hostname=hostname, processor=processor)
-            out_list.put([lst_ind, smp_ind, status])
-            if not save and not self.workdir is None:
-                rmtree( self.workdir )
-            in_queue.task_done()
+        # Ignoring Futurewarning about elementwise comparison for now
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", message="elementwise")
+            for pars,smp_ind,lst_ind in iter(in_queue.get, ('','','')):
+                self.workdir_index = smp_ind
+                if self.workdir_base is not None:
+                    self.workdir = self.workdir_base + '.' + str(self.workdir_index)
+                self.parvalues = pars
+                status = self.forward(reuse_dirs=reuse_dirs, job_number=smp_ind, hostname=hostname, processor=processor)
+                out_list.put([lst_ind, smp_ind, status])
+                if not save and not self.workdir is None:
+                    rmtree( self.workdir )
+                in_queue.task_done()
         in_queue.task_done()
     def parallel(self, parsets, cpus=1, workdir_base=None, save=True,
                 reuse_dirs=False, indices=None, verbose=True, logfile=None):
