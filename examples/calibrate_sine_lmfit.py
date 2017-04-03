@@ -57,6 +57,7 @@ def run():
 
     # Calibrate parameters to data, results are printed to screen
     res,pars,evals = p.lmfit(cpus=2,verbose=True,save_evals=True)
+    evals.savetxt('evals.txt',sse=True)
 
     # Look at calibrated fit
     ax2.plot(x,data, 'k+')

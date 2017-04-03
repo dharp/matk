@@ -324,35 +324,48 @@ class SampleSet(object):
         return out
     def copy(self, newname=None):
         return self._parent.copy_sampleset(self.name,newname=newname)
-    def savetxt( self, outfile):
+    def savetxt( self, outfile, sse=False):
         ''' Save sampleset to file
 
             :param outfile: Name of file where sampleset will be written
             :type outfile: str
+            :param sse: Print out sum-of-squared-errors instead of observations
+            :type sse: bool
         '''
 
         x = numpy.column_stack([self.indices,self.samples.values])
-        if not self.responses is None:
+        if not self.responses is None and sse is False:
             x = numpy.column_stack([x,self.responses.values])
+        elif not self.responses is None and sse is True:
+            x = numpy.column_stack([x,self.sse])
 
         if outfile:
             f = open(outfile, 'w')
             f.write("Number of parameters: %d\n" % len(self.parnames) )
-            if not self.responses is None:
-                f.write("Number of responses: %d\n" % len(self.obsnames) )
-            else: f.write("Number of responses: %d\n" % 0 ) 
+            if sse is False:
+                if not self.responses is None:
+                    f.write("Number of responses: %d\n" % len(self.obsnames) )
+                else: f.write("Number of responses: %d\n" % 0 ) 
+            else:
+                if not self.responses is None: f.write("Number of responses: %d\n" % 1 ) 
+                else: 
+                    print "Warning: sum-of-squared error cannot be calculates without model responses"
+                    f.write("Number of responses: %d\n" % 0 ) 
             f.write("%-8s" % 'index' )
             # Print par names
             for nm in self.samples.names:
                 f.write(" %22s" % nm )
             # Print obs names if responses exist
-            if not self.responses is None:
-                if len(self.obsnames) == 0:
-                    for i in range(self.responses.values.shape[1]):
-                        f.write("%22s" % 'obs'+str(i+1) )
-                else:
-                    for nm in self.obsnames:
-                        f.write(" %22s" % nm )
+            if sse is False:
+                if not self.responses is None:
+                    if len(self.obsnames) == 0:
+                        for i in range(self.responses.values.shape[1]):
+                            f.write("%22s" % 'obs'+str(i+1) )
+                    else:
+                        for nm in self.obsnames:
+                            f.write(" %22s" % nm )
+            else:
+                f.write(" %22s" % 'sum-of-squared errors' )
             f.write('\n')
             for row in x:
                 if isinstance( row[0], str ):
