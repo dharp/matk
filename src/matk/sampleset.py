@@ -65,24 +65,24 @@ class SampleSet(object):
                 self.indices = numpy.arange(index_start,index_start+self.samples.values.shape[0])
             else:
                 self.indices = numpy.arange(self.samples.values.shape[0])+1
-    def __repr__(self):
-        s = 'MATK SampleSet Object\n\n'
-        s += 'Methods (usage: <dataset_name>.<method>):\n\n'
-        s += 'name - return or set name of sampleset\n'
-        s += 'indices - return or set indices\n'
-        s += 'index_start - return or set index starting value\n'
-        s += 'obsnames - return observation names\n'
-        s += 'values - return dataset in array form\n'
-        s += 'recarray - return sampleset in record array form\n'
-        s += 'hist - plot histograms\n'
-        s += 'panels - plot paneled paired plots\n'
-        s += 'corr - calculate and/or plot dataset correlations\n'
-        s += 'savetxt - save sampleset to file\n'
-        s += 'pardict - return parameter dictionary of sample with specified index\n'
-        s += 'run - run the sampleset\n'
-        s += 'subset - subset the sampleset based on criteria\n'
-        s += 'calc_sse - calculate the sum-of-squared-errors of sampleset responses\n'
-        return s
+    #def __repr__(self):
+    #    s = 'MATK SampleSet Object\n\n'
+    #    s += 'Methods (usage: <dataset_name>.<method>):\n\n'
+    #    s += 'name - return or set name of sampleset\n'
+    #    s += 'indices - return or set indices\n'
+    #    s += 'index_start - return or set index starting value\n'
+    #    s += 'obsnames - return observation names\n'
+    #    s += 'values - return dataset in array form\n'
+    #    s += 'recarray - return sampleset in record array form\n'
+    #    s += 'hist - plot histograms\n'
+    #    s += 'panels - plot paneled paired plots\n'
+    #    s += 'corr - calculate and/or plot dataset correlations\n'
+    #    s += 'savetxt - save sampleset to file\n'
+    #    s += 'pardict - return parameter dictionary of sample with specified index\n'
+    #    s += 'run - run the sampleset\n'
+    #    s += 'subset - subset the sampleset based on criteria\n'
+    #    s += 'calc_sse - calculate the sum-of-squared-errors of sampleset responses\n'
+    #    return s
     @property
     def name(self):
         """Sample set name
