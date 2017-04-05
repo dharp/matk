@@ -661,7 +661,7 @@ class matk(object):
                     if v: hs.append(epsfcn[i])
                     else: hs.append(0.)
             else:
-                print "Error: length of epsfcn array is not the number of parameters or number of free (vary=True) parameters"
+                print "\nError: length of epsfcn array is not the number of parameters or number of free (vary=True) parameters\n"
                 return 1
         # Make fixed hs values zero
         hs = hs*vary
