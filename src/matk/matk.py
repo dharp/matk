@@ -643,6 +643,8 @@ class matk(object):
         '''
         # Collect parameter values
         a = numpy.array([k.value for k in params.values()])
+        # Collect array of 1s and 0s to indicate variable or fixed parameters
+        vary = numpy.array([int(k.vary) for k in params.values()])
         # Determine finite difference increment for each parameter
         if epsfcn is None:
             hs = numpy.sqrt(numpy.finfo(float).eps)*a
@@ -650,9 +652,17 @@ class matk(object):
         elif isinstance(epsfcn,float):
             hs = epsfcn * numpy.ones(len(a))
         else:
-            hs = numpy.array(epsfcn)
-        # Collect array of 1s and 0s to indicate variable or fixed parameters
-        vary = numpy.array([int(k.vary) for k in params.values()])
+            if len(epsfcn) == len(a):
+                hs = numpy.array(epsfcn)
+            elif len(epsfcn) == numpy.sum(vary):
+                hs = []
+                i = 0
+                for v in vary: 
+                    if v: hs.append(epsfcn[i])
+                    else: hs.append(0.)
+            else:
+                print "Error: length of epsfcn array is not the number of parameters or number of free (vary=True) parameters"
+                return 1
         # Make fixed hs values zero
         hs = hs*vary
         # Forward differences
