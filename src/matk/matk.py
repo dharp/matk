@@ -682,11 +682,19 @@ class matk(object):
             self.sampleset['_jac_'].run( cpus=cpus, verbose=False,
                              workdir_base=workdir_base, save=False, reuse_dirs=reuse_dirs )
             sims = self.sampleset['_jac_'].responses.values
+            if verbose and len(self.obs):
+                print "Jacobian sse's:"
+                print self.sampleset['_jac_'].sse
         else:
             sims = []
+            if verbose and len(self.obs): sse = []
             for ps in parset:
                 self.forward(pardict=dict(zip(self.parnames,ps)),workdir=workdir_base,reuse_dirs=True)
+                if verbose and len(self.obs): sse.append(self.ssr)
                 sims.append(self.simvalues)
+            if verbose and len(self.obs):
+                print "Jacobian sse's:"
+                print sse
         diffsims = sims[:len(a)]
         zerosims = sims[-1]
         ##print 'diffsims: ', diffsims, diffsims.shape
