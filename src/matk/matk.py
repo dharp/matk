@@ -555,7 +555,7 @@ class matk(object):
             if not curdir is None: os.chdir( curdir )
             return 1
     def lmfit(self,maxfev=0,report_fit=True,cpus=1,epsfcn=None,xtol=1.e-7,ftol=1.e-7,
-              workdir=None, verbose=False, save_evals=False, **kwargs):
+              workdir=None, verbose=False, save_evals=False, difference_type='forward', **kwargs):
         """ Calibrate MATK model using lmfit package
 
             :param maxfev: Max number of function evaluations, if 0, 100*(npars+1) will be used
@@ -574,6 +574,8 @@ class matk(object):
             :type workdir: str
             :param verbose: If true, print diagnostic information to the screen
             :type verbose: bool
+            :param difference_type: Type of finite difference approximation, 'forward' or 'central'
+            :type difference_type: str
             :param save_evals: If True, a MATK sampleset of calibration function evaluation parameters and responses will be returned
             :returns: tuple(lmfit minimizer object; parameter object; if save_evals=True, also returns a MATK sampleset of calibration function evaluation parameters and responses)
 
@@ -593,7 +595,7 @@ class matk(object):
         for k,p in self.pars.items():
             params.add(k,value=p.value,vary=p.vary,min=p.min,max=p.max,expr=p.expr) 
 
-        out = lmfit.minimize(self.__lmfit_residual, params, args=(cpus,epsfcn,workdir,verbose,save_evals), 
+        out = lmfit.minimize(self.__lmfit_residual, params, args=(cpus,epsfcn,workdir,verbose,save_evals,difference_type), 
                 maxfev=maxfev,xtol=xtol,ftol=ftol,Dfun=self.__jacobian, **kwargs)
 
         # Make sure that self.pars are set to final values of params
@@ -619,7 +621,7 @@ class matk(object):
             return out, params, self.create_sampleset(self._minimize_pars, responses=self._minimize_sims)
         else:
             return out,params
-    def __lmfit_residual(self, params, cpus=1, epsfcn=None, workdir=None,verbose=False,save_evals=False):
+    def __lmfit_residual(self, params, cpus=1, epsfcn=None, workdir=None,verbose=False,save_evals=False,difference_type='forward'):
         if verbose: print 'forward run: ',params
         pardict = dict([(k,n.value) for k,n in params.items()])
         if isinstance( cpus, int):
@@ -638,7 +640,7 @@ class matk(object):
             self._minimize_sims.append(self.simvalues)
         return self.residuals
     def __jacobian( self, params, cpus=1, epsfcn=None, workdir_base=None,verbose=False,save=False,
-                   reuse_dirs=True):
+                   difference_type='forward',reuse_dirs=True):
         ''' Numerical Jacobian calculation
         '''
         # Collect parameter values
@@ -670,7 +672,13 @@ class matk(object):
         # Remove zero rows associated with fixed parameters
         humat = humat[~numpy.all(humat == 0, axis=1)]
         parset = [a]*humat.shape[0] + humat
-        parset = numpy.append(parset,[a],axis=0)
+        if difference_type == 'central':
+            parset = numpy.append(parset, [a]*humat.shape[0] - humat, axis=0)
+        elif difference_type == 'forward':
+            parset = numpy.append(parset,[a],axis=0)
+        else:
+            print 'difference_type not recognized, expects "forward" or "central"'
+            return
         if verbose: 
             print "Jacobian parameter combinations:"
             numpy.set_printoptions(precision=16)
@@ -695,15 +703,19 @@ class matk(object):
             if verbose and len(self.obs):
                 print "Jacobian sse's:"
                 print sse
-        diffsims = sims[:len(a)]
-        zerosims = sims[-1]
-        ##print 'diffsims: ', diffsims, diffsims.shape
-        #print 'zerosims: ', zerosims, zerosims.shape
+        J = []
         # Delete hs's associated with fixed parameters
         hs = numpy.delete(hs,numpy.where(hs==0))
-        J = []
-        for h,d in zip(hs,diffsims):
-            J.append((zerosims-d)/h)
+        if difference_type == 'central':
+            fsims = sims[:len(a)]
+            bsims = sims[len(a):]
+            for h,fsim,bsim in zip(hs,fsims,bsims):
+                J.append((bsim-fsim)/(2*h))
+        elif difference_type == 'forward':
+            diffsims = sims[:len(a)]
+            zerosims = sims[-1]
+            for h,d in zip(hs,diffsims):
+                J.append((zerosims-d)/h)
         self.parvalues = a
         return numpy.array(J).T
 
