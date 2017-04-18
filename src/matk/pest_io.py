@@ -55,7 +55,7 @@ def tpl_write( pardict, f, outflnm ):
             pd[m] = aeval(pstr)
     # Perform substitutions
     for k,v in pd.items():
-        t = re.sub( re.escape(k), str(v), t)
+        t = re.sub( re.escape(k), '%s' % float('%.16g' % v), t)
 
     # Write output file
     fout = open( outflnm, 'w' )
