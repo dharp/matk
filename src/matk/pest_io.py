@@ -55,7 +55,13 @@ def tpl_write( pardict, f, outflnm ):
             pd[m] = aeval(pstr)
     # Perform substitutions
     for k,v in pd.items():
-        t = re.sub( re.escape(k), '%s' % float('%.16g' % v), t)
+        if isinstance(v,(float,int)):
+            t = re.sub( re.escape(k), '%s' % float('%.16g' % v), t)
+        elif isinstance(v,str):
+            t = re.sub( re.escape(k), v, t)
+        else:
+            print "Error: Substitution value not a float, int, or string"
+            return
 
     # Write output file
     fout = open( outflnm, 'w' )
