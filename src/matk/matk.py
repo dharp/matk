@@ -805,15 +805,25 @@ class matk(object):
             siz = self.sample_size
         # Take distribution keyword and convert to scipy.stats distribution object
         dists = []
-        for dist in self.pardists:
-            eval( 'dists.append(stats.' + dist + ')' )
-        dist_pars = self.pardist_pars
+        dist_pars = []
+        for p in self.pars.itervalues():
+            if p.vary:
+                eval( 'dists.append(stats.' + p.dist + ')' )
+                dist_pars.append(p.dist_pars)
         x = lhs(dists, dist_pars, siz=siz, noCorrRestr=noCorrRestr, corrmat=corrmat, seed=seed)
         for j,p in enumerate(self.pars.values()):
             if p.expr is not None:
                 for i,r in enumerate(x):
                     x[i,j] = self.__eval_expr( p.expr, r )
-        return self.create_sampleset( x, name=name, index_start=index_start )
+        # Construct sampleset replacing fixed parameters with their 'value'
+        ss = numpy.zeros((siz,len(self.pars)))
+        ind = 0
+        for i,p in enumerate(self.pars.itervalues()):
+            if p.vary: 
+                ss[:,i] = x[:,ind]
+                ind += 1
+            else: ss[:,i] = p.value
+        return self.create_sampleset( ss, name=name, index_start=index_start )
     def child( self, in_queue, out_list, reuse_dirs, save, hostname, processor):
         # Ignoring Futurewarning about elementwise comparison for now
         with warnings.catch_warnings():
