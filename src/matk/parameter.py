@@ -75,6 +75,8 @@ class Parameter(LMFitParameter):
             if self.mean is None: self.mean = 0.
             if self.std is None: self.std = 1.
             self.dist_pars = (self.mean, self.std)
+        # Set vary to False if max == min
+        if (self.min == self.max) and (self.min is not None) and (self.max is not None): self.vary = False
     def __getstate__(self):
         odict = self.__dict__.copy()
         return odict
