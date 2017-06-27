@@ -16,6 +16,7 @@ setup(name='MATK',
 		'matk.emcee',
 		'matk.lmfit',
 		'matk.lmfit.uncertainties',
+        'matk.corner',
 		'matk.pyDOE'],
 	py_modules=['matk','emcee','lhs','parameter','sampleset','minimizer','pest_io','ordereddict','observation','__init__'],
 	)

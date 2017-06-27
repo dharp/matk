@@ -65,24 +65,24 @@ class SampleSet(object):
                 self.indices = numpy.arange(index_start,index_start+self.samples.values.shape[0])
             else:
                 self.indices = numpy.arange(self.samples.values.shape[0])+1
-    def __repr__(self):
-        s = 'MATK SampleSet Object\n\n'
-        s += 'Methods (usage: <dataset_name>.<method>):\n\n'
-        s += 'name - return or set name of sampleset\n'
-        s += 'indices - return or set indices\n'
-        s += 'index_start - return or set index starting value\n'
-        s += 'obsnames - return observation names\n'
-        s += 'values - return dataset in array form\n'
-        s += 'recarray - return sampleset in record array form\n'
-        s += 'hist - plot histograms\n'
-        s += 'panels - plot paneled paired plots\n'
-        s += 'corr - calculate and/or plot dataset correlations\n'
-        s += 'savetxt - save sampleset to file\n'
-        s += 'pardict - return parameter dictionary of sample with specified index\n'
-        s += 'run - run the sampleset\n'
-        s += 'subset - subset the sampleset based on criteria\n'
-        s += 'calc_sse - calculate the sum-of-squared-errors of sampleset responses\n'
-        return s
+    #def __repr__(self):
+    #    s = 'MATK SampleSet Object\n\n'
+    #    s += 'Methods (usage: <dataset_name>.<method>):\n\n'
+    #    s += 'name - return or set name of sampleset\n'
+    #    s += 'indices - return or set indices\n'
+    #    s += 'index_start - return or set index starting value\n'
+    #    s += 'obsnames - return observation names\n'
+    #    s += 'values - return dataset in array form\n'
+    #    s += 'recarray - return sampleset in record array form\n'
+    #    s += 'hist - plot histograms\n'
+    #    s += 'panels - plot paneled paired plots\n'
+    #    s += 'corr - calculate and/or plot dataset correlations\n'
+    #    s += 'savetxt - save sampleset to file\n'
+    #    s += 'pardict - return parameter dictionary of sample with specified index\n'
+    #    s += 'run - run the sampleset\n'
+    #    s += 'subset - subset the sampleset based on criteria\n'
+    #    s += 'calc_sse - calculate the sum-of-squared-errors of sampleset responses\n'
+    #    return s
     @property
     def name(self):
         """Sample set name
@@ -324,35 +324,48 @@ class SampleSet(object):
         return out
     def copy(self, newname=None):
         return self._parent.copy_sampleset(self.name,newname=newname)
-    def savetxt( self, outfile):
+    def savetxt( self, outfile, sse=False):
         ''' Save sampleset to file
 
             :param outfile: Name of file where sampleset will be written
             :type outfile: str
+            :param sse: Print out sum-of-squared-errors instead of observations
+            :type sse: bool
         '''
 
         x = numpy.column_stack([self.indices,self.samples.values])
-        if not self.responses is None:
+        if not self.responses is None and sse is False:
             x = numpy.column_stack([x,self.responses.values])
+        elif not self.responses is None and sse is True:
+            x = numpy.column_stack([x,self.sse])
 
         if outfile:
             f = open(outfile, 'w')
             f.write("Number of parameters: %d\n" % len(self.parnames) )
-            if not self.responses is None:
-                f.write("Number of responses: %d\n" % len(self.obsnames) )
-            else: f.write("Number of responses: %d\n" % 0 ) 
+            if sse is False:
+                if not self.responses is None:
+                    f.write("Number of responses: %d\n" % len(self.obsnames) )
+                else: f.write("Number of responses: %d\n" % 0 ) 
+            else:
+                if not self.responses is None: f.write("Number of responses: %d\n" % 1 ) 
+                else: 
+                    print "Warning: sum-of-squared error cannot be calculates without model responses"
+                    f.write("Number of responses: %d\n" % 0 ) 
             f.write("%-8s" % 'index' )
             # Print par names
             for nm in self.samples.names:
                 f.write(" %22s" % nm )
             # Print obs names if responses exist
-            if not self.responses is None:
-                if len(self.obsnames) == 0:
-                    for i in range(self.responses.values.shape[1]):
-                        f.write("%22s" % 'obs'+str(i+1) )
-                else:
-                    for nm in self.obsnames:
-                        f.write(" %22s" % nm )
+            if sse is False:
+                if not self.responses is None:
+                    if len(self.obsnames) == 0:
+                        for i in range(self.responses.values.shape[1]):
+                            f.write("%22s" % 'obs'+str(i+1) )
+                    else:
+                        for nm in self.obsnames:
+                            f.write(" %22s" % nm )
+            else:
+                f.write(" %22s" % 'sum-of-squared errors' )
             f.write('\n')
             for row in x:
                 if isinstance( row[0], str ):

@@ -18,6 +18,7 @@ try:
 except ImportError:
     from ordereddict import OrderedDict
 from lmfit.asteval import Interpreter
+import warnings
 
 class matk(object):
     """ Class for Model Analysis ToolKit (MATK) module
@@ -64,21 +65,21 @@ class matk(object):
         self.sampleset = OrderedDict()
         self.workdir_index = 0
         self._current = False # Flag indicating if simulated values are associated with current parameters
-    def __repr__(self):
-        s = 'MATK Model Analysis Object\n\n'
-        s += 'Model: '+self.model.func_name+'\n\n'
-        s += 'Number of Parameters: '+str(len(self.pars))+'\n'
-        if len(self.pars) < 11:
-            s+='Parameters:\n'
-            for k,v in self.pars.iteritems(): s += repr(v); s+='\n'
-        s += '\nNumber of Observations: '+str(len(self.obs))+'\n'
-        if len(self.obs) < 11:
-            s+='Observations:\n'
-            for k,v in self.obs.iteritems(): s += repr(v); s+='\n'
-        else:
-            s+='Too many observations to display\n'
-            s+='Use "obs" attribute to return observation dictionary\n'
-        return s
+    #def __repr__(self):
+    #    s = 'MATK Model Analysis Object\n\n'
+    #    s += 'Model: '+self.model.func_name+'\n\n'
+    #    s += 'Number of Parameters: '+str(len(self.pars))+'\n'
+    #    if len(self.pars) < 11:
+    #        s+='Parameters:\n'
+    #        for k,v in self.pars.iteritems(): s += repr(v); s+='\n'
+    #    s += '\nNumber of Observations: '+str(len(self.obs))+'\n'
+    #    if len(self.obs) < 11:
+    #        s+='Observations:\n'
+    #        for k,v in self.obs.iteritems(): s += repr(v); s+='\n'
+    #    else:
+    #        s+='Too many observations to display\n'
+    #        s+='Use "obs" attribute to return observation dictionary\n'
+    #    return s
     @property
     def model(self):
         """ Python function that runs model
@@ -529,6 +530,9 @@ class matk(object):
                 if not curdir is None: os.chdir( curdir )
                 if sims is not None:
                     if isinstance(sims,(float,int)): sims = [sims]
+                    # Remove extra sims items if not in current observations
+                    if isinstance(sims,(dict,OrderedDict)) and len(self.obs) > 0: 
+                        sims = OrderedDict([(k,v) for k,v in sims.iteritems() if k in self.obs])
                     if len(sims):
                         self._set_simvalues(sims)
                         simdict = OrderedDict(zip(self.obsnames,self.simvalues))
@@ -551,7 +555,7 @@ class matk(object):
             if not curdir is None: os.chdir( curdir )
             return 1
     def lmfit(self,maxfev=0,report_fit=True,cpus=1,epsfcn=None,xtol=1.e-7,ftol=1.e-7,
-              workdir=None, verbose=False, **kwargs):
+              workdir=None, verbose=False, save_evals=False, difference_type='forward', **kwargs):
         """ Calibrate MATK model using lmfit package
 
             :param maxfev: Max number of function evaluations, if 0, 100*(npars+1) will be used
@@ -570,7 +574,10 @@ class matk(object):
             :type workdir: str
             :param verbose: If true, print diagnostic information to the screen
             :type verbose: bool
-            :returns: lmfit minimizer object
+            :param difference_type: Type of finite difference approximation, 'forward' or 'central'
+            :type difference_type: str
+            :param save_evals: If True, a MATK sampleset of calibration function evaluation parameters and responses will be returned
+            :returns: tuple(lmfit minimizer object; parameter object; if save_evals=True, also returns a MATK sampleset of calibration function evaluation parameters and responses)
 
             Additional keyword argments will be passed to scipy leastsq function:
             http://docs.scipy.org/doc/scipy-0.15.1/reference/generated/scipy.optimize.leastsq.html
@@ -581,13 +588,14 @@ class matk(object):
             sys.stderr.write("Warning: failed to import lmfit module. ({})".format(exc))
             return
         self.cpus = cpus
+        if save_evals: self._minimize_pars = []; self._minimize_sims = []
 
         # Create lmfit parameter object
         params = lmfit.Parameters()
         for k,p in self.pars.items():
             params.add(k,value=p.value,vary=p.vary,min=p.min,max=p.max,expr=p.expr) 
 
-        out = lmfit.minimize(self.__lmfit_residual, params, args=(cpus,epsfcn,workdir,verbose), 
+        out = lmfit.minimize(self.__lmfit_residual, params, args=(cpus,epsfcn,workdir,verbose,save_evals,difference_type), 
                 maxfev=maxfev,xtol=xtol,ftol=ftol,Dfun=self.__jacobian, **kwargs)
 
         # Make sure that self.pars are set to final values of params
@@ -609,8 +617,11 @@ class matk(object):
         if report_fit:
             print lmfit.report_fit(params)
             print 'SSR: ',self.ssr
-        return out,params
-    def __lmfit_residual(self, params, cpus=1, epsfcn=None, workdir=None,verbose=False,save=False):
+        if save_evals:
+            return out, params, self.create_sampleset(self._minimize_pars, responses=self._minimize_sims)
+        else:
+            return out,params
+    def __lmfit_residual(self, params, cpus=1, epsfcn=None, workdir=None,verbose=False,save_evals=False,difference_type='forward'):
         if verbose: print 'forward run: ',params
         pardict = dict([(k,n.value) for k,n in params.items()])
         if isinstance( cpus, int):
@@ -624,13 +635,18 @@ class matk(object):
             print 'Error: cpus argument type not recognized'
             return
         if verbose: print 'SSR: ', numpy.sum([v**2 for v in self.residuals])
+        if save_evals:
+            self._minimize_pars.append(self.parvalues)
+            self._minimize_sims.append(self.simvalues)
         return self.residuals
     def __jacobian( self, params, cpus=1, epsfcn=None, workdir_base=None,verbose=False,save=False,
-                   reuse_dirs=True):
+                   difference_type='forward',reuse_dirs=True):
         ''' Numerical Jacobian calculation
         '''
         # Collect parameter values
         a = numpy.array([k.value for k in params.values()])
+        # Collect array of 1s and 0s to indicate variable or fixed parameters
+        vary = numpy.array([int(k.vary) for k in params.values()])
         # Determine finite difference increment for each parameter
         if epsfcn is None:
             hs = numpy.sqrt(numpy.finfo(float).eps)*a
@@ -638,9 +654,17 @@ class matk(object):
         elif isinstance(epsfcn,float):
             hs = epsfcn * numpy.ones(len(a))
         else:
-            hs = numpy.array(epsfcn)
-        # Collect array of 1s and 0s to indicate variable or fixed parameters
-        vary = numpy.array([int(k.vary) for k in params.values()])
+            if len(epsfcn) == len(a):
+                hs = numpy.array(epsfcn)
+            elif len(epsfcn) == numpy.sum(vary):
+                hs = []
+                i = 0
+                for v in vary: 
+                    if v: hs.append(epsfcn[i])
+                    else: hs.append(0.)
+            else:
+                print "\nError: length of epsfcn array is not the number of parameters or number of free (vary=True) parameters\n"
+                return 1
         # Make fixed hs values zero
         hs = hs*vary
         # Forward differences
@@ -648,7 +672,17 @@ class matk(object):
         # Remove zero rows associated with fixed parameters
         humat = humat[~numpy.all(humat == 0, axis=1)]
         parset = [a]*humat.shape[0] + humat
-        parset = numpy.append(parset,[a],axis=0)
+        if difference_type == 'central':
+            parset = numpy.append(parset, [a]*humat.shape[0] - humat, axis=0)
+        elif difference_type == 'forward':
+            parset = numpy.append(parset,[a],axis=0)
+        else:
+            print 'difference_type not recognized, expects "forward" or "central"'
+            return
+        if verbose: 
+            print "Jacobian parameter combinations:"
+            numpy.set_printoptions(precision=16)
+            print parset
         if cpus > 1:
             self.create_sampleset(parset,name='_jac_')
 
@@ -656,20 +690,32 @@ class matk(object):
             self.sampleset['_jac_'].run( cpus=cpus, verbose=False,
                              workdir_base=workdir_base, save=False, reuse_dirs=reuse_dirs )
             sims = self.sampleset['_jac_'].responses.values
+            if verbose and len(self.obs):
+                print "Jacobian sse's:"
+                print self.sampleset['_jac_'].sse
         else:
             sims = []
+            if verbose and len(self.obs): sse = []
             for ps in parset:
                 self.forward(pardict=dict(zip(self.parnames,ps)),workdir=workdir_base,reuse_dirs=True)
+                if verbose and len(self.obs): sse.append(self.ssr)
                 sims.append(self.simvalues)
-        diffsims = sims[:len(a)]
-        zerosims = sims[-1]
-        ##print 'diffsims: ', diffsims, diffsims.shape
-        #print 'zerosims: ', zerosims, zerosims.shape
+            if verbose and len(self.obs):
+                print "Jacobian sse's:"
+                print sse
+        J = []
         # Delete hs's associated with fixed parameters
         hs = numpy.delete(hs,numpy.where(hs==0))
-        J = []
-        for h,d in zip(hs,diffsims):
-            J.append((zerosims-d)/h)
+        if difference_type == 'central':
+            fsims = sims[:len(a)]
+            bsims = sims[len(a):]
+            for h,fsim,bsim in zip(hs,fsims,bsims):
+                J.append((bsim-fsim)/(2*h))
+        elif difference_type == 'forward':
+            diffsims = sims[:len(a)]
+            zerosims = sims[-1]
+            for h,d in zip(hs,diffsims):
+                J.append((zerosims-d)/h)
         self.parvalues = a
         return numpy.array(J).T
 
@@ -759,26 +805,39 @@ class matk(object):
             siz = self.sample_size
         # Take distribution keyword and convert to scipy.stats distribution object
         dists = []
-        for dist in self.pardists:
-            eval( 'dists.append(stats.' + dist + ')' )
-        dist_pars = self.pardist_pars
+        dist_pars = []
+        for p in self.pars.itervalues():
+            if p.vary:
+                eval( 'dists.append(stats.' + p.dist + ')' )
+                dist_pars.append(p.dist_pars)
         x = lhs(dists, dist_pars, siz=siz, noCorrRestr=noCorrRestr, corrmat=corrmat, seed=seed)
         for j,p in enumerate(self.pars.values()):
             if p.expr is not None:
                 for i,r in enumerate(x):
                     x[i,j] = self.__eval_expr( p.expr, r )
-        return self.create_sampleset( x, name=name, index_start=index_start )
+        # Construct sampleset replacing fixed parameters with their 'value'
+        ss = numpy.zeros((siz,len(self.pars)))
+        ind = 0
+        for i,p in enumerate(self.pars.itervalues()):
+            if p.vary: 
+                ss[:,i] = x[:,ind]
+                ind += 1
+            else: ss[:,i] = p.value
+        return self.create_sampleset( ss, name=name, index_start=index_start )
     def child( self, in_queue, out_list, reuse_dirs, save, hostname, processor):
-        for pars,smp_ind,lst_ind in iter(in_queue.get, ('','','')):
-            self.workdir_index = smp_ind
-            if self.workdir_base is not None:
-                self.workdir = self.workdir_base + '.' + str(self.workdir_index)
-            self.parvalues = pars
-            status = self.forward(reuse_dirs=reuse_dirs, job_number=smp_ind, hostname=hostname, processor=processor)
-            out_list.put([lst_ind, smp_ind, status])
-            if not save and not self.workdir is None:
-                rmtree( self.workdir )
-            in_queue.task_done()
+        # Ignoring Futurewarning about elementwise comparison for now
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", message="elementwise")
+            for pars,smp_ind,lst_ind in iter(in_queue.get, ('','','')):
+                self.workdir_index = smp_ind
+                if self.workdir_base is not None:
+                    self.workdir = self.workdir_base + '.' + str(self.workdir_index)
+                self.parvalues = pars
+                status = self.forward(reuse_dirs=reuse_dirs, job_number=smp_ind, hostname=hostname, processor=processor)
+                out_list.put([lst_ind, smp_ind, status])
+                if not save and not self.workdir is None:
+                    rmtree( self.workdir )
+                in_queue.task_done()
         in_queue.task_done()
     def parallel(self, parsets, cpus=1, workdir_base=None, save=True,
                 reuse_dirs=False, indices=None, verbose=True, logfile=None):
@@ -920,7 +979,11 @@ class matk(object):
         x = []
         for p,n in zip(self.pars.values(),nvals):
             if n == 1 or not p.vary:
-                x.append(numpy.linspace(p.value, p.max, n))
+                if p.value: x.append([p.value])
+                elif p.min and p.max: x.append([(p.max+p.min)/2.])
+                elif p.min: x.append([p.min])
+                elif p.max: x.append([p.max])
+                else: x.append([0.])
             elif n > 1:
                 x.append(numpy.linspace(p.min, p.max, n))
 

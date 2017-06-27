@@ -56,7 +56,7 @@ def run():
     ax1.set_title("Before Calibration")
 
     # Calibrate parameters to data, results are printed to screen
-    res,pars,evals = p.lmfit(cpus=2,verbose=True,save_evals=True)
+    res,pars,evals = p.lmfit(cpus=2,verbose=True,save_evals=True,difference_type='central')
     evals.savetxt('evals.txt',sse=True)
 
     # Look at calibrated fit
