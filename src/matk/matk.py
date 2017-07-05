@@ -979,7 +979,11 @@ class matk(object):
         x = []
         for p,n in zip(self.pars.values(),nvals):
             if n == 1 or not p.vary:
-                x.append(numpy.linspace(p.value, p.max, n))
+                if p.value: x.append([p.value])
+                elif p.max and p.min: x.append([(p.max+p.min)/2.])
+                elif p.max: x.append([p.max])
+                elif p.min: x.append([p.min])
+                else: x.append([0.])
             elif n > 1:
                 x.append(numpy.linspace(p.min, p.max, n))
 
