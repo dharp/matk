@@ -1,7 +1,7 @@
 import os,sys
 import unittest
 try:
-    import mtk
+    import matk
 except:
     try:
         sys.path.append(os.path.join('..','src','matk'))

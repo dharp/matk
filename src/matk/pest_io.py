@@ -55,8 +55,10 @@ def tpl_write( pardict, f, outflnm ):
             pd[m] = aeval(pstr)
     # Perform substitutions
     for k,v in pd.items():
-        if isinstance(v,(float,int)):
+        if isinstance(v,float):
             t = re.sub( re.escape(k), '%s' % float('%.16g' % v), t)
+        elif isinstance(v,int):
+            t = re.sub( re.escape(k), str(v), t)
         elif isinstance(v,str):
             t = re.sub( re.escape(k), v, t)
         else:
