@@ -194,7 +194,7 @@ class SampleSet(object):
         corrcoef = corr(self.samples.recarray, self.responses.recarray, type=type, plot=plot, printout=printout, plotvals=plotvals, figsize=figsize, title=title)
         return corrcoef
     
-    def panels(self, type='pearson', alpha=0.2, figsize=None, title=None, tight=False, symbol='.',fontsize=None,corrfontsize=None,ms=5,mins=None,maxs=None,frequency=False,bins=10, ylim=None, labels=[], filename=None, xticks=2, yticks=2):
+    def panels(self, type='pearson', alpha=0.2, figsize=None, title=None, tight=False, symbol='.',fontsize=None,corrfontsize=None,ms=5,mins=None,maxs=None,frequency=False,bins=10, ylim=None, labels=[], filename=None, xticks=2, yticks=2,color=None,cmap=None,edgecolors=None):
         """ Plot histograms, scatterplots, and correlation coefficients in paired matrix
 
             :param type: Type of correlation coefficient (pearson by default, spearman also avaialable)
@@ -229,6 +229,12 @@ class SampleSet(object):
             :type xticks: int
             :param yticks: Number of ticks along y axes 
             :type yticks: int
+            :param color: Name of parameter of observation to color points in colorplots by
+            :type color: str
+            :param cmap: Colormap for color option
+            :type cmap: matplotlib.colors.Colormap
+            :param edgecolors: Color of edges of markers in scatterplots
+            :type edgecolors: str
         """
         if self.responses is None:
             if mins is None and self.samples._mins is not None: mins = self.samples._mins
@@ -236,7 +242,7 @@ class SampleSet(object):
         else:
             if mins is None and self.samples._mins is not None: mins = numpy.concatenate([self.samples._mins,numpy.min(self.responses.values,axis=0)])
             if maxs is None and self.samples._maxs is not None: maxs = numpy.concatenate([self.samples._maxs,numpy.max(self.responses.values,axis=0)])
-        panels( self.recarray, type=type, alpha=alpha, figsize=figsize, title=title, tight=tight, symbol=symbol,fontsize=fontsize,corrfontsize=corrfontsize,ms=ms,mins=mins,maxs=maxs,frequency=frequency,bins=bins,ylim=ylim,labels=labels,filename=filename,xticks=xticks,yticks=yticks)
+        panels( self.recarray, type=type, alpha=alpha, figsize=figsize, title=title, tight=tight, symbol=symbol,fontsize=fontsize,corrfontsize=corrfontsize,ms=ms,mins=mins,maxs=maxs,frequency=frequency,bins=bins,ylim=ylim,labels=labels,filename=filename,xticks=xticks,yticks=yticks,color=color,cmap=cmap,edgecolors=edgecolors)
     def corner(self,bins=20, range=None, weights=None, color=u'k', smooth=None, smooth1d=None, labels=None, label_kwargs=None, show_titles=False, title_fmt=u'.2f', title_kwargs=None, truths=None, truth_color=u'#4682b4', scale_hist=False, quantiles=None, verbose=False, fig=None, max_n_ticks=5, top_ticks=False, use_math_text=False, hist_kwargs=None, **hist2d_kwargs):
         """ Plot corner plot using the corner package written by Dan Foreman-Mackey (https://pypi.python.org/pypi/corner/1.0.0)
         """
@@ -565,7 +571,7 @@ class DataSet(object):
             :returns: ndarray(fl64) -- Correlation coefficients
         """
         return corr(self.recarray, self.recarray, type=type, plot=plot, printout=printout, plotvals=plotvals, figsize=figsize, title=title)
-    def panels(self, type='pearson', alpha=0.2, figsize=None, title=None, tight=False, symbol='.',fontsize=None,corrfontsize=None,ms=5,mins=None,maxs=None,frequency=False,bins=10,ylim=None,labels=[],filename=None,xticks=2,yticks=2):
+    def panels(self, type='pearson', alpha=0.2, figsize=None, title=None, tight=False, symbol='.',fontsize=None,corrfontsize=None,ms=5,mins=None,maxs=None,frequency=False,bins=10,ylim=None,labels=[],filename=None,xticks=2,yticks=2,color=None,cmap=None, edgecolors=None):
         """ Plot histograms, scatterplots, and correlation coefficients in paired matrix
 
             :param type: Type of correlation coefficient (pearson by default, spearman also avaialable)
@@ -600,10 +606,16 @@ class DataSet(object):
             :type xticks: int
             :param yticks: Number of ticks along y axes 
             :type yticks: int
+            :param color: Name of parameter of observation to color points in colorplots by
+            :type color: str
+            :param cmap: Colormap for color option
+            :type cmap: matplotlib.colors.Colormap
+            :param edgecolors: Color of edges of markers in scatterplots
+            :type edgecolors: str
         """
         if mins is None and self._mins is not None: mins = self._mins
         if maxs is None and self._maxs is not None: maxs = self._maxs
-        panels( self.recarray, type=type, alpha=alpha, figsize=figsize, title=title, tight=tight, symbol=symbol,fontsize=fontsize,corrfontsize=corrfontsize,ms=ms,mins=mins,maxs=maxs,frequency=frequency,bins=bins,ylim=ylim,labels=labels,filename=filename,xticks=xticks,yticks=yticks)
+        panels( self.recarray, type=type, alpha=alpha, figsize=figsize, title=title, tight=tight, symbol=symbol,fontsize=fontsize,corrfontsize=corrfontsize,ms=ms,mins=mins,maxs=maxs,frequency=frequency,bins=bins,ylim=ylim,labels=labels,filename=filename,xticks=xticks,yticks=yticks,color=color,cmap=cmap,edgecolors=edgecolors)
     def corner(self,bins=20, range=None, weights=None, color=u'k', smooth=None, smooth1d=None, labels=None, label_kwargs=None, show_titles=False, title_fmt=u'.2f', title_kwargs=None, truths=None, truth_color=u'#4682b4', scale_hist=False, quantiles=None, verbose=False, fig=None, max_n_ticks=5, top_ticks=False, use_math_text=False, hist_kwargs=None, **hist2d_kwargs):
         """ Plot corner plot using the corner package written by Dan Foreman-Mackey (https://pypi.python.org/pypi/corner/1.0.0)
         """
@@ -682,7 +694,7 @@ def corr(rc1, rc2, type='pearson', plot=False, printout=True, plotvals=True, fig
         plt.show()
     return corrcoef
 
-def panels(rc, type='pearson', alpha=0.2, figsize=None, title=None, tight=False, symbol='.',fontsize=None,corrfontsize=None,ms=None,mins=None,maxs=None,frequency=False,bins=10,ylim=None,labels=[],filename=None,xticks=2,yticks=2):
+def panels(rc, type='pearson', alpha=0.2, figsize=None, title=None, tight=False, symbol='.',fontsize=None,corrfontsize=None,ms=None,mins=None,maxs=None,frequency=False,bins=10,ylim=None,labels=[],filename=None,xticks=2,yticks=2,color=None,cmap=None,edgecolors=None):
     if plotflag:
         # Set font for scatterplot labels
         if not fontsize is None:
@@ -733,7 +745,10 @@ def panels(rc, type='pearson', alpha=0.2, figsize=None, title=None, tight=False,
         for i,nm1 in enumerate(rc.dtype.names): 
             for j,nm2 in enumerate(rc.dtype.names): 
                 if j<i:
-                    ax[i,j].plot(rc[nm2],rc[nm1], symbol, ms=ms)
+                    if color:
+                        sc = ax[i,j].scatter(rc[nm2],rc[nm1], s=ms, marker=symbol, c=rc[color], cmap=cmap, edgecolors=edgecolors)
+                    else:
+                        sc = ax[i,j].scatter(rc[nm2],rc[nm1], s=ms, marker=symbol)
                     ax[i,j].axis([mins[j],maxs[j],mins[i],maxs[i]])
         # Print correlation coefficient in upper triangular matrix 
         corrcoef = corr(rc,rc,plot=False,printout=False)
@@ -765,6 +780,9 @@ def panels(rc, type='pearson', alpha=0.2, figsize=None, title=None, tight=False,
             if title:
                 plt.subplots_adjust(top=0.925) 
         if title: plt.suptitle(title)
+        if color:
+            cbar = fig.colorbar(sc, ax=ax.ravel().tolist())
+            cbar.ax.set_ylabel(color)
         if filename is None:
             plt.show()
         else:
