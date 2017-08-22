@@ -42,17 +42,17 @@ clean:
 	-rm -rf $(BUILDDIR)/*
 
 html:
-	cd source; ipython nbconvert  --to rst ../../examples/calibrate_sine_lmfit.ipynb
-	cd source; ipython nbconvert  --to rst ../../examples/calibrate_sine_lmfit_pyemu.ipynb
-	cd source; ipython nbconvert  --to rst ../../examples/sampling.ipynb
-	cd source; ipython nbconvert  --to rst ../../examples/sampling_na.ipynb
-	cd source; ipython nbconvert  --to rst ../../examples/parstudy.ipynb
-	cd source; ipython nbconvert  --to rst ../../examples/mcmc.ipynb
-	cd source; ipython nbconvert  --to rst ../../examples/lmfit_external/calibrate_sine_lmfit_external.ipynb
-	cd source; ipython nbconvert  --to rst ../../examples/emcee.ipynb
-	cd source; ipython nbconvert  --to rst ../../examples/differential_evolution.ipynb
-	cd source; ipython nbconvert  --to rst ../../examples/minimize_constraints.ipynb
-	cd source; ipython nbconvert  --to rst ../../examples/sampleset_restart.ipynb
+	cd source; jupyter nbconvert  --to rst --output-dir=. ../../examples/calibrate_sine_lmfit.ipynb
+	cd source; jupyter nbconvert  --to rst --output-dir=. ../../examples/calibrate_sine_lmfit_pyemu.ipynb
+	cd source; jupyter nbconvert  --to rst --output-dir=. ../../examples/sampling.ipynb
+	cd source; jupyter nbconvert  --to rst --output-dir=. ../../examples/sampling_na.ipynb
+	cd source; jupyter nbconvert  --to rst --output-dir=. ../../examples/parstudy.ipynb
+	cd source; jupyter nbconvert  --to rst --output-dir=. ../../examples/mcmc.ipynb
+	cd source; jupyter nbconvert  --to rst --output-dir=. ../../examples/lmfit_external/calibrate_sine_lmfit_external.ipynb
+	cd source; jupyter nbconvert  --to rst --output-dir=. ../../examples/emcee.ipynb
+	cd source; jupyter nbconvert  --to rst --output-dir=. ../../examples/differential_evolution.ipynb
+	cd source; jupyter nbconvert  --to rst --output-dir=. ../../examples/minimize_constraints.ipynb
+	cd source; jupyter nbconvert  --to rst --output-dir=. ../../examples/sampleset_restart.ipynb
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."

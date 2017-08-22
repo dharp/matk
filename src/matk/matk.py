@@ -1160,108 +1160,107 @@ class matk(object):
                                init='latinhypercube',save_evals=False):
         ''' Perform differential evolution calibration using scipy.optimize.differential_evolution:
 
-        Differential Evolution is stochastic in nature (does not use gradient
-        methods) to find the minimium, and can search large areas of candidate
-        space, but often requires larger numbers of function evaluations than
-        conventional gradient based techniques.
+            Differential Evolution is stochastic in nature (does not use gradient
+            methods) to find the minimium, and can search large areas of candidate
+            space, but often requires larger numbers of function evaluations than
+            conventional gradient based techniques.
 
-        The algorithm is due to Storn and Price.
+            The algorithm is due to Storn and Price.
 
-        Parameters
-        func : callable
-            The objective function to be minimized.  Must be in the form
-            ``f(x, *args)``, where ``x`` is the argument in the form of a 1-D array
-            and ``args`` is a  tuple of any additional fixed parameters needed to
-            completely specify the function.
-        bounds : sequence
-            Bounds for variables.  ``(min, max)`` pairs for each element in ``x``,
-            defining the lower and upper bounds for the optimizing argument of
-            `func`. It is required to have ``len(bounds) == len(x)``.
-            ``len(bounds)`` is used to determine the number of parameters in ``x``.
-        strategy : str, optional
-            The differential evolution strategy to use. Should be one of:
+            Parameters
+            func : callable
+                The objective function to be minimized.  Must be in the form
+                ``f(x, *args)``, where ``x`` is the argument in the form of a 1-D array
+                and ``args`` is a  tuple of any additional fixed parameters needed to
+                completely specify the function.
+            bounds : sequence
+                Bounds for variables.  ``(min, max)`` pairs for each element in ``x``,
+                defining the lower and upper bounds for the optimizing argument of
+                `func`. It is required to have ``len(bounds) == len(x)``.
+                ``len(bounds)`` is used to determine the number of parameters in ``x``.
+            strategy : str, optional
+                The differential evolution strategy to use. Should be one of:
 
-                - 'best1bin'
-                - 'best1exp'
-                - 'rand1exp'
-                - 'randtobest1exp'
-                - 'best2exp'
-                - 'rand2exp'
-                - 'randtobest1bin'
-                - 'best2bin'
-                - 'rand2bin'
-                - 'rand1bin'
+                    - 'best1bin'
+                    - 'best1exp'
+                    - 'rand1exp'
+                    - 'randtobest1exp'
+                    - 'best2exp'
+                    - 'rand2exp'
+                    - 'randtobest1bin'
+                    - 'best2bin'
+                    - 'rand2bin'
+                    - 'rand1bin'
 
-            The default is 'best1bin'.
-        maxiter : int, optional
-            The maximum number of generations over which the entire population is
-            evolved. The maximum number of function evaluations (with no polishing)
-            is: ``(maxiter + 1) * popsize * len(x)``
-        popsize : int, optional
-            A multiplier for setting the total population size.  The population has
-            ``popsize * len(x)`` individuals.
-        tol : float, optional
-            When the mean of the population energies, multiplied by tol,
-            divided by the standard deviation of the population energies
-            is greater than 1 the solving process terminates:
-            ``convergence = mean(pop) * tol / stdev(pop) > 1``
-        mutation : float or tuple(float, float), optional
-            The mutation constant. In the literature this is also known as
-            differential weight, being denoted by F.
-            If specified as a float it should be in the range [0, 2].
-            If specified as a tuple ``(min, max)`` dithering is employed. Dithering
-            randomly changes the mutation constant on a generation by generation
-            basis. The mutation constant for that generation is taken from
-            ``U[min, max)``. Dithering can help speed convergence significantly.
-            Increasing the mutation constant increases the search radius, but will
-            slow down convergence.
-        recombination : float, optional
-            The recombination constant, should be in the range [0, 1]. In the
-            literature this is also known as the crossover probability, being
-            denoted by CR. Increasing this value allows a larger number of mutants
-            to progress into the next generation, but at the risk of population
-            stability.
-        seed : int or `np.random.RandomState`, optional
-            If `seed` is not specified the `np.RandomState` singleton is used.
-            If `seed` is an int, a new `np.random.RandomState` instance is used,
-            seeded with seed.
-            If `seed` is already a `np.random.RandomState instance`, then that
-            `np.random.RandomState` instance is used.
-            Specify `seed` for repeatable minimizations.
-        disp : bool, optional
-            Display status messages
-        callback : callable, `callback(xk, convergence=val)`, optional
-            A function to follow the progress of the minimization. ``xk`` is
-            the current value of ``x0``. ``val`` represents the fractional
-            value of the population convergence.  When ``val`` is greater than one
-            the function halts. If callback returns `True`, then the minimization
-            is halted (any polishing is still carried out).
-        polish : bool, optional
-            If True (default), then `scipy.optimize.minimize` with the `L-BFGS-B`
-            method is used to polish the best population member at the end, which
-            can improve the minimization slightly.
-        init : string, optional
-            Specify how the population initialization is performed. Should be
-            one of:
+                The default is 'best1bin'.
+            maxiter : int, optional
+                The maximum number of generations over which the entire population is
+                evolved. The maximum number of function evaluations (with no polishing)
+                is: ``(maxiter + 1) * popsize * len(x)``
+            popsize : int, optional
+                A multiplier for setting the total population size.  The population has
+                ``popsize * len(x)`` individuals.
+            tol : float, optional
+                When the mean of the population energies, multiplied by tol,
+                divided by the standard deviation of the population energies
+                is greater than 1 the solving process terminates:
+                ``convergence = mean(pop) * tol / stdev(pop) > 1``
+            mutation : float or tuple(float, float), optional
+                The mutation constant. In the literature this is also known as
+                differential weight, being denoted by F.
+                If specified as a float it should be in the range [0, 2].
+                If specified as a tuple ``(min, max)`` dithering is employed. Dithering
+                randomly changes the mutation constant on a generation by generation
+                basis. The mutation constant for that generation is taken from
+                ``U[min, max)``. Dithering can help speed convergence significantly.
+                Increasing the mutation constant increases the search radius, but will
+                slow down convergence.
+            recombination : float, optional
+                The recombination constant, should be in the range [0, 1]. In the
+                literature this is also known as the crossover probability, being
+                denoted by CR. Increasing this value allows a larger number of mutants
+                to progress into the next generation, but at the risk of population
+                stability.
+            seed : int or `np.random.RandomState`, optional
+                If `seed` is not specified the `np.RandomState` singleton is used.
+                If `seed` is an int, a new `np.random.RandomState` instance is used,
+                seeded with seed.
+                If `seed` is already a `np.random.RandomState instance`, then that
+                `np.random.RandomState` instance is used.
+                Specify `seed` for repeatable minimizations.
+            disp : bool, optional
+                Display status messages
+            callback : callable, `callback(xk, convergence=val)`, optional
+                A function to follow the progress of the minimization. ``xk`` is
+                the current value of ``x0``. ``val`` represents the fractional
+                value of the population convergence.  When ``val`` is greater than one
+                the function halts. If callback returns `True`, then the minimization
+                is halted (any polishing is still carried out).
+            polish : bool, optional
+                If True (default), then `scipy.optimize.minimize` with the `L-BFGS-B`
+                method is used to polish the best population member at the end, which
+                can improve the minimization slightly.
+            init : string, optional
+                Specify how the population initialization is performed. Should be
+                one of:
 
-                - 'latinhypercube'
-                - 'random'
+                    - 'latinhypercube'
+                    - 'random'
 
-            The default is 'latinhypercube'. Latin Hypercube sampling tries to
-            maximize coverage of the available parameter space. 'random' initializes
-            the population randomly - this has the drawback that clustering can
-            occur, preventing the whole of parameter space being covered.
-
-        Returns
-        -------
-        res : OptimizeResult
-            The optimization result represented as a `OptimizeResult` object.
-            Important attributes are: ``x`` the solution array, ``success`` a
-            Boolean flag indicating if the optimizer exited successfully and
-            ``message`` which describes the cause of the termination. See
-            `OptimizeResult` for a description of other attributes.  If `polish`
-            was employed, and a lower minimum was obtained by the polishing, then
-            OptimizeResult also contains the ``jac`` attribute.
+                The default is 'latinhypercube'. Latin Hypercube sampling tries to
+                maximize coverage of the available parameter space. 'random' initializes
+                the population randomly - this has the drawback that clustering can
+                occur, preventing the whole of parameter space being covered.
+            Returns
+            -------
+            res : OptimizeResult
+                The optimization result represented as a `OptimizeResult` object.
+                Important attributes are: ``x`` the solution array, ``success`` a
+                Boolean flag indicating if the optimizer exited successfully and
+                ``message`` which describes the cause of the termination. See
+                `OptimizeResult` for a description of other attributes.  If `polish`
+                was employed, and a lower minimum was obtained by the polishing, then
+                OptimizeResult also contains the ``jac`` attribute.
         '''
         try: from scipy.optimize import differential_evolution
         except ImportError as exc:
