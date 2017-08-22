@@ -44,13 +44,13 @@ def run():
     
     # Copy sampleset and subset to only samples with nan responses
     snan = s.copy()
-    snan.subset(numpy.isnan, obs='obs1')
+    ss = snan.subset(numpy.isnan, obs='obs1')
     
     # Evaluate parameter combination resulting in nans
     # Note that it is easy to identify that the culprit is par1 with values less than 0.5
-    snan.samples.hist(ncols=2,title='NAN Parameter Histograms')
-    parcor = snan.samples.corr(plot=True, title='NAN Parameter Correlations')
-    snan.samples.panels(title='NAN Parameter Panels')
+    ss.samples.hist(ncols=2,title='NAN Parameter Histograms')
+    parcor = ss.samples.corr(plot=True, title='NAN Parameter Correlations')
+    ss.samples.panels(title='NAN Parameter Panels')
     
 # Freeze support is necessary for multiprocessing on windows
 if __name__== "__main__":

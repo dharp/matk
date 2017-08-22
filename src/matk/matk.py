@@ -947,7 +947,7 @@ class matk(object):
         if logfile: f.close()
 
         for i in range(len(results)):
-            if results[i] is numpy.NAN:
+            if numpy.any([numpy.isnan(v) for v in results[i]]):
                 if len(self.obs) > 0:
                     results[i] = [numpy.NAN]*len(self.obs)
 

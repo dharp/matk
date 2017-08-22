@@ -398,13 +398,15 @@ class SampleSet(object):
         if self.responses is None:
             print 'Error: sampleset contains no responses'
             return
+        s = self.copy()
         inds = []
-        boolarr = numpy.array([boolfcn(val,*args,**kwargs) for val in self.responses.recarray[obs]])
+        boolarr = numpy.array([boolfcn(val,*args,**kwargs) for val in s.responses.recarray[obs]])
         inds = numpy.where(boolarr)[0]
         if len(inds):
-            self.samples._values = self.samples._values[inds.tolist(),:]
-            self.responses._values = self.responses._values[inds.tolist(),:]
-            self.indices = self.indices[inds.tolist()]
+            s.samples._values = s.samples._values[inds.tolist(),:]
+            s.responses._values = s.responses._values[inds.tolist(),:]
+            s.indices = s.indices[inds.tolist()]
+        return s
     def main_effects(self):
         """ For each parameter, compile array of main effects.
         """
