@@ -194,7 +194,7 @@ class SampleSet(object):
         corrcoef = corr(self.samples.recarray, self.responses.recarray, type=type, plot=plot, printout=printout, plotvals=plotvals, figsize=figsize, title=title)
         return corrcoef
     
-    def panels(self, type='pearson', alpha=0.2, figsize=None, title=None, tight=False, symbol='.',fontsize=None,corrfontsize=None,ms=5,mins=None,maxs=None,frequency=False,bins=10, ylim=None, labels=[], filename=None, xticks=2, yticks=2,color=None,cmap=None,edgecolors=None):
+    def panels(self, type='pearson', alpha=0.2, figsize=None, title=None, tight=False, symbol='.',fontsize=None,corrfontsize=None,ms=5,mins=None,maxs=None,frequency=False,bins=10, ylim=None, labels=[], filename=None, xticks=2, yticks=2,color=None,cmap=None,edgecolors='face'):
         """ Plot histograms, scatterplots, and correlation coefficients in paired matrix
 
             :param type: Type of correlation coefficient (pearson by default, spearman also avaialable)
@@ -573,7 +573,7 @@ class DataSet(object):
             :returns: ndarray(fl64) -- Correlation coefficients
         """
         return corr(self.recarray, self.recarray, type=type, plot=plot, printout=printout, plotvals=plotvals, figsize=figsize, title=title)
-    def panels(self, type='pearson', alpha=0.2, figsize=None, title=None, tight=False, symbol='.',fontsize=None,corrfontsize=None,ms=5,mins=None,maxs=None,frequency=False,bins=10,ylim=None,labels=[],filename=None,xticks=2,yticks=2,color=None,cmap=None, edgecolors=None):
+    def panels(self, type='pearson', alpha=0.2, figsize=None, title=None, tight=False, symbol='.',fontsize=None,corrfontsize=None,ms=5,mins=None,maxs=None,frequency=False,bins=10,ylim=None,labels=[],filename=None,xticks=2,yticks=2,color=None,cmap=None, edgecolors='face'):
         """ Plot histograms, scatterplots, and correlation coefficients in paired matrix
 
             :param type: Type of correlation coefficient (pearson by default, spearman also avaialable)
@@ -696,7 +696,7 @@ def corr(rc1, rc2, type='pearson', plot=False, printout=True, plotvals=True, fig
         plt.show()
     return corrcoef
 
-def panels(rc, type='pearson', alpha=0.2, figsize=None, title=None, tight=False, symbol='.',fontsize=None,corrfontsize=None,ms=None,mins=None,maxs=None,frequency=False,bins=10,ylim=None,labels=[],filename=None,xticks=2,yticks=2,color=None,cmap=None,edgecolors=None):
+def panels(rc, type='pearson', alpha=0.2, figsize=None, title=None, tight=False, symbol='.',fontsize=None,corrfontsize=None,ms=None,mins=None,maxs=None,frequency=False,bins=10,ylim=None,labels=[],filename=None,xticks=2,yticks=2,color=None,cmap=None,edgecolors='face'):
     if plotflag:
         # Set font for scatterplot labels
         if not fontsize is None:
