@@ -172,7 +172,7 @@ class SampleSet(object):
         elif self.responses is None:
             print "Responses have not been calculated. Run sampleset (e.g. sampleset.run())"
             return 0
-        sse = [numpy.sum(((self._parent.obsvalues - self.responses.values[i,:])**2)*self._parent.obsweights) for i in range(len(self.responses.values))]
+        sse = [numpy.sum(((self._parent.obsvalues - self.responses.values[i,:])*self._parent.obsweights)**2) for i in range(len(self.responses.values))]
         return numpy.array(sse)
     def corr(self, type='pearson', plot=False, printout=True, plotvals=True, figsize=None, title=None):
         """ Calculate correlation coefficients of parameters and responses
