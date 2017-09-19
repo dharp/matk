@@ -385,22 +385,22 @@ class SampleSet(object):
                         f.write(" %22.16g" % row[i] )
                 f.write('\n')
             f.close()
-    def subset(self, boolfcn, obs, *args, **kwargs): 
-        """ Collect samples based on response values, remove all others
+    def subset(self, boolfcn, field, *args, **kwargs): 
+        """ Collect subset of samples based on parameter or response values, remove all others
 
             :param boofcn: Function that returns true for samples to keep and false for samples to remove
             :type boolfcn: function handle
-            :param obs: Name of response to apply boolfcn to
-            :type obs: str
+            :param field: Name of parameter or observations to apply boolfcn to
+            :type field: str
             :param args: Additional arguments to add to boolfcn
             :param kwargs: Keyword arguments to add to boolfcn 
         """
-        if self.responses is None:
-            print 'Error: sampleset contains no responses'
-            return
+        #if self.responses is None:
+        #    print 'Error: sampleset contains no responses'
+        #    return
         s = self.copy()
         inds = []
-        boolarr = numpy.array([boolfcn(val,*args,**kwargs) for val in s.responses.recarray[obs]])
+        boolarr = numpy.array([boolfcn(val,*args,**kwargs) for val in s.recarray[field]])
         inds = numpy.where(boolarr)[0]
         if len(inds):
             s.samples._values = s.samples._values[inds.tolist(),:]
