@@ -14,69 +14,76 @@ make_instancemethod)
 class Parameter(LMFitParameter):
     """ MATK parameter class
     """
-    def __init__(self, name, value=None, vary=True, min=None, max=None, expr=None, nominal=None, discrete_vals=[], discrete_counts=[], **kwargs):
+    def __init__(self, name, value=None, vary=True, min=None, max=None, expr=None, nominal=None, discrete_vals=[], **kwargs):
         if expr is not None and platform.system() is 'Windows':
             raise InputError('expr option not supported on Windows, similar functionality can be achieved using expressions in model functions')
         if nominal is not None and value is None: value=nominal
         LMFitParameter.__init__(self, name=name, value=value, vary=vary, min=min, max=max, expr=expr)
         self.from_internal = self._nobound
-        if len(discrete_counts) and (len(discrete_counts) != len(discrete_vals)):
-            print "ERROR: discrete_counts requires equal number of discrete_vals"
-        elif (min or max) and len(discrete_vals):
-            print "ERROR: discrete_vals cannot be set with min or max"
-            return
-        elif len(discrete_vals) and not len(discrete_counts):
-            self._discrete_vals = numpy.array(discrete_vals)
-            self._discrete_counts = numpy.ones(len(discrete_vals))
-        elif len(discrete_vals) and len(discrete_counts):
-            self._discrete_vals = numpy.array(discrete_vals)
-            self._discrete_counts = numpy.array(discrete_counts)
-        else:
-            self._discrete_vals = discrete_vals
-            self._discrete_counts = discrete_counts
-        self.mean = None
-        self.std = None
-        self._dist = 'uniform'
-        self._dist_pars = None
-        self._parent = None
-        self._nominal = nominal
-        for k,v in kwargs.iteritems():
-            if k == 'mean':
-                self.mean = float(v)
-            elif k == 'std':
-                self.std = float(v)
-            elif k == 'dist':
-                self.dist = v
-            elif k == 'dist_pars':
-                self.dist_pars = v
-            elif k == 'parent':
-                self._parent = v
+        # Discrete parameter
+        if len(discrete_vals):
+            discrete_vals = numpy.array(discrete_vals)
+            # Ensure probabilities sum to one
+            discrete_vals[1] /= numpy.sum(discrete_vals[1])
+            if min is not None: "WARNING: 'min' option will be ignored for discrete parameter"
+            if max is not None: "WARNING: 'max' option will be ignored for discrete parameter"
+            if expr is not None: "WARNING: 'expr' option will be ignored for discrete parameter"
+            if nominal is not None: "WARNING: 'nominal' option will be ignored for discrete parameter"
+            self.min = numpy.min(discrete_vals[0])
+            self.max = numpy.max(discrete_vals[0])
+            self.dist = 'discrete'
+            if value is None:
+                self._val = discrete_vals[0][len(discrete_vals[0])/2] 
+            elif value not in self.discrete_vals[0]:
+                print "ERROR: value is not one of the values in discrete_vals"
             else:
-                print k + ' is not a valid argument'
-        if self.dist == 'uniform':
-            if self._val is None:
-                if self.max is not None and self.min is not None:
-                    self._val = (self.max + self.min)/2.
-                elif self.max is not None:
-                    self._val = self.max
-                elif self.min is not None:
-                    self._val = self.min
+                self._val = value
+            self._discrete_vals = discrete_vals
+        # Else continuous parameter
+        else:
+            self.mean = None
+            self.std = None
+            self._dist = 'uniform'
+            self._dist_pars = None
+            self._parent = None
+            self._nominal = nominal
+            for k,v in kwargs.iteritems():
+                if k == 'mean':
+                    self.mean = float(v)
+                elif k == 'std':
+                    self.std = float(v)
+                elif k == 'dist':
+                    self.dist = v
+                elif k == 'dist_pars':
+                    self.dist_pars = v
+                elif k == 'parent':
+                    self._parent = v
                 else:
-                    self._val = 0
-            if self.dist_pars is None:
-                # Set lower bound
-                if self.min is not None: mn = self.min
-                else: mn = numpy.nan_to_num(-numpy.inf)
-                # Set range
-                if self.min is not None and self.max is not None: rng = self.max - self.min
-                else: rng = numpy.nan_to_num(numpy.inf)
-                self.dist_pars = (mn,rng)
-        elif self.dist == 'norm':
-            if self.mean is None: self.mean = 0.
-            if self.std is None: self.std = 1.
-            self.dist_pars = (self.mean, self.std)
-        # Set vary to False if max == min
-        if (self.min == self.max) and (self.min is not None) and (self.max is not None): self.vary = False
+                    print k + ' is not a valid argument'
+            if self.dist == 'uniform':
+                if value is None:
+                    if self.max is not None and self.min is not None:
+                        self._val = (self.max + self.min)/2.
+                    elif self.max is not None:
+                        self._val = self.max
+                    elif self.min is not None:
+                        self._val = self.min
+                    else:
+                        self._val = 0
+                if self.dist_pars is None:
+                    # Set lower bound
+                    if self.min is not None: mn = self.min
+                    else: mn = numpy.nan_to_num(-numpy.inf)
+                    # Set range
+                    if self.min is not None and self.max is not None: rng = self.max - self.min
+                    else: rng = numpy.nan_to_num(numpy.inf)
+                    self.dist_pars = (mn,rng)
+            elif self.dist == 'norm':
+                if self.mean is None: self.mean = 0.
+                if self.std is None: self.std = 1.
+                self.dist_pars = (self.mean, self.std)
+            # Set vary to False if max == min
+            if (self.min == self.max) and (self.min is not None) and (self.max is not None): self.vary = False
     def __getstate__(self):
         odict = self.__dict__.copy()
         return odict
@@ -92,7 +99,7 @@ class Parameter(LMFitParameter):
             return self._val
     @value.setter
     def value(self,value):
-        if len(self._discrete_vals):
+        if self.dist == 'discrete':
             pass
         else:
             self._val = value

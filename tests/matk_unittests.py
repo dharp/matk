@@ -78,6 +78,16 @@ class Tests(unittest.TestCase):
         ub = self.p.parmaxs
         self.assertTrue( (maxs >= lb).any() and (mins <= ub).any(), 'Sample outside parameter bounds' )
 
+    def testdiscretesample(self):
+        # Create 100 discrete samples and make sure they adhere to assigned probabilities
+        p = matk.matk()
+        vals = range(5)
+        probs = (.1,.2,.3,.2,.2)
+        p.add_par('par1',discrete_vals=(vals,probs))
+        ss = p.lhs(siz=1000000)
+        for i,prob in enumerate(probs): 
+            self.assertTrue( numpy.abs(len(numpy.where(ss.recarray['par1']==i)[0])/1000000. - prob) / prob < 0.01, 'Discrete probability is incorrect' )
+
     def testparallel(self):
         # Without working directories
         ss = self.p.lhs(siz=10 )

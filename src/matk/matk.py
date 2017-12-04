@@ -19,6 +19,7 @@ except ImportError:
     from ordereddict import OrderedDict
 from lmfit.asteval import Interpreter
 import warnings
+from scipy.stats import rv_discrete
 
 class matk(object):
     """ Class for Model Analysis ToolKit (MATK) module
@@ -61,6 +62,7 @@ class matk(object):
         self.hosts = hosts
       
         self.pars = OrderedDict()
+        self.discrete_pars = OrderedDict()
         self.obs = OrderedDict()
         self.sampleset = OrderedDict()
         self.workdir_index = 0
@@ -169,7 +171,7 @@ class matk(object):
         """ Sum of squared residuals
         """
         return sum(numpy.array(self.residuals)**2)
-    def add_par(self, name, value=None, vary=True, min=None, max=None, expr=None, discrete_vals=[], discrete_counts=[], **kwargs):
+    def add_par(self, name, value=None, vary=True, min=None, max=None, expr=None, discrete_vals=[], **kwargs):
         """ Add parameter to problem
 
             :param name: Name of parameter
@@ -184,16 +186,14 @@ class matk(object):
             :type max: float
             :param expr: Mathematical expression to use to calculate parameter value
             :type expr: str
-            :param discrete_vals: list of values defining histogram bins
-            :type discrete_vals: [float]
-            :param discrete_counts: list of counts associated with discrete_vals
-            :type discrete_counts: [int]
+            :param discrete_vals: tuple of two array_like defining discrete values and associated probabilities
+            :type discrete_vals: (lst,lst)
             :param kwargs: keyword arguments passed to parameter class
         """
         if name in self.pars: 
-            self.pars[name] = Parameter(name,parent=self,value=value,vary=vary,min=min,max=max,expr=expr,discrete_vals=[],discrete_counts=[],**kwargs)
+            self.pars[name] = Parameter(name,parent=self,value=value,vary=vary,min=min,max=max,expr=expr,discrete_vals=discrete_vals,**kwargs)
         else:
-            self.pars.__setitem__( name, Parameter(name,parent=self,value=value,vary=vary,min=min,max=max,expr=expr,discrete_vals=[],discrete_counts=[],**kwargs))
+            self.pars.__setitem__( name, Parameter(name,parent=self,value=value,vary=vary,min=min,max=max,expr=expr,discrete_vals=discrete_vals,**kwargs))
     def add_obs(self,name, sim=None, weight=1.0, value=None):
         ''' Add observation to problem
             
@@ -807,21 +807,26 @@ class matk(object):
         dists = []
         dist_pars = []
         for p in self.pars.itervalues():
-            if p.vary:
+            if p.vary and p.dist != 'discrete':
                 eval( 'dists.append(stats.' + p.dist + ')' )
                 dist_pars.append(p.dist_pars)
-        x = lhs(dists, dist_pars, siz=siz, noCorrRestr=noCorrRestr, corrmat=corrmat, seed=seed)
+        if len(dists):
+            x = lhs(dists, dist_pars, siz=siz, noCorrRestr=noCorrRestr, corrmat=corrmat, seed=seed)
         for j,p in enumerate(self.pars.values()):
             if p.expr is not None:
                 for i,r in enumerate(x):
                     x[i,j] = self.__eval_expr( p.expr, r )
-        # Construct sampleset replacing fixed parameters with their 'value'
+        # Construct sampleset replacing fixed parameters with their 'value' and sampling discrete parameters
         ss = numpy.zeros((siz,len(self.pars)))
         ind = 0
         for i,p in enumerate(self.pars.itervalues()):
-            if p.vary: 
+            if p.vary and p.dist != 'discrete': 
                 ss[:,i] = x[:,ind]
                 ind += 1
+            elif p.vary and p.dist == 'discrete': 
+                dinds = rv_discrete(values=(range(len(p._discrete_vals[0])),p._discrete_vals[1])).rvs(size=siz) 
+                for ii,dind in enumerate(dinds):
+                    ss[ii,i] = p._discrete_vals[0][dind] 
             else: ss[:,i] = p.value
         return self.create_sampleset( ss, name=name, index_start=index_start )
     def child( self, in_queue, out_list, reuse_dirs, save, hostname, processor):
