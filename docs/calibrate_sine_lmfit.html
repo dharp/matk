@@ -2,36 +2,34 @@
 
 <!doctype html>
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>&lt;no title&gt; &mdash; MATK 0 documentation</title>
-    
+    <title>&lt;no title&gt; &#8212; MATK 0 documentation</title>
     <link rel="stylesheet" href="_static/bizstyle.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
         VERSION:     '0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/bizstyle.js"></script>
-    <link rel="top" title="MATK 0 documentation" href="index.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <!--[if lt IE 9]>
     <script type="text/javascript" src="_static/css3-mediaqueries.js"></script>
     <![endif]-->
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -41,7 +39,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">MATK 0 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">MATK 0 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -49,21 +47,18 @@
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/calibrate_sine_lmfit.txt"
+      <li><a href="_sources/calibrate_sine_lmfit.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -74,92 +69,92 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="code python highlight-python"><div class="highlight"><pre># %load calibrate_sine_lmfit.py
-%matplotlib inline
-# Calibration example modified from lmfit webpage
-# (http://cars9.uchicago.edu/software/python/lmfit/parameters.html)
-import sys,os
-try:
-    import matk
-except:
-    try:
-        sys.path.append(os.path.join(&#39;..&#39;,&#39;src&#39;))
-        import matk
-    except ImportError as err:
-        print &#39;Unable to load MATK module: &#39;+str(err)
-import numpy as np
-from matplotlib import pyplot as plt
+  <div class="code ipython2 highlight-default"><div class="highlight"><pre><span></span><span class="c1"># %load calibrate_sine_lmfit.py</span>
+<span class="o">%</span><span class="n">matplotlib</span> <span class="n">inline</span>
+<span class="c1"># Calibration example modified from lmfit webpage</span>
+<span class="c1"># (http://cars9.uchicago.edu/software/python/lmfit/parameters.html)</span>
+<span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span><span class="nn">os</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">matk</span>
+<span class="k">except</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;..&#39;</span><span class="p">,</span><span class="s1">&#39;src&#39;</span><span class="p">))</span>
+        <span class="kn">import</span> <span class="nn">matk</span>
+    <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+        <span class="nb">print</span> <span class="s1">&#39;Unable to load MATK module: &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="k">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
 
-# define objective function: returns the array to be minimized
-def sine_decay(params, x, data):
-    &quot;&quot;&quot; model decaying sine wave, subtract data&quot;&quot;&quot;
-    amp = params[&#39;amp&#39;]
-    shift = params[&#39;shift&#39;]
-    omega = params[&#39;omega&#39;]
-    decay = params[&#39;decay&#39;]
+<span class="c1"># define objective function: returns the array to be minimized</span>
+<span class="k">def</span> <span class="nf">sine_decay</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; model decaying sine wave, subtract data&quot;&quot;&quot;</span>
+    <span class="n">amp</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;amp&#39;</span><span class="p">]</span>
+    <span class="n">shift</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;shift&#39;</span><span class="p">]</span>
+    <span class="n">omega</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;omega&#39;</span><span class="p">]</span>
+    <span class="n">decay</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;decay&#39;</span><span class="p">]</span>
 
-    model = amp * np.sin(x * omega + shift) * np.exp(-x*x*decay)
+    <span class="n">model</span> <span class="o">=</span> <span class="n">amp</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="n">omega</span> <span class="o">+</span> <span class="n">shift</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="o">*</span><span class="n">x</span><span class="o">*</span><span class="n">decay</span><span class="p">)</span>
 
-    obsnames = [&#39;obs&#39;+str(i) for i in range(1,len(data)+1)]
-    return dict(zip(obsnames,model))
+    <span class="n">obsnames</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;obs&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)]</span>
+    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">obsnames</span><span class="p">,</span><span class="n">model</span><span class="p">))</span>
 
 
-# create data to be fitted
-x = np.linspace(0, 15, 301)
-np.random.seed(1000)
-data = (5. * np.sin(2 * x - 0.1) * np.exp(-x*x*0.025) +
-        np.random.normal(size=len(x), scale=0.2) )
+<span class="c1"># create data to be fitted</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">301</span><span class="p">)</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="p">(</span><span class="mf">5.</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">x</span> <span class="o">-</span> <span class="mf">0.1</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="o">*</span><span class="n">x</span><span class="o">*</span><span class="mf">0.025</span><span class="p">)</span> <span class="o">+</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span> <span class="p">)</span>
 
-# Create MATK object
-p = matk.matk(model=sine_decay, model_args=(x,data,))
+<span class="c1"># Create MATK object</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">matk</span><span class="o">.</span><span class="n">matk</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">sine_decay</span><span class="p">,</span> <span class="n">model_args</span><span class="o">=</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">data</span><span class="p">,))</span>
 
-# Create parameters
-p.add_par(&#39;amp&#39;, value=10, min=0.)
-p.add_par(&#39;decay&#39;, value=0.1)
-p.add_par(&#39;shift&#39;, value=0.0, min=-np.pi/2., max=np.pi/2.)
-p.add_par(&#39;omega&#39;, value=3.0)
+<span class="c1"># Create parameters</span>
+<span class="n">p</span><span class="o">.</span><span class="n">add_par</span><span class="p">(</span><span class="s1">&#39;amp&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="mf">0.</span><span class="p">)</span>
+<span class="n">p</span><span class="o">.</span><span class="n">add_par</span><span class="p">(</span><span class="s1">&#39;decay&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+<span class="n">p</span><span class="o">.</span><span class="n">add_par</span><span class="p">(</span><span class="s1">&#39;shift&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="nb">min</span><span class="o">=-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mf">2.</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mf">2.</span><span class="p">)</span>
+<span class="n">p</span><span class="o">.</span><span class="n">add_par</span><span class="p">(</span><span class="s1">&#39;omega&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mf">3.0</span><span class="p">)</span>
 
-# Create observation names and set observation values
-for i in range(len(data)):
-    p.add_obs(&#39;obs&#39;+str(i+1), value=data[i])
+<span class="c1"># Create observation names and set observation values</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)):</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">add_obs</span><span class="p">(</span><span class="s1">&#39;obs&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="n">value</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
 
-# Look at initial fit
-p.forward()
-#f, (ax1,ax2) = plt.subplots(2,sharex=True)
-plt.plot(x,data, &#39;k+&#39;)
-plt.plot(x,p.simvalues, &#39;r&#39;)
-plt.ylabel(&quot;Model Response&quot;)
-plt.xlabel(&quot;x&quot;)
-plt.title(&quot;Before Calibration&quot;)
-plt.show()
+<span class="c1"># Look at initial fit</span>
+<span class="n">p</span><span class="o">.</span><span class="n">forward</span><span class="p">()</span>
+<span class="c1">#f, (ax1,ax2) = plt.subplots(2,sharex=True)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">data</span><span class="p">,</span> <span class="s1">&#39;k+&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">p</span><span class="o">.</span><span class="n">simvalues</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Model Response&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Before Calibration&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 <img alt="_images/calibrate_sine_lmfit_0_0.png" src="_images/calibrate_sine_lmfit_0_0.png" />
-<div class="code python highlight-python"><div class="highlight"><pre><span class="c"># Calibrate parameters to data, results are printed to screen</span>
-<span class="k">print</span> <span class="s">&quot;Calibration results:&quot;</span>
+<div class="code ipython2 highlight-default"><div class="highlight"><pre><span></span><span class="c1"># Calibrate parameters to data, results are printed to screen</span>
+<span class="nb">print</span> <span class="s2">&quot;Calibration results:&quot;</span>
 <span class="n">lm</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">lmfit</span><span class="p">(</span><span class="n">cpus</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-python"><div class="highlight"><pre>Calibration results:
-[[Variables]]
-     amp:       5.011399 +/- 0.040469 (0.81%) initial =  5.011398
-     decay:     0.024835 +/- 0.000465 (1.87%) initial =  0.024835
-     omega:     1.999116 +/- 0.003345 (0.17%) initial =  1.999116
-     shift:    -0.106184 +/- 0.016466 (15.51%) initial = -0.106207
-[[Correlations]] (unreported correlations are &lt;  0.100)
-    C(omega, shift)              = -0.785
-    C(amp, decay)                =  0.584
-    C(amp, shift)                = -0.117
-None
-SSR:  12.8161378922
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Calibration</span> <span class="n">results</span><span class="p">:</span>
+<span class="p">[[</span><span class="n">Variables</span><span class="p">]]</span>
+     <span class="n">amp</span><span class="p">:</span>       <span class="mf">5.011399</span> <span class="o">+/-</span> <span class="mf">0.040469</span> <span class="p">(</span><span class="mf">0.81</span><span class="o">%</span><span class="p">)</span> <span class="n">initial</span> <span class="o">=</span>  <span class="mf">5.011398</span>
+     <span class="n">decay</span><span class="p">:</span>     <span class="mf">0.024835</span> <span class="o">+/-</span> <span class="mf">0.000465</span> <span class="p">(</span><span class="mf">1.87</span><span class="o">%</span><span class="p">)</span> <span class="n">initial</span> <span class="o">=</span>  <span class="mf">0.024835</span>
+     <span class="n">omega</span><span class="p">:</span>     <span class="mf">1.999116</span> <span class="o">+/-</span> <span class="mf">0.003345</span> <span class="p">(</span><span class="mf">0.17</span><span class="o">%</span><span class="p">)</span> <span class="n">initial</span> <span class="o">=</span>  <span class="mf">1.999116</span>
+     <span class="n">shift</span><span class="p">:</span>    <span class="o">-</span><span class="mf">0.106184</span> <span class="o">+/-</span> <span class="mf">0.016466</span> <span class="p">(</span><span class="mf">15.51</span><span class="o">%</span><span class="p">)</span> <span class="n">initial</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.106207</span>
+<span class="p">[[</span><span class="n">Correlations</span><span class="p">]]</span> <span class="p">(</span><span class="n">unreported</span> <span class="n">correlations</span> <span class="n">are</span> <span class="o">&lt;</span>  <span class="mf">0.100</span><span class="p">)</span>
+    <span class="n">C</span><span class="p">(</span><span class="n">omega</span><span class="p">,</span> <span class="n">shift</span><span class="p">)</span>              <span class="o">=</span> <span class="o">-</span><span class="mf">0.785</span>
+    <span class="n">C</span><span class="p">(</span><span class="n">amp</span><span class="p">,</span> <span class="n">decay</span><span class="p">)</span>                <span class="o">=</span>  <span class="mf">0.584</span>
+    <span class="n">C</span><span class="p">(</span><span class="n">amp</span><span class="p">,</span> <span class="n">shift</span><span class="p">)</span>                <span class="o">=</span> <span class="o">-</span><span class="mf">0.117</span>
+<span class="kc">None</span>
+<span class="n">SSR</span><span class="p">:</span>  <span class="mf">12.8161378922</span>
 </pre></div>
 </div>
-<div class="code python highlight-python"><div class="highlight"><pre><span class="c"># Look at calibrated fit</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">data</span><span class="p">,</span> <span class="s">&#39;k+&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">p</span><span class="o">.</span><span class="n">simvalues</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">&quot;Model Response&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">&quot;x&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">&quot;After Calibration&quot;</span><span class="p">)</span>
+<div class="code ipython2 highlight-default"><div class="highlight"><pre><span></span><span class="c1"># Look at calibrated fit</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">data</span><span class="p">,</span> <span class="s1">&#39;k+&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">p</span><span class="o">.</span><span class="n">simvalues</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Model Response&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;After Calibration&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -180,12 +175,12 @@ SSR:  12.8161378922
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">MATK 0 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">MATK 0 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2013, Dylan R. Harp.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+        &#169; Copyright 2013, Dylan R. Harp.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
   </body>
 </html>

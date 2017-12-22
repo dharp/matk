@@ -2,31 +2,28 @@
 
 <!doctype html>
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>MATK &mdash; MATK 0 documentation</title>
-    
+    <title>MATK &#8212; MATK 0 documentation</title>
     <link rel="stylesheet" href="_static/bizstyle.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
         VERSION:     '0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/bizstyle.js"></script>
-    <link rel="top" title="MATK 0 documentation" href="index.html" />
-    <link rel="up" title="Class Documentation" href="autodoc.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Parameter" href="autodoc_parameter.html" />
     <link rel="prev" title="Class Documentation" href="autodoc.html" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
@@ -34,7 +31,7 @@
     <script type="text/javascript" src="_static/css3-mediaqueries.js"></script>
     <![endif]-->
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -50,8 +47,8 @@
         <li class="right" >
           <a href="autodoc.html" title="Class Documentation"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">MATK 0 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="autodoc.html" accesskey="U">Class Documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">MATK 0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="autodoc.html" accesskey="U">Class Documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -65,21 +62,18 @@
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/autodoc_matk.txt"
+      <li><a href="_sources/autodoc_matk.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -104,9 +98,9 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>h</strong> (<em>fl64 or ndarray(fl64)</em>) &#8211; Parameter increment, single value or array with npar values</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>h</strong> (<em>fl64</em><em> or </em><em>ndarray</em><em>(</em><em>fl64</em><em>)</em>) – Parameter increment, single value or array with npar values</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">ndarray(fl64) &#8211; Jacobian matrix</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">ndarray(fl64) – Jacobian matrix</td>
 </tr>
 </tbody>
 </table>
@@ -121,11 +115,11 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>nruns</strong> (<em>int</em>) &#8211; Number of MCMC iterations (samples)</li>
-<li><strong>burn</strong> (<em>int</em>) &#8211; Number of initial samples to burn (discard)</li>
-<li><strong>verbose</strong> (<em>int</em>) &#8211; verbosity of output</li>
-<li><strong>init_error_std</strong> (<em>fl64</em>) &#8211; Initial standard deviation of residuals</li>
-<li><strong>max_error_std</strong> (<em>fl64</em>) &#8211; Maximum standard deviation of residuals that will be considered</li>
+<li><strong>nruns</strong> (<em>int</em>) – Number of MCMC iterations (samples)</li>
+<li><strong>burn</strong> (<em>int</em>) – Number of initial samples to burn (discard)</li>
+<li><strong>verbose</strong> (<em>int</em>) – verbosity of output</li>
+<li><strong>init_error_std</strong> (<em>fl64</em>) – Initial standard deviation of residuals</li>
+<li><strong>max_error_std</strong> (<em>fl64</em>) – Maximum standard deviation of residuals that will be considered</li>
 </ul>
 </td>
 </tr>
@@ -145,10 +139,10 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>name</strong> (<em>str</em>) &#8211; Observation name</li>
-<li><strong>sim</strong> (<em>fl64</em>) &#8211; Simulated value</li>
-<li><strong>weight</strong> (<em>fl64</em>) &#8211; Observation weight</li>
-<li><strong>value</strong> (<em>fl64</em>) &#8211; Value of observation</li>
+<li><strong>name</strong> (<em>str</em>) – Observation name</li>
+<li><strong>sim</strong> (<em>fl64</em>) – Simulated value</li>
+<li><strong>weight</strong> (<em>fl64</em>) – Observation weight</li>
+<li><strong>value</strong> (<em>fl64</em>) – Value of observation</li>
 </ul>
 </td>
 </tr>
@@ -161,22 +155,21 @@
 
 <dl class="method">
 <dt id="matk.matk.matk.add_par">
-<code class="descname">add_par</code><span class="sig-paren">(</span><em>name</em>, <em>value=None</em>, <em>vary=True</em>, <em>min=None</em>, <em>max=None</em>, <em>expr=None</em>, <em>discrete_vals=[]</em>, <em>discrete_counts=[]</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.matk.matk.add_par" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add_par</code><span class="sig-paren">(</span><em>name</em>, <em>value=None</em>, <em>vary=True</em>, <em>min=None</em>, <em>max=None</em>, <em>expr=None</em>, <em>discrete_vals=[]</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.matk.matk.add_par" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add parameter to problem</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>name</strong> (<em>str</em>) &#8211; Name of parameter</li>
-<li><strong>value</strong> (<em>float</em>) &#8211; Initial parameter value</li>
-<li><strong>vary</strong> (<em>bool</em>) &#8211; Whether parameter should be varied or not, currently only used with lmfit</li>
-<li><strong>min</strong> (<em>float</em>) &#8211; Minimum bound</li>
-<li><strong>max</strong> (<em>float</em>) &#8211; Maximum bound</li>
-<li><strong>expr</strong> (<em>str</em>) &#8211; Mathematical expression to use to calculate parameter value</li>
-<li><strong>discrete_vals</strong> (<em>[float]</em>) &#8211; list of values defining histogram bins</li>
-<li><strong>discrete_counts</strong> (<em>[int]</em>) &#8211; list of counts associated with discrete_vals</li>
-<li><strong>kwargs</strong> &#8211; keyword arguments passed to parameter class</li>
+<li><strong>name</strong> (<em>str</em>) – Name of parameter</li>
+<li><strong>value</strong> (<em>float</em>) – Initial parameter value</li>
+<li><strong>vary</strong> (<em>bool</em>) – Whether parameter should be varied or not, currently only used with lmfit</li>
+<li><strong>min</strong> (<em>float</em>) – Minimum bound</li>
+<li><strong>max</strong> (<em>float</em>) – Maximum bound</li>
+<li><strong>expr</strong> (<em>str</em>) – Mathematical expression to use to calculate parameter value</li>
+<li><strong>discrete_vals</strong> (<em>(</em><em>lst</em><em>,</em><em>lst</em><em>)</em>) – tuple of two array_like defining discrete values and associated probabilities</li>
+<li><strong>kwargs</strong> – keyword arguments passed to parameter class</li>
 </ul>
 </td>
 </tr>
@@ -195,12 +188,12 @@ original code written by Ernesto P. Adorio PhD.
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>cpus</strong> (<em>int</em>) &#8211; Number of cpus to use</li>
-<li><strong>maxiter</strong> (<em>int</em>) &#8211; Maximum number of iterations</li>
-<li><strong>lambdax</strong> (<em>fl64</em>) &#8211; Initial Marquardt lambda</li>
-<li><strong>minchange</strong> (<em>fl64</em>) &#8211; Minimum change between successive ChiSquares</li>
-<li><strong>minlambdax</strong> (<em>fl4</em>) &#8211; Minimum lambda value</li>
-<li><strong>verbose</strong> (<em>bool</em>) &#8211; If True, additional information written to screen during calibration</li>
+<li><strong>cpus</strong> (<em>int</em>) – Number of cpus to use</li>
+<li><strong>maxiter</strong> (<em>int</em>) – Maximum number of iterations</li>
+<li><strong>lambdax</strong> (<em>fl64</em>) – Initial Marquardt lambda</li>
+<li><strong>minchange</strong> (<em>fl64</em>) – Minimum change between successive ChiSquares</li>
+<li><strong>minlambdax</strong> (<em>fl4</em>) – Minimum lambda value</li>
+<li><strong>verbose</strong> (<em>bool</em>) – If True, additional information written to screen during calibration</li>
 </ul>
 </td>
 </tr>
@@ -226,8 +219,8 @@ original code written by Ernesto P. Adorio PhD.
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>oldname</strong> (<em>str</em>) &#8211; Name of sampleset to copy</li>
-<li><strong>newname</strong> (<em>str</em>) &#8211; Name of new sampleset</li>
+<li><strong>oldname</strong> (<em>str</em>) – Name of sampleset to copy</li>
+<li><strong>newname</strong> (<em>str</em>) – Name of new sampleset</li>
 </ul>
 </td>
 </tr>
@@ -250,10 +243,10 @@ original code written by Ernesto P. Adorio PhD.
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>name</strong> (<em>str</em>) &#8211; Name of sample set</li>
-<li><strong>samples</strong> (<em>list(fl64),ndarray(fl64)</em>) &#8211; Matrix of parameter samples with npar columns in order of matk.pars.keys()</li>
-<li><strong>responses</strong> (<em>list(fl64),ndarray(fl64)</em>) &#8211; Matrix of associated responses with nobs columns in order matk.obs.keys() if observation exists (existence of observations is not required)</li>
-<li><strong>indices</strong> (<em>list(int),ndarray(int)</em>) &#8211; Sample indices to use when creating working directories and output files</li>
+<li><strong>name</strong> (<em>str</em>) – Name of sample set</li>
+<li><strong>samples</strong> (<em>list</em><em>(</em><em>fl64</em><em>)</em><em>,</em><em>ndarray</em><em>(</em><em>fl64</em><em>)</em>) – Matrix of parameter samples with npar columns in order of matk.pars.keys()</li>
+<li><strong>responses</strong> (<em>list</em><em>(</em><em>fl64</em><em>)</em><em>,</em><em>ndarray</em><em>(</em><em>fl64</em><em>)</em>) – Matrix of associated responses with nobs columns in order matk.obs.keys() if observation exists (existence of observations is not required)</li>
+<li><strong>indices</strong> (<em>list</em><em>(</em><em>int</em><em>)</em><em>,</em><em>ndarray</em><em>(</em><em>int</em><em>)</em>) – Sample indices to use when creating working directories and output files</li>
 </ul>
 </td>
 </tr>
@@ -287,19 +280,19 @@ defining the lower and upper bounds for the optimizing argument of
 <dd><p class="first">The differential evolution strategy to use. Should be one of:</p>
 <blockquote>
 <div><ul class="simple">
-<li>&#8216;best1bin&#8217;</li>
-<li>&#8216;best1exp&#8217;</li>
-<li>&#8216;rand1exp&#8217;</li>
-<li>&#8216;randtobest1exp&#8217;</li>
-<li>&#8216;best2exp&#8217;</li>
-<li>&#8216;rand2exp&#8217;</li>
-<li>&#8216;randtobest1bin&#8217;</li>
-<li>&#8216;best2bin&#8217;</li>
-<li>&#8216;rand2bin&#8217;</li>
-<li>&#8216;rand1bin&#8217;</li>
+<li>‘best1bin’</li>
+<li>‘best1exp’</li>
+<li>‘rand1exp’</li>
+<li>‘randtobest1exp’</li>
+<li>‘best2exp’</li>
+<li>‘rand2exp’</li>
+<li>‘randtobest1bin’</li>
+<li>‘best2bin’</li>
+<li>‘rand2bin’</li>
+<li>‘rand1bin’</li>
 </ul>
 </div></blockquote>
-<p class="last">The default is &#8216;best1bin&#8217;.</p>
+<p class="last">The default is ‘best1bin’.</p>
 </dd>
 <dt>maxiter <span class="classifier-delimiter">:</span> <span class="classifier">int, optional</span></dt>
 <dd>The maximum number of generations over which the entire population is
@@ -353,12 +346,12 @@ can improve the minimization slightly.</dd>
 one of:</p>
 <blockquote>
 <div><ul class="simple">
-<li>&#8216;latinhypercube&#8217;</li>
-<li>&#8216;random&#8217;</li>
+<li>‘latinhypercube’</li>
+<li>‘random’</li>
 </ul>
 </div></blockquote>
-<p class="last">The default is &#8216;latinhypercube&#8217;. Latin Hypercube sampling tries to
-maximize coverage of the available parameter space. &#8216;random&#8217; initializes
+<p class="last">The default is ‘latinhypercube’. Latin Hypercube sampling tries to
+maximize coverage of the available parameter space. ‘random’ initializes
 the population randomly - this has the drawback that clustering can
 occur, preventing the whole of parameter space being covered.</p>
 </dd>
@@ -384,12 +377,12 @@ OptimizeResult also contains the <code class="docutils literal"><span class="pre
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>lnprob</strong> (<em>function</em>) &#8211; Function specifying the natural logarithm of the likelihood function</li>
-<li><strong>nwalkers</strong> (<em>int</em>) &#8211; Number of random walkers</li>
-<li><strong>nsamples</strong> (<em>int</em>) &#8211; Number of samples per walker</li>
-<li><strong>burnin</strong> (<em>int</em>) &#8211; Number of &#8220;burn-in&#8221; samples per walker to be discarded</li>
-<li><strong>pos0</strong> (<em>list</em>) &#8211; list of initial positions for the walkers</li>
-<li><strong>ncpus</strong> (<em>int</em>) &#8211; number of cpus</li>
+<li><strong>lnprob</strong> (<em>function</em>) – Function specifying the natural logarithm of the likelihood function</li>
+<li><strong>nwalkers</strong> (<em>int</em>) – Number of random walkers</li>
+<li><strong>nsamples</strong> (<em>int</em>) – Number of samples per walker</li>
+<li><strong>burnin</strong> (<em>int</em>) – Number of “burn-in” samples per walker to be discarded</li>
+<li><strong>pos0</strong> (<em>list</em>) – list of initial positions for the walkers</li>
+<li><strong>ncpus</strong> (<em>int</em>) – number of cpus</li>
 </ul>
 </td>
 </tr>
@@ -409,16 +402,16 @@ OptimizeResult also contains the <code class="docutils literal"><span class="pre
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>pardict</strong> (<em>dict</em>) &#8211; Dictionary of parameter values keyed by parameter names</li>
-<li><strong>workdir</strong> (<em>str</em>) &#8211; Name of directory where model will be run. It will be created if it does not exist</li>
-<li><strong>reuse_dirs</strong> (<em>bool</em>) &#8211; If True and workdir exists, the model will reuse the directory</li>
-<li><strong>job_number</strong> (<em>int</em>) &#8211; Sample id</li>
-<li><strong>hostname</strong> (<em>str</em>) &#8211; Name of host to run job on, will be passed to MATK model as kwarg &#8216;hostname&#8217;</li>
-<li><strong>processor</strong> (<em>str or int</em>) &#8211; Processor id to run job on, will be passed to MATK model as kwarg &#8216;processor&#8217;</li>
+<li><strong>pardict</strong> (<em>dict</em>) – Dictionary of parameter values keyed by parameter names</li>
+<li><strong>workdir</strong> (<em>str</em>) – Name of directory where model will be run. It will be created if it does not exist</li>
+<li><strong>reuse_dirs</strong> (<em>bool</em>) – If True and workdir exists, the model will reuse the directory</li>
+<li><strong>job_number</strong> (<em>int</em>) – Sample id</li>
+<li><strong>hostname</strong> (<em>str</em>) – Name of host to run job on, will be passed to MATK model as kwarg ‘hostname’</li>
+<li><strong>processor</strong> (<em>str</em><em> or </em><em>int</em>) – Processor id to run job on, will be passed to MATK model as kwarg ‘processor’</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">int &#8211; 0: Successful run, 1: workdir exists</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">int – 0: Successful run, 1: workdir exists</p>
 </td>
 </tr>
 </tbody>
@@ -434,10 +427,10 @@ OptimizeResult also contains the <code class="docutils literal"><span class="pre
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>workdir</strong> (<em>str</em>) &#8211; Name of directory where model will be run. It will be created if it does not exist</li>
-<li><strong>reuse_dirs</strong> (<em>bool</em>) &#8211; If True and workdir exists, the model will reuse the directory</li>
-<li><strong>max_iter</strong> (<em>int</em>) &#8211; Maximum number of iterations</li>
-<li><strong>full_output</strong> &#8211; If True, additional output displayed during calibration</li>
+<li><strong>workdir</strong> (<em>str</em>) – Name of directory where model will be run. It will be created if it does not exist</li>
+<li><strong>reuse_dirs</strong> (<em>bool</em>) – If True and workdir exists, the model will reuse the directory</li>
+<li><strong>max_iter</strong> (<em>int</em>) – Maximum number of iterations</li>
+<li><strong>full_output</strong> – If True, additional output displayed during calibration</li>
 </ul>
 </td>
 </tr>
@@ -457,19 +450,19 @@ OptimizeResult also contains the <code class="docutils literal"><span class="pre
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>name</strong> (<em>str</em>) &#8211; Name of sample set to be created</li>
-<li><strong>siz</strong> (<em>int</em>) &#8211; Number of samples to generate, ignored if samples are provided</li>
-<li><strong>noCorrRestr</strong> (<em>bool</em>) &#8211; If True, correlation structure is not enforced on sample, use if siz is less than number of parameters</li>
-<li><strong>corrmat</strong> (<em>matrix</em>) &#8211; Correlation matrix</li>
-<li><strong>seed</strong> (<em>int</em>) &#8211; Random seed to allow replication of samples</li>
-<li><strong>index_start</strong> &#8211; Starting value for sample indices</li>
+<li><strong>name</strong> (<em>str</em>) – Name of sample set to be created</li>
+<li><strong>siz</strong> (<em>int</em>) – Number of samples to generate, ignored if samples are provided</li>
+<li><strong>noCorrRestr</strong> (<em>bool</em>) – If True, correlation structure is not enforced on sample, use if siz is less than number of parameters</li>
+<li><strong>corrmat</strong> (<em>matrix</em>) – Correlation matrix</li>
+<li><strong>seed</strong> (<em>int</em>) – Random seed to allow replication of samples</li>
+<li><strong>index_start</strong> – Starting value for sample indices</li>
 </ul>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Type:</th><td class="field-body"><p class="first">int</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">matrix &#8211; Parameter samples</p>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">matrix – Parameter samples</p>
 </td>
 </tr>
 </tbody>
@@ -478,25 +471,27 @@ OptimizeResult also contains the <code class="docutils literal"><span class="pre
 
 <dl class="method">
 <dt id="matk.matk.matk.lmfit">
-<code class="descname">lmfit</code><span class="sig-paren">(</span><em>maxfev=0</em>, <em>report_fit=True</em>, <em>cpus=1</em>, <em>epsfcn=None</em>, <em>xtol=1e-07</em>, <em>ftol=1e-07</em>, <em>workdir=None</em>, <em>verbose=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.matk.matk.lmfit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">lmfit</code><span class="sig-paren">(</span><em>maxfev=0</em>, <em>report_fit=True</em>, <em>cpus=1</em>, <em>epsfcn=None</em>, <em>xtol=1e-07</em>, <em>ftol=1e-07</em>, <em>workdir=None</em>, <em>verbose=False</em>, <em>save_evals=False</em>, <em>difference_type='forward'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.matk.matk.lmfit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calibrate MATK model using lmfit package</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>maxfev</strong> (<em>int</em>) &#8211; Max number of function evaluations, if 0, 100*(npars+1) will be used</li>
-<li><strong>report_fit</strong> (<em>bool</em>) &#8211; If True, parameter statistics and correlations are printed to the screen</li>
-<li><strong>cpus</strong> (<em>int</em>) &#8211; Number of cpus to use for concurrent simulations during jacobian approximation</li>
-<li><strong>epsfcn</strong> (<em>float or lst[float]</em>) &#8211; jacobian finite difference approximation increment (single float of list of npar floats)</li>
-<li><strong>xtol</strong> (<em>float</em>) &#8211; Relative error in approximate solution</li>
-<li><strong>ftol</strong> (<em>float</em>) &#8211; Relative error in the desired sum of squares</li>
-<li><strong>workdir</strong> (<em>str</em>) &#8211; Name of directory to use for model runs, calibrated parameters will be run there after calibration</li>
-<li><strong>verbose</strong> (<em>bool</em>) &#8211; If true, print diagnostic information to the screen</li>
+<li><strong>maxfev</strong> (<em>int</em>) – Max number of function evaluations, if 0, 100*(npars+1) will be used</li>
+<li><strong>report_fit</strong> (<em>bool</em>) – If True, parameter statistics and correlations are printed to the screen</li>
+<li><strong>cpus</strong> (<em>int</em>) – Number of cpus to use for concurrent simulations during jacobian approximation</li>
+<li><strong>epsfcn</strong> (<em>float</em><em> or </em><em>lst</em><em>[</em><em>float</em><em>]</em>) – jacobian finite difference approximation increment (single float of list of npar floats)</li>
+<li><strong>xtol</strong> (<em>float</em>) – Relative error in approximate solution</li>
+<li><strong>ftol</strong> (<em>float</em>) – Relative error in the desired sum of squares</li>
+<li><strong>workdir</strong> (<em>str</em>) – Name of directory to use for model runs, calibrated parameters will be run there after calibration</li>
+<li><strong>verbose</strong> (<em>bool</em>) – If true, print diagnostic information to the screen</li>
+<li><strong>difference_type</strong> (<em>str</em>) – Type of finite difference approximation, ‘forward’ or ‘central’</li>
+<li><strong>save_evals</strong> – If True, a MATK sampleset of calibration function evaluation parameters and responses will be returned</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">lmfit minimizer object</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">tuple(lmfit minimizer object; parameter object; if save_evals=True, also returns a MATK sampleset of calibration function evaluation parameters and responses)</p>
 </td>
 </tr>
 </tbody>
@@ -514,12 +509,12 @@ OptimizeResult also contains the <code class="docutils literal"><span class="pre
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>workdir</strong> (<em>str</em>) &#8211; Name of directory where model will be run. It will be created if it does not exist</li>
-<li><strong>reuse_dirs</strong> (<em>bool</em>) &#8211; If True and workdir exists, the model will reuse the directory</li>
+<li><strong>workdir</strong> (<em>str</em>) – Name of directory where model will be run. It will be created if it does not exist</li>
+<li><strong>reuse_dirs</strong> (<em>bool</em>) – If True and workdir exists, the model will reuse the directory</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">int &#8211; 0: Successful run, 1: workdir exists</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">int – 0: Successful run, 1: workdir exists</p>
 </td>
 </tr>
 </tbody>
@@ -535,8 +530,8 @@ OptimizeResult also contains the <code class="docutils literal"><span class="pre
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>maxiter</strong> (<em>int</em>) &#8211; Max number of iterations</li>
-<li><strong>workdir</strong> (<em>str</em>) &#8211; Name of directory to use for model runs, calibrated parameters will be run there after calibration</li>
+<li><strong>maxiter</strong> (<em>int</em>) – Max number of iterations</li>
+<li><strong>workdir</strong> (<em>str</em>) – Name of directory to use for model runs, calibrated parameters will be run there after calibration</li>
 </ul>
 </td>
 </tr>
@@ -628,13 +623,13 @@ OptimizeResult also contains the <code class="docutils literal"><span class="pre
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>name</strong> (<em>str</em>) &#8211; Name of sample set to be created</li>
-<li><strong>outfile</strong> (<em>str</em>) &#8211; Name of file where samples will be written. If outfile=None, no file is written.</li>
-<li><strong>nvals</strong> (<em>int or list(int)</em>) &#8211; number of values for each parameter</li>
+<li><strong>name</strong> (<em>str</em>) – Name of sample set to be created</li>
+<li><strong>outfile</strong> (<em>str</em>) – Name of file where samples will be written. If outfile=None, no file is written.</li>
+<li><strong>nvals</strong> (<em>int</em><em> or </em><em>list</em><em>(</em><em>int</em><em>)</em>) – number of values for each parameter</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">ndarray(fl64) &#8211; Array of samples</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">ndarray(fl64) – Array of samples</p>
 </td>
 </tr>
 </tbody>
@@ -656,8 +651,8 @@ OptimizeResult also contains the <code class="docutils literal"><span class="pre
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>name</strong> (<em>str</em>) &#8211; Name of sample set</li>
-<li><strong>file</strong> (<em>str</em>) &#8211; Path to MATK output file</li>
+<li><strong>name</strong> (<em>str</em>) – Name of sample set</li>
+<li><strong>file</strong> (<em>str</em>) – Path to MATK output file</li>
 </ul>
 </td>
 </tr>
@@ -677,6 +672,31 @@ OptimizeResult also contains the <code class="docutils literal"><span class="pre
 <dd><p>Set the name of the results_file for parallel runs</p>
 </dd></dl>
 
+<dl class="method">
+<dt id="matk.matk.matk.saltelli">
+<code class="descname">saltelli</code><span class="sig-paren">(</span><em>nsamples</em>, <em>name=None</em>, <em>calc_second_order=True</em>, <em>index_start=1</em>, <em>problem={}</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.matk.matk.saltelli" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create sampleset using Saltelli’s extension of the Sobol sequence intended to be used with sobol method. This method calls functionality from the SALib package.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>nsamples</strong> (<em>int</em>) – Number of samples to create for each parameter. If calc_second_order is False, the actual sample size will be N * (D + 2), otherwise, it will be N * (2D + 2)</li>
+<li><strong>name</strong> (<em>str</em>) – Name of sample set to be created</li>
+<li><strong>calc_second_order</strong> (<em>bool</em>) – Calculate second-order sensitivities</li>
+<li><strong>index_start</strong> (<em>int</em>) – Starting value for sample indices</li>
+<li><strong>problem</strong> (<em>dict</em>) – Dictionary of model attributes used by sampler</li>
+<li><strong>problem</strong> – Dictionary of model attributes used by sampler. For example, dictionary with a list with keyname ‘groups’ containing a list of length of the number of parameters with parameter group names can be used to group parameters with similar effects on the observation.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">MATK sampleset</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="matk.matk.matk.seed">
 <code class="descname">seed</code><a class="headerlink" href="#matk.matk.matk.seed" title="Permalink to this definition">¶</a></dt>
@@ -687,14 +707,14 @@ OptimizeResult also contains the <code class="docutils literal"><span class="pre
 <dt id="matk.matk.matk.simdict">
 <code class="descname">simdict</code><a class="headerlink" href="#matk.matk.matk.simdict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Simulated values
-:returns: lst(fl64) &#8211; simulated values in order of matk.obs.keys()</p>
+:returns: lst(fl64) – simulated values in order of matk.obs.keys()</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="matk.matk.matk.simvalues">
 <code class="descname">simvalues</code><a class="headerlink" href="#matk.matk.matk.simvalues" title="Permalink to this definition">¶</a></dt>
 <dd><p>Simulated values
-:returns: lst(fl64) &#8211; simulated values in order of matk.obs.keys()</p>
+:returns: lst(fl64) – simulated values in order of matk.obs.keys()</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -746,13 +766,13 @@ OptimizeResult also contains the <code class="docutils literal"><span class="pre
         <li class="right" >
           <a href="autodoc.html" title="Class Documentation"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">MATK 0 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="autodoc.html" >Class Documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">MATK 0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="autodoc.html" >Class Documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2013, Dylan R. Harp.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+        &#169; Copyright 2013, Dylan R. Harp.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
   </body>
 </html>
