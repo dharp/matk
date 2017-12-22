@@ -2,31 +2,28 @@
 
 <!doctype html>
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Markov Chain Monte Carlo Using PYMC &mdash; MATK 0 documentation</title>
-    
+    <title>Markov Chain Monte Carlo Using PYMC &#8212; MATK 0 documentation</title>
     <link rel="stylesheet" href="_static/bizstyle.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
         VERSION:     '0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/bizstyle.js"></script>
-    <link rel="top" title="MATK 0 documentation" href="index.html" />
-    <link rel="up" title="Examples" href="example.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="MCMC using emcee package" href="example_emcee.html" />
     <link rel="prev" title="Linear Analysis of Calibration Using PYEMU" href="example_pyemu.html" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
@@ -34,7 +31,7 @@
     <script type="text/javascript" src="_static/css3-mediaqueries.js"></script>
     <![endif]-->
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -50,8 +47,8 @@
         <li class="right" >
           <a href="example_pyemu.html" title="Linear Analysis of Calibration Using PYEMU"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">MATK 0 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="example.html" accesskey="U">Examples</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">MATK 0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="example.html" accesskey="U">Examples</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -65,21 +62,18 @@
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/example_pymc.txt"
+      <li><a href="_sources/example_pymc.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -93,56 +87,56 @@
   <div class="section" id="markov-chain-monte-carlo-using-pymc">
 <h1>Markov Chain Monte Carlo Using PYMC<a class="headerlink" href="#markov-chain-monte-carlo-using-pymc" title="Permalink to this headline">¶</a></h1>
 <p>This example demonstrates Markov Chain Monte Carlo using PYMC (<a class="reference external" href="https://pymc-devs.github.io/pymc/">https://pymc-devs.github.io/pymc/</a>) with the <a class="reference internal" href="autodoc_matk.html#matk.matk.matk.MCMC" title="matk.matk.matk.MCMC"><code class="xref py py-func docutils literal"><span class="pre">MCMC</span></code></a> function.</p>
-<div class="code python highlight-python"><div class="highlight"><pre>%matplotlib inline
-import sys,os
-from numpy import array, double, arange, random
-try:
-    import matk
-except:
-    try:
-        sys.path.append(os.path.join(&#39;..&#39;,&#39;src&#39;))
-        import matk
-    except ImportError as err:
-        print &#39;Unable to load MATK module: &#39;+str(err)
+<div class="code ipython2 highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span><span class="n">matplotlib</span> <span class="n">inline</span>
+<span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span><span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="k">import</span> <span class="n">array</span><span class="p">,</span> <span class="n">double</span><span class="p">,</span> <span class="n">arange</span><span class="p">,</span> <span class="n">random</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">matk</span>
+<span class="k">except</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;..&#39;</span><span class="p">,</span><span class="s1">&#39;src&#39;</span><span class="p">))</span>
+        <span class="kn">import</span> <span class="nn">matk</span>
+    <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+        <span class="nb">print</span> <span class="s1">&#39;Unable to load MATK module: &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
 
-# Define basic function
-def f(pars):
-    a = pars[&#39;a&#39;]
-    c = pars[&#39;c&#39;]
-    m=double(arange(20))
-    m=a*(m**2)+c
-    return m
+<span class="c1"># Define basic function</span>
+<span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">pars</span><span class="p">):</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">pars</span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">]</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">pars</span><span class="p">[</span><span class="s1">&#39;c&#39;</span><span class="p">]</span>
+    <span class="n">m</span><span class="o">=</span><span class="n">double</span><span class="p">(</span><span class="n">arange</span><span class="p">(</span><span class="mi">20</span><span class="p">))</span>
+    <span class="n">m</span><span class="o">=</span><span class="n">a</span><span class="o">*</span><span class="p">(</span><span class="n">m</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">+</span><span class="n">c</span>
+    <span class="k">return</span> <span class="n">m</span>
 
 
-# Create matk object
-prob = matk.matk(model=f)
+<span class="c1"># Create matk object</span>
+<span class="n">prob</span> <span class="o">=</span> <span class="n">matk</span><span class="o">.</span><span class="n">matk</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">f</span><span class="p">)</span>
 
-# Add parameters with &#39;true&#39; parameters
-prob.add_par(&#39;a&#39;, min=0, max=10, value=2)
-prob.add_par(&#39;c&#39;, min=0, max=30, value=5)
+<span class="c1"># Add parameters with &#39;true&#39; parameters</span>
+<span class="n">prob</span><span class="o">.</span><span class="n">add_par</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">prob</span><span class="o">.</span><span class="n">add_par</span><span class="p">(</span><span class="s1">&#39;c&#39;</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 
-# Run model using &#39;true&#39; parameters
-prob.forward()
+<span class="c1"># Run model using &#39;true&#39; parameters</span>
+<span class="n">prob</span><span class="o">.</span><span class="n">forward</span><span class="p">()</span>
 
-# Create &#39;true&#39; observations with zero mean, 0.5 st. dev. gaussian noise added
-prob.obsvalues = prob.simvalues + random.normal(0,0.1,len(prob.simvalues))
+<span class="c1"># Create &#39;true&#39; observations with zero mean, 0.5 st. dev. gaussian noise added</span>
+<span class="n">prob</span><span class="o">.</span><span class="n">obsvalues</span> <span class="o">=</span> <span class="n">prob</span><span class="o">.</span><span class="n">simvalues</span> <span class="o">+</span> <span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">prob</span><span class="o">.</span><span class="n">simvalues</span><span class="p">))</span>
 
-# Run MCMC with 100000 samples burning (discarding) the first 10000
-M = prob.MCMC(nruns=100000,burn=10000,verbose=False)
+<span class="c1"># Run MCMC with 100000 samples burning (discarding) the first 10000</span>
+<span class="n">M</span> <span class="o">=</span> <span class="n">prob</span><span class="o">.</span><span class="n">MCMC</span><span class="p">(</span><span class="n">nruns</span><span class="o">=</span><span class="mi">100000</span><span class="p">,</span><span class="n">burn</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-python"><div class="highlight"><pre>[-----------------100%-----------------] 100000 of 100000 complete in 128.1 sec
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="o">-----------------</span><span class="mi">100</span><span class="o">%-----------------</span><span class="p">]</span> <span class="mi">100000</span> <span class="n">of</span> <span class="mi">100000</span> <span class="n">complete</span> <span class="ow">in</span> <span class="mf">128.1</span> <span class="n">sec</span>
 </pre></div>
 </div>
-<div class="code python highlight-python"><div class="highlight"><pre><span class="c"># Plot results, PNG files will be created in current directory</span>
-<span class="c"># It is apparent that the true parameter values and standard deviation</span>
-<span class="c"># are recovered as the most likely values.</span>
+<div class="code ipython2 highlight-default"><div class="highlight"><pre><span></span><span class="c1"># Plot results, PNG files will be created in current directory</span>
+<span class="c1"># It is apparent that the true parameter values and standard deviation</span>
+<span class="c1"># are recovered as the most likely values.</span>
 <span class="n">prob</span><span class="o">.</span><span class="n">MCMCplot</span><span class="p">(</span><span class="n">M</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-python"><div class="highlight"><pre>Plotting error_std
-Plotting c
-Plotting a
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Plotting</span> <span class="n">error_std</span>
+<span class="n">Plotting</span> <span class="n">c</span>
+<span class="n">Plotting</span> <span class="n">a</span>
 </pre></div>
 </div>
 <img alt="_images/mcmc_1_1.png" src="_images/mcmc_1_1.png" />
@@ -171,13 +165,13 @@ Plotting a
         <li class="right" >
           <a href="example_pyemu.html" title="Linear Analysis of Calibration Using PYEMU"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">MATK 0 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="example.html" >Examples</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">MATK 0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="example.html" >Examples</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2013, Dylan R. Harp.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+        &#169; Copyright 2013, Dylan R. Harp.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
   </body>
 </html>

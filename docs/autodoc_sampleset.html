@@ -2,31 +2,28 @@
 
 <!doctype html>
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>SampleSet &mdash; MATK 0 documentation</title>
-    
+    <title>SampleSet &#8212; MATK 0 documentation</title>
     <link rel="stylesheet" href="_static/bizstyle.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
         VERSION:     '0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/bizstyle.js"></script>
-    <link rel="top" title="MATK 0 documentation" href="index.html" />
-    <link rel="up" title="Class Documentation" href="autodoc.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Parameter" href="autodoc_pest_io.html" />
     <link rel="prev" title="Observation" href="autodoc_observation.html" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
@@ -34,7 +31,7 @@
     <script type="text/javascript" src="_static/css3-mediaqueries.js"></script>
     <![endif]-->
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -50,8 +47,8 @@
         <li class="right" >
           <a href="autodoc_observation.html" title="Observation"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">MATK 0 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="autodoc.html" accesskey="U">Class Documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">MATK 0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="autodoc.html" accesskey="U">Class Documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -65,21 +62,18 @@
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/autodoc_sampleset.txt"
+      <li><a href="_sources/autodoc_sampleset.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -112,16 +106,16 @@ including parameter samples, associated responses, and sample indices</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>type</strong> (<em>str</em>) &#8211; Type of correlation coefficient (pearson by default, spearman also avaialable)</li>
-<li><strong>plot</strong> (<em>bool</em>) &#8211; If True, plot correlation matrix</li>
-<li><strong>printout</strong> (<em>bool</em>) &#8211; If True, print correlation matrix with row and column headings</li>
-<li><strong>plotvals</strong> (<em>bool</em>) &#8211; If True, print correlation coefficients on plot matrix</li>
-<li><strong>figsize</strong> (<em>tuple(fl64,fl64)</em>) &#8211; Width and height of figure in inches</li>
-<li><strong>title</strong> (<em>str</em>) &#8211; Title of plot</li>
+<li><strong>type</strong> (<em>str</em>) – Type of correlation coefficient (pearson by default, spearman also avaialable)</li>
+<li><strong>plot</strong> (<em>bool</em>) – If True, plot correlation matrix</li>
+<li><strong>printout</strong> (<em>bool</em>) – If True, print correlation matrix with row and column headings</li>
+<li><strong>plotvals</strong> (<em>bool</em>) – If True, print correlation coefficients on plot matrix</li>
+<li><strong>figsize</strong> (<em>tuple</em><em>(</em><em>fl64</em><em>,</em><em>fl64</em><em>)</em>) – Width and height of figure in inches</li>
+<li><strong>title</strong> (<em>str</em>) – Title of plot</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">ndarray(fl64) &#8211; Correlation coefficients</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">ndarray(fl64) – Correlation coefficients</p>
 </td>
 </tr>
 </tbody>
@@ -160,29 +154,32 @@ including parameter samples, associated responses, and sample indices</p>
 
 <dl class="method">
 <dt id="matk.sampleset.SampleSet.panels">
-<code class="descname">panels</code><span class="sig-paren">(</span><em>type='pearson'</em>, <em>alpha=0.2</em>, <em>figsize=None</em>, <em>title=None</em>, <em>tight=False</em>, <em>symbol='.'</em>, <em>fontsize=None</em>, <em>corrfontsize=None</em>, <em>ms=5</em>, <em>mins=None</em>, <em>maxs=None</em>, <em>frequency=False</em>, <em>bins=10</em>, <em>ylim=None</em>, <em>labels=[]</em>, <em>filename=None</em>, <em>xticks=2</em>, <em>yticks=2</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.sampleset.SampleSet.panels" title="Permalink to this definition">¶</a></dt>
+<code class="descname">panels</code><span class="sig-paren">(</span><em>type='pearson'</em>, <em>alpha=0.2</em>, <em>figsize=None</em>, <em>title=None</em>, <em>tight=False</em>, <em>symbol='.'</em>, <em>fontsize=None</em>, <em>corrfontsize=None</em>, <em>ms=5</em>, <em>mins=None</em>, <em>maxs=None</em>, <em>frequency=False</em>, <em>bins=10</em>, <em>ylim=None</em>, <em>labels=[]</em>, <em>filename=None</em>, <em>xticks=2</em>, <em>yticks=2</em>, <em>color=None</em>, <em>cmap=None</em>, <em>edgecolors='face'</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.sampleset.SampleSet.panels" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot histograms, scatterplots, and correlation coefficients in paired matrix</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>type</strong> (<em>str</em>) &#8211; Type of correlation coefficient (pearson by default, spearman also avaialable)</li>
-<li><strong>alpha</strong> (<em>float</em>) &#8211; Histogram color shading</li>
-<li><strong>figsize</strong> (<em>tuple(fl64,fl64)</em>) &#8211; Width and height of figure in inches</li>
-<li><strong>title</strong> (<em>str</em>) &#8211; Title of plot</li>
-<li><strong>tight</strong> (<em>bool</em>) &#8211; Use matplotlib tight layout</li>
-<li><strong>symbol</strong> (<em>str</em>) &#8211; matplotlib symbol for scatterplots</li>
-<li><strong>fontsize</strong> (<em>fl64</em>) &#8211; Size of font for axis labels</li>
-<li><strong>corrfontsize</strong> (<em>fl64</em>) &#8211; Size of font for correlation coefficients</li>
-<li><strong>ms</strong> (<em>fl64</em>) &#8211; Scatterplot marker size</li>
-<li><strong>frequency</strong> (<em>bool</em>) &#8211; If True, the first element of the return tuple will be the counts normalized by the length of data, i.e., n/len(x)</li>
-<li><strong>bins</strong> (<em>int</em>) &#8211; Number of bins in histograms</li>
-<li><strong>ylim</strong> (<em>tuples - 2 element tuples with y limits for histograms</em>) &#8211; y-axis limits for histograms.</li>
-<li><strong>labels</strong> (<em>lst(str)</em>) &#8211; Names to use instead of parameter names in plot</li>
-<li><strong>filename</strong> (<em>str</em>) &#8211; Name of file to save plot. File ending determines plot type (pdf, png, ps, eps, etc.). Plot types available depends on the matplotlib backend in use on the system. Plot will not be displayed.</li>
-<li><strong>xticks</strong> (<em>int</em>) &#8211; Number of ticks along x axes</li>
-<li><strong>yticks</strong> (<em>int</em>) &#8211; Number of ticks along y axes</li>
+<li><strong>type</strong> (<em>str</em>) – Type of correlation coefficient (pearson by default, spearman also avaialable)</li>
+<li><strong>alpha</strong> (<em>float</em>) – Histogram color shading</li>
+<li><strong>figsize</strong> (<em>tuple</em><em>(</em><em>fl64</em><em>,</em><em>fl64</em><em>)</em>) – Width and height of figure in inches</li>
+<li><strong>title</strong> (<em>str</em>) – Title of plot</li>
+<li><strong>tight</strong> (<em>bool</em>) – Use matplotlib tight layout</li>
+<li><strong>symbol</strong> (<em>str</em>) – matplotlib symbol for scatterplots</li>
+<li><strong>fontsize</strong> (<em>fl64</em>) – Size of font for axis labels</li>
+<li><strong>corrfontsize</strong> (<em>fl64</em>) – Size of font for correlation coefficients</li>
+<li><strong>ms</strong> (<em>fl64</em>) – Scatterplot marker size</li>
+<li><strong>frequency</strong> (<em>bool</em>) – If True, the first element of the return tuple will be the counts normalized by the length of data, i.e., n/len(x)</li>
+<li><strong>bins</strong> (<em>int</em>) – Number of bins in histograms</li>
+<li><strong>ylim</strong> (<em>tuples - 2 element tuples with y limits for histograms</em>) – y-axis limits for histograms.</li>
+<li><strong>labels</strong> (<em>lst</em><em>(</em><em>str</em><em>)</em>) – Names to use instead of parameter names in plot</li>
+<li><strong>filename</strong> (<em>str</em>) – Name of file to save plot. File ending determines plot type (pdf, png, ps, eps, etc.). Plot types available depends on the matplotlib backend in use on the system. Plot will not be displayed.</li>
+<li><strong>xticks</strong> (<em>int</em>) – Number of ticks along x axes</li>
+<li><strong>yticks</strong> (<em>int</em>) – Number of ticks along y axes</li>
+<li><strong>color</strong> (<em>str</em>) – Name of parameter of observation to color points in colorplots by</li>
+<li><strong>cmap</strong> (<em>matplotlib.colors.Colormap</em>) – Colormap for color option</li>
+<li><strong>edgecolors</strong> (<em>str</em>) – Color of edges of markers in scatterplots</li>
 </ul>
 </td>
 </tr>
@@ -198,7 +195,7 @@ including parameter samples, associated responses, and sample indices</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>index</strong> (<em>int</em>) &#8211; Sample index</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>index</strong> (<em>int</em>) – Sample index</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">dict(fl64)</td>
 </tr>
@@ -238,14 +235,14 @@ If samples are not specified, LHS samples are produced</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>cpus</strong> (<em>int,dict(lst)</em>) &#8211; number of cpus; alternatively, dictionary of lists of processor ids keyed by hostnames to run models on (i.e. on a cluster); hostname provided as kwarg to model (hostname=&lt;hostname&gt;); processor id provided as kwarg to model (processor=&lt;processor id&gt;)</li>
-<li><strong>workdir_base</strong> (<em>str</em>) &#8211; Base name for model run folders, run index is appended to workdir_base</li>
-<li><strong>save</strong> (<em>bool</em>) &#8211; If True, model files and folders will not be deleted during parallel model execution</li>
-<li><strong>reuse_dirs</strong> (<em>bool</em>) &#8211; Will use existing directories if True, will return an error if False and directory exists</li>
-<li><strong>outfile</strong> (<em>str</em>) &#8211; File to write results to</li>
-<li><strong>logfile</strong> (<em>str</em>) &#8211; File to write details of run to during execution</li>
-<li><strong>restart_logfile</strong> (<em>str</em>) &#8211; Existing logfile containing completed runs, used to complete an incomplete sampling; Warning: sample indices are expected to match!</li>
-<li><strong>hosts</strong> (<em>lst(str)</em>) &#8211; Option deprecated, use cpus instead</li>
+<li><strong>cpus</strong> (<em>int</em><em>,</em><em>dict</em><em>(</em><em>lst</em><em>)</em>) – number of cpus; alternatively, dictionary of lists of processor ids keyed by hostnames to run models on (i.e. on a cluster); hostname provided as kwarg to model (hostname=&lt;hostname&gt;); processor id provided as kwarg to model (processor=&lt;processor id&gt;)</li>
+<li><strong>workdir_base</strong> (<em>str</em>) – Base name for model run folders, run index is appended to workdir_base</li>
+<li><strong>save</strong> (<em>bool</em>) – If True, model files and folders will not be deleted during parallel model execution</li>
+<li><strong>reuse_dirs</strong> (<em>bool</em>) – Will use existing directories if True, will return an error if False and directory exists</li>
+<li><strong>outfile</strong> (<em>str</em>) – File to write results to</li>
+<li><strong>logfile</strong> (<em>str</em>) – File to write details of run to during execution</li>
+<li><strong>restart_logfile</strong> (<em>str</em>) – Existing logfile containing completed runs, used to complete an incomplete sampling; Warning: sample indices are expected to match!</li>
+<li><strong>hosts</strong> (<em>lst</em><em>(</em><em>str</em><em>)</em>) – Option deprecated, use cpus instead</li>
 </ul>
 </td>
 </tr>
@@ -258,13 +255,42 @@ If samples are not specified, LHS samples are produced</p>
 
 <dl class="method">
 <dt id="matk.sampleset.SampleSet.savetxt">
-<code class="descname">savetxt</code><span class="sig-paren">(</span><em>outfile</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.sampleset.SampleSet.savetxt" title="Permalink to this definition">¶</a></dt>
+<code class="descname">savetxt</code><span class="sig-paren">(</span><em>outfile</em>, <em>sse=False</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.sampleset.SampleSet.savetxt" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save sampleset to file</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>outfile</strong> (<em>str</em>) &#8211; Name of file where sampleset will be written</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>outfile</strong> (<em>str</em>) – Name of file where sampleset will be written</li>
+<li><strong>sse</strong> (<em>bool</em>) – Print out sum-of-squared-errors instead of observations</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="matk.sampleset.SampleSet.sobol">
+<code class="descname">sobol</code><span class="sig-paren">(</span><em>obsname='sse'</em>, <em>calc_second_order=True</em>, <em>print_to_console=True</em>, <em>num_resamples=100</em>, <em>conf_level=0.95</em>, <em>problem={}</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.sampleset.SampleSet.sobol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform Sobol analysis on model output. This requires that the sampleset is a Saltelli sample and has been run. This method calls functionality from the SALib package.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>obsname</strong> (<em>str</em>) – Name of observation to perform analysis on. The default is to use the sum-of-squared errors of all observations. This requires that observation values were designated. An individual observation name can be used instead.</li>
+<li><strong>calc_second_order</strong> (<em>bool</em>) – Calculate second-order sensitivities</li>
+<li><strong>num_resamples</strong> (<em>int</em>) – The number of resamples</li>
+<li><strong>conf_level</strong> (<em>flt</em>) – The confidence interval level</li>
+<li><strong>print_to_console</strong> (<em>bool</em>) – Print results directly to console</li>
+<li><strong>problem</strong> (<em>dict</em>) – Dictionary of model attributes used by sampler. For example, dictionary with a list with keyname ‘groups’ containing a list of length of the number of parameters with parameter group names can be used to group parameters with similar effects on the observation. This will reduce the number of samples required.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Dictionary of sobol analysis results</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -278,17 +304,17 @@ If samples are not specified, LHS samples are produced</p>
 
 <dl class="method">
 <dt id="matk.sampleset.SampleSet.subset">
-<code class="descname">subset</code><span class="sig-paren">(</span><em>boolfcn</em>, <em>obs</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.sampleset.SampleSet.subset" title="Permalink to this definition">¶</a></dt>
-<dd><p>Collect samples based on response values, remove all others</p>
+<code class="descname">subset</code><span class="sig-paren">(</span><em>boolfcn</em>, <em>field</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.sampleset.SampleSet.subset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Collect subset of samples based on parameter or response values, remove all others</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>boofcn</strong> &#8211; Function that returns true for samples to keep and false for samples to remove</li>
-<li><strong>obs</strong> (<em>str</em>) &#8211; Name of response to apply boolfcn to</li>
-<li><strong>args</strong> &#8211; Additional arguments to add to boolfcn</li>
-<li><strong>kwargs</strong> &#8211; Keyword arguments to add to boolfcn</li>
+<li><strong>boofcn</strong> – Function that returns true for samples to keep and false for samples to remove</li>
+<li><strong>field</strong> (<em>str</em>) – Name of parameter or observations to apply boolfcn to</li>
+<li><strong>args</strong> – Additional arguments to add to boolfcn</li>
+<li><strong>kwargs</strong> – Keyword arguments to add to boolfcn</li>
 </ul>
 </td>
 </tr>
@@ -307,20 +333,20 @@ If samples are not specified, LHS samples are produced</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>ncols</strong> (<em>int</em>) &#8211; Number of columns in plot matrix</li>
-<li><strong>figsize</strong> (<em>tuple(fl64,fl64)</em>) &#8211; Width and height of figure in inches</li>
-<li><strong>alpha</strong> (<em>float</em>) &#8211; Histogram color shading</li>
-<li><strong>title</strong> (<em>str</em>) &#8211; Title of plot</li>
-<li><strong>tight</strong> (<em>bool</em>) &#8211; Use matplotlib tight layout</li>
-<li><strong>mins</strong> (<em>lst(fl64)</em>) &#8211; Minimum values of recarray fields</li>
-<li><strong>maxs</strong> (<em>lst(fl64)</em>) &#8211; Maximum values of recarray fields</li>
-<li><strong>frequency</strong> (<em>bool</em>) &#8211; If True, the first element of the return tuple will be the counts normalized by the length of data, i.e., n/len(x)</li>
-<li><strong>bins</strong> (<em>int or lst(lst(int))</em>) &#8211; If an integer is given, bins + 1 bin edges are returned. Unequally spaced bins are supported if bins is a list of sequences for each histogram.</li>
-<li><strong>ylim</strong> (<em>tuples - 2 element tuple with y limits for histograms</em>) &#8211; y-axis limits for histograms.</li>
-<li><strong>labels</strong> (<em>lst(str)</em>) &#8211; Names to use instead of parameter names in plot</li>
-<li><strong>filename</strong> (<em>str</em>) &#8211; Name of file to save plot. File ending determines plot type (pdf, png, ps, eps, etc.). Plot types available depends on the matplotlib backend in use on the system. Plot will not be displayed.</li>
-<li><strong>fontsize</strong> (<em>fl64</em>) &#8211; Size of font</li>
-<li><strong>xticks</strong> (<em>int</em>) &#8211; Number of ticks on xaxes</li>
+<li><strong>ncols</strong> (<em>int</em>) – Number of columns in plot matrix</li>
+<li><strong>figsize</strong> (<em>tuple</em><em>(</em><em>fl64</em><em>,</em><em>fl64</em><em>)</em>) – Width and height of figure in inches</li>
+<li><strong>alpha</strong> (<em>float</em>) – Histogram color shading</li>
+<li><strong>title</strong> (<em>str</em>) – Title of plot</li>
+<li><strong>tight</strong> (<em>bool</em>) – Use matplotlib tight layout</li>
+<li><strong>mins</strong> (<em>lst</em><em>(</em><em>fl64</em><em>)</em>) – Minimum values of recarray fields</li>
+<li><strong>maxs</strong> (<em>lst</em><em>(</em><em>fl64</em><em>)</em>) – Maximum values of recarray fields</li>
+<li><strong>frequency</strong> (<em>bool</em>) – If True, the first element of the return tuple will be the counts normalized by the length of data, i.e., n/len(x)</li>
+<li><strong>bins</strong> (<em>int</em><em> or </em><em>lst</em><em>(</em><em>lst</em><em>(</em><em>int</em><em>)</em><em>)</em>) – If an integer is given, bins + 1 bin edges are returned. Unequally spaced bins are supported if bins is a list of sequences for each histogram.</li>
+<li><strong>ylim</strong> (<em>tuples - 2 element tuple with y limits for histograms</em>) – y-axis limits for histograms.</li>
+<li><strong>labels</strong> (<em>lst</em><em>(</em><em>str</em><em>)</em>) – Names to use instead of parameter names in plot</li>
+<li><strong>filename</strong> (<em>str</em>) – Name of file to save plot. File ending determines plot type (pdf, png, ps, eps, etc.). Plot types available depends on the matplotlib backend in use on the system. Plot will not be displayed.</li>
+<li><strong>fontsize</strong> (<em>fl64</em>) – Size of font</li>
+<li><strong>xticks</strong> (<em>int</em>) – Number of ticks on xaxes</li>
 </ul>
 </td>
 </tr>
@@ -340,18 +366,18 @@ If samples are not specified, LHS samples are produced</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>rc1</strong> &#8211; Data</li>
-<li><strong>rc2</strong> &#8211; Data</li>
-<li><strong>type</strong> (<em>str</em>) &#8211; Type of correlation coefficient (pearson by default, spearman also avaialable)</li>
-<li><strong>plot</strong> (<em>bool</em>) &#8211; If True, plot correlation matrix</li>
-<li><strong>printout</strong> (<em>bool</em>) &#8211; If True, print correlation matrix with row and column headings</li>
-<li><strong>plotvals</strong> (<em>bool</em>) &#8211; If True, print correlation coefficients on plot matrix</li>
-<li><strong>figsize</strong> (<em>tuple(fl64,fl64)</em>) &#8211; Width and height of figure in inches</li>
-<li><strong>title</strong> (<em>str</em>) &#8211; Title of plot</li>
+<li><strong>rc1</strong> – Data</li>
+<li><strong>rc2</strong> – Data</li>
+<li><strong>type</strong> (<em>str</em>) – Type of correlation coefficient (pearson by default, spearman also avaialable)</li>
+<li><strong>plot</strong> (<em>bool</em>) – If True, plot correlation matrix</li>
+<li><strong>printout</strong> (<em>bool</em>) – If True, print correlation matrix with row and column headings</li>
+<li><strong>plotvals</strong> (<em>bool</em>) – If True, print correlation coefficients on plot matrix</li>
+<li><strong>figsize</strong> (<em>tuple</em><em>(</em><em>fl64</em><em>,</em><em>fl64</em><em>)</em>) – Width and height of figure in inches</li>
+<li><strong>title</strong> (<em>str</em>) – Title of plot</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">ndarray(fl64) &#8211; Correlation coefficients</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">ndarray(fl64) – Correlation coefficients</p>
 </td>
 </tr>
 </tbody>
@@ -381,13 +407,13 @@ If samples are not specified, LHS samples are produced</p>
         <li class="right" >
           <a href="autodoc_observation.html" title="Observation"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">MATK 0 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="autodoc.html" >Class Documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">MATK 0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="autodoc.html" >Class Documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2013, Dylan R. Harp.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+        &#169; Copyright 2013, Dylan R. Harp.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
   </body>
 </html>
