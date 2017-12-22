@@ -319,6 +319,27 @@ class Tests(unittest.TestCase):
         self.m2.add_obs('o1',value=0)
         result2 = self.m2.differential_evolution()
         self.assertTrue( result2.fun < 1.e-8, 'Objective function for Ackley problem is larger than tolerance of 1.e-8: ' + str(result.fun) )
+
+    def testsobol(self):
+        sys.path.append(os.path.join('..','src','matk'))
+        from SALib.test_functions import Ishigami
+        def myIshigami(pars):
+            return Ishigami.evaluate(numpy.array([[pars['x1'],pars['x2'],pars['x3']]]))
+        m = matk.matk(model=myIshigami)
+        m.add_par('x1',min=-3.14159265359, max=3.14159265359)
+        m.add_par('x2',min=-3.14159265359, max=3.14159265359)
+        m.add_par('x3',min=-3.14159265359, max=3.14159265359)
+        m.add_obs('res')
+        # Generate samples
+        ss = m.saltelli(1000)
+        # Run model
+        ss.run(verbose=False)
+        # Perform analysis
+        Si = ss.sobol('res', print_to_console=False)
+        # Test results
+        self.assertTrue( numpy.abs(Si['S1'][0] - 0.306)/0.306 < 1.e-2, 'First order sensitivity for parameter x1 should be around 0.306 but is ' + str(Si['S1'][0]) )
+        self.assertTrue( numpy.abs(Si['S1'][1] - 0.448)/0.448 < 1.e-2, 'First order sensitivity for parameter x2 should be around 0.448 but is ' + str(Si['S1'][1]) )
+        self.assertTrue( numpy.abs(Si['S1'][2])<0.01, 'First order sensitivity for parameter x3 should be a very small number but is ' + str(Si['S1'][2]) )
       
 def suite(case):
     suite = unittest.TestSuite()
@@ -336,6 +357,7 @@ def suite(case):
         suite.addTest( Tests('testemcee') )
         suite.addTest( Tests('testemcee2') )
         suite.addTest( Tests('testdifferentialevolution') )
+        suite.addTest( Tests('testsobol') )
     if case == 'parallel' or case == 'all':
         suite.addTest( Tests('testparallel') )
         suite.addTest( Tests('testparallel_workdir') )

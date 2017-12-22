@@ -470,11 +470,42 @@ class SampleSet(object):
             maxN = list(col).count(max)
             pars.append((par+':min',[min,minN]))
             pars.append((par+':max',[max,maxN]))
-        
+
         pars.sort(key=lambda x: x[1][1],reverse=True)
-            
+
         return pars
-            
+    def sobol(self, obsname='sse', calc_second_order=True, print_to_console=True, num_resamples=100, conf_level=0.95, problem={}):
+        """ Perform Sobol analysis on model output. This requires that the sampleset is a Saltelli sample and has been run. This method calls functionality from the SALib package.
+
+            :param obsname: Name of observation to perform analysis on. The default is to use the sum-of-squared errors of all observations. This requires that observation values were designated. An individual observation name can be used instead.
+            :type obsname: str
+            :type calc_second_order: bool
+            :param calc_second_order: Calculate second-order sensitivities
+            :type calc_second_order: bool
+            :param num_resamples: The number of resamples
+            :type num_resamples: int
+            :param conf_level: The confidence interval level
+            :type conf_level: flt
+            :param print_to_console: Print results directly to console
+            :type print_to_console: bool
+            :param problem: Dictionary of model attributes used by sampler. For example, dictionary with a list with keyname 'groups' containing a list of length of the number of parameters with parameter group names can be used to group parameters with similar effects on the observation. This will reduce the number of samples required.
+            :type problem: dict
+            :returns: Dictionary of sobol analysis results
+        """
+        try:
+            from SALib.analyze import sobol
+        except ImportError as exc:
+            sys.stderr.write("Warning: failed to import SALib sobol module. ({})\n".format(exc))
+
+        # Define problem for Saltelli sampler
+        problem['num_vars'] = len(self._parent.pars)
+        problem['names'] = self._parent.parnames
+        problem['bounds'] = zip(self._parent.parmins,self._parent.parmaxs)
+
+        if obsname == 'sse': obs = self.sse
+        else: obs = self.recarray[obsname]
+        return sobol.analyze(problem, obs, calc_second_order=calc_second_order, print_to_console=print_to_console, num_resamples=num_resamples, conf_level=conf_level)
+
 class DataSet(object):
     """ MATK Samples class
     """

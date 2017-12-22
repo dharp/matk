@@ -829,6 +829,36 @@ class matk(object):
                     ss[ii,i] = p._discrete_vals[0][dind] 
             else: ss[:,i] = p.value
         return self.create_sampleset( ss, name=name, index_start=index_start )
+    def saltelli(self, nsamples, name=None, calc_second_order=True, index_start=1, problem={}):
+        """ Create sampleset using Saltelli's extension of the Sobol sequence intended to be used with sobol method. This method calls functionality from the SALib package.
+        
+            :param nsamples: Number of samples to create for each parameter. If calc_second_order is False, the actual sample size will be N * (D + 2), otherwise, it will be N * (2D + 2)
+            :type nsamples: int
+            :param name: Name of sample set to be created
+            :type name: str
+            :param calc_second_order: Calculate second-order sensitivities
+            :type calc_second_order: bool
+            :param index_start: Starting value for sample indices
+            :type index_start: int
+            :param problem: Dictionary of model attributes used by sampler
+            :type problem: dict
+            :param problem: Dictionary of model attributes used by sampler. For example, dictionary with a list with keyname 'groups' containing a list of length of the number of parameters with parameter group names can be used to group parameters with similar effects on the observation.
+            :type problem: dict
+            :returns: MATK sampleset
+          
+        """
+        try:
+            from SALib.sample import saltelli
+        except ImportError as exc:
+            sys.stderr.write("Warning: failed to import SALib saltelli module. ({})\n".format(exc))
+        # Define problem for Saltelli sampler
+        problem['num_vars'] = len(self.pars)
+        problem['names'] = self.parnames
+        problem['bounds'] = zip(self.parmins,self.parmaxs)
+        # Create sampleset of saltelli sample
+        param_values = saltelli.sample(problem, nsamples, calc_second_order=True)
+        # Return sampleset
+        return self.create_sampleset( param_values, name=name, index_start=index_start )
     def child( self, in_queue, out_list, reuse_dirs, save, hostname, processor):
         # Ignoring Futurewarning about elementwise comparison for now
         with warnings.catch_warnings():
