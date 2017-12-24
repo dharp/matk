@@ -321,6 +321,8 @@ class Tests(unittest.TestCase):
         self.assertTrue( result2.fun < 1.e-8, 'Objective function for Ackley problem is larger than tolerance of 1.e-8: ' + str(result.fun) )
 
     def testsobol(self):
+        ''' This test is based on the test problem at: http://salib.readthedocs.io/en/latest/getting-started.html#testing-installation
+        '''
         sys.path.append(os.path.join('..','src','matk'))
         from SALib.test_functions import Ishigami
         def myIshigami(pars):
