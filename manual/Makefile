@@ -53,6 +53,7 @@ html:
 	cd source; jupyter nbconvert  --to rst --output-dir=. ../../examples/differential_evolution.ipynb
 	cd source; jupyter nbconvert  --to rst --output-dir=. ../../examples/minimize_constraints.ipynb
 	cd source; jupyter nbconvert  --to rst --output-dir=. ../../examples/sampleset_restart.ipynb
+	cd source; jupyter nbconvert  --to rst --output-dir=. ../../examples/sobol.ipynb
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."

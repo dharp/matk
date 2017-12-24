@@ -264,50 +264,43 @@ space, but often requires larger numbers of function evaluations than
 conventional gradient based techniques.</p>
 <p>The algorithm is due to Storn and Price.</p>
 <p>Parameters
-func : callable</p>
-<blockquote>
-<div>The objective function to be minimized.  Must be in the form
+func : callable
+The objective function to be minimized.  Must be in the form
 <code class="docutils literal"><span class="pre">f(x,</span> <span class="pre">*args)</span></code>, where <code class="docutils literal"><span class="pre">x</span></code> is the argument in the form of a 1-D array
 and <code class="docutils literal"><span class="pre">args</span></code> is a  tuple of any additional fixed parameters needed to
-completely specify the function.</div></blockquote>
-<dl class="docutils">
-<dt>bounds <span class="classifier-delimiter">:</span> <span class="classifier">sequence</span></dt>
-<dd>Bounds for variables.  <code class="docutils literal"><span class="pre">(min,</span> <span class="pre">max)</span></code> pairs for each element in <code class="docutils literal"><span class="pre">x</span></code>,
+completely specify the function.
+bounds : sequence
+Bounds for variables.  <code class="docutils literal"><span class="pre">(min,</span> <span class="pre">max)</span></code> pairs for each element in <code class="docutils literal"><span class="pre">x</span></code>,
 defining the lower and upper bounds for the optimizing argument of
 <cite>func</cite>. It is required to have <code class="docutils literal"><span class="pre">len(bounds)</span> <span class="pre">==</span> <span class="pre">len(x)</span></code>.
-<code class="docutils literal"><span class="pre">len(bounds)</span></code> is used to determine the number of parameters in <code class="docutils literal"><span class="pre">x</span></code>.</dd>
-<dt>strategy <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
-<dd><p class="first">The differential evolution strategy to use. Should be one of:</p>
-<blockquote>
-<div><ul class="simple">
-<li>‘best1bin’</li>
-<li>‘best1exp’</li>
-<li>‘rand1exp’</li>
-<li>‘randtobest1exp’</li>
-<li>‘best2exp’</li>
-<li>‘rand2exp’</li>
-<li>‘randtobest1bin’</li>
-<li>‘best2bin’</li>
-<li>‘rand2bin’</li>
-<li>‘rand1bin’</li>
-</ul>
-</div></blockquote>
-<p class="last">The default is ‘best1bin’.</p>
-</dd>
-<dt>maxiter <span class="classifier-delimiter">:</span> <span class="classifier">int, optional</span></dt>
-<dd>The maximum number of generations over which the entire population is
+<code class="docutils literal"><span class="pre">len(bounds)</span></code> is used to determine the number of parameters in <code class="docutils literal"><span class="pre">x</span></code>.
+strategy : str, optional
+The differential evolution strategy to use. Should be one of:
+- ‘best1bin’
+- ‘best1exp’
+- ‘rand1exp’
+- ‘randtobest1exp’
+- ‘best2exp’
+- ‘rand2exp’
+- ‘randtobest1bin’
+- ‘best2bin’
+- ‘rand2bin’
+- ‘rand1bin’
+The default is ‘best1bin’.
+maxiter : int, optional
+The maximum number of generations over which the entire population is
 evolved. The maximum number of function evaluations (with no polishing)
-is: <code class="docutils literal"><span class="pre">(maxiter</span> <span class="pre">+</span> <span class="pre">1)</span> <span class="pre">*</span> <span class="pre">popsize</span> <span class="pre">*</span> <span class="pre">len(x)</span></code></dd>
-<dt>popsize <span class="classifier-delimiter">:</span> <span class="classifier">int, optional</span></dt>
-<dd>A multiplier for setting the total population size.  The population has
-<code class="docutils literal"><span class="pre">popsize</span> <span class="pre">*</span> <span class="pre">len(x)</span></code> individuals.</dd>
-<dt>tol <span class="classifier-delimiter">:</span> <span class="classifier">float, optional</span></dt>
-<dd>When the mean of the population energies, multiplied by tol,
+is: <code class="docutils literal"><span class="pre">(maxiter</span> <span class="pre">+</span> <span class="pre">1)</span> <span class="pre">*</span> <span class="pre">popsize</span> <span class="pre">*</span> <span class="pre">len(x)</span></code>
+popsize : int, optional
+A multiplier for setting the total population size.  The population has
+<code class="docutils literal"><span class="pre">popsize</span> <span class="pre">*</span> <span class="pre">len(x)</span></code> individuals.
+tol : float, optional
+When the mean of the population energies, multiplied by tol,
 divided by the standard deviation of the population energies
 is greater than 1 the solving process terminates:
-<code class="docutils literal"><span class="pre">convergence</span> <span class="pre">=</span> <span class="pre">mean(pop)</span> <span class="pre">*</span> <span class="pre">tol</span> <span class="pre">/</span> <span class="pre">stdev(pop)</span> <span class="pre">&gt;</span> <span class="pre">1</span></code></dd>
-<dt>mutation <span class="classifier-delimiter">:</span> <span class="classifier">float or tuple(float, float), optional</span></dt>
-<dd>The mutation constant. In the literature this is also known as
+<code class="docutils literal"><span class="pre">convergence</span> <span class="pre">=</span> <span class="pre">mean(pop)</span> <span class="pre">*</span> <span class="pre">tol</span> <span class="pre">/</span> <span class="pre">stdev(pop)</span> <span class="pre">&gt;</span> <span class="pre">1</span></code>
+mutation : float or tuple(float, float), optional
+The mutation constant. In the literature this is also known as
 differential weight, being denoted by F.
 If specified as a float it should be in the range [0, 2].
 If specified as a tuple <code class="docutils literal"><span class="pre">(min,</span> <span class="pre">max)</span></code> dithering is employed. Dithering
@@ -315,34 +308,34 @@ randomly changes the mutation constant on a generation by generation
 basis. The mutation constant for that generation is taken from
 <code class="docutils literal"><span class="pre">U[min,</span> <span class="pre">max)</span></code>. Dithering can help speed convergence significantly.
 Increasing the mutation constant increases the search radius, but will
-slow down convergence.</dd>
-<dt>recombination <span class="classifier-delimiter">:</span> <span class="classifier">float, optional</span></dt>
-<dd>The recombination constant, should be in the range [0, 1]. In the
+slow down convergence.
+recombination : float, optional
+The recombination constant, should be in the range [0, 1]. In the
 literature this is also known as the crossover probability, being
 denoted by CR. Increasing this value allows a larger number of mutants
 to progress into the next generation, but at the risk of population
-stability.</dd>
-<dt>seed <span class="classifier-delimiter">:</span> <span class="classifier">int or <cite>np.random.RandomState</cite>, optional</span></dt>
-<dd>If <cite>seed</cite> is not specified the <cite>np.RandomState</cite> singleton is used.
+stability.
+seed : int or <cite>np.random.RandomState</cite>, optional
+If <cite>seed</cite> is not specified the <cite>np.RandomState</cite> singleton is used.
 If <cite>seed</cite> is an int, a new <cite>np.random.RandomState</cite> instance is used,
 seeded with seed.
 If <cite>seed</cite> is already a <cite>np.random.RandomState instance</cite>, then that
 <cite>np.random.RandomState</cite> instance is used.
-Specify <cite>seed</cite> for repeatable minimizations.</dd>
-<dt>disp <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
-<dd>Display status messages</dd>
-<dt>callback <span class="classifier-delimiter">:</span> <span class="classifier">callable, <cite>callback(xk, convergence=val)</cite>, optional</span></dt>
-<dd>A function to follow the progress of the minimization. <code class="docutils literal"><span class="pre">xk</span></code> is
+Specify <cite>seed</cite> for repeatable minimizations.
+disp : bool, optional
+Display status messages
+callback : callable, <cite>callback(xk, convergence=val)</cite>, optional
+A function to follow the progress of the minimization. <code class="docutils literal"><span class="pre">xk</span></code> is
 the current value of <code class="docutils literal"><span class="pre">x0</span></code>. <code class="docutils literal"><span class="pre">val</span></code> represents the fractional
 value of the population convergence.  When <code class="docutils literal"><span class="pre">val</span></code> is greater than one
 the function halts. If callback returns <cite>True</cite>, then the minimization
-is halted (any polishing is still carried out).</dd>
-<dt>polish <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
-<dd>If True (default), then <cite>scipy.optimize.minimize</cite> with the <cite>L-BFGS-B</cite>
+is halted (any polishing is still carried out).
+polish : bool, optional
+If True (default), then <cite>scipy.optimize.minimize</cite> with the <cite>L-BFGS-B</cite>
 method is used to polish the best population member at the end, which
-can improve the minimization slightly.</dd>
-<dt>init <span class="classifier-delimiter">:</span> <span class="classifier">string, optional</span></dt>
-<dd><p class="first">Specify how the population initialization is performed. Should be
+can improve the minimization slightly.
+init : string, optional
+Specify how the population initialization is performed. Should be
 one of:</p>
 <blockquote>
 <div><ul class="simple">
@@ -350,22 +343,20 @@ one of:</p>
 <li>‘random’</li>
 </ul>
 </div></blockquote>
-<p class="last">The default is ‘latinhypercube’. Latin Hypercube sampling tries to
+<p>The default is ‘latinhypercube’. Latin Hypercube sampling tries to
 maximize coverage of the available parameter space. ‘random’ initializes
 the population randomly - this has the drawback that clustering can
-occur, preventing the whole of parameter space being covered.</p>
-</dd>
-</dl>
-<dl class="docutils">
-<dt>res <span class="classifier-delimiter">:</span> <span class="classifier">OptimizeResult</span></dt>
-<dd>The optimization result represented as a <cite>OptimizeResult</cite> object.
+occur, preventing the whole of parameter space being covered.
+Returns
+——-
+res : OptimizeResult
+The optimization result represented as a <cite>OptimizeResult</cite> object.
 Important attributes are: <code class="docutils literal"><span class="pre">x</span></code> the solution array, <code class="docutils literal"><span class="pre">success</span></code> a
 Boolean flag indicating if the optimizer exited successfully and
 <code class="docutils literal"><span class="pre">message</span></code> which describes the cause of the termination. See
 <cite>OptimizeResult</cite> for a description of other attributes.  If <cite>polish</cite>
 was employed, and a lower minimum was obtained by the polishing, then
-OptimizeResult also contains the <code class="docutils literal"><span class="pre">jac</span></code> attribute.</dd>
-</dl>
+OptimizeResult also contains the <code class="docutils literal"><span class="pre">jac</span></code> attribute.</p>
 </dd></dl>
 
 <dl class="method">

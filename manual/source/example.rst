@@ -16,6 +16,8 @@ Examples
 
     example_parstudy
 
+    example_sobol
+
     example_calibrate
 
     example_minimize_constraints
