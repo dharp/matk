@@ -1337,18 +1337,45 @@ class logposterior(object):
         else:
             return lpri + self.loglhood(ts)
 
-class logposteriorwithvariance(logposterior):
-    def __init__(self, prob, var="var"):
+#class logposteriorwithvariance(logposterior):
+#    def __init__(self, prob, var="var"):
+#        self.prob = prob
+#        self.mins = prob.parmins
+#        self.maxs = prob.parmaxs
+#        self.var = var
+#    def loglhood(self,ts):
+#        pardict = dict(zip(self.prob.parnames, ts))
+#        self.prob.forward(pardict=pardict, reuse_dirs=True)
+#        #print "ts: " + str(ts)
+#        #print "ssr: " + str(numpy.sum((numpy.array(self.prob.residuals))**2))
+#        #print zip(self.prob.simvalues, self.prob.obsvalues)
+#        #return -0.5*(numpy.sum((numpy.array(self.prob.residuals))**2)) / self.prob.pars[self.var].value - numpy.log(self.prob.pars[self.var].value)
+#        return -0.5*(numpy.sum((numpy.array(self.prob.residuals))**2)) / self.prob.pars[self.var].value - (len(self.prob.obs)/2)*numpy.log(self.prob.pars[self.var].value)
+
+class logposteriorwithvariance(object):
+    def __init__(self, prob, var=1):
         self.prob = prob
         self.mins = prob.parmins
         self.maxs = prob.parmaxs
         self.var = var
+        #print prob
+    def logprior(self,ts):
+        for mn,mx,t in zip(self.mins,self.maxs,ts):
+            if mn > t or t > mx: return -numpy.inf
+        return 0.0
     def loglhood(self,ts):
         pardict = dict(zip(self.prob.parnames, ts))
         self.prob.forward(pardict=pardict, reuse_dirs=True)
-        #print "ts: " + str(ts)
-        #print "ssr: " + str(numpy.sum((numpy.array(self.prob.residuals))**2))
-        #print zip(self.prob.simvalues, self.prob.obsvalues)
-        #return -0.5*(numpy.sum((numpy.array(self.prob.residuals))**2)) / self.prob.pars[self.var].value - numpy.log(self.prob.pars[self.var].value)
-        return -0.5*(numpy.sum((numpy.array(self.prob.residuals))**2)) / self.prob.pars[self.var].value - (len(self.prob.obs)/2)*numpy.log(self.prob.pars[self.var].value)
-
+        #return -0.5*(numpy.sum((numpy.array(self.prob.residuals))**2)) / self.var - numpy.log(self.var)
+        #print self.prob.residuals
+        #print self.var
+        #print numpy.array(self.prob.residuals / self.var)
+        #print -0.5*(numpy.sum((numpy.array(self.prob.residuals / self.var))**2))
+        return -0.5*(numpy.sum((numpy.array(self.prob.residuals / self.var))**2))
+    def __call__(self, ts):
+        lpri = self.logprior(ts)
+        if lpri == -numpy.inf:
+            return lpri
+        else:
+            #print "Hello4"
+            return lpri + self.loglhood(ts)
