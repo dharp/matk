@@ -1,6 +1,6 @@
 import os,sys
 import unittest
-sys.path.insert(0,os.path.join('..','src','matk'))
+sys.path.insert(0,os.path.join('..','src'))
 import matk
 from exp_model_int import dbexpl
 from sine_decay_model import sine_decay
@@ -256,6 +256,26 @@ class Tests(unittest.TestCase):
         # Add parameters with 'true' parameters
         self.m.add_par('a', min=0, max=10, value=2)
         self.m.add_par('c', min=0, max=30, value=5)
+        # Run model using 'true' parameters
+        self.m.forward()
+        # Create 'true' observations with zero mean, 0.5 st. dev. gaussian noise added
+        self.m.obsvalues = self.m.simvalues + numpy.random.normal(0,0.5,len(self.m.simvalues))
+        # Run MCMC with 100000 samples burning (discarding) the first 10000
+        #lnprob = matk.logposteriorwithvariance(self.m)
+        #print lnprob([2., 5., 10.])
+        #print lnprob([2., 8., 10.])
+        sampler = self.m.emcee(lnprob=matk.logposteriorwithvariance(self.m), nwalkers=10, nsamples=10000, burnin=1000)
+        samples = sampler.chain.reshape((-1,len(self.m.pars)))
+        #print samples.shape
+        mean_a, mean_c = numpy.mean(samples, 0)
+        self.assertTrue( abs(mean_a - 2.) < 0.2, 'Mean of parameter a is not close to 2: mean(a) = ' + str(mean_a) )
+        self.assertTrue( abs(mean_c - 5.) < 1., 'Mean of parameter c is not close to 5: mean(c) = ' + str(mean_c) )
+
+    def testemceeunknownvariance(self):
+        self.m = matk.matk(model=fmcmc)
+        # Add parameters with 'true' parameters
+        self.m.add_par('a', min=0, max=10, value=2)
+        self.m.add_par('c', min=0, max=30, value=5)
         self.m.add_par('var', min=0, max=1)
         # Run model using 'true' parameters
         self.m.forward()
@@ -266,7 +286,7 @@ class Tests(unittest.TestCase):
         #lnprob = matk.logposteriorwithvariance(self.m)
         #print lnprob([2., 5., 10.])
         #print lnprob([2., 8., 10.])
-        sampler = self.m.emcee(lnprob=matk.logposteriorwithvariance(self.m), nwalkers=10, nsamples=10000, burnin=1000, pos0=pos0)
+        sampler = self.m.emcee(lnprob=matk.logposteriorwithunknownvariance(self.m), nwalkers=10, nsamples=10000, burnin=1000, pos0=pos0)
         samples = sampler.chain.reshape((-1,len(self.m.pars)))
         #print samples.shape
         mean_a, mean_c, mean_sig = numpy.mean(samples, 0)
