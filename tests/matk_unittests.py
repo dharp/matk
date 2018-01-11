@@ -7,6 +7,8 @@ from sine_decay_model import sine_decay
 import numpy
 from cPickle import dump, load, PicklingError
 from scipy.optimize import rosen
+sys.path.append(os.path.join('..','src','matk'))
+from SALib.test_functions import Ishigami
 
 def fv(a):
     ''' Exponential function from marquardt.py
@@ -336,8 +338,6 @@ class Tests(unittest.TestCase):
 
     def testsobol(self):
         # This test is based on the test problem at: http://salib.readthedocs.io/en/latest/getting-started.html#testing-installation
-        sys.path.append(os.path.join('..','src','matk'))
-        from SALib.test_functions import Ishigami
         def myIshigami(pars):
             return Ishigami.evaluate(numpy.array([[pars['x1'],pars['x2'],pars['x3']]]))
         m = matk.matk(model=myIshigami)
