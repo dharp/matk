@@ -15,8 +15,9 @@ class Parameter(LMFitParameter):
     """ MATK parameter class
     """
     def __init__(self, name, value=None, vary=True, min=None, max=None, expr=None, nominal=None, discrete_vals=[], **kwargs):
-        if expr is not None and platform.system() is 'Windows':
-            raise InputError('expr option not supported on Windows, similar functionality can be achieved using expressions in model functions')
+        # Commenting out the next two lines for now since all tests are working
+#        if expr is not None and platform.system() is 'Windows':
+#            raise InputError('expr option not supported on Windows, similar functionality can be achieved using expressions in model functions')
         if nominal is not None and value is None: value=nominal
         LMFitParameter.__init__(self, name=name, value=value, vary=vary, min=min, max=max, expr=expr)
         self.from_internal = self._nobound
@@ -33,7 +34,7 @@ class Parameter(LMFitParameter):
             self.max = numpy.max(discrete_vals[0])
             self.dist = 'discrete'
             if value is None:
-                self._val = discrete_vals[0][len(discrete_vals[0])/2] 
+                self._val = discrete_vals[0][len(discrete_vals[0])/2]
             elif value not in self.discrete_vals[0]:
                 print "ERROR: value is not one of the values in discrete_vals"
             else:
@@ -121,17 +122,17 @@ class Parameter(LMFitParameter):
         return self._dist
     @dist.setter
     def dist(self,value):
-        self._dist = value        
+        self._dist = value
     @property
     def dist_pars(self):
-        """ Distribution parameters required by self.dist 
+        """ Distribution parameters required by self.dist
         e.g. if dist == uniform, dist_pars = (min,max-min)
         if dist == norm, dist_pars = (mean,stdev))
         """
         return self._dist_pars
     @dist_pars.setter
     def dist_pars(self,value):
-        self._dist_pars = value              
+        self._dist_pars = value
     @property
     def vary(self):
         """ Boolean indicating whether or not to vary parameter
@@ -139,7 +140,7 @@ class Parameter(LMFitParameter):
         return self._vary
     @vary.setter
     def vary(self,value):
-        self._vary = value              
+        self._vary = value
     @property
     def expr(self):
         """ Mathematical expression to use to evaluate value
@@ -147,7 +148,7 @@ class Parameter(LMFitParameter):
         return self._expr
     @expr.setter
     def expr(self,value):
-        self._expr = value              
+        self._expr = value
     def _nobound(self,val):
         return val
     def _minbound(self,val):
@@ -187,13 +188,13 @@ class Parameter(LMFitParameter):
         else:
             #self.from_internal = lambda val: self.min + (sin(val) + 1) * \
             #                     (self.max - self.min) / 2
-            self.from_internal = self._bound 
+            self.from_internal = self._bound
             _val  = numpy.arcsin(2*(self._val - self.min)/(self.max - self.min) - 1)
         return _val
 
 class Error(Exception):
     pass
-             
+
 class InputError(Error):
     """Exception raised for errors in the input.
 
@@ -206,7 +207,7 @@ class InputError(Error):
         self.msg = msg
     def __str__(self):
         return self.msg
- 
+
 
 
 
