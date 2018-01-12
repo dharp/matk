@@ -18,6 +18,9 @@ def Ishigami(values):
             B * math.pow(X[2], 4) * math.sin(X[0])
 	return Y
 
+def myIshigami(pars):
+    return Ishigami(numpy.array([[pars['x1'],pars['x2'],pars['x3']]]))
+
 def fv(a):
     ''' Exponential function from marquardt.py
     '''
@@ -346,8 +349,6 @@ class Tests(unittest.TestCase):
 
     def testsobol(self):
         # This test is based on the test problem at: http://salib.readthedocs.io/en/latest/getting-started.html#testing-installation
-        def myIshigami(pars):
-            return Ishigami(numpy.array([[pars['x1'],pars['x2'],pars['x3']]]))
         m = matk.matk(model=myIshigami)
         m.add_par('x1',min=-3.14159265359, max=3.14159265359)
         m.add_par('x2',min=-3.14159265359, max=3.14159265359)
