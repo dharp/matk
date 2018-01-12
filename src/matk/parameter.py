@@ -33,13 +33,13 @@ class Parameter(LMFitParameter):
             self.min = numpy.min(discrete_vals[0])
             self.max = numpy.max(discrete_vals[0])
             self.dist = 'discrete'
+            self._discrete_vals = discrete_vals
             if value is None:
                 self._val = discrete_vals[0][len(discrete_vals[0])/2]
-            elif value not in self.discrete_vals[0]:
+            elif value not in self._discrete_vals[0]:
                 print "ERROR: value is not one of the values in discrete_vals"
             else:
                 self._val = value
-            self._discrete_vals = discrete_vals
         # Else continuous parameter
         else:
             self.mean = None
