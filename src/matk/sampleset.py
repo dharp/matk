@@ -5,21 +5,25 @@ from scipy import stats
 from shutil import rmtree
 from operator import itemgetter
 import os
-if 'DISPLAY' in os.environ:
-    if os.environ['DISPLAY']:
-        try:
-            from matplotlib import pyplot as plt
-            from matplotlib.ticker import MaxNLocator
-            from matplotlib import rc as mplrc
-            from corner import corner
-            plotflag = True
-        except ImportError as exc:
-            sys.stderr.write("Warning: failed to import matplotlib module. Plots will not be produced. ({})".format(exc))
-            plotflag = False
-    else:
-        plotflag=False
+# Check for display capability for graphics
+havedisplay = "DISPLAY" in os.environ
+if havedisplay:
+    if os.environ['DISPLAY']: plotflag = True
+    else: plotflag = False
 else:
-    plotflag=False
+    exitval = os.system('python -c "import matplotlib.pyplot as plt; plt.figure()"')
+    plotflag = (exitval == 0)
+
+# If display is available, try loading matplotlib
+if plotflag:
+    try:
+        from matplotlib import pyplot as plt
+        from matplotlib.ticker import MaxNLocator
+        from matplotlib import rc as mplrc
+        from corner import corner
+    except ImportError as exc:
+        sys.stderr.write("Warning: failed to import matplotlib module. Plots will not be produced. ({})".format(exc))
+
 try:
     from collections import OrderedDict
 except ImportError:
