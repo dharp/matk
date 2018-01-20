@@ -5,29 +5,24 @@ from scipy import stats
 from shutil import rmtree
 from operator import itemgetter
 import os
-plotflag = False
+# Check for display capability for graphics
 havedisplay = "DISPLAY" in os.environ
 if havedisplay:
-    if os.environ['DISPLAY']:
-        plotflag = True
+    if os.environ['DISPLAY']: plotflag = True
+    else: plotflag = False
 else:
+    exitval = os.system('python -c "import matplotlib.pyplot as plt; plt.figure()"')
+    plotflag = (exitval == 0)
+
+# If display is available, try loading matplotlib
+if plotflag:
     try:
         from matplotlib import pyplot as plt
-        fig = plt.figure()
-        plt.close(fig)
-        plotflag = True
-    except:
-        pass
-
-# Try loading matplotlib
-try:
-    from matplotlib import pyplot as plt
-    from matplotlib.ticker import MaxNLocator
-    from matplotlib import rc as mplrc
-    from corner import corner
-except ImportError as exc:
-    plotflag = False
-    sys.stderr.write("Warning: failed to import matplotlib module. Plots will not be produced. ({})".format(exc))
+        from matplotlib.ticker import MaxNLocator
+        from matplotlib import rc as mplrc
+        from corner import corner
+    except ImportError as exc:
+        sys.stderr.write("Warning: failed to import matplotlib module. Plots will not be produced. ({})".format(exc))
 
 try:
     from collections import OrderedDict
@@ -44,7 +39,7 @@ class SampleSet(object):
         self._indices = None
         self._index_start = index_start
         self._parent = parent
-        self.samples = DataSet(samples,self._parent.parnames,mins=self._parent.parmins,maxs=self._parent.parmaxs)
+        self.samples = DataSet(samples,self._parent.parnames,mins=self._parent.parmins,maxs=self._parent.parmaxs) 
         for k,v in kwargs.iteritems():
             if k == 'responses':
                 if not v is None:
@@ -65,7 +60,7 @@ class SampleSet(object):
             for i in range(responses.shape[0]):
                 self._parent._obsnames.append('obs'+str(i))
         if responses is not None:
-            self.responses = DataSet(responses,self._parent.obsnames)
+            self.responses = DataSet(responses,self._parent.obsnames) 
         else:
             self.responses = None
         # Set default indices if None
@@ -103,7 +98,7 @@ class SampleSet(object):
     @property
     def indices(self):
         """ Array of sample indices
-        """
+        """ 
         return self._indices
     @indices.setter
     def indices(self,value):
@@ -122,7 +117,7 @@ class SampleSet(object):
     @property
     def parnames(self):
         """ Array of observation names
-        """
+        """ 
         if not self._parent is None:
             if len(self._parent.parnames):
                 self._parnames = self._parent.parnames
@@ -130,7 +125,7 @@ class SampleSet(object):
     @property
     def obsnames(self):
         """ Array of observation names
-        """
+        """ 
         if not self._parent is None:
             if len(self._parent.obsnames):
                 self._obsnames = self._parent.obsnames
@@ -202,7 +197,7 @@ class SampleSet(object):
         """
         corrcoef = corr(self.samples.recarray, self.responses.recarray, type=type, plot=plot, printout=printout, plotvals=plotvals, figsize=figsize, title=title)
         return corrcoef
-
+    
     def panels(self, type='pearson', alpha=0.2, figsize=None, title=None, tight=False, symbol='.',fontsize=None,corrfontsize=None,ms=5,mins=None,maxs=None,frequency=False,bins=10, ylim=None, labels=[], filename=None, xticks=2, yticks=2,color=None,cmap=None,edgecolors='face'):
         """ Plot histograms, scatterplots, and correlation coefficients in paired matrix
 
@@ -234,9 +229,9 @@ class SampleSet(object):
             :type labels: lst(str)
             :param filename: Name of file to save plot. File ending determines plot type (pdf, png, ps, eps, etc.). Plot types available depends on the matplotlib backend in use on the system. Plot will not be displayed.
             :type filename: str
-            :param xticks: Number of ticks along x axes
+            :param xticks: Number of ticks along x axes 
             :type xticks: int
-            :param yticks: Number of ticks along y axes
+            :param yticks: Number of ticks along y axes 
             :type yticks: int
             :param color: Name of parameter of observation to color points in colorplots by
             :type color: str
@@ -266,11 +261,11 @@ class SampleSet(object):
         else:
             print 'Plotting capabilities not enabled, ensure x connnection'
             return
-    def run(self, cpus=1, workdir_base=None, save=True, reuse_dirs=False, outfile=None,
+    def run(self, cpus=1, workdir_base=None, save=True, reuse_dirs=False, outfile=None, 
             logfile=None, restart_logfile=None, verbose=True, hosts={} ):
         """ Run model using values in samples for parameter values
             If samples are not specified, LHS samples are produced
-
+            
             :param cpus: number of cpus; alternatively, dictionary of lists of processor ids keyed by hostnames to run models on (i.e. on a cluster); hostname provided as kwarg to model (hostname=<hostname>); processor id provided as kwarg to model (processor=<processor id>)
             :type cpus: int,dict(lst)
             :param workdir_base: Base name for model run folders, run index is appended to workdir_base
@@ -306,10 +301,10 @@ class SampleSet(object):
                 ir += numpy.where(self.indices==i)[0].tolist()
             samples = numpy.delete(samples,ir,0)
             indices = numpy.delete(indices,ir,0)
-
+                
         if cpus > 0:
-            out, retsamples = self._parent.parallel(samples, cpus,
-                 indices=indices, workdir_base=workdir_base,
+            out, retsamples = self._parent.parallel(samples, cpus, 
+                 indices=indices, workdir_base=workdir_base, 
                  save=save, reuse_dirs=reuse_dirs, verbose=verbose, logfile=logfile)
         else:
             print 'Error: number of cpus must be greater than zero'
@@ -329,9 +324,9 @@ class SampleSet(object):
         if out is not None:
             out = numpy.array(out)
             if self.responses is None:
-                self.responses = DataSet(out,self._parent.obsnames)
+                self.responses = DataSet(out,self._parent.obsnames) 
             else:
-                self.responses.values = out
+                self.responses.values = out 
             self._obsnames = self._parent.obsnames
         if not outfile is None:
             self.savetxt( outfile )
@@ -360,12 +355,12 @@ class SampleSet(object):
             if sse is False:
                 if not self.responses is None:
                     f.write("Number of responses: %d\n" % len(self.obsnames) )
-                else: f.write("Number of responses: %d\n" % 0 )
+                else: f.write("Number of responses: %d\n" % 0 ) 
             else:
-                if not self.responses is None: f.write("Number of responses: %d\n" % 1 )
-                else:
+                if not self.responses is None: f.write("Number of responses: %d\n" % 1 ) 
+                else: 
                     print "Warning: sum-of-squared error cannot be calculates without model responses"
-                    f.write("Number of responses: %d\n" % 0 )
+                    f.write("Number of responses: %d\n" % 0 ) 
             f.write("%-8s" % 'index' )
             # Print par names
             for nm in self.samples.names:
@@ -394,7 +389,7 @@ class SampleSet(object):
                         f.write(" %22.16g" % row[i] )
                 f.write('\n')
             f.close()
-    def subset(self, boolfcn, field, *args, **kwargs):
+    def subset(self, boolfcn, field, *args, **kwargs): 
         """ Collect subset of samples based on parameter or response values, remove all others
 
             :param boofcn: Function that returns true for samples to keep and false for samples to remove
@@ -402,7 +397,7 @@ class SampleSet(object):
             :param field: Name of parameter or observations to apply boolfcn to
             :type field: str
             :param args: Additional arguments to add to boolfcn
-            :param kwargs: Keyword arguments to add to boolfcn
+            :param kwargs: Keyword arguments to add to boolfcn 
         """
         #if self.responses is None:
         #    print 'Error: sampleset contains no responses'
@@ -424,12 +419,12 @@ class SampleSet(object):
         if self.samples._values.shape[0] != 2**N:
             print 'Expecting 2**N samples where N = number of parameters'
             return None, None, None
-        # sort lists by parameter value
+        # sort lists by parameter value            
         sorted_samples = [[i]+list(s) for i,s in enumerate(self.samples._values)]
         for i in range(N,0,-1): sorted_samples.sort(key = itemgetter(i))
         # for each parameter
         pairDict = []
-        for i,parname in zip(range(N-1,-1,-1),self._parent.pars.keys()):
+        for i,parname in zip(range(N-1,-1,-1),self._parent.pars.keys()):             
             inds = range(0,2**N+1,2**i)
             # for each parameter pairing set
             pairs = []
@@ -462,11 +457,11 @@ class SampleSet(object):
                 var_row.append(numpy.std(col)**2)
             mean_matrix.append(mean_row)
             var_matrix.append(var_row)
-
+            
         return sensitivity_matrix, mean_matrix, var_matrix
     def rank_parameter_frequencies(self):
         """ Yields a printout of parameter value frequencies in the sample set
-
+        
         returns An array of tuples, each containing the parameter name tagged as min or max and a
             second tuple containing the parameter value and the frequency of its appearance in the sample set.
         """
@@ -538,7 +533,7 @@ class DataSet(object):
     @property
     def names(self):
         """ Array of parameter names
-        """
+        """ 
         return self._names
     @property
     def values(self):
@@ -586,11 +581,11 @@ class DataSet(object):
             :type labels: lst(str)
             :param filename: Name of file to save plot. File ending determines plot type (pdf, png, ps, eps, etc.). Plot types available depends on the matplotlib backend in use on the system. Plot will not be displayed.
             :type filename: str
-            :param fontsize: Size of font
+            :param fontsize: Size of font 
             :type fontsize: fl64
             :param xticks: Number of ticks along x axes
             :type xticks: int
-        """
+        """        
         if mins is None and self._mins is not None: mins = self._mins
         if maxs is None and self._maxs is not None: maxs = self._maxs
         hd = hist(self.recarray, ncols=ncols, alpha=alpha, figsize=figsize, title=title, tight=tight, mins=mins, maxs=maxs,frequency=frequency,bins=bins,ylim=ylim,printout=printout,labels=labels,filename=filename,fontsize=fontsize,xticks=xticks)
@@ -644,9 +639,9 @@ class DataSet(object):
             :type labels: lst(str)
             :param filename: Name of file to save plot. File ending determines plot type (pdf, png, ps, eps, etc.). Plot types available depends on the matplotlib backend in use on the system. Plot will not be displayed.
             :type filename: str
-            :param xticks: Number of ticks along x axes
+            :param xticks: Number of ticks along x axes 
             :type xticks: int
-            :param yticks: Number of ticks along y axes
+            :param yticks: Number of ticks along y axes 
             :type yticks: int
             :param color: Name of parameter of observation to color points in colorplots by
             :type color: str
@@ -672,7 +667,7 @@ class DataSet(object):
         else:
             print 'Plotting capabilities not enabled, ensure x connnection'
             return
-
+ 
 def corr(rc1, rc2, type='pearson', plot=False, printout=True, plotvals=True, figsize=None, title=None):
     """ Calculate correlation coefficients of parameters and responses
 
@@ -708,7 +703,7 @@ def corr(rc1, rc2, type='pearson', plot=False, printout=True, plotvals=True, fig
         print "Error: current types include 'pearson' and 'spearman'"
         return
     corrcoef = numpy.array(corrlist)
-    # Print
+    # Print 
     if printout:
         dum = ' '
         print string.rjust(dum, 8),
@@ -762,11 +757,11 @@ def panels(rc, type='pearson', alpha=0.2, figsize=None, title=None, tight=False,
         elif not len(labels) == len(rc.dtype.names):
             print "Error: number of labels does not match number of parameters"
             return
-        for i,nm in enumerate(labels):
+        for i,nm in enumerate(labels): 
             ax[i,0].set_ylabel(nm)
             ax[siz-1,i].set_xlabel(nm)        # Plot histograms in diagonal plots
         ns = []
-        for i,nm in enumerate(rc.dtype.names):
+        for i,nm in enumerate(rc.dtype.names): 
             if frequency:
                 n,b,patches = ax[i,i].hist(rc[nm], alpha=alpha, range=(mins[i],maxs[i]), bins=bins, weights=numpy.ones(len(rc[nm])) / len(rc[nm]))
             else:
@@ -784,24 +779,24 @@ def panels(rc, type='pearson', alpha=0.2, figsize=None, title=None, tight=False,
 
         # Scatterplots in lower triangular matrix
         #if corrfontsize is None: corrfontsize = 2*siz
-        for i,nm1 in enumerate(rc.dtype.names):
-            for j,nm2 in enumerate(rc.dtype.names):
+        for i,nm1 in enumerate(rc.dtype.names): 
+            for j,nm2 in enumerate(rc.dtype.names): 
                 if j<i:
                     if color:
                         sc = ax[i,j].scatter(rc[nm2],rc[nm1], s=ms, marker=symbol, c=rc[color], cmap=cmap, edgecolors=edgecolors)
                     else:
                         sc = ax[i,j].scatter(rc[nm2],rc[nm1], s=ms, marker=symbol)
                     ax[i,j].axis([mins[j],maxs[j],mins[i],maxs[i]])
-        # Print correlation coefficient in upper triangular matrix
+        # Print correlation coefficient in upper triangular matrix 
         corrcoef = corr(rc,rc,plot=False,printout=False)
-        for i,nm1 in enumerate(rc.dtype.names):
-            for j,nm2 in enumerate(rc.dtype.names):
+        for i,nm1 in enumerate(rc.dtype.names): 
+            for j,nm2 in enumerate(rc.dtype.names): 
                 if j<i:
                     #ax[j,i].axis('off')
                     ax[j,i].text(0.5,0.5,str(numpy.round(corrcoef[j,i],2)),ha='center',va='center',size=corrfontsize,weight='bold')
 
-        for i,nm1 in enumerate(rc.dtype.names):
-            for j,nm2 in enumerate(rc.dtype.names):
+        for i,nm1 in enumerate(rc.dtype.names): 
+            for j,nm2 in enumerate(rc.dtype.names): 
                 if j > 0:
                     ax[i,j].get_yaxis().set_visible(False)
                 else:
@@ -817,10 +812,10 @@ def panels(rc, type='pearson', alpha=0.2, figsize=None, title=None, tight=False,
                 #    tk = [0.2*(tk[0]+tk[-1]),0.8*(tk[0]+tk[-1])]
                 #    ax[i,j].set_xticks(tk)
 
-        if tight:
+        if tight: 
             plt.tight_layout()
             if title:
-                plt.subplots_adjust(top=0.925)
+                plt.subplots_adjust(top=0.925) 
         if title: plt.suptitle(title)
         if color:
             cbar = fig.colorbar(sc, ax=ax.ravel().tolist())
@@ -861,12 +856,12 @@ def hist(rc,ncols=4,figsize=None,alpha=0.2,title=None,tight=False,mins=None,maxs
         :type labels: lst(str)
         :param filename: Name of file to save plot. File ending determines plot type (pdf, png, ps, eps, etc.). Plot types available depends on the matplotlib backend in use on the system. Plot will not be displayed.
         :type filename: str
-        :param fontsize: Size of font
+        :param fontsize: Size of font 
         :type fontsize: fl64
         :param xticks: Number of ticks on xaxes
         :type xticks: int
 
-    """
+    """        
     if plotflag:
         # Set font for scatterplot labels
         if not fontsize is None:
@@ -905,7 +900,7 @@ def hist(rc,ncols=4,figsize=None,alpha=0.2,title=None,tight=False,mins=None,maxs
         hist_dict = OrderedDict()
         ns = []
         ax = []
-        for ind,nm,mi,ma,lb in zip(range(len(rc.dtype)),rc.dtype.names,mins,maxs,labels):
+        for ind,nm,mi,ma,lb in zip(range(len(rc.dtype)),rc.dtype.names,mins,maxs,labels): 
             ax.append(plt.subplot(nrows,ncols,ind+1))
             if ind==0 or (ind)%ncols==0:
 				if frequency: plt.ylabel('Frequency')
@@ -930,10 +925,10 @@ def hist(rc,ncols=4,figsize=None,alpha=0.2,title=None,tight=False,mins=None,maxs
         else:
             for i in range(len(labels)):
                 ax[i].set_ylim(ylim)
-        if tight:
+        if tight: 
             plt.tight_layout()
             if title:
-                plt.subplots_adjust(top=0.925)
+                plt.subplots_adjust(top=0.925) 
         if title: plt.suptitle(title)
         if filename is None:
             plt.show(block=True)
@@ -944,16 +939,16 @@ def hist(rc,ncols=4,figsize=None,alpha=0.2,title=None,tight=False,mins=None,maxs
             for nm in hist_dict.keys():
                 print '\n'
                 print nm+':'
-                if frequency:
+                if frequency: 
                     print ' Freq:',
                     flag=True
                     for n in hist_dict[nm][0]:
-                        if flag:
+                        if flag: 
                             print '{:12.2f}'.format(n),
                             flag=False
                         else: print '{:8.2f}'.format(n),
                         #print '{:2f}'.format(n),
-                else:
+                else: 
                     print 'Count:',
                     flag=True
                     for n in hist_dict[nm][0]:
@@ -974,6 +969,6 @@ def hist(rc,ncols=4,figsize=None,alpha=0.2,title=None,tight=False,mins=None,maxs
             print '\n'
         return hist_dict
     else:
-        print "Display must be present and matplotlib must be installed to plot histograms."
+        print "Matplotlib must be installed to plot histograms"
         return
 
