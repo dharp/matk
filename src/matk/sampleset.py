@@ -728,7 +728,7 @@ def corr(rc1, rc2, type='pearson', plot=False, printout=True, plotvals=True, fig
             plt.title(title)
         plt.yticks(numpy.arange(0.5,len(rc1.dtype.names)+0.5),[nm for nm in reversed(rc1.dtype.names)])
         plt.xticks(numpy.arange(0.5,len(rc2.dtype.names)+0.5),rc2.dtype.names)
-        plt.show()
+        plt.show(block=True)
     return corrcoef
 
 def panels(rc, type='pearson', alpha=0.2, figsize=None, title=None, tight=False, symbol='.',fontsize=None,corrfontsize=None,ms=None,mins=None,maxs=None,frequency=False,bins=10,ylim=None,labels=[],filename=None,xticks=2,yticks=2,color=None,cmap=None,edgecolors='face'):
@@ -821,7 +821,7 @@ def panels(rc, type='pearson', alpha=0.2, figsize=None, title=None, tight=False,
             cbar = fig.colorbar(sc, ax=ax.ravel().tolist())
             cbar.ax.set_ylabel(color)
         if filename is None:
-            plt.show()
+            plt.show(block=True)
         else:
             fmt = filename.split('.')[-1]
             plt.savefig(filename,format=fmt)
@@ -931,7 +931,7 @@ def hist(rc,ncols=4,figsize=None,alpha=0.2,title=None,tight=False,mins=None,maxs
                 plt.subplots_adjust(top=0.925) 
         if title: plt.suptitle(title)
         if filename is None:
-            plt.show()
+            plt.show(block=True)
         else:
             fmt = filename.split('.')[-1]
             plt.savefig(filename,format=fmt)
