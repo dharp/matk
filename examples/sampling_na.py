@@ -44,7 +44,7 @@ def run():
     
     # Copy sampleset and subset to only samples with nan responses
     snan = s.copy()
-    ss = snan.subset(numpy.isnan, obs='obs1')
+    ss = snan.subset(numpy.isnan, 'obs1')
     
     # Evaluate parameter combination resulting in nans
     # Note that it is easy to identify that the culprit is par1 with values less than 0.5
