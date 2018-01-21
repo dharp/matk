@@ -937,6 +937,7 @@ class matk(object):
         #    header = True
 
         results = [[numpy.NAN]]*len(parsets)
+        header = True
         for i in range(len(parsets)):
             if logfile and i == 0: 
                 f = open(logfile, 'w')
@@ -952,14 +953,12 @@ class matk(object):
                     self._set_simvalues(resp)
                     results[lst_ind] = resp.values()
                 if verbose or logfile:
-                    if i == 0:
+                    if header:
                         if logfile: 
                             f.write("Number of responses: %d\n" % len(self.obs) )
                         s = "%-8s" % 'index'
                         for nm in self.parnames:
                             s += " %22s" % nm
-                        header = True
-                    if header:
                         for nm in self.obsnames:
                             s += " %22s" % nm
                         s += '\n'
