@@ -6,13 +6,18 @@ from shutil import rmtree
 from operator import itemgetter
 import os
 # Check for display capability for graphics
+plotflag = False
 havedisplay = "DISPLAY" in os.environ
 if havedisplay:
     if os.environ['DISPLAY']: plotflag = True
-    else: plotflag = False
 else:
-    exitval = os.system('python -c "import matplotlib.pyplot as plt; plt.figure()"')
-    plotflag = (exitval == 0)
+    try:
+        from matplotlib import pyplot as plt
+        fig = plt.figure()
+        plt.close(fig)
+        plotflag = True
+    except:
+        pass
 
 # If display is available, try loading matplotlib
 if plotflag:
@@ -23,6 +28,8 @@ if plotflag:
         from corner import corner
     except ImportError as exc:
         sys.stderr.write("Warning: failed to import matplotlib module. Plots will not be produced. ({})".format(exc))
+else:
+	sys.stderr.write("Warning: Display capability is not available on your system. Plots will not be produced.")
 
 try:
     from collections import OrderedDict
