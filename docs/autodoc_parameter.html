@@ -91,6 +91,12 @@
 <em class="property">class </em><code class="descclassname">matk.parameter.</code><code class="descname">Parameter</code><span class="sig-paren">(</span><em>name</em>, <em>value=None</em>, <em>vary=True</em>, <em>min=None</em>, <em>max=None</em>, <em>expr=None</em>, <em>nominal=None</em>, <em>discrete_vals=[]</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.parameter.Parameter" title="Permalink to this definition">¶</a></dt>
 <dd><p>MATK parameter class</p>
 <dl class="attribute">
+<dt id="matk.parameter.Parameter.discrete_vals">
+<code class="descname">discrete_vals</code><a class="headerlink" href="#matk.parameter.Parameter.discrete_vals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Histogram values: Array containing values (row 1) and probabilities (row 2)</p>
+</dd></dl>
+
+<dl class="attribute">
 <dt id="matk.parameter.Parameter.dist">
 <code class="descname">dist</code><a class="headerlink" href="#matk.parameter.Parameter.dist" title="Permalink to this definition">¶</a></dt>
 <dd><p>Probabilistic distribution of parameter belonging to scipy.stats
@@ -100,7 +106,7 @@ module</p>
 <dl class="attribute">
 <dt id="matk.parameter.Parameter.dist_pars">
 <code class="descname">dist_pars</code><a class="headerlink" href="#matk.parameter.Parameter.dist_pars" title="Permalink to this definition">¶</a></dt>
-<dd><p>Distribution parameters required by self.dist 
+<dd><p>Distribution parameters required by self.dist
 e.g. if dist == uniform, dist_pars = (min,max-min)
 if dist == norm, dist_pars = (mean,stdev))</p>
 </dd></dl>

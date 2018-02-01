@@ -142,6 +142,14 @@ class Parameter(LMFitParameter):
     def vary(self,value):
         self._vary = value
     @property
+    def discrete_vals(self):
+        """ Histogram values: Array containing values (row 1) and probabilities (row 2)
+        """
+        return self._discrete_vals
+    @discrete_vals.setter
+    def discrete_vals(self,value):
+        self._discrete_vals = value
+    @property
     def expr(self):
         """ Mathematical expression to use to evaluate value
         """

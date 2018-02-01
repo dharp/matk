@@ -996,9 +996,10 @@ class matk(object):
                 results = None
 
         return results, parsets   
-    def parstudy(self, name=None, nvals=2):
-        ''' Generate parameter study samples
-        
+    def parstudy(self, nvals=2, name=None):
+        ''' Generate parameter study samples.
+            For discrete parameters with nvals>3, bins are chosen to be spaced as far apart as possible, while still being evenly spaced (note that this is based on bins, not actual values). 
+
         :param name: Name of sample set to be created
         :type name: str
         :param outfile: Name of file where samples will be written. If outfile=None, no file is written.
@@ -1008,18 +1009,39 @@ class matk(object):
         :returns: ndarray(fl64) -- Array of samples
         '''
 
+        # Function to help create evenly spaced indices for discrete parameters
+        spaced_index = lambda m, n: [i*n//m + n//(2*m) + 1 for i in range(m)]
+
         if isinstance(nvals,int):
             nvals = [nvals]*len(self.pars)
         x = []
         for p,n in zip(self.pars.values(),nvals):
-            if n == 1 or not p.vary:
-                if p.value is not None: x.append([p.value])
-                elif p.min is not None and p.max is not None: x.append([(p.max+p.min)/2.])
-                elif p.min is not None: x.append([p.min])
-                elif p.max is not None: x.append([p.max])
-                else: x.append([0.])
-            elif n > 1:
-                x.append(numpy.linspace(p.min, p.max, n))
+            if p.dist != 'discrete':
+                if n == 1 or not p.vary:
+                    if p.value is not None: x.append([p.value])
+                    elif p.min is not None and p.max is not None: x.append([(p.max+p.min)/2.])
+                    elif p.min is not None: x.append([p.min])
+                    elif p.max is not None: x.append([p.max])
+                    else: x.append([0.])
+                elif n > 1:
+                    x.append(numpy.linspace(p.min, p.max, n))
+            else:
+                if n > len(p.discrete_vals[0]): # If too many values requested, truncate to number of bins
+                    print "Warning: Number of values requested for {} is more than the number of its bins ({}). The number of values will be truncated to number of bins.".format(p.name,len(p.discrete_vals))
+                    x.append(p.discrete_vals[0])
+                elif n == len(p.discrete_vals[0]): x.append(p.discrete_vals[0]) # add all values
+                elif n == 1:
+                    if p.value: x.append([p.value]) # Just use parameter "value"
+                    else: x.append(p.discrete_vals[0][spaced_index(1,len(p.discrete_vals[0]))]) # try to choose middle value
+                elif n == 2: # Choose first and last value
+                    x.append([p.discrete_vals[0][0], # Choose first
+                              p.discrete_vals[0][-1]]) # and last value
+                elif n == 3:
+                    x.append([p.discrete_vals[0][0], # Choose first
+                              p.discrete_vals[0][len(p.discrete_vals[0])/2], # near middle
+                              p.discrete_vals[0][len(p.discrete_vals[0])-1]]) # and last value
+                else: # Space values as far apart as possible while still being evenly spaced
+                    x.append(p.discrete_vals[0][spaced_index(n,len(p.discrete_vals[0]))])
 
         x = list(itertools.product(*x))
         x = numpy.array(x)

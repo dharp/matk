@@ -95,6 +95,28 @@ class Tests(unittest.TestCase):
         for i,prob in enumerate(probs): 
             self.assertTrue( numpy.abs(len(numpy.where(ss.recarray['par1']==i)[0])/1000000. - prob) / prob < 0.01, 'Discrete probability is incorrect' )
 
+    def testdiscreteparstudy(self):
+        # Ensure that discrete parameter parstudies are correct
+        p = matk.matk()
+        vals = range(5)
+        probs = (.1,.2,.3,.2,.2)
+        p.add_par('par1',discrete_vals=(vals,probs))
+        ps = p.parstudy(1)
+        self.assertEqual( ps.recarray['par1'][0], 2, 'Discrete parstudy of size 1 is incorrect' )
+        ps = p.parstudy(2)
+        self.assertEqual( ps.recarray['par1'][0], 0., 'Discrete parstudy of size 2 is incorrect' )
+        self.assertEqual( ps.recarray['par1'][1], 4., 'Discrete parstudy of size 2 is incorrect' )
+        ps = p.parstudy(3)
+        self.assertEqual( ps.recarray['par1'][0], 0., 'Discrete parstudy of size 3 is incorrect' )
+        self.assertEqual( ps.recarray['par1'][1], 2., 'Discrete parstudy of size 3 is incorrect' )
+        self.assertEqual( ps.recarray['par1'][2], 4., 'Discrete parstudy of size 3 is incorrect' )
+        ps = p.parstudy(5)
+        self.assertEqual( ps.recarray['par1'][0], 0., 'Discrete parstudy of size 3 is incorrect' )
+        self.assertEqual( ps.recarray['par1'][1], 1., 'Discrete parstudy of size 3 is incorrect' )
+        self.assertEqual( ps.recarray['par1'][2], 2., 'Discrete parstudy of size 3 is incorrect' )
+        self.assertEqual( ps.recarray['par1'][3], 3., 'Discrete parstudy of size 3 is incorrect' )
+        self.assertEqual( ps.recarray['par1'][4], 4., 'Discrete parstudy of size 3 is incorrect' )
+
     def testparallel(self):
         # Without working directories
         ss = self.p.lhs(siz=10 )
@@ -382,6 +404,8 @@ def suite(case):
         suite.addTest( Tests('testemcee2') )
         suite.addTest( Tests('testdifferentialevolution') )
         suite.addTest( Tests('testsobol') )
+        suite.addTest( Tests('testdiscretesampling') )
+        suite.addTest( Tests('testdiscreteparstudy') )
     if case == 'parallel' or case == 'all':
         suite.addTest( Tests('testparallel') )
         suite.addTest( Tests('testparallel_workdir') )

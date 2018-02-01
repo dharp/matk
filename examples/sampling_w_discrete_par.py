@@ -25,8 +25,9 @@ def run():
 	p.add_par('par1',min=0,max=1)
 	p.add_par('par2',min=0,max=0.2)
 	p.add_par('par3',min=0,max=1)
- 	vals = numpy.linspace(0,0.2,5)
- 	probs = [0.1,0.2,0.3,0.2,0.2]
+ 	vals = numpy.linspace(0,0.2,21)
+ 	probs = [1./20.]*21
+    
 	p.add_par('par4',discrete_vals = (vals,probs))
 	
 	# Create LHS sample

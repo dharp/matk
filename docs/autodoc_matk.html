@@ -607,8 +607,11 @@ OptimizeResult also contains the <code class="docutils literal"><span class="pre
 
 <dl class="method">
 <dt id="matk.matk.matk.parstudy">
-<code class="descname">parstudy</code><span class="sig-paren">(</span><em>name=None</em>, <em>nvals=2</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.matk.matk.parstudy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate parameter study samples</p>
+<code class="descname">parstudy</code><span class="sig-paren">(</span><em>nvals=2</em>, <em>name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.matk.matk.parstudy" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Generate parameter study samples.</dt>
+<dd>For discrete parameters with nvals&gt;3, bins are chosen to be spaced as far apart as possible, while still being evenly spaced (note that this is based on bins, not actual values).</dd>
+</dl>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
