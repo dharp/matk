@@ -10,6 +10,8 @@ Examples
 
     example_sampling
 
+    example_sampling_guassian
+
     example_sampling_na
 
     example_sampling_w_discrete_par

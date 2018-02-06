@@ -45,6 +45,7 @@ html:
 	cd source; jupyter nbconvert  --to rst --output-dir=. ../../examples/calibrate_sine_lmfit.ipynb
 	cd source; jupyter nbconvert  --to rst --output-dir=. ../../examples/calibrate_sine_lmfit_pyemu.ipynb
 	cd source; jupyter nbconvert  --to rst --output-dir=. ../../examples/sampling.ipynb
+	cd source; jupyter nbconvert  --to rst --output-dir=. ../../examples/sampling_gaussian.ipynb
 	cd source; jupyter nbconvert  --to rst --output-dir=. ../../examples/sampling_na.ipynb
 	cd source; jupyter nbconvert  --to rst --output-dir=. ../../examples/sampling_w_discrete_par.ipynb
 	cd source; jupyter nbconvert  --to rst --output-dir=. ../../examples/parstudy.ipynb

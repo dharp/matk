@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Sampling &#8212; MATK 0 documentation</title>
+    <title>Sampling with Gaussian distributions &#8212; MATK 0 documentation</title>
     <link rel="stylesheet" href="_static/bizstyle.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
@@ -24,8 +24,8 @@
     <script type="text/javascript" src="_static/bizstyle.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Sampling with Gaussian distributions" href="example_sampling_guassian.html" />
-    <link rel="prev" title="Examples" href="example.html" />
+    <link rel="next" title="Subsetting samples based on model output" href="example_sampling_na.html" />
+    <link rel="prev" title="Sampling" href="example_sampling.html" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <!--[if lt IE 9]>
     <script type="text/javascript" src="_static/css3-mediaqueries.js"></script>
@@ -42,10 +42,10 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="example_sampling_guassian.html" title="Sampling with Gaussian distributions"
+          <a href="example_sampling_na.html" title="Subsetting samples based on model output"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="example.html" title="Examples"
+          <a href="example_sampling.html" title="Sampling"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">MATK 0 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="example.html" accesskey="U">Examples</a> &#187;</li> 
@@ -54,15 +54,15 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
   <h4>Previous topic</h4>
-  <p class="topless"><a href="example.html"
-                        title="previous chapter">Examples</a></p>
+  <p class="topless"><a href="example_sampling.html"
+                        title="previous chapter">Sampling</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="example_sampling_guassian.html"
-                        title="next chapter">Sampling with Gaussian distributions</a></p>
+  <p class="topless"><a href="example_sampling_na.html"
+                        title="next chapter">Subsetting samples based on model output</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/example_sampling.rst.txt"
+      <li><a href="_sources/example_sampling_guassian.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -84,9 +84,10 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="sampling">
-<span id="id1"></span><h1>Sampling<a class="headerlink" href="#sampling" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="sampling-with-gaussian-distributions">
+<span id="sampling-gaussian"></span><h1>Sampling with Gaussian distributions<a class="headerlink" href="#sampling-with-gaussian-distributions" title="Permalink to this headline">¶</a></h1>
 <p>This example demonstrates a Latin Hypercube Sampling of a 4 parameter 5 response model using the <a class="reference internal" href="autodoc_matk.html#matk.matk.matk.lhs" title="matk.matk.matk.lhs"><code class="xref py py-func docutils literal"><span class="pre">lhs</span></code></a> function.
+The example is similar to <a class="reference internal" href="example_sampling.html#sampling"><span class="std std-ref">Sampling</span></a>, but the parameters samples are drawn from a Gaussian distribution.
 The models of the parameter study are run using the <a class="reference internal" href="autodoc_sampleset.html#matk.sampleset.SampleSet.run" title="matk.sampleset.SampleSet.run"><code class="xref py py-func docutils literal"><span class="pre">run</span></code></a> function.
 The generation of diagnostic plots is demonstrated using <a class="reference internal" href="autodoc_sampleset.html#matk.sampleset.hist" title="matk.sampleset.hist"><code class="xref py py-func docutils literal"><span class="pre">hist</span></code></a>, <a class="reference internal" href="autodoc_sampleset.html#matk.sampleset.SampleSet.panels" title="matk.sampleset.SampleSet.panels"><code class="xref py py-func docutils literal"><span class="pre">panels</span></code></a>, and <a class="reference internal" href="autodoc_sampleset.html#matk.sampleset.corr" title="matk.sampleset.corr"><code class="xref py py-func docutils literal"><span class="pre">corr</span></code></a>.</p>
 <div class="code ipython2 highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span><span class="n">matplotlib</span> <span class="n">inline</span>
@@ -113,10 +114,10 @@ The generation of diagnostic plots is demonstrated using <a class="reference int
 
 <span class="c1"># Setup MATK model with parameters</span>
 <span class="n">p</span> <span class="o">=</span> <span class="n">matk</span><span class="o">.</span><span class="n">matk</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">dbexpl</span><span class="p">)</span>
-<span class="n">p</span><span class="o">.</span><span class="n">add_par</span><span class="p">(</span><span class="s1">&#39;par1&#39;</span><span class="p">,</span><span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="nb">max</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">p</span><span class="o">.</span><span class="n">add_par</span><span class="p">(</span><span class="s1">&#39;par2&#39;</span><span class="p">,</span><span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="nb">max</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
-<span class="n">p</span><span class="o">.</span><span class="n">add_par</span><span class="p">(</span><span class="s1">&#39;par3&#39;</span><span class="p">,</span><span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="nb">max</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">p</span><span class="o">.</span><span class="n">add_par</span><span class="p">(</span><span class="s1">&#39;par4&#39;</span><span class="p">,</span><span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="nb">max</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+<span class="n">p</span><span class="o">.</span><span class="n">add_par</span><span class="p">(</span><span class="s1">&#39;par1&#39;</span><span class="p">,</span><span class="n">dist</span><span class="o">=</span><span class="s1">&#39;norm&#39;</span><span class="p">,</span><span class="n">mean</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span><span class="n">std</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+<span class="n">p</span><span class="o">.</span><span class="n">add_par</span><span class="p">(</span><span class="s1">&#39;par2&#39;</span><span class="p">,</span><span class="n">dist</span><span class="o">=</span><span class="s1">&#39;norm&#39;</span><span class="p">,</span><span class="n">mean</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span><span class="n">std</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span>
+<span class="n">p</span><span class="o">.</span><span class="n">add_par</span><span class="p">(</span><span class="s1">&#39;par3&#39;</span><span class="p">,</span><span class="n">dist</span><span class="o">=</span><span class="s1">&#39;norm&#39;</span><span class="p">,</span><span class="n">mean</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span><span class="n">std</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+<span class="n">p</span><span class="o">.</span><span class="n">add_par</span><span class="p">(</span><span class="s1">&#39;par4&#39;</span><span class="p">,</span><span class="n">dist</span><span class="o">=</span><span class="s1">&#39;norm&#39;</span><span class="p">,</span><span class="n">mean</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span><span class="n">std</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="code ipython2 highlight-default"><div class="highlight"><pre><span></span><span class="c1"># Create LHS sample</span>
@@ -126,43 +127,43 @@ The generation of diagnostic plots is demonstrated using <a class="reference int
 <span class="n">out</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">samples</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;Parameter Histograms by Counts&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-<img alt="_images/sampling_1_0.png" src="_images/sampling_1_0.png" />
+<img alt="_images/sampling_gaussian_1_0.png" src="_images/sampling_gaussian_1_0.png" />
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">par1</span><span class="p">:</span>
-<span class="n">Count</span><span class="p">:</span>           <span class="mi">50</span>       <span class="mi">50</span>       <span class="mi">50</span>       <span class="mi">50</span>       <span class="mi">50</span>       <span class="mi">50</span>       <span class="mi">50</span>       <span class="mi">50</span>       <span class="mi">50</span>       <span class="mi">50</span>
- <span class="n">Bins</span><span class="p">:</span>        <span class="mi">0</span>      <span class="mf">0.1</span>      <span class="mf">0.2</span>      <span class="mf">0.3</span>      <span class="mf">0.4</span>      <span class="mf">0.5</span>      <span class="mf">0.6</span>      <span class="mf">0.7</span>      <span class="mf">0.8</span>      <span class="mf">0.9</span>        <span class="mi">1</span>
+<span class="n">Count</span><span class="p">:</span>            <span class="mi">2</span>        <span class="mi">8</span>       <span class="mi">30</span>       <span class="mi">71</span>      <span class="mi">115</span>      <span class="mi">124</span>       <span class="mi">89</span>       <span class="mi">44</span>       <span class="mi">13</span>        <span class="mi">4</span>
+ <span class="n">Bins</span><span class="p">:</span>    <span class="o">-</span><span class="mf">0.17</span>    <span class="o">-</span><span class="mf">0.04</span>    <span class="mf">0.089</span>     <span class="mf">0.22</span>     <span class="mf">0.35</span>     <span class="mf">0.48</span>      <span class="mf">0.6</span>     <span class="mf">0.73</span>     <span class="mf">0.86</span>     <span class="mf">0.99</span>      <span class="mf">1.1</span>
 
 <span class="n">par2</span><span class="p">:</span>
-<span class="n">Count</span><span class="p">:</span>           <span class="mi">50</span>       <span class="mi">50</span>       <span class="mi">50</span>       <span class="mi">50</span>       <span class="mi">50</span>       <span class="mi">50</span>       <span class="mi">50</span>       <span class="mi">50</span>       <span class="mi">50</span>       <span class="mi">50</span>
- <span class="n">Bins</span><span class="p">:</span>        <span class="mi">0</span>     <span class="mf">0.02</span>     <span class="mf">0.04</span>     <span class="mf">0.06</span>     <span class="mf">0.08</span>      <span class="mf">0.1</span>     <span class="mf">0.12</span>     <span class="mf">0.14</span>     <span class="mf">0.16</span>     <span class="mf">0.18</span>      <span class="mf">0.2</span>
+<span class="n">Count</span><span class="p">:</span>            <span class="mi">3</span>       <span class="mi">11</span>       <span class="mi">35</span>       <span class="mi">76</span>      <span class="mi">117</span>      <span class="mi">119</span>       <span class="mi">83</span>       <span class="mi">40</span>       <span class="mi">13</span>        <span class="mi">3</span>
+ <span class="n">Bins</span><span class="p">:</span>    <span class="mf">0.036</span>    <span class="mf">0.049</span>    <span class="mf">0.061</span>    <span class="mf">0.074</span>    <span class="mf">0.087</span>    <span class="mf">0.099</span>     <span class="mf">0.11</span>     <span class="mf">0.12</span>     <span class="mf">0.14</span>     <span class="mf">0.15</span>     <span class="mf">0.16</span>
 
 <span class="n">par3</span><span class="p">:</span>
-<span class="n">Count</span><span class="p">:</span>           <span class="mi">50</span>       <span class="mi">50</span>       <span class="mi">50</span>       <span class="mi">50</span>       <span class="mi">50</span>       <span class="mi">50</span>       <span class="mi">50</span>       <span class="mi">50</span>       <span class="mi">50</span>       <span class="mi">50</span>
- <span class="n">Bins</span><span class="p">:</span>        <span class="mi">0</span>      <span class="mf">0.1</span>      <span class="mf">0.2</span>      <span class="mf">0.3</span>      <span class="mf">0.4</span>      <span class="mf">0.5</span>      <span class="mf">0.6</span>      <span class="mf">0.7</span>      <span class="mf">0.8</span>      <span class="mf">0.9</span>        <span class="mi">1</span>
+<span class="n">Count</span><span class="p">:</span>            <span class="mi">4</span>       <span class="mi">14</span>       <span class="mi">40</span>       <span class="mi">80</span>      <span class="mi">112</span>      <span class="mi">113</span>       <span class="mi">80</span>       <span class="mi">39</span>       <span class="mi">14</span>        <span class="mi">4</span>
+ <span class="n">Bins</span><span class="p">:</span>     <span class="o">-</span><span class="mf">0.1</span>     <span class="mf">0.02</span>     <span class="mf">0.14</span>     <span class="mf">0.26</span>     <span class="mf">0.38</span>      <span class="mf">0.5</span>     <span class="mf">0.62</span>     <span class="mf">0.74</span>     <span class="mf">0.86</span>     <span class="mf">0.98</span>      <span class="mf">1.1</span>
 
 <span class="n">par4</span><span class="p">:</span>
-<span class="n">Count</span><span class="p">:</span>           <span class="mi">50</span>       <span class="mi">50</span>       <span class="mi">50</span>       <span class="mi">50</span>       <span class="mi">50</span>       <span class="mi">50</span>       <span class="mi">50</span>       <span class="mi">50</span>       <span class="mi">50</span>       <span class="mi">50</span>
- <span class="n">Bins</span><span class="p">:</span>        <span class="mi">0</span>     <span class="mf">0.02</span>     <span class="mf">0.04</span>     <span class="mf">0.06</span>     <span class="mf">0.08</span>      <span class="mf">0.1</span>     <span class="mf">0.12</span>     <span class="mf">0.14</span>     <span class="mf">0.16</span>     <span class="mf">0.18</span>      <span class="mf">0.2</span>
+<span class="n">Count</span><span class="p">:</span>            <span class="mi">5</span>       <span class="mi">19</span>       <span class="mi">56</span>      <span class="mi">106</span>      <span class="mi">132</span>      <span class="mi">104</span>       <span class="mi">55</span>       <span class="mi">18</span>        <span class="mi">4</span>        <span class="mi">1</span>
+ <span class="n">Bins</span><span class="p">:</span>     <span class="mf">0.04</span>    <span class="mf">0.053</span>    <span class="mf">0.067</span>     <span class="mf">0.08</span>    <span class="mf">0.094</span>     <span class="mf">0.11</span>     <span class="mf">0.12</span>     <span class="mf">0.13</span>     <span class="mf">0.15</span>     <span class="mf">0.16</span>     <span class="mf">0.17</span>
 </pre></div>
 </div>
 <div class="code ipython2 highlight-default"><div class="highlight"><pre><span></span><span class="n">out</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">samples</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;Parameter Histograms by Frequency&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">printout</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
-<img alt="_images/sampling_2_0.png" src="_images/sampling_2_0.png" />
+<img alt="_images/sampling_gaussian_2_0.png" src="_images/sampling_gaussian_2_0.png" />
 <div class="code ipython2 highlight-default"><div class="highlight"><pre><span></span><span class="n">parcor</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">samples</span><span class="o">.</span><span class="n">corr</span><span class="p">(</span><span class="n">plot</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Parameter Correlations&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="highlight-default"><div class="highlight"><pre><span></span>             <span class="n">par1</span>     <span class="n">par2</span>     <span class="n">par3</span>     <span class="n">par4</span>
-<span class="n">par1</span>         <span class="mf">1.00</span>     <span class="mf">0.00</span>    <span class="o">-</span><span class="mf">0.01</span>    <span class="o">-</span><span class="mf">0.01</span>
-<span class="n">par2</span>         <span class="mf">0.00</span>     <span class="mf">1.00</span>    <span class="o">-</span><span class="mf">0.00</span>     <span class="mf">0.01</span>
-<span class="n">par3</span>        <span class="o">-</span><span class="mf">0.01</span>    <span class="o">-</span><span class="mf">0.00</span>     <span class="mf">1.00</span>     <span class="mf">0.03</span>
-<span class="n">par4</span>        <span class="o">-</span><span class="mf">0.01</span>     <span class="mf">0.01</span>     <span class="mf">0.03</span>     <span class="mf">1.00</span>
+<span class="n">par1</span>         <span class="mf">1.00</span>     <span class="mf">0.00</span>    <span class="o">-</span><span class="mf">0.00</span>     <span class="mf">0.00</span>
+<span class="n">par2</span>         <span class="mf">0.00</span>     <span class="mf">1.00</span>    <span class="o">-</span><span class="mf">0.00</span>    <span class="o">-</span><span class="mf">0.00</span>
+<span class="n">par3</span>        <span class="o">-</span><span class="mf">0.00</span>    <span class="o">-</span><span class="mf">0.00</span>     <span class="mf">1.00</span>    <span class="o">-</span><span class="mf">0.00</span>
+<span class="n">par4</span>         <span class="mf">0.00</span>    <span class="o">-</span><span class="mf">0.00</span>    <span class="o">-</span><span class="mf">0.00</span>     <span class="mf">1.00</span>
 </pre></div>
 </div>
-<img alt="_images/sampling_3_1.png" src="_images/sampling_3_1.png" />
+<img alt="_images/sampling_gaussian_3_1.png" src="_images/sampling_gaussian_3_1.png" />
 <div class="code ipython2 highlight-default"><div class="highlight"><pre><span></span><span class="n">out</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">samples</span><span class="o">.</span><span class="n">panels</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;Parameter Panels&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-<img alt="_images/sampling_4_0.png" src="_images/sampling_4_0.png" />
+<img alt="_images/sampling_gaussian_4_0.png" src="_images/sampling_gaussian_4_0.png" />
 <div class="code ipython2 highlight-default"><div class="highlight"><pre><span></span><span class="c1"># Run model with parameter samples</span>
 <span class="n">s</span><span class="o">.</span><span class="n">run</span><span class="p">(</span> <span class="n">cpus</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">outfile</span><span class="o">=</span><span class="s1">&#39;results.dat&#39;</span><span class="p">,</span> <span class="n">logfile</span><span class="o">=</span><span class="s1">&#39;log.dat&#39;</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
@@ -170,27 +171,27 @@ The generation of diagnostic plots is demonstrated using <a class="reference int
 <span class="n">out</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">responses</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">ncols</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;Model Response Histograms by Counts&#39;</span><span class="p">,</span> <span class="n">printout</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
-<img alt="_images/sampling_5_0.png" src="_images/sampling_5_0.png" />
+<img alt="_images/sampling_gaussian_5_0.png" src="_images/sampling_gaussian_5_0.png" />
 <div class="code ipython2 highlight-default"><div class="highlight"><pre><span></span><span class="n">out</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">responses</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">ncols</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;Model Response Histograms by Frequency&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">printout</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
-<img alt="_images/sampling_6_0.png" src="_images/sampling_6_0.png" />
+<img alt="_images/sampling_gaussian_6_0.png" src="_images/sampling_gaussian_6_0.png" />
 <div class="code ipython2 highlight-default"><div class="highlight"><pre><span></span><span class="n">rescor</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">responses</span><span class="o">.</span><span class="n">corr</span><span class="p">(</span><span class="n">plot</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Model Response Correlations&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="highlight-default"><div class="highlight"><pre><span></span>             <span class="n">obs1</span>     <span class="n">obs2</span>     <span class="n">obs3</span>     <span class="n">obs4</span>     <span class="n">obs5</span>
-<span class="n">obs1</span>         <span class="mf">1.00</span>     <span class="mf">0.43</span>     <span class="mf">0.29</span>     <span class="mf">0.25</span>     <span class="mf">0.23</span>
-<span class="n">obs2</span>         <span class="mf">0.43</span>     <span class="mf">1.00</span>     <span class="mf">0.95</span>     <span class="mf">0.89</span>     <span class="mf">0.83</span>
-<span class="n">obs3</span>         <span class="mf">0.29</span>     <span class="mf">0.95</span>     <span class="mf">1.00</span>     <span class="mf">0.98</span>     <span class="mf">0.95</span>
-<span class="n">obs4</span>         <span class="mf">0.25</span>     <span class="mf">0.89</span>     <span class="mf">0.98</span>     <span class="mf">1.00</span>     <span class="mf">0.99</span>
-<span class="n">obs5</span>         <span class="mf">0.23</span>     <span class="mf">0.83</span>     <span class="mf">0.95</span>     <span class="mf">0.99</span>     <span class="mf">1.00</span>
+<span class="n">obs1</span>         <span class="mf">1.00</span>     <span class="mf">0.66</span>     <span class="mf">0.38</span>     <span class="mf">0.25</span>     <span class="mf">0.18</span>
+<span class="n">obs2</span>         <span class="mf">0.66</span>     <span class="mf">1.00</span>     <span class="mf">0.92</span>     <span class="mf">0.78</span>     <span class="mf">0.65</span>
+<span class="n">obs3</span>         <span class="mf">0.38</span>     <span class="mf">0.92</span>     <span class="mf">1.00</span>     <span class="mf">0.96</span>     <span class="mf">0.87</span>
+<span class="n">obs4</span>         <span class="mf">0.25</span>     <span class="mf">0.78</span>     <span class="mf">0.96</span>     <span class="mf">1.00</span>     <span class="mf">0.97</span>
+<span class="n">obs5</span>         <span class="mf">0.18</span>     <span class="mf">0.65</span>     <span class="mf">0.87</span>     <span class="mf">0.97</span>     <span class="mf">1.00</span>
 </pre></div>
 </div>
-<img alt="_images/sampling_7_1.png" src="_images/sampling_7_1.png" />
+<img alt="_images/sampling_gaussian_7_1.png" src="_images/sampling_gaussian_7_1.png" />
 <div class="code ipython2 highlight-default"><div class="highlight"><pre><span></span><span class="n">out</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">responses</span><span class="o">.</span><span class="n">panels</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;Response Panels&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-<img alt="_images/sampling_8_0.png" src="_images/sampling_8_0.png" />
+<img alt="_images/sampling_gaussian_8_0.png" src="_images/sampling_gaussian_8_0.png" />
 <div class="code ipython2 highlight-default"><div class="highlight"><pre><span></span><span class="c1"># Print and plot parameter/response correlations</span>
 <span class="nb">print</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Pearson Correlation Coefficients:&quot;</span>
 <span class="n">pcorr</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">corr</span><span class="p">(</span><span class="n">plot</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;Pearson Correlation Coefficients&#39;</span><span class="p">)</span>
@@ -198,21 +199,21 @@ The generation of diagnostic plots is demonstrated using <a class="reference int
 </div>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Pearson</span> <span class="n">Correlation</span> <span class="n">Coefficients</span><span class="p">:</span>
              <span class="n">obs1</span>     <span class="n">obs2</span>     <span class="n">obs3</span>     <span class="n">obs4</span>     <span class="n">obs5</span>
-<span class="n">par1</span>         <span class="mf">0.70</span>     <span class="mf">0.30</span>     <span class="mf">0.18</span>     <span class="mf">0.14</span>     <span class="mf">0.12</span>
-<span class="n">par2</span>         <span class="mf">0.00</span>    <span class="o">-</span><span class="mf">0.47</span>    <span class="o">-</span><span class="mf">0.40</span>    <span class="o">-</span><span class="mf">0.33</span>    <span class="o">-</span><span class="mf">0.29</span>
-<span class="n">par3</span>         <span class="mf">0.70</span>     <span class="mf">0.31</span>     <span class="mf">0.23</span>     <span class="mf">0.22</span>     <span class="mf">0.21</span>
-<span class="n">par4</span>         <span class="mf">0.01</span>    <span class="o">-</span><span class="mf">0.51</span>    <span class="o">-</span><span class="mf">0.46</span>    <span class="o">-</span><span class="mf">0.41</span>    <span class="o">-</span><span class="mf">0.37</span>
+<span class="n">par1</span>         <span class="mf">0.71</span>     <span class="mf">0.46</span>     <span class="mf">0.25</span>     <span class="mf">0.14</span>     <span class="mf">0.09</span>
+<span class="n">par2</span>         <span class="mf">0.00</span>    <span class="o">-</span><span class="mf">0.44</span>    <span class="o">-</span><span class="mf">0.45</span>    <span class="o">-</span><span class="mf">0.37</span>    <span class="o">-</span><span class="mf">0.28</span>
+<span class="n">par3</span>         <span class="mf">0.70</span>     <span class="mf">0.47</span>     <span class="mf">0.29</span>     <span class="mf">0.21</span>     <span class="mf">0.16</span>
+<span class="n">par4</span>         <span class="mf">0.00</span>    <span class="o">-</span><span class="mf">0.49</span>    <span class="o">-</span><span class="mf">0.53</span>    <span class="o">-</span><span class="mf">0.45</span>    <span class="o">-</span><span class="mf">0.35</span>
 </pre></div>
 </div>
-<img alt="_images/sampling_9_1.png" src="_images/sampling_9_1.png" />
+<img alt="_images/sampling_gaussian_9_1.png" src="_images/sampling_gaussian_9_1.png" />
 <div class="code ipython2 highlight-default"><div class="highlight"><pre><span></span><span class="n">scorr</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">corr</span><span class="p">(</span><span class="n">plot</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;spearman&#39;</span><span class="p">,</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;Spearman Rank Correlation Coefficients&#39;</span><span class="p">,</span><span class="n">printout</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
-<img alt="_images/sampling_10_0.png" src="_images/sampling_10_0.png" />
+<img alt="_images/sampling_gaussian_10_0.png" src="_images/sampling_gaussian_10_0.png" />
 <div class="code ipython2 highlight-default"><div class="highlight"><pre><span></span><span class="n">out</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">panels</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">8</span><span class="p">))</span>
 </pre></div>
 </div>
-<img alt="_images/sampling_11_0.png" src="_images/sampling_11_0.png" />
+<img alt="_images/sampling_gaussian_11_0.png" src="_images/sampling_gaussian_11_0.png" />
 </div>
 
 
@@ -231,10 +232,10 @@ The generation of diagnostic plots is demonstrated using <a class="reference int
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="example_sampling_guassian.html" title="Sampling with Gaussian distributions"
+          <a href="example_sampling_na.html" title="Subsetting samples based on model output"
              >next</a> |</li>
         <li class="right" >
-          <a href="example.html" title="Examples"
+          <a href="example_sampling.html" title="Sampling"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">MATK 0 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="example.html" >Examples</a> &#187;</li> 
