@@ -80,9 +80,10 @@ class Parameter(LMFitParameter):
                     else: rng = numpy.nan_to_num(numpy.inf)
                     self.dist_pars = (mn,rng)
             elif self.dist == 'norm':
-                if self.mean is None: self.mean = 0.
-                if self.std is None: self.std = 1.
-                self.dist_pars = (self.mean, self.std)
+                if self.dist_pars is None:
+                    if self.mean is None: self.mean = 0.
+                    if self.std is None: self.std = 1.
+                    self.dist_pars = (self.mean, self.std)
             # Set vary to False if max == min
             if (self.min == self.max) and (self.min is not None) and (self.max is not None): self.vary = False
     def __getstate__(self):
