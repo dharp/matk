@@ -185,6 +185,30 @@ class SampleSet(object):
             return 0
         sse = [numpy.sum(((self._parent.obsvalues - self.responses.values[i,:])*self._parent.obsweights)**2) for i in range(len(self.responses.values))]
         return numpy.array(sse)
+    def mean(self, pretty_print=False):
+        """ Mean of samples
+        """
+        return mean(self.recarray,pretty_print=pretty_print)
+    def std(self, pretty_print=False):
+        """ Standard deviation of samples
+        """
+        return std(self.recarray,pretty_print=pretty_print)
+    def var(self, pretty_print=False):
+        """ Variance of samples
+        """
+        return var(self.recarray,pretty_print=pretty_print)
+    def percentile(self, pct, interpolation='linear', pretty_print=False):
+        """ Percentile of samples
+
+            :param pct: Percentile in range [0,100] or list of percentiles
+            :type pct: fl64 or lst[fl64]
+            :param interpolation: Interpolation method to use when quantile lies between data points
+            :type interpolation: str - {'linear', 'lower', 'higher', 'midpoint', 'nearest'}
+            :param pretty_print: If True, print with row and column headings
+            :type pretty_print: bool
+            :returns: ndarray(fl64)
+        """
+        return percentile(self.recarray,pct,interpolation=interpolation,pretty_print=pretty_print)
     def corr(self, type='pearson', plot=False, printout=True, plotvals=True, figsize=None, title=None):
         """ Calculate correlation coefficients of parameters and responses
 
@@ -562,6 +586,30 @@ class DataSet(object):
         """ Structured (record) array of samples
         """
         return numpy.rec.fromarrays(self._values.T,names=self._names)
+    def mean(self, pretty_print=False):
+        """ Mean of samples
+        """
+        return mean(self.recarray,pretty_print=pretty_print)
+    def std(self, pretty_print=False):
+        """ Standard deviation of samples
+        """
+        return std(self.recarray,pretty_print=pretty_print)
+    def var(self, pretty_print=False):
+        """ Variance of samples
+        """
+        return var(self.recarray,pretty_print=pretty_print)
+    def percentile(self, pct, interpolation='linear', pretty_print=False):
+        """ Percentile of samples
+
+            :param pct: Percentile in range [0,100] or list of percentiles
+            :type pct: fl64 or lst[fl64]
+            :param interpolation: Interpolation method to use when quantile lies between data points
+            :type interpolation: str - {'linear', 'lower', 'higher', 'midpoint', 'nearest'}
+            :param pretty_print: If True, print with row and column headings
+            :type pretty_print: bool
+            :returns: ndarray(fl64)
+        """
+        return percentile(self.recarray,pct,interpolation=interpolation,pretty_print=pretty_print)
     def hist(self, ncols=4, alpha=0.2, figsize=None, title=None, tight=False, mins=None, maxs=None,frequency=False,bins=10,ylim=None,printout=True,labels=[],filename=None,fontsize=None,xticks=3):
         """ Plot histograms of dataset
 
@@ -675,6 +723,117 @@ class DataSet(object):
             print 'Plotting capabilities not enabled, ensure x connnection'
             return
  
+def mean(rc, pretty_print=False):
+    """ Mean of samples
+
+        :param rc: Data
+        :type rc: Numpy structured (record) array
+        :param pretty_print: If True, print with row and column headings
+        :type pretty_print: bool
+        :returns: ndarray(fl64)
+    """
+    if numpy.any(numpy.isnan(rc.tolist())):
+        print "Error: Nan values exist probably due to failed simulations. Use subset (e.g. subset([('obs','!=',numpy.nan)]) to remove"
+        return
+    means = numpy.mean(rc.tolist(),axis=0)
+    # Print 
+    if pretty_print:
+        dum = ' '
+        #print string.rjust(dum, 8),
+        for nm in rc.dtype.names:
+            print string.rjust(nm, 11),
+        print ''
+        for c in means:
+            print string.rjust('{:5g}'.format(c), 11),
+        print ''
+    else:
+        return means
+
+def std(rc, pretty_print=False):
+    """ Standard deviation of samples
+
+        :param rc: Data
+        :type rc: Numpy structured (record) array
+        :param pretty_print: If True, print with row and column headings
+        :type pretty_print: bool
+        :returns: ndarray(fl64)
+    """
+    if numpy.any(numpy.isnan(rc.tolist())):
+        print "Error: Nan values exist probably due to failed simulations. Use subset (e.g. subset([('obs','!=',numpy.nan)]) to remove"
+        return
+    stds = numpy.std(rc.tolist(),axis=0)
+    # Print 
+    if pretty_print:
+        dum = ' '
+        #print string.rjust(dum, 8),
+        for nm in rc.dtype.names:
+            print string.rjust(nm, 11),
+        print ''
+        for c in stds:
+            print string.rjust('{:5g}'.format(c), 11),
+        print ''
+    else:
+        return stds
+
+def var(rc, pretty_print=False):
+    """ Variance of samples
+
+        :param rc: Data
+        :type rc: Numpy structured (record) array
+        :param pretty_print: If True, print with row and column headings
+        :type pretty_print: bool
+        :returns: ndarray(fl64)
+    """
+    if numpy.any(numpy.isnan(rc.tolist())):
+        print "Error: Nan values exist probably due to failed simulations. Use subset (e.g. subset([('obs','!=',numpy.nan)]) to remove"
+        return
+    vars = numpy.var(rc.tolist(),axis=0)
+    # Print 
+    if pretty_print:
+        dum = ' '
+        #print string.rjust(dum, 8),
+        for nm in rc.dtype.names:
+            print string.rjust(nm, 11),
+        print ''
+        for c in vars:
+            print string.rjust('{:5g}'.format(c), 11),
+        print ''
+    else:
+        return vars
+
+def percentile(rc, q, interpolation='linear', pretty_print=False):
+    """ Percentile of samples
+
+        :param rc: Data
+        :type rc: Numpy structured (record) array
+        :param q: Percentile in range [0,100] or list of percentiles
+        :type q: fl64 or lst[fl64]
+        :param interpolation: Interpolation method to use when quantile lies between data points
+        :type interpolation: str - {'linear', 'lower', 'higher', 'midpoint', 'nearest'}
+        :param pretty_print: If True, print with row and column headings
+        :type pretty_print: bool
+        :returns: ndarray(fl64)
+    """
+    if isinstance(q,(float,int)): q = [q]
+    if numpy.any(numpy.isnan(rc.tolist())):
+        print "Error: Nan values exist probably due to failed simulations. Use subset (e.g. subset([('obs','!=',numpy.nan)]) to remove"
+        return
+    pcts = numpy.percentile(rc.tolist(),q,interpolation=interpolation,axis=0)
+    # Print 
+    if pretty_print:
+        dum = ' '
+        print string.rjust(dum, 11),
+        for nm in rc.dtype.names:
+            print string.rjust(nm, 11),
+        print ''
+        for i,p in enumerate(q):
+            print string.ljust('{:5g}%'.format(p), 11),
+            for c in pcts[i]:
+                print string.rjust('{:5g}'.format(c), 11),
+            print ''
+    else:
+        return pcts
+
 def corr(rc1, rc2, type='pearson', plot=False, printout=True, plotvals=True, figsize=None, title=None):
     """ Calculate correlation coefficients of parameters and responses
 
