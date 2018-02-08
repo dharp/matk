@@ -420,6 +420,17 @@ class SampleSet(object):
                         f.write(" %22.16g" % row[i] )
                 f.write('\n')
             f.close()
+    def savestats(self, outfile, q=[2.5,5.0,50.,95.,97.5], interpolation='linear'):
+        """ Save statistical measures of sampleset to file 
+
+            :param outfile: Name of file
+            :type outfile: str
+            :param q: percentile or list of percentiles to compute
+            :type q: fl64 or lst[fl64]
+            :param interpolation: Interpolation method to use when quantile lies between data points
+            :type interpolation: str - {'linear', 'lower', 'higher', 'midpoint', 'nearest'}
+        """
+        savestats(self.recarray, outfile, q=q, interpolation=interpolation)
     def subset(self, boolfcn, field, *args, **kwargs): 
         """ Collect subset of samples based on parameter or response values, remove all others
 
@@ -610,6 +621,17 @@ class DataSet(object):
             :returns: ndarray(fl64)
         """
         return percentile(self.recarray,pct,interpolation=interpolation,pretty_print=pretty_print)
+    def savestats(self, outfile, q=[2.5,5.0,50.,95.,97.5], interpolation='linear'):
+        """ Save statistical measures to file 
+
+            :param outfile: Name of file
+            :type outfile: str
+            :param q: percentile or list of percentiles to compute
+            :type q: fl64 or lst[fl64]
+            :param interpolation: Interpolation method to use when quantile lies between data points
+            :type interpolation: str - {'linear', 'lower', 'higher', 'midpoint', 'nearest'}
+        """
+        savestats(self.recarray, outfile, q=q, interpolation=interpolation)
     def hist(self, ncols=4, alpha=0.2, figsize=None, title=None, tight=False, mins=None, maxs=None,frequency=False,bins=10,ylim=None,printout=True,labels=[],filename=None,fontsize=None,xticks=3):
         """ Plot histograms of dataset
 
@@ -722,7 +744,40 @@ class DataSet(object):
         else:
             print 'Plotting capabilities not enabled, ensure x connnection'
             return
- 
+
+def savestats(rc, outfile, q=[2.5,5,50,95,97.5], interpolation='linear'):
+    ''' Save sampleset statistics to file
+
+        :param rc: Data
+        :type outfile: Dataframe
+        :param outfile: Name of file
+        :type outfile: str
+        :param q: percentile or list of percentiles to compute
+        :type q: fl64 or lst[fl64]
+        :param interpolation: Interpolation method to use when quantile lies between data points
+        :type interpolation: str - {'linear', 'lower', 'higher', 'midpoint', 'nearest'}
+    '''
+    if isinstance(q,(float,int)): q = [q]
+    means = numpy.mean(rc.tolist(),axis=0)
+    stds = numpy.std(rc.tolist(),axis=0)
+    vars = numpy.var(rc.tolist(),axis=0)
+    pcts = numpy.percentile(rc.tolist(),q,interpolation=interpolation,axis=0)
+    d = numpy.column_stack([means,stds,vars,pcts.transpose()])
+    nms = rc.dtype.names
+    nms_len = len(max(nms, key=len))+1
+    stat_nms = ["mean","stdev","variance"]
+    stat_nms += ["{}%tile".format(v) for v in q]
+    with open(outfile, 'w') as fh:
+        fh.write(string.ljust('',nms_len ))
+        for stat in stat_nms:
+            fh.write(" %22s" % stat )
+        fh.write('\n')
+        for nm,dvs in zip(nms,d):
+            fh.write(string.ljust(nm, nms_len))
+            for dv in dvs:
+                fh.write(" %22.16g" % dv )
+            fh.write('\n')
+
 def mean(rc, pretty_print=False):
     """ Mean of samples
 
@@ -737,15 +792,15 @@ def mean(rc, pretty_print=False):
         return
     means = numpy.mean(rc.tolist(),axis=0)
     # Print 
+    s = ''
     if pretty_print:
-        dum = ' '
-        #print string.rjust(dum, 8),
         for nm in rc.dtype.names:
-            print string.rjust(nm, 11),
-        print ''
+            s+=string.rjust(nm, 11)
+        s+='\n'
         for c in means:
-            print string.rjust('{:5g}'.format(c), 11),
-        print ''
+            s+=string.rjust('{:5g}'.format(c), 11)
+        s+='\n'
+        print  s
     else:
         return means
 
@@ -764,8 +819,6 @@ def std(rc, pretty_print=False):
     stds = numpy.std(rc.tolist(),axis=0)
     # Print 
     if pretty_print:
-        dum = ' '
-        #print string.rjust(dum, 8),
         for nm in rc.dtype.names:
             print string.rjust(nm, 11),
         print ''
@@ -790,8 +843,6 @@ def var(rc, pretty_print=False):
     vars = numpy.var(rc.tolist(),axis=0)
     # Print 
     if pretty_print:
-        dum = ' '
-        #print string.rjust(dum, 8),
         for nm in rc.dtype.names:
             print string.rjust(nm, 11),
         print ''
