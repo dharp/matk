@@ -401,33 +401,33 @@ class Tests(unittest.TestCase):
         self.assertTrue( numpy.abs(Si['S1'][1] - 0.448)/0.448 < 5.e-1, 'First order sensitivity for parameter x2 should be around 0.448 but is ' + str(Si['S1'][1]) )
         self.assertTrue( numpy.abs(Si['S1'][2])<0.1, 'First order sensitivity for parameter x3 should be a very small number but is ' + str(Si['S1'][2]) )
       
-def suite(case):
-    suite = unittest.TestSuite()
-    if case == 'base' or case == 'all':
-        suite.addTest( Tests('testforward') )
-        suite.addTest( Tests('testsample') )
-        suite.addTest( Tests('testparstudy') )
-        suite.addTest( Tests('testfullfact') )
-        suite.addTest( Tests('testcalibrate_lmfit') )
-        suite.addTest( Tests('testjacobian') )
-        suite.addTest( Tests('testcalibrate') )
-        suite.addTest( Tests('testcorrelation') )
-        suite.addTest( Tests('testpickle_test') )
-        suite.addTest( Tests('testmcmc') )
-        suite.addTest( Tests('testemcee') )
-        suite.addTest( Tests('testemcee2') )
-        suite.addTest( Tests('testdifferentialevolution') )
-        suite.addTest( Tests('testsobol') )
-        suite.addTest( Tests('testrbd_fast') )
-        suite.addTest( Tests('testdiscretesampling') )
-        suite.addTest( Tests('testdiscreteparstudy') )
-    if case == 'parallel' or case == 'all':
-        suite.addTest( Tests('testparallel') )
-        suite.addTest( Tests('testparallel_workdir') )
-    if case == 'mcmc':
-        #suite.addTest( Tests('mcmc') )
-        suite.addTest( Tests('testemcee2') )
-    return suite   
+#def suite(case):
+#    suite = unittest.TestSuite()
+#    if case == 'base' or case == 'all':
+#        suite.addTest( Tests('testforward') )
+#        suite.addTest( Tests('testsample') )
+#        suite.addTest( Tests('testparstudy') )
+#        suite.addTest( Tests('testfullfact') )
+#        suite.addTest( Tests('testcalibrate_lmfit') )
+#        suite.addTest( Tests('testjacobian') )
+#        suite.addTest( Tests('testcalibrate') )
+#        suite.addTest( Tests('testcorrelation') )
+#        suite.addTest( Tests('testpickle_test') )
+#        suite.addTest( Tests('testmcmc') )
+#        suite.addTest( Tests('testemcee') )
+#        suite.addTest( Tests('testemcee2') )
+#        suite.addTest( Tests('testdifferentialevolution') )
+#        suite.addTest( Tests('testsobol') )
+#        suite.addTest( Tests('testrbd_fast') )
+#        suite.addTest( Tests('testdiscretesampling') )
+#        suite.addTest( Tests('testdiscreteparstudy') )
+#    if case == 'parallel' or case == 'all':
+#        suite.addTest( Tests('testparallel') )
+#        suite.addTest( Tests('testparallel_workdir') )
+#    if case == 'mcmc':
+#        #suite.addTest( Tests('mcmc') )
+#        suite.addTest( Tests('testemcee2') )
+#    return suite   
 
 if __name__ == '__main__':
     unittest.main()
