@@ -140,6 +140,12 @@ including parameter samples, associated responses, and sample indices</p>
 <dd><p>For each parameter, compile array of main effects.</p>
 </dd></dl>
 
+<dl class="method">
+<dt id="matk.sampleset.SampleSet.mean">
+<code class="descname">mean</code><span class="sig-paren">(</span><em>pretty_print=False</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.sampleset.SampleSet.mean" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mean of samples</p>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="matk.sampleset.SampleSet.name">
 <code class="descname">name</code><a class="headerlink" href="#matk.sampleset.SampleSet.name" title="Permalink to this definition">¶</a></dt>
@@ -210,6 +216,28 @@ including parameter samples, associated responses, and sample indices</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="matk.sampleset.SampleSet.percentile">
+<code class="descname">percentile</code><span class="sig-paren">(</span><em>pct</em>, <em>interpolation='linear'</em>, <em>pretty_print=False</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.sampleset.SampleSet.percentile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Percentile of samples</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>pct</strong> (<em>fl64</em><em> or </em><em>lst</em><em>[</em><em>fl64</em><em>]</em>) – Percentile in range [0,100] or list of percentiles</li>
+<li><strong>interpolation</strong> (<em>str - {'linear'</em><em>, </em><em>'lower'</em><em>, </em><em>'higher'</em><em>, </em><em>'midpoint'</em><em>, </em><em>'nearest'}</em>) – Interpolation method to use when quantile lies between data points</li>
+<li><strong>pretty_print</strong> (<em>bool</em>) – If True, print with row and column headings</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">ndarray(fl64)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="matk.sampleset.SampleSet.rank_parameter_frequencies">
 <code class="descname">rank_parameter_frequencies</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#matk.sampleset.SampleSet.rank_parameter_frequencies" title="Permalink to this definition">¶</a></dt>
 <dd><p>Yields a printout of parameter value frequencies in the sample set</p>
@@ -217,6 +245,29 @@ including parameter samples, associated responses, and sample indices</p>
 <dt>returns An array of tuples, each containing the parameter name tagged as min or max and a</dt>
 <dd>second tuple containing the parameter value and the frequency of its appearance in the sample set.</dd>
 </dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="matk.sampleset.SampleSet.rbd_fast">
+<code class="descname">rbd_fast</code><span class="sig-paren">(</span><em>obsname='sse'</em>, <em>M=10</em>, <em>print_to_console=True</em>, <em>problem={}</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.sampleset.SampleSet.rbd_fast" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform RBD_Fast analysis on model output. This assumes that the sampleset has been run so that responses have been generated. This method calls functionality from the SALib package.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>obsname</strong> (<em>str</em>) – Name of observation to perform analysis on. The default is to use the sum-of-squared errors of all observations. This requires that observation values were designated. An individual observation name can be used instead.</li>
+<li><strong>M</strong> (<em>int</em>) – The interference parameter, i.e., the number of harmonics to sum in the Fourier series decomposition</li>
+<li><strong>print_to_console</strong> (<em>bool</em>) – Print results directly to console</li>
+<li><strong>problem</strong> (<em>dict</em>) – Dictionary of model attributes used by sampler. For example, dictionary with a list with keyname ‘groups’ containing a list of length of the number of parameters with parameter group names can be used to group parameters with similar effects on the observation. This will reduce the number of samples required.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Dictionary of rbd_fast analysis results</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="attribute">
@@ -247,6 +298,25 @@ If samples are not specified, LHS samples are produced</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">tuple(ndarray(fl64),ndarray(fl64)) - (Matrix of responses from sampled model runs siz rows by npar columns, Parameter samples, same as input samples if provided)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="matk.sampleset.SampleSet.savestats">
+<code class="descname">savestats</code><span class="sig-paren">(</span><em>outfile, q=[2.5, 5.0, 50.0, 95.0, 97.5], interpolation='linear'</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.sampleset.SampleSet.savestats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save statistical measures of sampleset to file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>outfile</strong> (<em>str</em>) – Name of file</li>
+<li><strong>q</strong> (<em>fl64</em><em> or </em><em>lst</em><em>[</em><em>fl64</em><em>]</em>) – percentile or list of percentiles to compute</li>
+<li><strong>interpolation</strong> (<em>str - {'linear'</em><em>, </em><em>'lower'</em><em>, </em><em>'higher'</em><em>, </em><em>'midpoint'</em><em>, </em><em>'nearest'}</em>) – Interpolation method to use when quantile lies between data points</li>
+</ul>
 </td>
 </tr>
 </tbody>
@@ -303,6 +373,12 @@ If samples are not specified, LHS samples are produced</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="matk.sampleset.SampleSet.std">
+<code class="descname">std</code><span class="sig-paren">(</span><em>pretty_print=False</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.sampleset.SampleSet.std" title="Permalink to this definition">¶</a></dt>
+<dd><p>Standard deviation of samples</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="matk.sampleset.SampleSet.subset">
 <code class="descname">subset</code><span class="sig-paren">(</span><em>boolfcn</em>, <em>field</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.sampleset.SampleSet.subset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Collect subset of samples based on parameter or response values, remove all others</p>
@@ -320,6 +396,12 @@ If samples are not specified, LHS samples are produced</p>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="method">
+<dt id="matk.sampleset.SampleSet.var">
+<code class="descname">var</code><span class="sig-paren">(</span><em>pretty_print=False</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.sampleset.SampleSet.var" title="Permalink to this definition">¶</a></dt>
+<dd><p>Variance of samples</p>
 </dd></dl>
 
 </dd></dl>

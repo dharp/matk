@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Sobol Sensitivity Analysis &#8212; MATK 0 documentation</title>
+    <title>&lt;no title&gt; &#8212; MATK 0 documentation</title>
     <link rel="stylesheet" href="_static/bizstyle.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
@@ -24,8 +24,6 @@
     <script type="text/javascript" src="_static/bizstyle.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="RBD-FAST Sensitivity Analysis" href="example_rbd_fast.html" />
-    <link rel="prev" title="Parameter Study with discrete parameter" href="example_parstudy_w_discrete_par.html" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <!--[if lt IE 9]>
     <script type="text/javascript" src="_static/css3-mediaqueries.js"></script>
@@ -41,28 +39,15 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="right" >
-          <a href="example_rbd_fast.html" title="RBD-FAST Sensitivity Analysis"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="example_parstudy_w_discrete_par.html" title="Parameter Study with discrete parameter"
-             accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">MATK 0 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="example.html" accesskey="U">Examples</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">MATK 0 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="example_parstudy_w_discrete_par.html"
-                        title="previous chapter">Parameter Study with discrete parameter</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="example_rbd_fast.html"
-                        title="next chapter">RBD-FAST Sensitivity Analysis</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/example_sobol.rst.txt"
+      <li><a href="_sources/rbd_fast.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -84,11 +69,7 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="sobol-sensitivity-analysis">
-<span id="sobol"></span><h1>Sobol Sensitivity Analysis<a class="headerlink" href="#sobol-sensitivity-analysis" title="Permalink to this headline">¶</a></h1>
-<p>This example demonstrates a Sobol sensitivity analysis using the <a class="reference internal" href="autodoc_matk.html#matk.matk.matk.saltelli" title="matk.matk.matk.saltelli"><code class="xref py py-func docutils literal"><span class="pre">saltelli</span></code></a> sampler and <a class="reference internal" href="autodoc_sampleset.html#matk.sampleset.SampleSet.sobol" title="matk.sampleset.SampleSet.sobol"><code class="xref py py-func docutils literal"><span class="pre">sobol</span></code></a> function from SALib (<a class="reference external" href="https://github.com/SALib/SALib">https://github.com/SALib/SALib</a>).
-In this case, the sensitivity of the sum-of-squared errors (sse) to model parameters is evaluated. It is also possible to provide the name of an individual observation instead of the sse as an argument in the <a class="reference internal" href="autodoc_sampleset.html#matk.sampleset.SampleSet.sobol" title="matk.sampleset.SampleSet.sobol"><code class="xref py py-func docutils literal"><span class="pre">sobol</span></code></a> method (i.e., argument “obsname”).</p>
-<div class="code ipython2 highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span><span class="nn">os</span>
+  <div class="code ipython2 highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span><span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">matk</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">matplotlib</span> <span class="k">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
@@ -126,56 +107,32 @@ In this case, the sensitivity of the sum-of-squared errors (sse) to model parame
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)):</span>
     <span class="n">p</span><span class="o">.</span><span class="n">add_obs</span><span class="p">(</span><span class="s1">&#39;obs&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="n">value</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
 
-<span class="c1"># Create Saltelli sample where the argument indicates the number of</span>
-<span class="c1"># samples per parameter. The actual number of samples will be N * (2*D + 2),</span>
-<span class="c1"># where N is the specified number of samples per parameter and D is the number</span>
-<span class="c1"># of parameters.</span>
-<span class="c1"># The default is True for &quot;calc_second_order&quot;, explicitly specified here for clarity.</span>
-<span class="n">ss1</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">saltelli</span><span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="n">calc_second_order</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="c1"># Create LHS sample</span>
+<span class="n">ss1</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">lhs</span><span class="p">(</span><span class="n">siz</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
 
-<span class="c1"># Execute the model on the Saltelli sample parameter combinations.</span>
+<span class="c1"># Execute the model on the LHS sample parameter combinations.</span>
 <span class="n">ss1</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-<span class="c1"># Perform the Sobol analysis</span>
-<span class="n">SS</span> <span class="o">=</span> <span class="n">ss1</span><span class="o">.</span><span class="n">sobol</span><span class="p">(</span><span class="n">calc_second_order</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="c1"># Perform the RBD_FAST analysis</span>
+<span class="n">SS</span> <span class="o">=</span> <span class="n">ss1</span><span class="o">.</span><span class="n">rbd_fast</span><span class="p">()</span>
 </pre></div>
 </div>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Parameter</span> <span class="n">S1</span> <span class="n">S1_conf</span> <span class="n">ST</span> <span class="n">ST_conf</span>
-<span class="n">amp</span> <span class="mf">0.434041</span> <span class="mf">0.066804</span> <span class="mf">0.669720</span> <span class="mf">0.173768</span>
-<span class="n">decay</span> <span class="mf">0.261124</span> <span class="mf">0.090263</span> <span class="mf">0.461670</span> <span class="mf">0.129540</span>
-<span class="n">shift</span> <span class="mf">0.011050</span> <span class="mf">0.014759</span> <span class="mf">0.047576</span> <span class="mf">0.013243</span>
-<span class="n">omega</span> <span class="mf">0.011556</span> <span class="mf">0.018900</span> <span class="mf">0.073801</span> <span class="mf">0.029723</span>
-
-<span class="n">Parameter_1</span> <span class="n">Parameter_2</span> <span class="n">S2</span> <span class="n">S2_conf</span>
-<span class="n">amp</span> <span class="n">decay</span> <span class="mf">0.164074</span> <span class="mf">0.217512</span>
-<span class="n">amp</span> <span class="n">shift</span> <span class="o">-</span><span class="mf">0.023936</span> <span class="mf">0.091280</span>
-<span class="n">amp</span> <span class="n">omega</span> <span class="o">-</span><span class="mf">0.009315</span> <span class="mf">0.092907</span>
-<span class="n">decay</span> <span class="n">shift</span> <span class="o">-</span><span class="mf">0.012035</span> <span class="mf">0.141097</span>
-<span class="n">decay</span> <span class="n">omega</span> <span class="mf">0.009343</span> <span class="mf">0.158747</span>
-<span class="n">shift</span> <span class="n">omega</span> <span class="mf">0.035670</span> <span class="mf">0.028652</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Parameter</span> <span class="n">First</span>
+<span class="n">amp</span>       <span class="mf">0.404636</span>
+<span class="n">decay</span>     <span class="mf">0.27488</span>
+<span class="n">shift</span>     <span class="mf">0.00879554</span>
+<span class="n">omega</span>     <span class="mf">0.0190217</span>
 </pre></div>
 </div>
 <div class="code ipython2 highlight-default"><div class="highlight"><pre><span></span><span class="c1"># Manually print some results</span>
 <span class="nb">print</span> <span class="n">SS</span><span class="p">[</span><span class="s1">&#39;S1&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span> <span class="mf">0.43404054</span>  <span class="mf">0.26112364</span>  <span class="mf">0.01105031</span>  <span class="mf">0.01155562</span><span class="p">]</span>
-</pre></div>
-</div>
-<div class="code ipython2 highlight-default"><div class="highlight"><pre><span></span><span class="nb">print</span> <span class="n">SS</span><span class="p">[</span><span class="s1">&#39;S2&#39;</span><span class="p">]</span>
-</pre></div>
-</div>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[[</span>        <span class="n">nan</span>  <span class="mf">0.16407351</span> <span class="o">-</span><span class="mf">0.02393598</span> <span class="o">-</span><span class="mf">0.00931453</span><span class="p">]</span>
- <span class="p">[</span>        <span class="n">nan</span>         <span class="n">nan</span> <span class="o">-</span><span class="mf">0.01203482</span>  <span class="mf">0.00934286</span><span class="p">]</span>
- <span class="p">[</span>        <span class="n">nan</span>         <span class="n">nan</span>         <span class="n">nan</span>  <span class="mf">0.03567022</span><span class="p">]</span>
- <span class="p">[</span>        <span class="n">nan</span>         <span class="n">nan</span>         <span class="n">nan</span>         <span class="n">nan</span><span class="p">]]</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="mf">0.4046356655403508</span><span class="p">,</span> <span class="mf">0.2748798363210822</span><span class="p">,</span> <span class="mf">0.0087955380299460373</span><span class="p">,</span> <span class="mf">0.019021699707899017</span><span class="p">]</span>
 </pre></div>
 </div>
 <p>The results indicate that the model is most sensitive to “amp” followed
-by “decay”. The model is relatively insensitive to “shift” and “omega”.
-Considering parameter interactions, the model is most sensitive to
-interactions between “amp” and “decay”.</p>
-</div>
+by “decay”. The model is relatively insensitive to “shift” and “omega”.</p>
 
 
           </div>
@@ -192,14 +149,7 @@ interactions between “amp” and “decay”.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="right" >
-          <a href="example_rbd_fast.html" title="RBD-FAST Sensitivity Analysis"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="example_parstudy_w_discrete_par.html" title="Parameter Study with discrete parameter"
-             >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">MATK 0 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="example.html" >Examples</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">MATK 0 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

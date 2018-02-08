@@ -551,6 +551,32 @@ class SampleSet(object):
         if obsname == 'sse': obs = self.sse
         else: obs = self.recarray[obsname]
         return sobol.analyze(problem, obs, calc_second_order=calc_second_order, print_to_console=print_to_console, num_resamples=num_resamples, conf_level=conf_level)
+    def rbd_fast(self, obsname='sse', M=10, print_to_console=True, problem={}):
+        """ Perform RBD_Fast analysis on model output. This assumes that the sampleset has been run so that responses have been generated. This method calls functionality from the SALib package.
+
+            :param obsname: Name of observation to perform analysis on. The default is to use the sum-of-squared errors of all observations. This requires that observation values were designated. An individual observation name can be used instead.
+            :type obsname: str
+            :param M: The interference parameter, i.e., the number of harmonics to sum in the Fourier series decomposition 
+            :type M: int
+            :param print_to_console: Print results directly to console
+            :type print_to_console: bool
+            :param problem: Dictionary of model attributes used by sampler. For example, dictionary with a list with keyname 'groups' containing a list of length of the number of parameters with parameter group names can be used to group parameters with similar effects on the observation. This will reduce the number of samples required.
+            :type problem: dict
+            :returns: Dictionary of rbd_fast analysis results
+        """
+        try:
+            from SALib.analyze import rbd_fast
+        except ImportError as exc:
+            sys.stderr.write("Warning: failed to import SALib sobol module. ({})\n".format(exc))
+
+        # Define problem
+        problem['num_vars'] = len(self._parent.pars)
+        problem['names'] = self._parent.parnames
+        problem['bounds'] = zip(self._parent.parmins,self._parent.parmaxs)
+
+        if obsname == 'sse': obs = self.sse
+        else: obs = self.recarray[obsname]
+        return rbd_fast.analyze(problem, obs, self.samples.values, M=M, print_to_console=print_to_console)
 
 class DataSet(object):
     """ MATK Samples class

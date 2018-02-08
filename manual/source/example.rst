@@ -24,6 +24,8 @@ Examples
 
     example_sobol
 
+    example_rbd_fast
+
     example_calibrate
 
     example_minimize_constraints

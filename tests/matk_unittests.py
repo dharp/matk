@@ -328,7 +328,7 @@ class Tests(unittest.TestCase):
         mean_sig = numpy.sqrt(mean_sig)
         self.assertTrue( abs(mean_a - 2.) < 0.2, 'Mean of parameter a is not close to 2: mean(a) = ' + str(mean_a) )
         self.assertTrue( abs(mean_c - 5.) < 1., 'Mean of parameter c is not close to 5: mean(c) = ' + str(mean_c) )
-        self.assertTrue( abs(mean_sig - 0.5) < 0.2, 'Mean of model error std. dev. is not close to 0.1: mean(sig) = ' + str(mean_sig) )
+        self.assertTrue( abs(mean_sig - 0.5) < 0.25, 'Mean of model error std. dev. is not close to 0.5: mean(sig) = ' + str(mean_sig) )
 
     def testminimize(self):
         def fun(pars): 
@@ -386,6 +386,24 @@ class Tests(unittest.TestCase):
         self.assertTrue( numpy.abs(Si['S1'][0] - 0.306)/0.306 < 1.e-2, 'First order sensitivity for parameter x1 should be around 0.306 but is ' + str(Si['S1'][0]) )
         self.assertTrue( numpy.abs(Si['S1'][1] - 0.448)/0.448 < 1.e-2, 'First order sensitivity for parameter x2 should be around 0.448 but is ' + str(Si['S1'][1]) )
         self.assertTrue( numpy.abs(Si['S1'][2])<0.01, 'First order sensitivity for parameter x3 should be a very small number but is ' + str(Si['S1'][2]) )
+
+    def testrbd_fast(self):
+        # This test is based on running the SALib example at https://github.com/SALib/SALib/blob/master/examples/rbd_fast/rbd_fast.py
+        m = matk.matk(model=myIshigami)
+        m.add_par('x1',min=-3.14159265359, max=3.14159265359)
+        m.add_par('x2',min=-3.14159265359, max=3.14159265359)
+        m.add_par('x3',min=-3.14159265359, max=3.14159265359)
+        m.add_obs('res')
+        # Generate samples
+        ss = m.lhs(siz=1000)
+        # Run model
+        ss.run(verbose=False)
+        # Perform analysis
+        Si = ss.rbd_fast('res', print_to_console=False)
+        # Test results
+        self.assertTrue( numpy.abs(Si['S1'][0] - 0.32)/0.32 < 5.e-1, 'First order sensitivity for parameter x1 should be around 0.306 but is ' + str(Si['S1'][0]) )
+        self.assertTrue( numpy.abs(Si['S1'][1] - 0.448)/0.448 < 5.e-1, 'First order sensitivity for parameter x2 should be around 0.448 but is ' + str(Si['S1'][1]) )
+        self.assertTrue( numpy.abs(Si['S1'][2])<0.1, 'First order sensitivity for parameter x3 should be a very small number but is ' + str(Si['S1'][2]) )
       
 def suite(case):
     suite = unittest.TestSuite()
@@ -404,6 +422,7 @@ def suite(case):
         suite.addTest( Tests('testemcee2') )
         suite.addTest( Tests('testdifferentialevolution') )
         suite.addTest( Tests('testsobol') )
+        suite.addTest( Tests('testrbd_fast') )
         suite.addTest( Tests('testdiscretesampling') )
         suite.addTest( Tests('testdiscreteparstudy') )
     if case == 'parallel' or case == 'all':
