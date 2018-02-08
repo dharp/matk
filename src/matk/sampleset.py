@@ -784,14 +784,16 @@ def savestats(rc, outfile, q=[2.5,5,50,95,97.5], interpolation='linear'):
         :type interpolation: str - {'linear', 'lower', 'higher', 'midpoint', 'nearest'}
     '''
     if isinstance(q,(float,int)): q = [q]
+    mins = numpy.min(rc.tolist(),axis=0)
+    maxs = numpy.max(rc.tolist(),axis=0)
     means = numpy.mean(rc.tolist(),axis=0)
     stds = numpy.std(rc.tolist(),axis=0)
     vars = numpy.var(rc.tolist(),axis=0)
     pcts = numpy.percentile(rc.tolist(),q,interpolation=interpolation,axis=0)
-    d = numpy.column_stack([means,stds,vars,pcts.transpose()])
+    d = numpy.column_stack([mins,maxs,means,stds,vars,pcts.transpose()])
     nms = rc.dtype.names
     nms_len = len(max(nms, key=len))+1
-    stat_nms = ["mean","stdev","variance"]
+    stat_nms = ["min","max","mean","stdev","variance"]
     stat_nms += ["{}%tile".format(v) for v in q]
     with open(outfile, 'w') as fh:
         fh.write(string.ljust('',nms_len ))
