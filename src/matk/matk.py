@@ -707,12 +707,12 @@ class matk(object):
         # Delete hs's associated with fixed parameters
         hs = numpy.delete(hs,numpy.where(hs==0))
         if difference_type == 'central':
-            fsims = sims[:len(a)]
-            bsims = sims[len(a):]
-            for h,fsim,bsim in zip(hs,fsims,bsims):
+            fsims = sims[:numpy.sum(vary)]
+            bsims = sims[numpy.sum(vary):]
+            for h,fsim,bsim in zip(hs[numpy.where(vary==1)[0]],fsims,bsims):
                 J.append((bsim-fsim)/(2*h))
         elif difference_type == 'forward':
-            diffsims = sims[:len(a)]
+            diffsims = sims[:numpy.sum(vary)]
             zerosims = sims[-1]
             for h,d in zip(hs,diffsims):
                 J.append((zerosims-d)/h)

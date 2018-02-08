@@ -185,37 +185,33 @@ class Tests(unittest.TestCase):
         self.assertTrue( (maxs >= lb).any() and (mins <= ub).any(), 'Full factorial design outside parameter bounds' )
 
     def testcalibrate_lmfit(self): 
-        # Look at initial fit
+        self.c.parvalues = {'amp':10.,'decay':0.1,'shift':0.,'omega':3.0}
         self.c.forward()
-        sims = self.c.simvalues
-        # Calibrate parameters to data, results are printed to screen
         self.c.lmfit(report_fit=False)
-        # Look at calibrated fit
-        self.c.forward()
-        sims = self.c.simvalues
         self.assertTrue( self.c.ssr < 1.e-10, 'Objective function value is ' + str(self.c.ssr) )
 
     def testcalibrate_lmfit_mp(self): 
-        # Look at initial fit
+        self.c.parvalues = {'amp':10.,'decay':0.1,'shift':0.,'omega':3.0}
         self.c.forward()
-        sims = self.c.simvalues
-        # Calibrate parameters to data, results are printed to screen
-        self.c.lmfit(cpus=4,report_fit=False)
-        # Look at calibrated fit
-        self.c.forward()
-        sims = self.c.simvalues
+        self.c.lmfit(cpus=5,report_fit=False)
         self.assertTrue( self.c.ssr < 1.e-10, 'Objective function value is ' + str(self.c.ssr) )
 
     def testcalibrate_lmfit_central(self): 
-        # Uses central differences to approximate jacobian
-        # Look at initial fit
+        self.c.parvalues = {'amp':10.,'decay':0.1,'shift':0.,'omega':3.0}
         self.c.forward()
-        sims = self.c.simvalues
-        # Calibrate parameters to data, results are printed to screen
         self.c.lmfit(cpus=4,report_fit=False,difference_type='central')
-        # Look at calibrated fit
+        self.assertTrue( self.c.ssr < 1.e-10, 'Objective function value is ' + str(self.c.ssr) )
+
+    def testcalibrate_lmfit_fixed_pars(self): 
+        # Forward derivatives
+        self.c.parvalues = {'amp':10.,'decay':0.025,'shift':0.,'omega':2.0}
         self.c.forward()
-        sims = self.c.simvalues
+        self.c.lmfit(cpus=4,report_fit=False,difference_type='forward')
+        self.assertTrue( self.c.ssr < 1.e-10, 'Objective function value is ' + str(self.c.ssr) )
+        # Central derivatives
+        self.c.parvalues = {'amp':10.,'decay':0.025,'shift':0.,'omega':2.0}
+        self.c.forward()
+        self.c.lmfit(cpus=4,report_fit=False,difference_type='central')
         self.assertTrue( self.c.ssr < 1.e-10, 'Objective function value is ' + str(self.c.ssr) )
 
     def testjacobian(self):
