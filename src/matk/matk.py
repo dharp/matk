@@ -705,7 +705,7 @@ class matk(object):
                 print sse
         J = []
         # Delete hs's associated with fixed parameters
-        hs = numpy.delete(hs,numpy.where(hs==0))
+        #hs = numpy.delete(hs,numpy.where(hs==0))
         if difference_type == 'central':
             fsims = sims[:numpy.sum(vary)]
             bsims = sims[numpy.sum(vary):]
@@ -714,7 +714,7 @@ class matk(object):
         elif difference_type == 'forward':
             diffsims = sims[:numpy.sum(vary)]
             zerosims = sims[-1]
-            for h,d in zip(hs,diffsims):
+            for h,d in zip(hs[numpy.where(vary==1)[0]],diffsims):
                 J.append((zerosims-d)/h)
         self.parvalues = a
         return numpy.array(J).T
