@@ -38,6 +38,8 @@ Contributors
 
     David Dempsey, The University of Auckland
 
+    Seth King, National Energy Technology Laboratory
+
 Indices and tables
 ==================
 
