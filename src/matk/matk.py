@@ -500,9 +500,9 @@ class matk(object):
         else:
             curdir = None
 			
-		# Set job_number if among the model keyword arguments
+        # Set job_number if among the model keyword arguments
         if 'job_number' in self.model_kwargs:
-            self.model_kwargs = job_number
+            self.model_kwargs['job_number'] = job_number
 
         if hasattr( self.model, '__call__' ):
             try:
