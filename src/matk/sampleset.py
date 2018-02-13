@@ -913,7 +913,7 @@ def percentile(rc, q, interpolation='linear', pretty_print=False):
     else:
         return pcts
 
-def corr(rc1, rc2, type='pearson', plot=False, printout=True, plotvals=True, figsize=None, title=None):
+def corr(rc1, rc2, type='pearson', plot=False, printout=True, plotvals=True, figsize=None, title=None, xrotation=0, show=True, adjust_dict=None):
     """ Calculate correlation coefficients of parameters and responses
 
         :param rc1: Data
@@ -932,6 +932,12 @@ def corr(rc1, rc2, type='pearson', plot=False, printout=True, plotvals=True, fig
         :type figsize: tuple(fl64,fl64)
         :param title: Title of plot
         :type title: str
+        :param xrotation: Rotation for x axis tick labels (rc2 names)
+        :type xratoation: int, float, or str
+        :param show: If True display the resulting plot and block execution until closed.
+        :type show: bool
+        :param adjust_dict: Dictionary of kwargs to pass to plt.subplots_adjust.  Keys and defaults are: left  = 0.125, right = 0.9, bottom = 0.1, top = 0.9, wspace = 0.2, hspace = 0.2 
+        :type adjust_dict: dict
         :returns: ndarray(fl64) -- Correlation coefficients
     """
     if numpy.any(numpy.isnan(rc1.tolist())) or numpy.any(numpy.isnan(rc2.tolist())):
@@ -972,8 +978,11 @@ def corr(rc1, rc2, type='pearson', plot=False, printout=True, plotvals=True, fig
         if title:
             plt.title(title)
         plt.yticks(numpy.arange(0.5,len(rc1.dtype.names)+0.5),[nm for nm in reversed(rc1.dtype.names)])
-        plt.xticks(numpy.arange(0.5,len(rc2.dtype.names)+0.5),rc2.dtype.names)
-        plt.show(block=True)
+        plt.xticks(numpy.arange(0.5,len(rc2.dtype.names)+0.5),rc2.dtype.names, rotation=xrotation)
+        if adjust_dict:
+            plt.subplots_adjust(**adjust_dict)
+        if show:
+            plt.show(block=True)
     return corrcoef
 
 def panels(rc, type='pearson', alpha=0.2, figsize=None, title=None, tight=False, symbol='.',fontsize=None,corrfontsize=None,ms=None,mins=None,maxs=None,frequency=False,bins=10,ylim=None,labels=[],filename=None,xticks=2,yticks=2,color=None,cmap=None,edgecolors='face'):
