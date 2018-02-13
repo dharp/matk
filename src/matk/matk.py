@@ -24,7 +24,7 @@ from scipy.stats import rv_discrete
 class matk(object):
     """ Class for Model Analysis ToolKit (MATK) module
     """
-    def __init__(self, model='', model_args=None, model_kwargs=None, cpus=1,
+    def __init__(self, model='', model_args=None, model_kwargs={}, cpus=1,
                  workdir_base=None, workdir=None, results_file=None,
                  seed=None, sample_size=10, hosts={}):
         '''Initialize MATK object
@@ -499,29 +499,34 @@ class matk(object):
                 return 1
         else:
             curdir = None
+			
+		# Set job_number if among the model keyword arguments
+        if 'job_number' in self.model_kwargs:
+            self.model_kwargs = job_number
+
         if hasattr( self.model, '__call__' ):
             try:
                 if pardict is None:
                     pardict = dict([(k,par.value) for k,par in self.pars.items()])
-                else: 
+                else:
                     self.parvalues = pardict
                     pardict = dict(zip(self.parnames,self.parvalues))
-                if self.model_args is None and self.model_kwargs is None:
+                if self.model_args is None and not self.model_kwargs:
                     if hostname is None: sims = self.model( pardict )
-                    else: 
+                    else:
                         if processor is None: sims = self.model( pardict, hostname=hostname )
                         else: sims = self.model( pardict, hostname=hostname, processor=processor )
-                elif not self.model_args is None and self.model_kwargs is None:
+                elif not self.model_args is None and not self.model_kwargs:
                     if hostname is None: sims = self.model( pardict, *self.model_args )
-                    else: 
+                    else:
                         if processor is None: sims = self.model( pardict, *self.model_args, hostname=hostname )
                         else: sims = self.model( pardict, *self.model_args, hostname=hostname, processor=processor )
-                elif self.model_args is None and not self.model_kwargs is None:
+                elif self.model_args is None and self.model_kwargs:
                     if hostname is None: sims = self.model( pardict, **self.model_kwargs )
                     else:
                         if processor is None: sims = self.model( pardict, hostname=hostname, **self.model_kwargs )
                         else: sims = self.model( pardict, hostname=hostname, processor=processor, **self.model_kwargs )
-                elif not self.model_args is None and not self.model_kwargs is None:
+                elif not self.model_args is None and self.model_kwargs:
                     if hostname is None: sims = self.model( pardict, *self.model_args, **self.model_kwargs )
                     else:
                         if processor is None: sims = self.model( pardict, *self.model_args, hostname=hostname, **self.model_kwargs )
