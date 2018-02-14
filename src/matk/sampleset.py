@@ -224,7 +224,7 @@ class SampleSet(object):
             :type figsize: tuple(fl64,fl64)
             :param title: Title of plot
             :type title: str
-            :param xrotation: Rotation for x axis tick labels (rc2 names)
+            :param xrotation: Rotation for x axis tick labels
             :type xratoation: int, float, or str
             :param filename: Name of file to save plot. File ending determines plot type (pdf, png, ps, eps, etc.). Plot types available depends on the matplotlib backend in use on the system. Plot will not be displayed.
             :type filename: str
@@ -585,7 +585,7 @@ class SampleSet(object):
         return rbd_fast.analyze(problem, obs, self.samples.values, M=M, print_to_console=print_to_console)
 
 class DataSet(object):
-    """ MATK Samples class
+    """ MATK DataSet class used by SampleSet class to store samples (parameter combinations; 'SampleSet.samples') and responses (model outputs; 'SampleSet.responses')
     """
     def __init__(self,samples,names,mins=None,maxs=None):
         self._values = samples
@@ -714,7 +714,7 @@ class DataSet(object):
             :type figsize: tuple(fl64,fl64)
             :param title: Title of plot
             :type title: str
-            :param xrotation: Rotation for x axis tick labels (rc2 names)
+            :param xrotation: Rotation for x axis tick labels
             :type xratoation: int, float, or str
             :param filename: Name of file to save plot. File ending determines plot type (pdf, png, ps, eps, etc.). Plot types available depends on the matplotlib backend in use on the system. Plot will not be displayed.
             :type filename: str

@@ -99,7 +99,7 @@ including parameter samples, associated responses, and sample indices</p>
 
 <dl class="method">
 <dt id="matk.sampleset.SampleSet.corr">
-<code class="descname">corr</code><span class="sig-paren">(</span><em>type='pearson'</em>, <em>plot=False</em>, <em>printout=True</em>, <em>plotvals=True</em>, <em>figsize=None</em>, <em>title=None</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.sampleset.SampleSet.corr" title="Permalink to this definition">¶</a></dt>
+<code class="descname">corr</code><span class="sig-paren">(</span><em>type='pearson'</em>, <em>plot=False</em>, <em>printout=True</em>, <em>plotvals=True</em>, <em>figsize=None</em>, <em>title=None</em>, <em>xrotation=0</em>, <em>filename=None</em>, <em>adjust_dict=None</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.sampleset.SampleSet.corr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate correlation coefficients of parameters and responses</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -112,6 +112,9 @@ including parameter samples, associated responses, and sample indices</p>
 <li><strong>plotvals</strong> (<em>bool</em>) – If True, print correlation coefficients on plot matrix</li>
 <li><strong>figsize</strong> (<em>tuple</em><em>(</em><em>fl64</em><em>,</em><em>fl64</em><em>)</em>) – Width and height of figure in inches</li>
 <li><strong>title</strong> (<em>str</em>) – Title of plot</li>
+<li><strong>xrotation</strong> – Rotation for x axis tick labels (rc2 names)</li>
+<li><strong>filename</strong> (<em>str</em>) – Name of file to save plot. File ending determines plot type (pdf, png, ps, eps, etc.). Plot types available depends on the matplotlib backend in use on the system. Plot will not be displayed.</li>
+<li><strong>adjust_dict</strong> (<em>dict</em>) – Dictionary of kwargs to pass to plt.subplots_adjust.  Keys and defaults are: left  = 0.125, right = 0.9, bottom = 0.1, top = 0.9, wspace = 0.2, hspace = 0.2</li>
 </ul>
 </td>
 </tr>
@@ -441,7 +444,7 @@ If samples are not specified, LHS samples are produced</p>
 
 <dl class="function">
 <dt id="matk.sampleset.corr">
-<code class="descclassname">matk.sampleset.</code><code class="descname">corr</code><span class="sig-paren">(</span><em>rc1</em>, <em>rc2</em>, <em>type='pearson'</em>, <em>plot=False</em>, <em>printout=True</em>, <em>plotvals=True</em>, <em>figsize=None</em>, <em>title=None</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.sampleset.corr" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">matk.sampleset.</code><code class="descname">corr</code><span class="sig-paren">(</span><em>rc1</em>, <em>rc2</em>, <em>type='pearson'</em>, <em>plot=False</em>, <em>printout=True</em>, <em>plotvals=True</em>, <em>figsize=None</em>, <em>title=None</em>, <em>xrotation=0</em>, <em>filename=None</em>, <em>adjust_dict=None</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.sampleset.corr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate correlation coefficients of parameters and responses</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -456,6 +459,9 @@ If samples are not specified, LHS samples are produced</p>
 <li><strong>plotvals</strong> (<em>bool</em>) – If True, print correlation coefficients on plot matrix</li>
 <li><strong>figsize</strong> (<em>tuple</em><em>(</em><em>fl64</em><em>,</em><em>fl64</em><em>)</em>) – Width and height of figure in inches</li>
 <li><strong>title</strong> (<em>str</em>) – Title of plot</li>
+<li><strong>xrotation</strong> – Rotation for x axis tick labels (rc2 names)</li>
+<li><strong>filename</strong> (<em>str</em>) – Name of file to save plot. File ending determines plot type (pdf, png, ps, eps, etc.). Plot types available depends on the matplotlib backend in use on the system. Plot will not be displayed.</li>
+<li><strong>adjust_dict</strong> (<em>dict</em>) – Dictionary of kwargs to pass to plt.subplots_adjust.  Keys and defaults are: left  = 0.125, right = 0.9, bottom = 0.1, top = 0.9, wspace = 0.2, hspace = 0.2</li>
 </ul>
 </td>
 </tr>
