@@ -817,6 +817,8 @@ class matk(object):
                 dist_pars.append(p.dist_pars)
         if len(dists):
             x = lhs(dists, dist_pars, siz=siz, noCorrRestr=noCorrRestr, corrmat=corrmat, seed=seed)
+        # Convert 1D array to 1D matrix if only one parameter is varying
+        if len(dists) == 1: x = x.reshape((len(x),1))
         for j,p in enumerate(self.pars.values()):
             if p.expr is not None:
                 for i,r in enumerate(x):
