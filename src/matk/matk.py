@@ -166,11 +166,13 @@ class matk(object):
     @seed.setter
     def seed(self,value):
         self._seed = value
-    @property
-    def ssr(self):
+    def ssr(self,group=None):
         """ Sum of squared residuals
+
+            :param group: Group name of observations; if not None, ssr for observation group will be returned
+            :type group: str
         """
-        return sum(numpy.array(self.residuals)**2)
+        return sum(numpy.array(self.residuals(group))**2)
     def add_par(self, name, value=None, vary=True, min=None, max=None, expr=None, discrete_vals=[], **kwargs):
         """ Add parameter to problem
 
@@ -194,7 +196,7 @@ class matk(object):
             self.pars[name] = Parameter(name,parent=self,value=value,vary=vary,min=min,max=max,expr=expr,discrete_vals=discrete_vals,**kwargs)
         else:
             self.pars.__setitem__( name, Parameter(name,parent=self,value=value,vary=vary,min=min,max=max,expr=expr,discrete_vals=discrete_vals,**kwargs))
-    def add_obs(self,name, sim=None, weight=1.0, value=None):
+    def add_obs(self,name, sim=None, weight=1.0, value=None, group=None):
         ''' Add observation to problem
             
             :param name: Observation name
@@ -205,12 +207,14 @@ class matk(object):
             :type weight: fl64
             :param value: Value of observation
             :type value: fl64
+            :param group: Name identifying group or type of observation
+            :type group: str
             :returns: Observation object
         '''
         if name in self.obs: 
-            self.obs[name] = Observation(name,sim=sim,weight=weight,value=value)
+            self.obs[name] = Observation(name,sim=sim,weight=weight,value=value,group=group)
         else:
-            self.obs.__setitem__( name, Observation(name,sim=sim,weight=weight,value=value))
+            self.obs.__setitem__( name, Observation(name,sim=sim,weight=weight,value=value,group=group))
     def create_sampleset(self,samples,name=None,responses=None,indices=None,index_start=1):
         """ Add sample set to problem
             
@@ -404,10 +408,20 @@ class matk(object):
         """
         return numpy.array([o.weight for o in self.obs.values()])
     @property
-    def residuals(self):
-        """ Get least squares values
+    def obsgroups(self):
+        """ Get observation groups
         """
-        return numpy.array([o.residual for o in self.obs.values()])
+        return numpy.array([o.group for o in self.obs.values()])
+    def residuals(self,group=None):
+        """ Get least squares values
+
+            :param group: Group name of observations; if not None, only residuals in group will be returned
+            :type group: str
+        """
+        if group is None:
+            return numpy.array([o.residual for o in self.obs.values()])
+        else:
+            return numpy.array([o.residual for o in self.obs.values() if o.group == group])
     @property
     def parmins(self):
         """ Get parameter lower bounds
@@ -555,7 +569,8 @@ class matk(object):
             if not curdir is None: os.chdir( curdir )
             return 1
     def lmfit(self,maxfev=0,report_fit=True,cpus=1,epsfcn=None,xtol=1.e-7,ftol=1.e-7,
-              workdir=None, verbose=False, save_evals=False, difference_type='forward', **kwargs):
+              workdir=None, verbose=False, save_evals=False, difference_type='forward',
+              **kwargs):
         """ Calibrate MATK model using lmfit package
 
             :param maxfev: Max number of function evaluations, if 0, 100*(npars+1) will be used
@@ -577,6 +592,7 @@ class matk(object):
             :param difference_type: Type of finite difference approximation, 'forward' or 'central'
             :type difference_type: str
             :param save_evals: If True, a MATK sampleset of calibration function evaluation parameters and responses will be returned
+            :type save_evals: bool
             :returns: tuple(lmfit minimizer object; parameter object; if save_evals=True, also returns a MATK sampleset of calibration function evaluation parameters and responses)
 
             Additional keyword argments will be passed to scipy leastsq function:
@@ -616,7 +632,7 @@ class matk(object):
 
         if report_fit:
             print lmfit.report_fit(params)
-            print 'SSR: ',self.ssr
+            print 'SSR: ',self.ssr()
         if save_evals:
             return out, params, self.create_sampleset(self._minimize_pars, responses=self._minimize_sims)
         else:
@@ -634,11 +650,18 @@ class matk(object):
         else:
             print 'Error: cpus argument type not recognized'
             return
-        if verbose: print 'SSR: ', numpy.sum([v**2 for v in self.residuals])
+        if verbose: 
+            if len(numpy.unique(self.obsgroups)) > 1:
+                for grp in numpy.unique(self.obsgroups):
+                    if grp is not None:
+                        print '{} SSR: {}'.format( grp, self.ssr(grp))
+                print 'Total SSR: ', self.ssr()
+            else:
+                print 'SSR: ', self.ssr()
         if save_evals:
             self._minimize_pars.append(self.parvalues)
             self._minimize_sims.append(self.simvalues)
-        return self.residuals
+        return self.residuals()
     def __jacobian( self, params, cpus=1, epsfcn=None, workdir_base=None,verbose=False,save=False,
                    difference_type='forward',reuse_dirs=True):
         ''' Numerical Jacobian calculation
@@ -698,7 +721,7 @@ class matk(object):
             if verbose and len(self.obs): sse = []
             for ps in parset:
                 self.forward(pardict=dict(zip(self.parnames,ps)),workdir=workdir_base,reuse_dirs=True)
-                if verbose and len(self.obs): sse.append(self.ssr)
+                if verbose and len(self.obs): sse.append(self.ssr())
                 sims.append(self.simvalues)
             if verbose and len(self.obs):
                 print "Jacobian sse's:"
@@ -747,7 +770,7 @@ class matk(object):
         if save_evals:
             self._minimize_pars.append(self.parvalues)
             self._minimize_sims.append(self.simvalues)
-        return numpy.abs(self.residuals[0])
+        return numpy.abs(self.residuals()[0])
 
     def levmar(self,workdir=None,reuse_dirs=False,max_iter=1000,full_output=True):
         """ Calibrate MATK model using levmar package
@@ -1156,7 +1179,7 @@ class matk(object):
                     values.append(float(pars[i]))
                 pardict = dict(zip(p.parnames,values))
                 p.forward(pardict=pardict, reuse_dirs=True)
-                return numpy.array(p.residuals)*numpy.array(p.obsweights)
+                return numpy.array(p.residuals())*numpy.array(p.obsweights)
             #likelihood
             y = Normal('y', mu=residuals, tau=1.0/sig**2, observed=True, value=numpy.zeros(len(self.obs)))
             variables.append(y)
@@ -1335,7 +1358,7 @@ class matk(object):
         if save_evals:
             self._minimize_pars.append(self.parvalues)
             self._minimize_sims.append(self.simvalues)
-        return self.ssr
+        return self.ssr()
 
 class logposterior(object):
     def __init__(self, prob, var=1):
@@ -1350,7 +1373,7 @@ class logposterior(object):
     def loglhood(self,ts):
         pardict = dict(zip(self.prob.parnames, ts))
         self.prob.forward(pardict=pardict, reuse_dirs=True)
-        return -0.5*(numpy.sum((numpy.array(self.prob.residuals))**2)) / self.var - numpy.log(self.var)
+        return -0.5*(numpy.sum((numpy.array(self.prob.residuals()))**2)) / self.var - numpy.log(self.var)
     def __call__(self, ts):
         lpri = self.logprior(ts)
         if lpri == -numpy.inf:
@@ -1368,10 +1391,10 @@ class logposteriorwithunknownvariance(logposterior):
         pardict = dict(zip(self.prob.parnames, ts))
         self.prob.forward(pardict=pardict, reuse_dirs=True)
         #print "ts: " + str(ts)
-        #print "ssr: " + str(numpy.sum((numpy.array(self.prob.residuals))**2))
+        #print "ssr: " + str(numpy.sum((numpy.array(self.prob.residuals()))**2))
         #print zip(self.prob.simvalues, self.prob.obsvalues)
-        #return -0.5*(numpy.sum((numpy.array(self.prob.residuals))**2)) / self.prob.pars[self.var].value - numpy.log(self.prob.pars[self.var].value)
-        return -0.5*(numpy.sum((numpy.array(self.prob.residuals))**2)) / self.prob.pars[self.var].value - (len(self.prob.obs)/2)*numpy.log(self.prob.pars[self.var].value)
+        #return -0.5*(numpy.sum((numpy.array(self.prob.residuals()))**2)) / self.prob.pars[self.var].value - numpy.log(self.prob.pars[self.var].value)
+        return -0.5*(numpy.sum((numpy.array(self.prob.residuals()))**2)) / self.prob.pars[self.var].value - (len(self.prob.obs)/2)*numpy.log(self.prob.pars[self.var].value)
 
 class logposteriorwithvariance(object):
     def __init__(self, prob, var=1):
@@ -1387,12 +1410,12 @@ class logposteriorwithvariance(object):
     def loglhood(self,ts):
         pardict = dict(zip(self.prob.parnames, ts))
         self.prob.forward(pardict=pardict, reuse_dirs=True)
-        #return -0.5*(numpy.sum((numpy.array(self.prob.residuals))**2)) / self.var - numpy.log(self.var)
-        #print self.prob.residuals
+        #return -0.5*(numpy.sum((numpy.array(self.prob.residuals()))**2)) / self.var - numpy.log(self.var)
+        #print self.prob.residuals()
         #print self.var
-        #print numpy.array(self.prob.residuals / self.var)
-        #print -0.5*(numpy.sum((numpy.array(self.prob.residuals / self.var))**2))
-        return -0.5*(numpy.sum((numpy.array(self.prob.residuals / self.var))**2))
+        #print numpy.array(self.prob.residuals() / self.var)
+        #print -0.5*(numpy.sum((numpy.array(self.prob.residuals() / self.var))**2))
+        return -0.5*(numpy.sum((numpy.array(self.prob.residuals() / self.var))**2))
     def __call__(self, ts):
         lpri = self.logprior(ts)
         if lpri == -numpy.inf:

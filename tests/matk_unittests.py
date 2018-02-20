@@ -73,7 +73,7 @@ class Tests(unittest.TestCase):
         self.p.forward()
         results = self.p.simvalues
         self.p.obsvalues = results
-        self.assertEqual(sum(self.p.residuals),0.0, 'Residual from forward run is not zero')
+        self.assertEqual(sum(self.p.residuals()),0.0, 'Residual from forward run is not zero')
 
     def testsample(self):
         # Create 100 lhs samples and make sure they are within parameter bounds
@@ -125,7 +125,7 @@ class Tests(unittest.TestCase):
             self.p.parvalues = smp
             self.p.forward()
             self.p.obsvalues =  out
-            self.assertTrue( sum(self.p.residuals) == 0., 'A parallel run does not match a forward run' )
+            self.assertTrue( sum(self.p.residuals()) == 0., 'A parallel run does not match a forward run' )
 
     def testparallel_workdir(self):
         # With working directories
@@ -137,7 +137,7 @@ class Tests(unittest.TestCase):
             self.p.parvalues = smp
             self.p.forward()
             self.p.obsvalues = out 
-            self.assertTrue( sum(self.p.residuals) == 0., 'A parallel run with a working directory does not match a forward run' )
+            self.assertTrue( sum(self.p.residuals()) == 0., 'A parallel run with a working directory does not match a forward run' )
 
     def testcorrelation(self):
         samples = numpy.array([[  2.79514388e-01,   1.83572352e-01,   1.15954591e-01,   4.64518743e-02],
@@ -188,31 +188,31 @@ class Tests(unittest.TestCase):
         self.c.parvalues = {'amp':10.,'decay':0.1,'shift':0.,'omega':3.0}
         self.c.forward()
         self.c.lmfit(report_fit=False)
-        self.assertTrue( self.c.ssr < 1.e-10, 'Objective function value is ' + str(self.c.ssr) )
+        self.assertTrue( self.c.ssr() < 1.e-10, 'Objective function value is ' + str(self.c.ssr()) )
 
     def testcalibrate_lmfit_mp(self): 
         self.c.parvalues = {'amp':10.,'decay':0.1,'shift':0.,'omega':3.0}
         self.c.forward()
         self.c.lmfit(cpus=5,report_fit=False)
-        self.assertTrue( self.c.ssr < 1.e-10, 'Objective function value is ' + str(self.c.ssr) )
+        self.assertTrue( self.c.ssr() < 1.e-10, 'Objective function value is ' + str(self.c.ssr()) )
 
     def testcalibrate_lmfit_central(self): 
         self.c.parvalues = {'amp':10.,'decay':0.1,'shift':0.,'omega':3.0}
         self.c.forward()
         self.c.lmfit(cpus=4,report_fit=False,difference_type='central')
-        self.assertTrue( self.c.ssr < 1.e-10, 'Objective function value is ' + str(self.c.ssr) )
+        self.assertTrue( self.c.ssr() < 1.e-10, 'Objective function value is ' + str(self.c.ssr()) )
 
     def testcalibrate_lmfit_fixed_pars(self): 
         # Forward derivatives
         self.c.parvalues = {'amp':10.,'decay':0.025,'shift':0.,'omega':2.0}
         self.c.forward()
         self.c.lmfit(cpus=4,report_fit=False,difference_type='forward')
-        self.assertTrue( self.c.ssr < 1.e-10, 'Objective function value is ' + str(self.c.ssr) )
+        self.assertTrue( self.c.ssr() < 1.e-10, 'Objective function value is ' + str(self.c.ssr()) )
         # Central derivatives
         self.c.parvalues = {'amp':10.,'decay':0.025,'shift':0.,'omega':2.0}
         self.c.forward()
         self.c.lmfit(cpus=4,report_fit=False,difference_type='central')
-        self.assertTrue( self.c.ssr < 1.e-10, 'Objective function value is ' + str(self.c.ssr) )
+        self.assertTrue( self.c.ssr() < 1.e-10, 'Objective function value is ' + str(self.c.ssr()) )
 
     def testjacobian(self):
         # Check condition number
@@ -223,10 +223,10 @@ class Tests(unittest.TestCase):
     def testcalibrate(self):
         self.j.obsvalues = [5.308,7.24,9.638,12.866,17.069,23.192,31.443,38.558,50.156,62.948,75.995,91.972]
         self.j.calibrate()
-        self.assertTrue( self.j.ssr < 2.587278, 'Final SSR of sine model is incorrect' + str(self.j.ssr) )
+        self.assertTrue( self.j.ssr() < 2.587278, 'Final SSR of sine model is incorrect' + str(self.j.ssr()) )
         self.c.parvalues = {'amp':10.,'decay':0.1,'shift':0.,'omega':3.0}
         self.c.calibrate()
-        self.assertTrue( self.c.ssr < 1.e-27, 'Final SSR of marquardt model is incorrect ' + str(self.c.ssr) )
+        self.assertTrue( self.c.ssr() < 1.e-27, 'Final SSR of marquardt model is incorrect ' + str(self.c.ssr()) )
 
     def testpickle_test(self):
         # Create sampleset
