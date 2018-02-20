@@ -16,7 +16,7 @@ def Ishigami(values):
     for i, X in enumerate(values):
         Y[i] = math.sin(X[0]) + A * math.pow(math.sin(X[1]), 2) + \
             B * math.pow(X[2], 4) * math.sin(X[0])
-	return Y
+    return Y
 
 def myIshigami(pars):
     return Ishigami(numpy.array([[pars['x1'],pars['x2'],pars['x3']]]))

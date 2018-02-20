@@ -99,7 +99,7 @@ including parameter samples, associated responses, and sample indices</p>
 
 <dl class="method">
 <dt id="matk.sampleset.SampleSet.corr">
-<code class="descname">corr</code><span class="sig-paren">(</span><em>type='pearson'</em>, <em>plot=False</em>, <em>printout=True</em>, <em>plotvals=True</em>, <em>figsize=None</em>, <em>title=None</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.sampleset.SampleSet.corr" title="Permalink to this definition">¶</a></dt>
+<code class="descname">corr</code><span class="sig-paren">(</span><em>type='pearson'</em>, <em>plot=False</em>, <em>printout=True</em>, <em>plotvals=True</em>, <em>figsize=None</em>, <em>title=None</em>, <em>xrotation=0</em>, <em>filename=None</em>, <em>adjust_dict=None</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.sampleset.SampleSet.corr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate correlation coefficients of parameters and responses</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -112,6 +112,9 @@ including parameter samples, associated responses, and sample indices</p>
 <li><strong>plotvals</strong> (<em>bool</em>) – If True, print correlation coefficients on plot matrix</li>
 <li><strong>figsize</strong> (<em>tuple</em><em>(</em><em>fl64</em><em>,</em><em>fl64</em><em>)</em>) – Width and height of figure in inches</li>
 <li><strong>title</strong> (<em>str</em>) – Title of plot</li>
+<li><strong>xrotation</strong> – Rotation for x axis tick labels</li>
+<li><strong>filename</strong> (<em>str</em>) – Name of file to save plot. File ending determines plot type (pdf, png, ps, eps, etc.). Plot types available depends on the matplotlib backend in use on the system. Plot will not be displayed.</li>
+<li><strong>adjust_dict</strong> (<em>dict</em>) – Dictionary of kwargs to pass to plt.subplots_adjust.  Keys and defaults are: left  = 0.125, right = 0.9, bottom = 0.1, top = 0.9, wspace = 0.2, hspace = 0.2</li>
 </ul>
 </td>
 </tr>
@@ -406,9 +409,47 @@ If samples are not specified, LHS samples are produced</p>
 
 </dd></dl>
 
-<dl class="function">
-<dt id="matk.sampleset.hist">
-<code class="descclassname">matk.sampleset.</code><code class="descname">hist</code><span class="sig-paren">(</span><em>rc</em>, <em>ncols=4</em>, <em>figsize=None</em>, <em>alpha=0.2</em>, <em>title=None</em>, <em>tight=False</em>, <em>mins=None</em>, <em>maxs=None</em>, <em>frequency=False</em>, <em>bins=10</em>, <em>ylim=None</em>, <em>printout=True</em>, <em>labels=[]</em>, <em>filename=None</em>, <em>fontsize=None</em>, <em>xticks=3</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.sampleset.hist" title="Permalink to this definition">¶</a></dt>
+<dl class="class">
+<dt id="matk.sampleset.DataSet">
+<em class="property">class </em><code class="descclassname">matk.sampleset.</code><code class="descname">DataSet</code><span class="sig-paren">(</span><em>samples</em>, <em>names</em>, <em>mins=None</em>, <em>maxs=None</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.sampleset.DataSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>MATK DataSet class used by SampleSet class to store samples (parameter combinations; ‘SampleSet.samples’) and responses (model outputs; ‘SampleSet.responses’)</p>
+<dl class="method">
+<dt id="matk.sampleset.DataSet.corner">
+<code class="descname">corner</code><span class="sig-paren">(</span><em>bins=20</em>, <em>range=None</em>, <em>weights=None</em>, <em>color=u'k'</em>, <em>smooth=None</em>, <em>smooth1d=None</em>, <em>labels=None</em>, <em>label_kwargs=None</em>, <em>show_titles=False</em>, <em>title_fmt=u'.2f'</em>, <em>title_kwargs=None</em>, <em>truths=None</em>, <em>truth_color=u'#4682b4'</em>, <em>scale_hist=False</em>, <em>quantiles=None</em>, <em>verbose=False</em>, <em>fig=None</em>, <em>max_n_ticks=5</em>, <em>top_ticks=False</em>, <em>use_math_text=False</em>, <em>hist_kwargs=None</em>, <em>**hist2d_kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.sampleset.DataSet.corner" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot corner plot using the corner package written by Dan Foreman-Mackey (<a class="reference external" href="https://pypi.python.org/pypi/corner/1.0.0">https://pypi.python.org/pypi/corner/1.0.0</a>)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="matk.sampleset.DataSet.corr">
+<code class="descname">corr</code><span class="sig-paren">(</span><em>type='pearson'</em>, <em>plot=False</em>, <em>printout=True</em>, <em>plotvals=True</em>, <em>figsize=None</em>, <em>title=None</em>, <em>xrotation=0</em>, <em>filename=None</em>, <em>adjust_dict=None</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.sampleset.DataSet.corr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate correlation coefficients of dataset values</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>type</strong> (<em>str</em>) – Type of correlation coefficient (pearson by default, spearman also avaialable)</li>
+<li><strong>plot</strong> (<em>bool</em>) – If True, plot correlation matrix</li>
+<li><strong>plotvals</strong> (<em>bool</em>) – If True, print correlation coefficients on plot matrix</li>
+<li><strong>printout</strong> (<em>bool</em>) – If True, print correlation matrix with row and column headings</li>
+<li><strong>figsize</strong> (<em>tuple</em><em>(</em><em>fl64</em><em>,</em><em>fl64</em><em>)</em>) – Width and height of figure in inches</li>
+<li><strong>title</strong> (<em>str</em>) – Title of plot</li>
+<li><strong>xrotation</strong> – Rotation for x axis tick labels</li>
+<li><strong>filename</strong> (<em>str</em>) – Name of file to save plot. File ending determines plot type (pdf, png, ps, eps, etc.). Plot types available depends on the matplotlib backend in use on the system. Plot will not be displayed.</li>
+<li><strong>adjust_dict</strong> (<em>dict</em>) – Dictionary of kwargs to pass to plt.subplots_adjust.  Keys and defaults are: left  = 0.125, right = 0.9, bottom = 0.1, top = 0.9, wspace = 0.2, hspace = 0.2</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">ndarray(fl64) – Correlation coefficients</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="matk.sampleset.DataSet.hist">
+<code class="descname">hist</code><span class="sig-paren">(</span><em>ncols=4</em>, <em>alpha=0.2</em>, <em>figsize=None</em>, <em>title=None</em>, <em>tight=False</em>, <em>mins=None</em>, <em>maxs=None</em>, <em>frequency=False</em>, <em>bins=10</em>, <em>ylim=None</em>, <em>printout=True</em>, <em>labels=[]</em>, <em>filename=None</em>, <em>fontsize=None</em>, <em>xticks=3</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.sampleset.DataSet.hist" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot histograms of dataset</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -416,19 +457,18 @@ If samples are not specified, LHS samples are produced</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>ncols</strong> (<em>int</em>) – Number of columns in plot matrix</li>
-<li><strong>figsize</strong> (<em>tuple</em><em>(</em><em>fl64</em><em>,</em><em>fl64</em><em>)</em>) – Width and height of figure in inches</li>
 <li><strong>alpha</strong> (<em>float</em>) – Histogram color shading</li>
+<li><strong>figsize</strong> (<em>tuple</em><em>(</em><em>fl64</em><em>,</em><em>fl64</em><em>)</em>) – Width and height of figure in inches</li>
 <li><strong>title</strong> (<em>str</em>) – Title of plot</li>
 <li><strong>tight</strong> (<em>bool</em>) – Use matplotlib tight layout</li>
-<li><strong>mins</strong> (<em>lst</em><em>(</em><em>fl64</em><em>)</em>) – Minimum values of recarray fields</li>
-<li><strong>maxs</strong> (<em>lst</em><em>(</em><em>fl64</em><em>)</em>) – Maximum values of recarray fields</li>
 <li><strong>frequency</strong> (<em>bool</em>) – If True, the first element of the return tuple will be the counts normalized by the length of data, i.e., n/len(x)</li>
-<li><strong>bins</strong> (<em>int</em><em> or </em><em>lst</em><em>(</em><em>lst</em><em>(</em><em>int</em><em>)</em><em>)</em>) – If an integer is given, bins + 1 bin edges are returned. Unequally spaced bins are supported if bins is a list of sequences for each histogram.</li>
-<li><strong>ylim</strong> (<em>tuples - 2 element tuple with y limits for histograms</em>) – y-axis limits for histograms.</li>
+<li><strong>bins</strong> (<em>int</em>) – Number of bins in histograms</li>
+<li><strong>ylim</strong> (<em>tuple - 2 element tuple with y limits for histograms</em>) – y-axis limits for histograms.</li>
+<li><strong>printout</strong> (<em>bool</em>) – If True, histogram values are printed to the terminal</li>
 <li><strong>labels</strong> (<em>lst</em><em>(</em><em>str</em><em>)</em>) – Names to use instead of parameter names in plot</li>
 <li><strong>filename</strong> (<em>str</em>) – Name of file to save plot. File ending determines plot type (pdf, png, ps, eps, etc.). Plot types available depends on the matplotlib backend in use on the system. Plot will not be displayed.</li>
 <li><strong>fontsize</strong> (<em>fl64</em>) – Size of font</li>
-<li><strong>xticks</strong> (<em>int</em>) – Number of ticks on xaxes</li>
+<li><strong>xticks</strong> (<em>int</em>) – Number of ticks along x axes</li>
 </ul>
 </td>
 </tr>
@@ -439,31 +479,118 @@ If samples are not specified, LHS samples are produced</p>
 </table>
 </dd></dl>
 
-<dl class="function">
-<dt id="matk.sampleset.corr">
-<code class="descclassname">matk.sampleset.</code><code class="descname">corr</code><span class="sig-paren">(</span><em>rc1</em>, <em>rc2</em>, <em>type='pearson'</em>, <em>plot=False</em>, <em>printout=True</em>, <em>plotvals=True</em>, <em>figsize=None</em>, <em>title=None</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.sampleset.corr" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate correlation coefficients of parameters and responses</p>
+<dl class="method">
+<dt id="matk.sampleset.DataSet.mean">
+<code class="descname">mean</code><span class="sig-paren">(</span><em>pretty_print=False</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.sampleset.DataSet.mean" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mean of samples</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.sampleset.DataSet.names">
+<code class="descname">names</code><a class="headerlink" href="#matk.sampleset.DataSet.names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Array of parameter names</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="matk.sampleset.DataSet.panels">
+<code class="descname">panels</code><span class="sig-paren">(</span><em>type='pearson'</em>, <em>alpha=0.2</em>, <em>figsize=None</em>, <em>title=None</em>, <em>tight=False</em>, <em>symbol='.'</em>, <em>fontsize=None</em>, <em>corrfontsize=None</em>, <em>ms=5</em>, <em>mins=None</em>, <em>maxs=None</em>, <em>frequency=False</em>, <em>bins=10</em>, <em>ylim=None</em>, <em>labels=[]</em>, <em>filename=None</em>, <em>xticks=2</em>, <em>yticks=2</em>, <em>color=None</em>, <em>cmap=None</em>, <em>edgecolors='face'</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.sampleset.DataSet.panels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot histograms, scatterplots, and correlation coefficients in paired matrix</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>type</strong> (<em>str</em>) – Type of correlation coefficient (pearson by default, spearman also avaialable)</li>
+<li><strong>alpha</strong> (<em>float</em>) – Histogram color shading</li>
+<li><strong>figsize</strong> (<em>tuple</em><em>(</em><em>fl64</em><em>,</em><em>fl64</em><em>)</em>) – Width and height of figure in inches</li>
+<li><strong>title</strong> (<em>str</em>) – Title of plot</li>
+<li><strong>tight</strong> (<em>bool</em>) – Use matplotlib tight layout</li>
+<li><strong>symbol</strong> (<em>str</em>) – matplotlib symbol for scatterplots</li>
+<li><strong>corrfontsize</strong> (<em>fl64</em>) – Size of font for correlation coefficients</li>
+<li><strong>fontsize</strong> (<em>fl64</em>) – Size of font for axis labels</li>
+<li><strong>ms</strong> (<em>fl64</em>) – Scatterplot marker size</li>
+<li><strong>frequency</strong> (<em>bool</em>) – If True, the first element of the return tuple will be the counts normalized by the length of data, i.e., n/len(x)</li>
+<li><strong>bins</strong> (<em>int</em><em> or </em><em>lst</em><em>(</em><em>lst</em><em>(</em><em>int</em><em>)</em><em>)</em>) – If an integer is given, bins + 1 bin edges are returned. Unequally spaced bins are supported if bins is a list of sequences for each histogram.</li>
+<li><strong>ylim</strong> (<em>tuple - 2 element tuples with y limits for histograms</em>) – y-axis limits for histograms.</li>
+<li><strong>labels</strong> (<em>lst</em><em>(</em><em>str</em><em>)</em>) – Names to use instead of parameter names in plot</li>
+<li><strong>filename</strong> (<em>str</em>) – Name of file to save plot. File ending determines plot type (pdf, png, ps, eps, etc.). Plot types available depends on the matplotlib backend in use on the system. Plot will not be displayed.</li>
+<li><strong>xticks</strong> (<em>int</em>) – Number of ticks along x axes</li>
+<li><strong>yticks</strong> (<em>int</em>) – Number of ticks along y axes</li>
+<li><strong>color</strong> (<em>str</em>) – Name of parameter of observation to color points in colorplots by</li>
+<li><strong>cmap</strong> (<em>matplotlib.colors.Colormap</em>) – Colormap for color option</li>
+<li><strong>edgecolors</strong> (<em>str</em>) – Color of edges of markers in scatterplots</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="matk.sampleset.DataSet.percentile">
+<code class="descname">percentile</code><span class="sig-paren">(</span><em>pct</em>, <em>interpolation='linear'</em>, <em>pretty_print=False</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.sampleset.DataSet.percentile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Percentile of samples</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>rc1</strong> – Data</li>
-<li><strong>rc2</strong> – Data</li>
-<li><strong>type</strong> (<em>str</em>) – Type of correlation coefficient (pearson by default, spearman also avaialable)</li>
-<li><strong>plot</strong> (<em>bool</em>) – If True, plot correlation matrix</li>
-<li><strong>printout</strong> (<em>bool</em>) – If True, print correlation matrix with row and column headings</li>
-<li><strong>plotvals</strong> (<em>bool</em>) – If True, print correlation coefficients on plot matrix</li>
-<li><strong>figsize</strong> (<em>tuple</em><em>(</em><em>fl64</em><em>,</em><em>fl64</em><em>)</em>) – Width and height of figure in inches</li>
-<li><strong>title</strong> (<em>str</em>) – Title of plot</li>
+<li><strong>pct</strong> (<em>fl64</em><em> or </em><em>lst</em><em>[</em><em>fl64</em><em>]</em>) – Percentile in range [0,100] or list of percentiles</li>
+<li><strong>interpolation</strong> (<em>str - {'linear'</em><em>, </em><em>'lower'</em><em>, </em><em>'higher'</em><em>, </em><em>'midpoint'</em><em>, </em><em>'nearest'}</em>) – Interpolation method to use when quantile lies between data points</li>
+<li><strong>pretty_print</strong> (<em>bool</em>) – If True, print with row and column headings</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">ndarray(fl64) – Correlation coefficients</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">ndarray(fl64)</p>
 </td>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.sampleset.DataSet.recarray">
+<code class="descname">recarray</code><a class="headerlink" href="#matk.sampleset.DataSet.recarray" title="Permalink to this definition">¶</a></dt>
+<dd><p>Structured (record) array of samples</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="matk.sampleset.DataSet.savestats">
+<code class="descname">savestats</code><span class="sig-paren">(</span><em>outfile, q=[2.5, 5.0, 50.0, 95.0, 97.5], interpolation='linear'</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.sampleset.DataSet.savestats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save statistical measures to file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>outfile</strong> (<em>str</em>) – Name of file</li>
+<li><strong>q</strong> (<em>fl64</em><em> or </em><em>lst</em><em>[</em><em>fl64</em><em>]</em>) – percentile or list of percentiles to compute</li>
+<li><strong>interpolation</strong> (<em>str - {'linear'</em><em>, </em><em>'lower'</em><em>, </em><em>'higher'</em><em>, </em><em>'midpoint'</em><em>, </em><em>'nearest'}</em>) – Interpolation method to use when quantile lies between data points</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="matk.sampleset.DataSet.std">
+<code class="descname">std</code><span class="sig-paren">(</span><em>pretty_print=False</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.sampleset.DataSet.std" title="Permalink to this definition">¶</a></dt>
+<dd><p>Standard deviation of samples</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.sampleset.DataSet.values">
+<code class="descname">values</code><a class="headerlink" href="#matk.sampleset.DataSet.values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ndarray of parameter samples, rows are samples, columns are parameters in order of MATKobject.parlist</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="matk.sampleset.DataSet.var">
+<code class="descname">var</code><span class="sig-paren">(</span><em>pretty_print=False</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.sampleset.DataSet.var" title="Permalink to this definition">¶</a></dt>
+<dd><p>Variance of samples</p>
+</dd></dl>
+
 </dd></dl>
 
 </div>
