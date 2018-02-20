@@ -173,9 +173,11 @@ class SampleSet(object):
             print "\nIndex not found"
             return
         return OrderedDict(zip(self.parnames,self.samples.values[row_index]))
-    @property
-    def sse(self):
+    def sse(self,group=None):
         """ Sum of squared errors (sse) for all samples
+
+            :param group: Group name of observations; if not None, sse for observation group will be returned
+            :type group: str
         """
         if len(self._parent.obsvalues) == 0:
             print "Observations are not set (e.g. prob.obsvalues is empty)"
@@ -183,7 +185,11 @@ class SampleSet(object):
         elif self.responses is None:
             print "Responses have not been calculated. Run sampleset (e.g. sampleset.run())"
             return 0
-        sse = [numpy.sum(((self._parent.obsvalues - self.responses.values[i,:])*self._parent.obsweights)**2) for i in range(len(self.responses.values))]
+        if group is None:
+            sse = [numpy.sum(((self._parent.obsvalues - self.responses.values[i,:])*self._parent.obsweights)**2) for i in range(len(self.responses.values))]
+        else:
+            grp_inds = numpy.where(self._parent.obsgroups == group)
+            sse = [numpy.sum(((self._parent.obsvalues[grp_inds] - self.responses.values[i,grp_inds])*self._parent.obsweights[grp_inds])**2) for i in range(len(self.responses.values))]
         return numpy.array(sse)
     def mean(self, pretty_print=False):
         """ Mean of samples
@@ -384,7 +390,11 @@ class SampleSet(object):
         if not self.responses is None and sse is False:
             x = numpy.column_stack([x,self.responses.values])
         elif not self.responses is None and sse is True:
-            x = numpy.column_stack([x,self.sse])
+            x = numpy.column_stack([x,self.sse()])
+            if len(numpy.unique(self._parent.obsgroups)) > 1:
+                for grp in numpy.unique(self._parent.obsgroups):
+                    if grp is not None:
+                        x = numpy.column_stack([x,self.sse(grp)])
 
         if outfile:
             f = open(outfile, 'w')
@@ -412,7 +422,11 @@ class SampleSet(object):
                         for nm in self.obsnames:
                             f.write(" %22s" % nm )
             else:
-                f.write(" %22s" % 'sum-of-squared errors' )
+                f.write(" {:>22}".format('SSE') )
+                if len(numpy.unique(self._parent.obsgroups)) > 1:
+                    for grp in numpy.unique(self._parent.obsgroups):
+                        if grp is not None:
+                            f.write(" {:>22}".format(grp+'_SSE') )
             f.write('\n')
             for row in x:
                 if isinstance( row[0], str ):
@@ -554,7 +568,7 @@ class SampleSet(object):
         problem['names'] = self._parent.parnames
         problem['bounds'] = zip(self._parent.parmins,self._parent.parmaxs)
 
-        if obsname == 'sse': obs = self.sse
+        if obsname == 'sse': obs = self.sse()
         else: obs = self.recarray[obsname]
         return sobol.analyze(problem, obs, calc_second_order=calc_second_order, print_to_console=print_to_console, num_resamples=num_resamples, conf_level=conf_level)
     def rbd_fast(self, obsname='sse', M=10, print_to_console=True, problem={}):
@@ -580,7 +594,7 @@ class SampleSet(object):
         problem['names'] = self._parent.parnames
         problem['bounds'] = zip(self._parent.parmins,self._parent.parmaxs)
 
-        if obsname == 'sse': obs = self.sse
+        if obsname == 'sse': obs = self.sse()
         else: obs = self.recarray[obsname]
         return rbd_fast.analyze(problem, obs, self.samples.values, M=M, print_to_console=print_to_console)
 
