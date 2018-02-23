@@ -49,7 +49,7 @@ class Minimizer(LmfitMinimizer):
             self.__set_internal_parvalues(self.vars)
             self.userfcn(*self.userargs, **self.userkws)
         self.nfev = self.nfev + 1
-        out = self._parent.residuals
+        out = self._parent.residuals()
         if hasattr(self.iter_cb, '__call__'):
             self.iter_cb(self.params, self.nfev, out,
                          *self.userargs, **self.userkws)
@@ -138,7 +138,7 @@ class Minimizer(LmfitMinimizer):
         #a = self.vars # Initial parameter values
         besta = self.vars # Best parameters start as current parameters
         self.__residual(self.vars)
-        bestSS = SS = self._parent.ssr # Sum of squared error
+        bestSS = SS = self._parent.ssr() # Sum of squared error
         Cov = None
         iscomp = True
         ncount = 0
@@ -189,7 +189,7 @@ class Minimizer(LmfitMinimizer):
                 newa = self.vars + delta
                 # and new sum of squares
                 self.__residual(newa)
-                newSS = self._parent.ssr
+                newSS = self._parent.ssr()
                 if verbose: print "newSS = ", newSS
                 # Update current parameter vector?
                 if (newSS < bestSS):
@@ -234,7 +234,7 @@ class Minimizer(LmfitMinimizer):
             print 'Parameter: '
             print self._parent.parvalues
             print 'SSR: '
-            print self._parent.ssr
+            print self._parent.ssr()
             print 'Flag: ', flag
             try:
                 Cov = numpy.linalg.inv(JtJ)
