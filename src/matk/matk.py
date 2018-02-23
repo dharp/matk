@@ -715,12 +715,12 @@ class matk(object):
             fsims = sims[:numpy.sum(vary)]
             bsims = sims[numpy.sum(vary):]
             for h,fsim,bsim in zip(hs[numpy.where(vary==1)[0]],fsims,bsims):
-                J.append((bsim-fsim)/(2*h))
+                J.append((bsim-fsim)*self.obsweights/(2*h))
         elif difference_type == 'forward':
             diffsims = sims[:numpy.sum(vary)]
             zerosims = sims[-1]
             for h,d in zip(hs[numpy.where(vary==1)[0]],diffsims):
-                J.append((zerosims-d)/h)
+                J.append((zerosims-d)*self.obsweights/h)
         self.parvalues = a
         return numpy.array(J).T
 
