@@ -970,10 +970,10 @@ def corr(rc1, rc2, type='pearson', plot=False, printout=True, plotvals=True, fig
         print "Error: Nan values exist probably due to failed simulations. Use subset (e.g. subset([('obs','!=',numpy.nan)]) to remove"
         return
     corrlist = []
-    if type is 'pearson':
+    if type == 'pearson':
         for snm in rc1.dtype.names:
             corrlist.append([stats.pearsonr(rc1[snm],rc2[rnm])[0] for rnm in rc2.dtype.names])
-    elif type is 'spearman':
+    elif type == 'spearman':
         for snm in rc1.dtype.names:
             corrlist.append([stats.spearmanr(rc1[snm],rc2[rnm])[0] for rnm in rc2.dtype.names])
     else:
