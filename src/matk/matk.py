@@ -720,7 +720,7 @@ class matk(object):
             sims = self.sampleset['_jac_'].responses.values
             if verbose and len(self.obs):
                 print "Jacobian sse's:"
-                print self.sampleset['_jac_'].sse
+                print self.sampleset['_jac_'].sse()
         else:
             sims = []
             if verbose and len(self.obs): sse = []
