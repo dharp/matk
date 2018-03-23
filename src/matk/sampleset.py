@@ -305,7 +305,7 @@ class SampleSet(object):
             print 'Plotting capabilities not enabled, ensure x connnection'
             return
     def run(self, cpus=1, workdir_base=None, save=True, reuse_dirs=False, outfile=None, 
-            logfile=None, restart_logfile=None, verbose=True, hosts={}, progress=False ):
+            logfile=None, restart_logfile=None, verbose=True, hosts={}):
         """ Run model using values in samples for parameter values
             If samples are not specified, LHS samples are produced
             
@@ -323,10 +323,10 @@ class SampleSet(object):
             :type logfile: str
             :param restart_logfile: Existing logfile containing completed runs, used to complete an incomplete sampling; Warning: sample indices are expected to match!
             :type restart_logfile: str
+            :param verbose: Prints results as calculated if True and Display progress bar in console if 'progress'
+            :type verbose: bool or str
             :param hosts: Option deprecated, use cpus instead
             :type hosts: lst(str)
-            :param progress: Display progress bar in console
-            :type progress: bool
             :returns: tuple(ndarray(fl64),ndarray(fl64)) - (Matrix of responses from sampled model runs siz rows by npar columns, Parameter samples, same as input samples if provided)
         """
         if workdir_base:
@@ -351,7 +351,7 @@ class SampleSet(object):
             out, retsamples = self._parent.parallel(samples, cpus, 
                  indices=indices, workdir_base=workdir_base, 
                  save=save, reuse_dirs=reuse_dirs, verbose=verbose, 
-                 logfile=logfile, progress=progress)
+                 logfile=logfile)
         else:
             print 'Error: number of cpus must be greater than zero'
             return

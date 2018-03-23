@@ -905,8 +905,7 @@ class matk(object):
                 in_queue.task_done()
         in_queue.task_done()
     def parallel(self, parsets, cpus=1, workdir_base=None, save=True,
-                reuse_dirs=False, indices=None, verbose=True, logfile=None,
-                progress=False):
+                reuse_dirs=False, indices=None, verbose=True, logfile=None):
 
         if not os.name is "posix":
             # Use freeze_support for PCs
@@ -983,7 +982,15 @@ class matk(object):
                 if isinstance( resp, OrderedDict):
                     self._set_simvalues(resp)
                     results[lst_ind] = resp.values()
-                if verbose or logfile:
+                if verbose == 'progress':
+                    bar_length=20
+                    percent = float(i+1) / n
+                    arrow = '-' * int(round(percent * bar_length)-1) + '>'
+                    spaces = ' ' * (bar_length - len(arrow))
+                    sys.stdout.write("\rProgress: [{0}] {1:.0%} {2} of {3} samples completed"
+                                     .format(arrow + spaces, percent,
+                                             i+1, n))
+                if (verbose is True) or logfile:
                     if header:
                         if logfile: 
                             f.write("Number of responses: %d\n" % len(self.obs) )
@@ -993,7 +1000,7 @@ class matk(object):
                         for nm in self.obsnames:
                             s += " %22s" % nm
                         s += '\n'
-                        if verbose: print s,
+                        if (verbose is True): print s,
                         if logfile: 
                             f.write( s )
                             f.flush()
@@ -1005,18 +1012,10 @@ class matk(object):
                         for v in results[lst_ind]:
                             s += " %22.16g" % v
                     s += '\n'
-                    if verbose: print s,
+                    if (verbose is True): print s,
                     if logfile: 
                         f.write( s )
                         f.flush()
-            bar_length=20
-            percent = float(i+1) / n
-            arrow = '-' * int(round(percent * bar_length)-1) + '>'
-            spaces = ' ' * (bar_length - len(arrow))
-            if progress:
-                sys.stdout.write("\rProgress: [{0}] {1:.0%} {2} of {3} samples completed"
-                                 .format(arrow + spaces, percent,
-                                         i+1, n))
         if logfile: f.close()
 
         for i in range(len(results)):
