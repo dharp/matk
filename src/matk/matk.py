@@ -666,7 +666,9 @@ class matk(object):
         if save_evals:
             self._minimize_pars.append(self.parvalues)
             self._minimize_sims.append(self.simvalues)
-        return self.residuals()
+        sse = (self.obsvalues - self.simvalues)*self.obsweights
+        return sse
+        #return self.residuals()
     def __jacobian( self, params, cpus=1, epsfcn=None, workdir_base=None,verbose=False,save=False,
                    difference_type='forward',reuse_dirs=True):
         ''' Numerical Jacobian calculation
