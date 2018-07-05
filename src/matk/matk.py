@@ -3,7 +3,7 @@ import pdb
 from parameter import Parameter
 from observation import Observation
 from sampleset import SampleSet
-import numpy 
+import numpy
 from lhs import *
 import cPickle as pickle
 from shutil import rmtree
@@ -172,7 +172,7 @@ class matk(object):
             :param group: Group name of observations; if not None, ssr for observation group will be returned
             :type group: str
         """
-        return sum(numpy.array(self.residuals(group))**2)
+        return numpy.sum(numpy.array(self.residuals(group))**2)
     def add_par(self, name, value=None, vary=True, min=None, max=None, expr=None, discrete_vals=[], **kwargs):
         """ Add parameter to problem
 
