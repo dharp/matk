@@ -1002,7 +1002,10 @@ class matk(object):
                         s += " %22.16g" % v
                     if results[lst_ind] is not numpy.NAN:
                         for v in results[lst_ind]:
-                            s += " %22.16g" % v
+                            if v is None:
+                                s += " %22s" % "None"
+                            else:
+                                s += " %22.16g" % v
                     s += '\n'
                     if verbose: print s,
                     if logfile: 
