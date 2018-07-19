@@ -3,7 +3,7 @@ import pdb
 from parameter import Parameter
 from observation import Observation
 from sampleset import SampleSet
-import numpy 
+import numpy
 from lhs import *
 import cPickle as pickle
 from shutil import rmtree
@@ -172,7 +172,7 @@ class matk(object):
             :param group: Group name of observations; if not None, ssr for observation group will be returned
             :type group: str
         """
-        return sum(numpy.array(self.residuals(group))**2)
+        return numpy.sum(numpy.array(self.residuals(group))**2)
     def add_par(self, name, value=None, vary=True, min=None, max=None, expr=None, discrete_vals=[], **kwargs):
         """ Add parameter to problem
 
@@ -666,7 +666,9 @@ class matk(object):
         if save_evals:
             self._minimize_pars.append(self.parvalues)
             self._minimize_sims.append(self.simvalues)
-        return self.residuals()
+        sse = (self.obsvalues - self.simvalues)*self.obsweights
+        return sse
+        #return self.residuals()
     def __jacobian( self, params, cpus=1, epsfcn=None, workdir_base=None,verbose=False,save=False,
                    difference_type='forward',reuse_dirs=True):
         ''' Numerical Jacobian calculation
@@ -982,7 +984,15 @@ class matk(object):
                 if isinstance( resp, OrderedDict):
                     self._set_simvalues(resp)
                     results[lst_ind] = resp.values()
-                if verbose or logfile:
+                if verbose == 'progress':
+                    bar_length=20
+                    percent = float(i+1) / n
+                    arrow = '-' * int(round(percent * bar_length)-1) + '>'
+                    spaces = ' ' * (bar_length - len(arrow))
+                    sys.stdout.write("\rProgress: [{0}] {1:.0%} {2} of {3} samples completed"
+                                     .format(arrow + spaces, percent,
+                                             i+1, n))
+                if (verbose is True) or logfile:
                     if header:
                         if logfile: 
                             f.write("Number of responses: %d\n" % len(self.obs) )
@@ -992,7 +1002,7 @@ class matk(object):
                         for nm in self.obsnames:
                             s += " %22s" % nm
                         s += '\n'
-                        if verbose: print s,
+                        if (verbose is True): print s,
                         if logfile: 
                             f.write( s )
                             f.flush()
@@ -1007,7 +1017,7 @@ class matk(object):
                             else:
                                 s += " %22.16g" % v
                     s += '\n'
-                    if verbose: print s,
+                    if (verbose is True): print s,
                     if logfile: 
                         f.write( s )
                         f.flush()
