@@ -1,4 +1,4 @@
-from __future__ import division
+
 
 import math
 
@@ -53,7 +53,7 @@ def sample(problem, N, M=4):
         omega2[i] = omega[0]
         idx = list(range(i)) + list(range(i + 1, D))
         omega2[idx] = omega[1:]
-        l = range(i * N, (i + 1) * N)
+        l = list(range(i * N, (i + 1) * N))
 
         # random phase shift on [0, 2pi) following Saltelli et al.
         # Technometrics 1999

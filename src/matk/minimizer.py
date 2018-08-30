@@ -1,9 +1,9 @@
-from lmfit.minimizer import Minimizer as LmfitMinimizer
+from .lmfit.minimizer import Minimizer as LmfitMinimizer
 import numpy
 try:
     from collections import OrderedDict
 except ImportError:
-    from ordereddict import OrderedDict
+    from .ordereddict import OrderedDict
 
 class Minimizer(LmfitMinimizer):
     err_nonparam = \
@@ -43,7 +43,7 @@ class Minimizer(LmfitMinimizer):
             # set parameter values
             self.__set_internal_parvalues(fvars)
             self.update_constraints()
-            pardict = dict(zip(self._parent.parnames, self._parent.parvalues))
+            pardict = dict(list(zip(self._parent.parnames, self._parent.parvalues)))
             self.userfcn(pardict=pardict, *self.userargs, **self.userkws)
         else:
             self.__set_internal_parvalues(self.vars)
@@ -144,7 +144,7 @@ class Minimizer(LmfitMinimizer):
         ncount = 0
         flag   = 0
         for p in range(1, maxiter+1):
-            if verbose: print "marquardt(): iteration=", p
+            if verbose: print("marquardt(): iteration=", p)
             # If iscomp, recalculate JtJ and beta
             if (iscomp) :
                 # Compute Jacobian
@@ -164,46 +164,46 @@ class Minimizer(LmfitMinimizer):
             try:
                 delta = numpy.linalg.solve(A, beta)
             except numpy.linalg.linalg.LinAlgError as err:
-                print "Error: Unable to solve for update vector - " + str(err)
+                print("Error: Unable to solve for update vector - " + str(err))
                 break
             else:
                 code=0
             totabsdelta = numpy.sum(numpy.abs(delta))
             if verbose:
-                print "JtJ:"
-                print JtJ
+                print("JtJ:")
+                print(JtJ)
                 try:
                     Cov = numpy.linalg.inv(JtJ)
                 except numpy.linalg.linalg.LinAlgError as err:
-                    print "Warning: Unable to compute covariance - " + err   
+                    print("Warning: Unable to compute covariance - " + err)   
                 else:
-                    print 'Cov: '
-                    print Cov
-                print "beta = ", beta
-                print "delta=", delta
-                print "SS =",SS
-                print "lambdax=", lambdax
-                print "total abs delta=", totabsdelta
+                    print('Cov: ')
+                    print(Cov)
+                print("beta = ", beta)
+                print("delta=", delta)
+                print("SS =",SS)
+                print("lambdax=", lambdax)
+                print("total abs delta=", totabsdelta)
             if (code == 0):
                 # Compute new parameters
                 newa = self.vars + delta
                 # and new sum of squares
                 self.__residual(newa)
                 newSS = self._parent.ssr()
-                if verbose: print "newSS = ", newSS
+                if verbose: print("newSS = ", newSS)
                 # Update current parameter vector?
                 if (newSS < bestSS):
-                    if verbose: print "improved values found!"
+                    if verbose: print("improved values found!")
                     besta  = newa
                     bestSS = newSS
                     bestJtJ = JtJ
                     self.vars = newa
                     iscomp = True
                     if verbose:
-                        print "new a:"
+                        print("new a:")
                         for x in self.vars:
-                            print x
-                        print
+                            print(x)
+                        print()
                     # Termination criteria
                     if (SS - newSS < minchange):
                         ncount+= 1
@@ -231,17 +231,17 @@ class Minimizer(LmfitMinimizer):
                 flag = 2
         self.__residual(besta)
         if verbose:
-            print 'Parameter: '
-            print self._parent.parvalues
-            print 'SSR: '
-            print self._parent.ssr()
-            print 'Flag: ', flag
+            print('Parameter: ')
+            print(self._parent.parvalues)
+            print('SSR: ')
+            print(self._parent.ssr())
+            print('Flag: ', flag)
             try:
                 Cov = numpy.linalg.inv(JtJ)
             except numpy.linalg.linalg.LinAlgError as err:
-                print "Warning: Unable to compute covariance - " + str(err)   
+                print("Warning: Unable to compute covariance - " + str(err))   
             else:
-                print 'Cov: '
-                print Cov
+                print('Cov: ')
+                print(Cov)
 
 

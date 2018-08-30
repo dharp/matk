@@ -6,7 +6,7 @@ These tests can be run through the Nose testing framework.
 (c) 2010-2013 by Eric O. LEBIGOT (EOL).
 """
 
-from __future__ import division
+
 
 # Standard modules
 import sys
@@ -15,7 +15,7 @@ import math
 # Local modules:
 import uncertainties
 import uncertainties.umath as umath
-import test_uncertainties
+from . import test_uncertainties
 
 from uncertainties import __author__
 

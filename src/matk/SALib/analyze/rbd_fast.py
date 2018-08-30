@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # coding=utf8
 
-from __future__ import division
-from __future__ import print_function
+
+
 
 import numpy as np
 from scipy.signal import periodogram
@@ -73,8 +73,8 @@ def analyze(problem, Y, X, M=10, print_to_console=False):
         S1 = unskew_S1(S1, M, N)
         Si['S1'][i] = S1
         if print_to_console:
-            print("%s %g" %
-                  (problem['names'][i].ljust(9), Si['S1'][i]))
+            print(("%s %g" %
+                  (problem['names'][i].ljust(9), Si['S1'][i])))
     return Si
 
 

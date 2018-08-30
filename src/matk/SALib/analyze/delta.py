@@ -1,5 +1,5 @@
-from __future__ import division
-from __future__ import print_function
+
+
 
 from scipy.stats import norm, gaussian_kde, rankdata
 
@@ -63,7 +63,7 @@ def analyze(problem, X, Y, num_resamples=10,
     keys = ('delta', 'delta_conf', 'S1', 'S1_conf')
     S = dict((k, np.zeros(D)) for k in keys)
     if print_to_console:
-        print("Parameter %s %s %s %s" % keys)
+        print(("Parameter %s %s %s %s" % keys))
 
     for i in range(D):
         S['delta'][i], S['delta_conf'][i] = bias_reduced_delta(
@@ -72,8 +72,8 @@ def analyze(problem, X, Y, num_resamples=10,
         S['S1_conf'][i] = sobol_first_conf(
             Y, X[:, i], m, num_resamples, conf_level)
         if print_to_console:
-            print("%s %f %f %f %f" % (problem['names'][i], S['delta'][
-                  i], S['delta_conf'][i], S['S1'][i], S['S1_conf'][i]))
+            print(("%s %f %f %f %f" % (problem['names'][i], S['delta'][
+                  i], S['delta_conf'][i], S['S1'][i], S['S1_conf'][i])))
 
     return S
 

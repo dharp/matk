@@ -1,5 +1,5 @@
-from __future__ import division
-from __future__ import print_function
+
+
 
 from scipy.stats import norm
 
@@ -14,7 +14,7 @@ try:
     from itertools import zip_longest
 except ImportError:
     # Python 2
-    from itertools import izip_longest as zip_longest
+    from itertools import zip_longest as zip_longest
 
 
 def analyze(problem, Y, calc_second_order=True, num_resamples=100,
@@ -248,19 +248,19 @@ def print_indices(S, problem, calc_second_order):
         _,names = compute_groups_matrix(problem['groups'])
         D = len(names)
 
-    print('%s S1 S1_conf ST ST_conf' % title)
+    print(('%s S1 S1_conf ST ST_conf' % title))
 
     for j in range(D):
-        print('%s %f %f %f %f' % (names[j], S['S1'][
-            j], S['S1_conf'][j], S['ST'][j], S['ST_conf'][j]))
+        print(('%s %f %f %f %f' % (names[j], S['S1'][
+            j], S['S1_conf'][j], S['ST'][j], S['ST_conf'][j])))
 
     if calc_second_order:
-        print('\n%s_1 %s_2 S2 S2_conf' % (title,title))
+        print(('\n%s_1 %s_2 S2 S2_conf' % (title,title)))
 
         for j in range(D):
             for k in range(j + 1, D):
-                print("%s %s %f %f" % (names[j], names[k],
-                    S['S2'][j, k], S['S2_conf'][j, k]))
+                print(("%s %s %f %f" % (names[j], names[k],
+                    S['S2'][j, k], S['S2_conf'][j, k])))
 
 if __name__ == "__main__":
     parser = common_args.create()

@@ -1,3 +1,4 @@
+from __future__ import print_function
 import sys
 import numpy
 import string
@@ -25,16 +26,16 @@ if plotflag:
         from matplotlib import pyplot as plt
         from matplotlib.ticker import MaxNLocator
         from matplotlib import rc as mplrc
-        from corner import corner
+        from .corner import corner
     except ImportError as exc:
         sys.stderr.write("Warning: failed to import matplotlib module. Plots will not be produced. ({})".format(exc))
 else:
-	sys.stderr.write("Warning: Display capability is not available on your system. Plots will not be produced.")
+    sys.stderr.write("Warning: Display capability is not available on your system. Plots will not be produced.")
 
 try:
     from collections import OrderedDict
 except ImportError:
-    from ordereddict import OrderedDict
+    from .ordereddict import OrderedDict
 
 class SampleSet(object):
     """ MATK SampleSet class - Stores information related to a sample
@@ -47,20 +48,20 @@ class SampleSet(object):
         self._index_start = index_start
         self._parent = parent
         self.samples = DataSet(samples,self._parent.parnames,mins=self._parent.parmins,maxs=self._parent.parmaxs) 
-        for k,v in kwargs.iteritems():
+        for k,v in kwargs.items():
             if k == 'responses':
                 if not v is None:
                     if isinstance( v, (list,numpy.ndarray)):
                        responses = numpy.array(v)
                     else:
-                        print "Error: Responses are not a list or ndarray"
+                        print("Error: Responses are not a list or ndarray")
                         return
             elif k == 'indices':
                 if not v is None:
                     if isinstance( v, (list,numpy.ndarray)):
                         self.indices = v
                     else:
-                        print "Error: Indices are not a list or ndarray"
+                        print("Error: Indices are not a list or ndarray")
                         return
         if self._parent.obsnames is None and responses is not None:
             self._parent._obsnames = []
@@ -112,12 +113,12 @@ class SampleSet(object):
         if self.samples is None and value is None:
             self._indices = value
         elif self.samples is None and not value is None:
-            print "Error: Samples are not defined"
+            print("Error: Samples are not defined")
             return
         elif value is None:
             self._indices = value
         elif not len(value) == self.samples.values.shape[0]:
-            print "Error: number of indices does not equal number of samples"
+            print("Error: number of indices does not equal number of samples")
             return
         else:
             self._indices = value
@@ -145,7 +146,7 @@ class SampleSet(object):
     @index_start.setter
     def index_start(self,value):
         if not isinstance( value, int):
-            print "Error: Expecting integer"
+            print("Error: Expecting integer")
             return
         self._index_start = value
         if not self.samples is None:
@@ -170,9 +171,9 @@ class SampleSet(object):
         try:
             row_index = numpy.where(self.indices==index)[0][0]
         except:
-            print "\nIndex not found"
+            print("\nIndex not found")
             return
-        return OrderedDict(zip(self.parnames,self.samples.values[row_index]))
+        return OrderedDict(list(zip(self.parnames,self.samples.values[row_index])))
     def sse(self,group=None):
         """ Sum of squared errors (sse) for all samples
 
@@ -180,10 +181,10 @@ class SampleSet(object):
             :type group: str
         """
         if len(self._parent.obsvalues) == 0:
-            print "Observations are not set (e.g. prob.obsvalues is empty)"
+            print("Observations are not set (e.g. prob.obsvalues is empty)")
             return 0
         elif self.responses is None:
-            print "Responses have not been calculated. Run sampleset (e.g. sampleset.run())"
+            print("Responses have not been calculated. Run sampleset (e.g. sampleset.run())")
             return 0
         if group is None:
             sse = [numpy.sum(((self._parent.obsvalues - self.responses.values[i,:])*self._parent.obsweights)**2) for i in range(len(self.responses.values))]
@@ -290,7 +291,7 @@ class SampleSet(object):
             if mins is None and self.samples._mins is not None: mins = numpy.concatenate([self.samples._mins,numpy.min(self.responses.values,axis=0)])
             if maxs is None and self.samples._maxs is not None: maxs = numpy.concatenate([self.samples._maxs,numpy.max(self.responses.values,axis=0)])
         panels( self.recarray, type=type, alpha=alpha, figsize=figsize, title=title, tight=tight, symbol=symbol,fontsize=fontsize,corrfontsize=corrfontsize,ms=ms,mins=mins,maxs=maxs,frequency=frequency,bins=bins,ylim=ylim,labels=labels,filename=filename,xticks=xticks,yticks=yticks,color=color,cmap=cmap,edgecolors=edgecolors)
-    def corner(self,bins=20, range=None, weights=None, color=u'k', smooth=None, smooth1d=None, labels=None, label_kwargs=None, show_titles=False, title_fmt=u'.2f', title_kwargs=None, truths=None, truth_color=u'#4682b4', scale_hist=False, quantiles=None, verbose=False, fig=None, max_n_ticks=5, top_ticks=False, use_math_text=False, hist_kwargs=None, **hist2d_kwargs):
+    def corner(self,bins=20, range=None, weights=None, color='k', smooth=None, smooth1d=None, labels=None, label_kwargs=None, show_titles=False, title_fmt='.2f', title_kwargs=None, truths=None, truth_color='#4682b4', scale_hist=False, quantiles=None, verbose=False, fig=None, max_n_ticks=5, top_ticks=False, use_math_text=False, hist_kwargs=None, **hist2d_kwargs):
         """ Plot corner plot using the corner package written by Dan Foreman-Mackey (https://pypi.python.org/pypi/corner/1.0.0)
         """
         if plotflag:
@@ -298,11 +299,11 @@ class SampleSet(object):
             if labels is None:
                 labels = rc.dtype.names
             elif not len(labels) == len(rc.dtype.names):
-                print "Error: number of labels does not match number of parameters"
+                print("Error: number of labels does not match number of parameters")
                 return
             return corner(rc.tolist(),bins=bins,range=range,weights=weights,color=color,smooth=smooth,smooth1d=smooth1d,labels=labels,label_kwargs=label_kwargs,show_titles=show_titles,title_fmt=title_fmt,title_kwargs=title_kwargs,truths=truths,truth_color=truth_color,scale_hist=scale_hist,quantiles=quantiles,verbose=verbose,fig=fig,max_n_ticks=max_n_ticks,top_ticks=top_ticks,use_math_text=use_math_text,hist_kwargs=hist_kwargs,**hist2d_kwargs)
         else:
-            print 'Plotting capabilities not enabled, ensure x connnection'
+            print('Plotting capabilities not enabled, ensure x connnection')
             return
     def run(self, cpus=1, workdir_base=None, save=True, reuse_dirs=False, outfile=None, 
             logfile=None, restart_logfile=None, verbose=True, hosts={}):
@@ -333,7 +334,7 @@ class SampleSet(object):
             self._parent.workdir_base = workdir_base
 
         if len(hosts) > 0:
-            print "Error: host option deprecated, use cpus instead. cpus accepts an integer or dictionary of lists of processor ids keyed by hostnames in the same way that the hosts argument functioned"
+            print("Error: host option deprecated, use cpus instead. cpus accepts an integer or dictionary of lists of processor ids keyed by hostnames in the same way that the hosts argument functioned")
             return
 
         samples = self.samples.values
@@ -353,7 +354,7 @@ class SampleSet(object):
                  save=save, reuse_dirs=reuse_dirs, verbose=verbose, 
                  logfile=logfile)
         else:
-            print 'Error: number of cpus must be greater than zero'
+            print('Error: number of cpus must be greater than zero')
             return
 
         # If restart logfile provided, combine output
@@ -409,7 +410,7 @@ class SampleSet(object):
             else:
                 if not self.responses is None: f.write("Number of responses: %d\n" % 1 ) 
                 else: 
-                    print "Warning: sum-of-squared error cannot be calculates without model responses"
+                    print("Warning: sum-of-squared error cannot be calculates without model responses")
                     f.write("Number of responses: %d\n" % 0 ) 
             f.write("%-8s" % 'index' )
             # Print par names
@@ -480,17 +481,17 @@ class SampleSet(object):
         """ For each parameter, compile array of main effects.
         """
         # checks
-        N = len(self._parent.pars.keys())
+        N = len(list(self._parent.pars.keys()))
         if self.samples._values.shape[0] != 2**N:
-            print 'Expecting 2**N samples where N = number of parameters'
+            print('Expecting 2**N samples where N = number of parameters')
             return None, None, None
         # sort lists by parameter value            
         sorted_samples = [[i]+list(s) for i,s in enumerate(self.samples._values)]
         for i in range(N,0,-1): sorted_samples.sort(key = itemgetter(i))
         # for each parameter
         pairDict = []
-        for i,parname in zip(range(N-1,-1,-1),self._parent.pars.keys()):             
-            inds = range(0,2**N+1,2**i)
+        for i,parname in zip(list(range(N-1,-1,-1)),list(self._parent.pars.keys())):             
+            inds = list(range(0,2**N+1,2**i))
             # for each parameter pairing set
             pairs = []
             for j in range(1,(len(inds)-1)/2+1):
@@ -505,7 +506,7 @@ class SampleSet(object):
         sensitivity_matrix = []
         for i,obs in enumerate(self._parent.obs.keys()):
             row = []
-            for par in self._parent.pars.keys():
+            for par in list(self._parent.pars.keys()):
                 deltas = []
                 for pair in pairDict[par]:
                     deltas.append(self.responses.values[pair[1],i]-self.responses.values[pair[0],i])
@@ -562,14 +563,14 @@ class SampleSet(object):
             :returns: Dictionary of sobol analysis results
         """
         try:
-            from SALib.analyze import sobol
+            from .SALib.analyze import sobol
         except ImportError as exc:
             sys.stderr.write("Warning: failed to import SALib sobol module. ({})\n".format(exc))
 
         # Define problem for Saltelli sampler
         problem['num_vars'] = len(self._parent.pars)
         problem['names'] = self._parent.parnames
-        problem['bounds'] = zip(self._parent.parmins,self._parent.parmaxs)
+        problem['bounds'] = list(zip(self._parent.parmins,self._parent.parmaxs))
 
         if obsname == 'sse': obs = self.sse()
         else: obs = self.recarray[obsname]
@@ -588,14 +589,14 @@ class SampleSet(object):
             :returns: Dictionary of rbd_fast analysis results
         """
         try:
-            from SALib.analyze import rbd_fast
+            from .SALib.analyze import rbd_fast
         except ImportError as exc:
             sys.stderr.write("Warning: failed to import SALib sobol module. ({})\n".format(exc))
 
         # Define problem
         problem['num_vars'] = len(self._parent.pars)
         problem['names'] = self._parent.parnames
-        problem['bounds'] = zip(self._parent.parmins,self._parent.parmaxs)
+        problem['bounds'] = list(zip(self._parent.parmins,self._parent.parmaxs))
 
         if obsname == 'sse': obs = self.sse()
         else: obs = self.recarray[obsname]
@@ -634,7 +635,7 @@ class DataSet(object):
     @values.setter
     def values(self,value):
         if not isinstance( value, (list,numpy.ndarray)):
-            print "Error: Parameter samples are not a list or ndarray"
+            print("Error: Parameter samples are not a list or ndarray")
             return
         # If list, convert to ndarray
         if isinstance( value, list ):
@@ -785,7 +786,7 @@ class DataSet(object):
         if mins is None and self._mins is not None: mins = self._mins
         if maxs is None and self._maxs is not None: maxs = self._maxs
         panels( self.recarray, type=type, alpha=alpha, figsize=figsize, title=title, tight=tight, symbol=symbol,fontsize=fontsize,corrfontsize=corrfontsize,ms=ms,mins=mins,maxs=maxs,frequency=frequency,bins=bins,ylim=ylim,labels=labels,filename=filename,xticks=xticks,yticks=yticks,color=color,cmap=cmap,edgecolors=edgecolors)
-    def corner(self,bins=20, range=None, weights=None, color=u'k', smooth=None, smooth1d=None, labels=None, label_kwargs=None, show_titles=False, title_fmt=u'.2f', title_kwargs=None, truths=None, truth_color=u'#4682b4', scale_hist=False, quantiles=None, verbose=False, fig=None, max_n_ticks=5, top_ticks=False, use_math_text=False, hist_kwargs=None, **hist2d_kwargs):
+    def corner(self,bins=20, range=None, weights=None, color='k', smooth=None, smooth1d=None, labels=None, label_kwargs=None, show_titles=False, title_fmt='.2f', title_kwargs=None, truths=None, truth_color='#4682b4', scale_hist=False, quantiles=None, verbose=False, fig=None, max_n_ticks=5, top_ticks=False, use_math_text=False, hist_kwargs=None, **hist2d_kwargs):
         """ Plot corner plot using the corner package written by Dan Foreman-Mackey (https://pypi.python.org/pypi/corner/1.0.0)
         """
         if plotflag:
@@ -793,11 +794,11 @@ class DataSet(object):
             if labels is None:
                 labels = rc.dtype.names
             elif not len(labels) == len(rc.dtype.names):
-                print "Error: number of labels does not match number of parameters"
+                print("Error: number of labels does not match number of parameters")
                 return
             return corner(self.values,bins=bins,range=range,weights=weights,color=color,smooth=smooth,smooth1d=smooth1d,labels=labels,label_kwargs=label_kwargs,show_titles=show_titles,title_fmt=title_fmt,title_kwargs=title_kwargs,truths=truths,truth_color=truth_color,scale_hist=scale_hist,quantiles=quantiles,verbose=verbose,fig=fig,max_n_ticks=max_n_ticks,top_ticks=top_ticks,use_math_text=use_math_text,hist_kwargs=hist_kwargs,**hist2d_kwargs)
         else:
-            print 'Plotting capabilities not enabled, ensure x connnection'
+            print('Plotting capabilities not enabled, ensure x connnection')
             return
 
 def savestats(rc, outfile, q=[2.5,5,50,95,97.5], interpolation='linear'):
@@ -845,7 +846,7 @@ def mean(rc, pretty_print=False):
         :returns: ndarray(fl64)
     """
     if numpy.any(numpy.isnan(rc.tolist())):
-        print "Error: Nan values exist probably due to failed simulations. Use subset (e.g. subset([('obs','!=',numpy.nan)]) to remove"
+        print("Error: Nan values exist probably due to failed simulations. Use subset (e.g. subset([('obs','!=',numpy.nan)]) to remove")
         return
     means = numpy.mean(rc.tolist(),axis=0)
     # Print 
@@ -857,7 +858,7 @@ def mean(rc, pretty_print=False):
         for c in means:
             s+=string.rjust('{:5g}'.format(c), 11)
         s+='\n'
-        print  s
+        print(s)
     else:
         return means
 
@@ -871,17 +872,17 @@ def std(rc, pretty_print=False):
         :returns: ndarray(fl64)
     """
     if numpy.any(numpy.isnan(rc.tolist())):
-        print "Error: Nan values exist probably due to failed simulations. Use subset (e.g. subset([('obs','!=',numpy.nan)]) to remove"
+        print("Error: Nan values exist probably due to failed simulations. Use subset (e.g. subset([('obs','!=',numpy.nan)]) to remove")
         return
     stds = numpy.std(rc.tolist(),axis=0)
     # Print 
     if pretty_print:
         for nm in rc.dtype.names:
-            print string.rjust(nm, 11),
-        print ''
+            print(string.rjust(nm, 11), end=' ')
+        print('')
         for c in stds:
-            print string.rjust('{:5g}'.format(c), 11),
-        print ''
+            print(string.rjust('{:5g}'.format(c), 11), end=' ')
+        print('')
     else:
         return stds
 
@@ -895,17 +896,17 @@ def var(rc, pretty_print=False):
         :returns: ndarray(fl64)
     """
     if numpy.any(numpy.isnan(rc.tolist())):
-        print "Error: Nan values exist probably due to failed simulations. Use subset (e.g. subset([('obs','!=',numpy.nan)]) to remove"
+        print("Error: Nan values exist probably due to failed simulations. Use subset (e.g. subset([('obs','!=',numpy.nan)]) to remove")
         return
     vars = numpy.var(rc.tolist(),axis=0)
     # Print 
     if pretty_print:
         for nm in rc.dtype.names:
-            print string.rjust(nm, 11),
-        print ''
+            print(string.rjust(nm, 11), end=' ')
+        print('')
         for c in vars:
-            print string.rjust('{:5g}'.format(c), 11),
-        print ''
+            print(string.rjust('{:5g}'.format(c), 11), end=' ')
+        print('')
     else:
         return vars
 
@@ -924,21 +925,21 @@ def percentile(rc, q, interpolation='linear', pretty_print=False):
     """
     if isinstance(q,(float,int)): q = [q]
     if numpy.any(numpy.isnan(rc.tolist())):
-        print "Error: Nan values exist probably due to failed simulations. Use subset (e.g. subset([('obs','!=',numpy.nan)]) to remove"
+        print("Error: Nan values exist probably due to failed simulations. Use subset (e.g. subset([('obs','!=',numpy.nan)]) to remove")
         return
     pcts = numpy.percentile(rc.tolist(),q,interpolation=interpolation,axis=0)
     # Print 
     if pretty_print:
         dum = ' '
-        print string.rjust(dum, 11),
+        print(string.rjust(dum, 11), end=' ')
         for nm in rc.dtype.names:
-            print string.rjust(nm, 11),
-        print ''
+            print(string.rjust(nm, 11), end=' ')
+        print('')
         for i,p in enumerate(q):
-            print string.ljust('{:5g}%'.format(p), 11),
+            print(string.ljust('{:5g}%'.format(p), 11), end=' ')
             for c in pcts[i]:
-                print string.rjust('{:5g}'.format(c), 11),
-            print ''
+                print(string.rjust('{:5g}'.format(c), 11), end=' ')
+            print('')
     else:
         return pcts
 
@@ -970,7 +971,7 @@ def corr(rc1, rc2, type='pearson', plot=False, printout=True, plotvals=True, fig
         :returns: ndarray(fl64) -- Correlation coefficients
     """
     if numpy.any(numpy.isnan(rc1.tolist())) or numpy.any(numpy.isnan(rc2.tolist())):
-        print "Error: Nan values exist probably due to failed simulations. Use subset (e.g. subset([('obs','!=',numpy.nan)]) to remove"
+        print("Error: Nan values exist probably due to failed simulations. Use subset (e.g. subset([('obs','!=',numpy.nan)]) to remove")
         return
     corrlist = []
     if type == 'pearson':
@@ -980,27 +981,27 @@ def corr(rc1, rc2, type='pearson', plot=False, printout=True, plotvals=True, fig
         for snm in rc1.dtype.names:
             corrlist.append([stats.spearmanr(rc1[snm],rc2[rnm])[0] for rnm in rc2.dtype.names])
     else:
-        print "Error: current types include 'pearson' and 'spearman'"
+        print("Error: current types include 'pearson' and 'spearman'")
         return
     corrcoef = numpy.array(corrlist)
     # Print 
     if printout:
         dum = ' '
-        print string.rjust(dum, 8),
+        print(dum.rjust(8), end=' ')
         for nm in rc2.dtype.names:
-            print string.rjust(nm, 8),
-        print ''
+            print(nm.rjust(8), end=' ')
+        print('')
         for i in range(corrcoef.shape[0]):
-            print string.ljust(rc1.dtype.names[i], 8),
+            print(rc1.dtype.names[i].ljust(8), end=' ')
             for c in corrcoef[i]:
-                print string.rjust('{:.2f}'.format(c), 8),
-            print ''
+                print('{:.2f}'.format(c).rjust(8), end=' ')
+            print('')
     if plot and plotflag:
         # Plot
         plt.figure(figsize=figsize)
         plt.pcolor(numpy.flipud(corrcoef), vmin=-1, vmax=1)
         if plotvals:
-            for i,ri in zip(range(corrcoef.shape[0]),reversed(range(corrcoef.shape[0]))):
+            for i,ri in zip(list(range(corrcoef.shape[0])),reversed(list(range(corrcoef.shape[0])))):
                 for j in range(corrcoef.shape[1]):
                     plt.text(j+0.4,i+0.4,'{:.2f}'.format(corrcoef[ri,j]),bbox=dict(facecolor='white'))
         plt.colorbar()
@@ -1032,7 +1033,7 @@ def panels(rc, type='pearson', alpha=0.2, figsize=None, title=None, tight=False,
         else:
             maxs = [ smp_maxs[i] if maxs[i] is None else maxs[i] for i in range(len(maxs)) ]
         if numpy.any(numpy.isnan(rc.tolist())):
-            print "Error: Nan values exist probably due to failed simulations. Use subset (e.g. subset([('obs','!=',numpy.nan)]) to remove"
+            print("Error: Nan values exist probably due to failed simulations. Use subset (e.g. subset([('obs','!=',numpy.nan)]) to remove")
             return
         siz = len(rc.dtype)
         fig,ax = plt.subplots(siz,siz,figsize=figsize)
@@ -1041,7 +1042,7 @@ def panels(rc, type='pearson', alpha=0.2, figsize=None, title=None, tight=False,
         if len(labels) == 0:
             labels = rc.dtype.names
         elif not len(labels) == len(rc.dtype.names):
-            print "Error: number of labels does not match number of parameters"
+            print("Error: number of labels does not match number of parameters")
             return
         for i,nm in enumerate(labels): 
             ax[i,0].set_ylabel(nm)
@@ -1112,7 +1113,7 @@ def panels(rc, type='pearson', alpha=0.2, figsize=None, title=None, tight=False,
             fmt = filename.split('.')[-1]
             plt.savefig(filename,format=fmt)
     else:
-        print "Matplotlib must be installed to plot histograms"
+        print("Matplotlib must be installed to plot histograms")
         return
 def hist(rc,ncols=4,figsize=None,alpha=0.2,title=None,tight=False,mins=None,maxs=None,frequency=False,bins=10,ylim=None,printout=True,labels=[],filename=None,fontsize=None,xticks=3):
     """ Plot histograms of dataset
@@ -1157,7 +1158,7 @@ def hist(rc,ncols=4,figsize=None,alpha=0.2,title=None,tight=False,mins=None,maxs
         if len(labels) == 0:
             labels = rc.dtype.names
         elif not len(labels) == len(rc.dtype.names):
-            print "Error: number of labels does not match number of parameters"
+            print("Error: number of labels does not match number of parameters")
             return
         smp_mins = numpy.min(rc.tolist(),axis=0)
         smp_maxs = numpy.max(rc.tolist(),axis=0)
@@ -1168,7 +1169,7 @@ def hist(rc,ncols=4,figsize=None,alpha=0.2,title=None,tight=False,mins=None,maxs
         else:
             maxs = [ smp_maxs[i] if maxs[i] is None else maxs[i] for i in range(len(maxs)) ]
         if numpy.any(numpy.isnan(rc.tolist())):
-            print "Error: Nan values exist probably due to failed simulations. Use subset (e.g. subset([('obs','!=',numpy.nan)]) to remove"
+            print("Error: Nan values exist probably due to failed simulations. Use subset (e.g. subset([('obs','!=',numpy.nan)]) to remove")
             return
         siz = len(rc.dtype)
         if siz <= ncols:
@@ -1186,11 +1187,11 @@ def hist(rc,ncols=4,figsize=None,alpha=0.2,title=None,tight=False,mins=None,maxs
         hist_dict = OrderedDict()
         ns = []
         ax = []
-        for ind,nm,mi,ma,lb in zip(range(len(rc.dtype)),rc.dtype.names,mins,maxs,labels): 
+        for ind,nm,mi,ma,lb in zip(list(range(len(rc.dtype))),rc.dtype.names,mins,maxs,labels): 
             ax.append(plt.subplot(nrows,ncols,ind+1))
             if ind==0 or (ind)%ncols==0:
-				if frequency: plt.ylabel('Frequency')
-				else: plt.ylabel('Count')
+                if frequency: plt.ylabel('Frequency')
+                else: plt.ylabel('Count')
             else: ax[-1].get_yaxis().set_visible(False)
             if frequency:
                 n,b,patches = ax[-1].hist(rc[nm], range=[mi,ma], alpha=alpha, bins=bins, weights=numpy.ones(len(rc[nm])) / len(rc[nm]))
@@ -1222,39 +1223,39 @@ def hist(rc,ncols=4,figsize=None,alpha=0.2,title=None,tight=False,mins=None,maxs
             fmt = filename.split('.')[-1]
             plt.savefig(filename,format=fmt)
         if printout:
-            for nm in hist_dict.keys():
-                print '\n'
-                print nm+':'
+            for nm in list(hist_dict.keys()):
+                print('\n')
+                print(nm+':')
                 if frequency: 
-                    print ' Freq:',
+                    print(' Freq:', end=' ')
                     flag=True
                     for n in hist_dict[nm][0]:
                         if flag: 
-                            print '{:12.2f}'.format(n),
+                            print('{:12.2f}'.format(n), end=' ')
                             flag=False
-                        else: print '{:8.2f}'.format(n),
+                        else: print('{:8.2f}'.format(n), end=' ')
                         #print '{:2f}'.format(n),
                 else: 
-                    print 'Count:',
+                    print('Count:', end=' ')
                     flag=True
                     for n in hist_dict[nm][0]:
                         if flag:
-                            print '{:12.0f}'.format(n),
+                            print('{:12.0f}'.format(n), end=' ')
                             flag=False
                         else:
-                            print '{:8.0f}'.format(n),
-                print '\n',
-                print ' Bins:',
+                            print('{:8.0f}'.format(n), end=' ')
+                print('\n', end=' ')
+                print(' Bins:', end=' ')
                 flag=True
                 for b in hist_dict[nm][1]:
                     if flag:
-                        print '{:8.2g}'.format(b),
+                        print('{:8.2g}'.format(b), end=' ')
                         flag=False
                     else:
-                        print '{:8.2g}'.format(b),
-            print '\n'
+                        print('{:8.2g}'.format(b), end=' ')
+            print('\n')
         return hist_dict
     else:
-        print "Matplotlib must be installed to plot histograms"
+        print("Matplotlib must be installed to plot histograms")
         return
 

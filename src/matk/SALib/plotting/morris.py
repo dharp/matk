@@ -97,7 +97,7 @@ def covariance_plot(ax, Si, param_dict, unit=""):
     if Si['sigma'] is not None:
         # sigma is not present if using morris groups
         y = Si['sigma']
-        out = ax.scatter(Si['mu_star'], y, c=u'k', marker=u'o',
+        out = ax.scatter(Si['mu_star'], y, c='k', marker='o',
                  **param_dict)
         ax.set_ylabel(r'$\sigma$')
 
@@ -117,7 +117,7 @@ def covariance_plot(ax, Si, param_dict, unit=""):
 
     else:
         y = Si['mu_star_conf']
-        out = ax.scatter(Si['mu_star'], y, c=u'k', marker=u'o',
+        out = ax.scatter(Si['mu_star'], y, c='k', marker='o',
                  **param_dict)
         ax.set_ylabel(r'$95\% CI$')
 

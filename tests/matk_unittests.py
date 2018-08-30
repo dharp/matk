@@ -5,7 +5,7 @@ import matk
 from exp_model_int import dbexpl
 from sine_decay_model import sine_decay
 import numpy
-from cPickle import dump, load, PicklingError
+from pickle import dump, load, PicklingError
 from scipy.optimize import rosen
 import math
 
@@ -88,7 +88,7 @@ class Tests(unittest.TestCase):
     def testdiscretesample(self):
         # Create 100 discrete samples and make sure they adhere to assigned probabilities
         p = matk.matk()
-        vals = range(5)
+        vals = list(range(5))
         probs = (.1,.2,.3,.2,.2)
         p.add_par('par1',discrete_vals=(vals,probs))
         ss = p.lhs(siz=1000000)
@@ -98,7 +98,7 @@ class Tests(unittest.TestCase):
     def testdiscreteparstudy(self):
         # Ensure that discrete parameter parstudies are correct
         p = matk.matk()
-        vals = range(5)
+        vals = list(range(5))
         probs = (.1,.2,.3,.2,.2)
         p.add_par('par1',discrete_vals=(vals,probs))
         ps = p.parstudy(1)
@@ -154,14 +154,14 @@ class Tests(unittest.TestCase):
         s.run( save=False, verbose=False)
         cor = s.corr(printout=False)
         numpy.set_printoptions(precision=16)
-        truecor = numpy.array([[-0.2886237899165263, -0.3351709603865224,  0.2026940592413644,
-            -0.1583038087507029,  0.6551351732039064],
-          [-0.7055158223412237, -0.6756193472215576, -0.6798276930925701,
-             -0.7316977209208033,  0.0728971957076234],
-          [ 0.0513490094706376,  0.0127386564821643,  0.2351160518407344,
-              0.1062707741035715,  0.7433613835033323],
-          [-0.6286817433084496, -0.5937202224731661, -0.6548756831743127,
-             -0.6743550366736296,  0.0103233615954467]])
+        truecor = numpy.array([[ 0.6551351732039062,  0.2026940592413645, -0.1583038087507029,
+                                  -0.2886237899165263, -0.3351709603865224],
+                                [ 0.0728971957076234, -0.6798276930925701, -0.7316977209208033,
+                                   -0.7055158223412236, -0.6756193472215576],
+                                [ 0.7433613835033321,  0.2351160518407344,  0.1062707741035715,
+                                    0.0513490094706375,  0.0127386564821643],
+                                [ 0.0103233615954467, -0.6548756831743127, -0.6743550366736295,
+                                   -0.6286817433084496, -0.5937202224731661]])
         for t,c in zip(cor.flatten(),truecor.flatten()):
             self.assertTrue(numpy.abs(t-c)<1.e-10, 'Value in correlation matrix does not match')
 
@@ -231,15 +231,17 @@ class Tests(unittest.TestCase):
     def testpickle_test(self):
         # Create sampleset
         ss = self.p.lhs(siz=10 )
-        try: dump( self.p, open('test.p', 'wb'))
+        try: 
+            with open('test.p', 'wb') as fh: dump( self.p, fh)
         except PicklingError as errstr: 
-            print "Unable to pickle MATK object: "+errstr
+            print(("Unable to pickle MATK object: "+errstr))
             dumpbool = False
         else:
             dumpbool = True
-            try: t = load( open('test.p', 'rb'))
+            try: 
+                with open('test.p', 'rb') as fh: t = load( fh)
             except UnpicklingError as errstr:
-                print "Unable to unpickle MATK object: "+errstr
+                print(("Unable to unpickle MATK object: "+errstr))
                 loadbool=False
             else:
                 loadbool=True
@@ -251,8 +253,8 @@ class Tests(unittest.TestCase):
         try:
             import pymc
         except:
-            print "\nPymc module not installed"
-            print "Skipping mcmc unittest"
+            print("\nPymc module not installed")
+            print("Skipping mcmc unittest")
             return
         self.m = matk.matk(model=fmcmc)
         # Add parameters with 'true' parameters
@@ -343,7 +345,7 @@ class Tests(unittest.TestCase):
 
     def testdifferential_evolution(self):
         def myrosen(pars):
-                return rosen(pars.values())
+                return rosen(list(pars.values()))
         self.m = matk.matk(model=myrosen)
         self.m.add_par('p1',min=0,max=2)
         self.m.add_par('p2',min=0,max=2)
@@ -354,7 +356,7 @@ class Tests(unittest.TestCase):
         self.assertTrue( result.fun < 1.e-8, 'Objective function of Rosenbrock problem is larger than tolerance of 1.e-8: ' + str(result.fun) )
 
         def ackley(pars):
-            x = pars.values()
+            x = list(pars.values())
             arg1 = -0.2 * numpy.sqrt(0.5 * (x[0] ** 2 + x[1] ** 2))
             arg2 = 0.5 * (numpy.cos(2. * numpy.pi * x[0]) + numpy.cos(2. * numpy.pi * x[1]))
             return -20. * numpy.exp(arg1) - numpy.exp(arg2) + 20. + numpy.e

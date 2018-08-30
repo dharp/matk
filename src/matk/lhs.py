@@ -99,7 +99,7 @@ def lhs(dist, parms, siz=100, noCorrRestr=False, corrmat=None, seed=None):
         s_pos = [uniform(i, i+ step) for i in perc[:]]#[i+ step/2. for i in perc[:]]
         v = d(*pars).ppf(s_pos)
         #print len(v), step, perc
-        index=map(int,indices[j]-1)
+        index=list(map(int,indices[j]-1))
         v = v[index]
         if isinstance(siz,(tuple,list)):
             v.shape = siz
@@ -128,7 +128,7 @@ def rank_restr(nvars=4, smp=100, noCorrRestr=False, Corrmat=None):
         :return: a list of arrays
         """
         s1=[]
-        for i in xrange(nvars):
+        for i in range(nvars):
             shuffle(s)
             s1.append(s.copy())
         return s1
@@ -150,13 +150,13 @@ def rank_restr(nvars=4, smp=100, noCorrRestr=False, Corrmat=None):
         Q=cholesky(numpy.corrcoef(S))
 
         Final=S.transpose()*inv(Q).transpose()*P.transpose()
-        x = [stats.stats.rankdata(Final.transpose()[i,]) for i in xrange(nvars)]
+        x = [stats.stats.rankdata(Final.transpose()[i,]) for i in range(nvars)]
     return x
 
 if __name__=='__main__':
     dist = stats.uniform,stats.uniform
     parms = (0,1.),(0,1.)
-    print lhs(dist,parms,siz=4)
+    print(lhs(dist,parms,siz=4))
     
     import pylab as P
     #dist = stats.norm

@@ -29,7 +29,7 @@ def main():
     f = open('exp_model.out', 'w')
     for val in data:
         f.write('{0:.13f}'.format(val) + '\n')
-        print '{0:.13f}'.format(val)
+        print('{0:.13f}'.format(val))
     f.close()
 
 if __name__ == '__main__':

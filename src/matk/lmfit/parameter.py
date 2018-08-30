@@ -6,7 +6,7 @@ from numpy import arcsin, cos, sin, sqrt, inf, nan
 try:
     from collections import OrderedDict
 except ImportError:
-    from ordereddict import OrderedDict
+    from .ordereddict import OrderedDict
 
 import re
 from . import uncertainties
@@ -97,10 +97,12 @@ class Parameter(object):
         self.deps   = None
         self.stderr = None
         self.correl = None
-        if self.max is not None and value > self.max:
-            self._val = self.max
-        if self.min is not None and value < self.min:
-            self._val = self.min
+        if self.max is not None and value is not None:
+            if value > self.max:
+                self._val = self.max
+        if self.min is not None and value is not None:
+            if value < self.min:
+                self._val = self.min
         self.from_internal = lambda val: val
 
     def __repr__(self):
@@ -210,7 +212,7 @@ class Parameter(object):
         "positive"
         return +self._getval()
 
-    def __nonzero__(self):
+    def __bool__(self):
         "not zero"
         return self._getval() != 0
 
@@ -220,7 +222,7 @@ class Parameter(object):
 
     def __long__(self):
         "long"
-        return long(self._getval())
+        return int(self._getval())
 
     def __float__(self):
         "float"

@@ -28,7 +28,7 @@ def fold(H, columns=None):
     assert len(H.shape)==2, 'Input design matrix must be 2d.'
     
     if columns is None:
-        columns = range(H.shape[1])
+        columns = list(range(H.shape[1]))
     
     Hf = H.copy()
     
@@ -36,7 +36,7 @@ def fold(H, columns=None):
         vals = np.unique(H[:, col])
         assert len(vals)==2, 'Input design matrix must be 2-level factors only.'
         
-        for i in xrange(H.shape[0]):
+        for i in range(H.shape[0]):
             Hf[i, col] = vals[0] if H[i, col]==vals[1] else vals[1]
     
     Hf = np.vstack((H, Hf))

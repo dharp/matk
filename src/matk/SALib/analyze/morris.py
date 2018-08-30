@@ -1,5 +1,5 @@
-from __future__ import division
-from __future__ import print_function
+
+
 
 from scipy.stats import norm
 
@@ -116,21 +116,21 @@ def analyze(problem, X, Y,
 
     if groups is None:
         if print_to_console:
-            print("{0:<30} {1:>10} {2:>10} {3:>15} {4:>10}".format(
+            print(("{0:<30} {1:>10} {2:>10} {3:>15} {4:>10}".format(
                 "Parameter",
                 "Mu_Star",
                 "Mu",
                 "Mu_Star_Conf",
                 "Sigma")
-            )
+            ))
             for j in list(range(num_vars)):
-                print("{0:30} {1:10.3f} {2:10.3f} {3:15.3f} {4:10.3f}".format(
+                print(("{0:30} {1:10.3f} {2:10.3f} {3:15.3f} {4:10.3f}".format(
                     Si['names'][j],
                     Si['mu_star'][j],
                     Si['mu'][j],
                     Si['mu_star_conf'][j],
                     Si['sigma'][j])
-                )
+                ))
         return Si
     elif groups is not None:
         # if there are groups, then the elementary effects returned need to be
@@ -146,21 +146,21 @@ def analyze(problem, X, Y,
         Si_grouped['mu'] = compute_grouped_sigma(Si['mu'], groups)
 
         if print_to_console:
-            print("{0:<30} {1:>10} {2:>10} {3:>15} {4:>10}".format(
+            print(("{0:<30} {1:>10} {2:>10} {3:>15} {4:>10}".format(
                 "Parameter",
                 "Mu_Star",
                 "Mu",
                 "Mu_Star_Conf",
                 "Sigma")
-            )
+            ))
             for j in list(range(number_of_groups)):
-                print("{0:30} {1:10.3f} {2:10.3f} {3:15.3f} {4:10.3f}".format(
+                print(("{0:30} {1:10.3f} {2:10.3f} {3:15.3f} {4:10.3f}".format(
                     Si_grouped['names'][j],
                     Si_grouped['mu_star'][j],
                     Si_grouped['mu'][j],
                     Si_grouped['mu_star_conf'][j],
                     Si_grouped['sigma'][j])
-                )
+                ))
 
         return Si_grouped
     else:

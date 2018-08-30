@@ -8,7 +8,7 @@ These tests can be run through the Nose testing framework.
 (c) 2010-2013 by Eric O. LEBIGOT (EOL).
 """
 
-from __future__ import division, print_function
+
 
 # Standard modules
 import copy
@@ -124,7 +124,7 @@ def _compare_derivatives(func, numerical_derivatives,
 
                 # We include negative numbers, for more thorough tests:
                 args = [
-                    random.choice(range(-10, 10))
+                    random.choice(list(range(-10, 10)))
                     if arg_num in integer_arg_nums
                     else uncertainties.Variable(random.random()*4-2, 0)
                     for arg_num in range(num_args)]
@@ -187,7 +187,7 @@ def _compare_derivatives(func, numerical_derivatives,
                                     % func.__name__)
 
                 # Another argument might be forced to be an integer:
-                integer_arg_nums.add(random.choice(range(num_args)))
+                integer_arg_nums.add(random.choice(list(range(num_args))))
             else:
                 # We have found reasonable arguments, and the test passed:
                 break
@@ -215,7 +215,7 @@ def test_fixed_derivatives_basic_funcs():
             # by definition, to AffineScalarFunc objects: we first map
             # possible scalar arguments (used for calculating
             # derivatives) to AffineScalarFunc objects:
-            lambda *args: func(*map(uncertainties.to_affine_scalar, args)))
+            lambda *args: func(*list(map(uncertainties.to_affine_scalar, args))))
         _compare_derivatives(func, numerical_derivatives, [num_args])
 
     # Operators that take 1 value:
@@ -239,7 +239,7 @@ def test_copy():
     y = copy.copy(x)
     assert x != y
     assert not(x == y)
-    assert y in y.derivatives.keys()  # y must not copy the dependence on x
+    assert y in list(y.derivatives.keys())  # y must not copy the dependence on x
 
     z = copy.deepcopy(x)
     assert x != z
@@ -275,7 +275,7 @@ def test_copy():
 
     gc.collect()
 
-    assert y in y.derivatives.keys()
+    assert y in list(y.derivatives.keys())
 
 def test_pickling():
     "Standard pickle module integration."
@@ -542,7 +542,7 @@ def test_str_input():
         '14.(15)': (14, 15)
         }
 
-    for (representation, values) in tests.iteritems():
+    for (representation, values) in tests.items():
 
         num = ufloat(representation)
 
@@ -950,7 +950,7 @@ else:
         nominal_values = [v.nominal_value for v in (x, y, z)]
         std_devs = [v.std_dev() for v in (x, y, z)]
         x2, y2, z2 = uncertainties.correlated_values_norm(
-            zip(nominal_values, std_devs), corr_mat)
+            list(zip(nominal_values, std_devs)), corr_mat)
 
         # matrices_close() is used instead of _numbers_close() because
         # it compares uncertainties too:

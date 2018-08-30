@@ -1,15 +1,14 @@
 import numpy
-from lmfit.parameter import Parameter as LMFitParameter
-import copy_reg, new
+from .lmfit.parameter import Parameter as LMFitParameter
+import copyreg, types
 import platform
 
 # Use copy_reg to allow pickling of bound methods
 def make_instancemethod(inst, methodname):
     return getattr(inst, methodname)
 def pickle_instancemethod(method):
-    return make_instancemethod, (method.im_self, method.im_func.__name__)
-copy_reg.pickle(new.instancemethod, pickle_instancemethod,
-make_instancemethod)
+    return make_instancemethod, (method.__self__, method.__func__.__name__)
+copyreg.pickle(pickle_instancemethod, make_instancemethod)
 
 class Parameter(LMFitParameter):
     """ MATK parameter class
@@ -35,9 +34,9 @@ class Parameter(LMFitParameter):
             self.dist = 'discrete'
             self._discrete_vals = discrete_vals
             if value is None:
-                self._val = discrete_vals[0][len(discrete_vals[0])/2]
+                self._val = discrete_vals[0][int(len(discrete_vals[0])/2)]
             elif value not in self._discrete_vals[0]:
-                print "ERROR: value is not one of the values in discrete_vals"
+                print("ERROR: value is not one of the values in discrete_vals")
             else:
                 self._val = value
         # Else continuous parameter
@@ -48,7 +47,7 @@ class Parameter(LMFitParameter):
             self._dist_pars = None
             self._parent = None
             self._nominal = nominal
-            for k,v in kwargs.iteritems():
+            for k,v in kwargs.items():
                 if k == 'mean':
                     self.mean = float(v)
                 elif k == 'std':
@@ -60,7 +59,7 @@ class Parameter(LMFitParameter):
                 elif k == 'parent':
                     self._parent = v
                 else:
-                    print k + ' is not a valid argument'
+                    print(k + ' is not a valid argument')
             if self.dist == 'uniform':
                 if value is None:
                     if self.max is not None and self.min is not None:

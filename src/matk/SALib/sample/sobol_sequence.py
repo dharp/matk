@@ -1,4 +1,4 @@
-from __future__ import division
+
 
 import math
 import sys
@@ -62,7 +62,7 @@ def sample(N, D):
         raise ValueError("Error in Sobol sequence: not enough bits")
 
     for i in range(D):
-        V = np.zeros(L + 1, dtype=long)
+        V = np.zeros(L + 1, dtype=int)
 
         if i == 0:
             for j in range(1, L + 1):
@@ -85,7 +85,7 @@ def sample(N, D):
                     for k in range(1, s):
                         V[j] ^= ((a >> (s - 1 - k)) & 1) * V[j - k]
 
-        X = long(0)
+        X = int(0)
         for j in range(1, N):
             X ^= V[index_of_least_significant_zero_bit(j - 1)]
             result[j][i] = float(X / math.pow(2, scale))

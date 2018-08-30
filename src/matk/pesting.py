@@ -13,10 +13,10 @@ def read_pest(filename):
     f = open(filename, 'r')
     
     if not 'pcf' in f.readline():
-        print "%s doesn't appear to be a PEST control file" % filename
+        print("%s doesn't appear to be a PEST control file" % filename)
         return 0
     if not '* ' in f.readline():
-        print "%s doesn't appear to be a PEST control file" % filename
+        print("%s doesn't appear to be a PEST control file" % filename)
         return 0
     
     f.readline()
@@ -38,7 +38,7 @@ def read_pest(filename):
     for i in range(5): f.readline()
     
     if not '* ' in f.readline():
-        print "%s doesn't appear to be a PEST control file" % filename
+        print("%s doesn't appear to be a PEST control file" % filename)
         return 0
     
     for i in range(pest_prob.npargrp):
@@ -52,7 +52,7 @@ def read_pest(filename):
                             derincmul=derincmul,derincmthd=derincmthd)
             
     if not '* ' in f.readline():
-        print "%s doesn't appear to be a PEST control file" % filename
+        print("%s doesn't appear to be a PEST control file" % filename)
         return 0
  
     for i in range(pest_prob.npar):
@@ -79,7 +79,7 @@ def read_pest(filename):
         pest_prob.add_obsgrp(obsgrpnm)
          
     if not '* ' in f.readline():
-        print "%s doesn't appear to be a PEST control file" % filename
+        print("%s doesn't appear to be a PEST control file" % filename)
         return 0
   
     for i in range(pest_prob.nobs):
@@ -91,13 +91,13 @@ def read_pest(filename):
         pest_prob.add_observation(name,weight=weight,
                                   obsgrpnm=obsgrpnm,value=value)
     if not '* ' in f.readline():
-        print "%s doesn't appear to be a PEST control file" % filename
+        print("%s doesn't appear to be a PEST control file" % filename)
         return 0
  
     pest_prob.sim_command = f.readline().strip()
     
     if not '* ' in f.readline():
-        print "%s doesn't appear to be a PEST control file" % filename
+        print("%s doesn't appear to be a PEST control file" % filename)
         return 0
      
     for i in range(pest_prob.ntplfile):
@@ -177,7 +177,7 @@ class ModelInstruction(object):
         values = self.lines[0].split()
         self.lines = lines[1:]
         if values[0] != 'pif':
-            print "%s doesn't appear to be a PEST instruction file" % self.insflname
+            print("%s doesn't appear to be a PEST instruction file" % self.insflname)
             return 0
         self.marker = values[1]
     @property
@@ -212,7 +212,7 @@ class ModelTemplate(object):
         values = self.lines[0].split()
         self.lines = lines[1:]
         if values[0] != 'ptf':
-            print "%s doesn't appear to be a PEST template file" % self.tplflname
+            print("%s doesn't appear to be a PEST template file" % self.tplflname)
             return 0
         self.marker = values[1]
     @property
@@ -247,7 +247,7 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
     pest_prob = read_pest(argv[1])
-    print pest_prob
+    print(pest_prob)
 
 if __name__ == "__main__":
     main()

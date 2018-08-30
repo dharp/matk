@@ -6,7 +6,7 @@ def mcmc(prob, nsample=100, modulename = 'model' ):
         mystr = "from " + modulename + " import model"
         exec(mystr)
     except:
-        print 'cannot import', modulename
+        print('cannot import', modulename)
     M = MCMC( model(prob) )
     M.sample(nsample)
     return M
@@ -16,7 +16,7 @@ def map(prob, modulename = 'model' ):
         mystr = "from " + modulename + " import model"
         exec(mystr)
     except:
-        print 'cannot import', modulename
+        print('cannot import', modulename)
     M = MAP( model(prob) )
     M.fit()
     return M
@@ -26,7 +26,7 @@ def create_pymc_model( prob, filename = 'model.py' ):
     try:
         f = open( filename, 'w' )
     except IOError:
-        print 'cannot open', filename
+        print('cannot open', filename)
 
     f.write( "from pymc import Uniform, deterministic, Normal\n\n" )
     f.write( "from numpy import array\n" )

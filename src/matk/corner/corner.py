@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function, absolute_import, unicode_literals
+
 
 __all__ = ["corner", "hist2d"]
 __version__ = "1.0.0"
@@ -247,8 +247,8 @@ def corner(xs, bins=20, range=None, weights=None, color="k",
             n, b = np.histogram(x, bins=bins[i], weights=weights,
                                 range=range[i])
             n = gaussian_filter(n, smooth1d)
-            x0 = np.array(zip(b[:-1], b[1:])).flatten()
-            y0 = np.array(zip(n, n)).flatten()
+            x0 = np.array(list(zip(b[:-1], b[1:]))).flatten()
+            y0 = np.array(list(zip(n, n))).flatten()
             ax.plot(x0, y0, **hist_kwargs)
 
         if truths is not None and truths[i] is not None:

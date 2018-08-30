@@ -1,5 +1,5 @@
-from __future__ import division
-from __future__ import print_function
+
+
 
 from scipy.stats import norm
 
@@ -67,7 +67,7 @@ def analyze(problem, X, Y, num_resamples=1000,
     keys = ('vi', 'vi_std', 'dgsm', 'dgsm_conf')
     S = dict((k, np.zeros(D)) for k in keys)
     if print_to_console:
-        print("Parameter %s %s %s %s" % keys)
+        print(("Parameter %s %s %s %s" % keys))
 
     for j in range(D):
         S['vi'][j], S['vi_std'][j] = calc_vi(
@@ -76,8 +76,8 @@ def analyze(problem, X, Y, num_resamples=1000,
                                                     :, j] - X_base[:, j], problem['bounds'][j], num_resamples, conf_level)
 
         if print_to_console:
-            print("%s %f %f %f %f" % (
-                problem['names'][j], S['vi'][j], S['vi_std'][j], S['dgsm'][j], S['dgsm_conf'][j]))
+            print(("%s %f %f %f %f" % (
+                problem['names'][j], S['vi'][j], S['vi_std'][j], S['dgsm'][j], S['dgsm_conf'][j])))
 
     return S
 

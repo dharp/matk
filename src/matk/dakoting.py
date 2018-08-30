@@ -207,7 +207,7 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
     dakota_prob = read_dakota(argv[1])
-    print dakota_prob
+    print(dakota_prob)
 
 if __name__ == "__main__":
     main()

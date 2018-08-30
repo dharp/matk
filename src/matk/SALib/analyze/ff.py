@@ -4,7 +4,7 @@ Created on 30 Jun 2015
 @author: will2
 '''
 
-from __future__ import print_function
+
 import numpy as np
 from . import common_args
 from SALib.util import read_param_file, unscale_samples
