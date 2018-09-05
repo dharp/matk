@@ -1,7 +1,6 @@
 from __future__ import print_function
 import sys
 import numpy
-import string
 from scipy import stats
 from shutil import rmtree
 from operator import itemgetter
@@ -826,12 +825,12 @@ def savestats(rc, outfile, q=[2.5,5,50,95,97.5], interpolation='linear'):
     stat_nms = ["min","max","mean","stdev","variance"]
     stat_nms += ["{}%tile".format(v) for v in q]
     with open(outfile, 'w') as fh:
-        fh.write(string.ljust('',nms_len ))
+        fh.write(str.ljust('',nms_len ))
         for stat in stat_nms:
             fh.write(" %22s" % stat )
         fh.write('\n')
         for nm,dvs in zip(nms,d):
-            fh.write(string.ljust(nm, nms_len))
+            fh.write(str.ljust(nm, nms_len))
             for dv in dvs:
                 fh.write(" %22.16g" % dv )
             fh.write('\n')
@@ -853,10 +852,10 @@ def mean(rc, pretty_print=False):
     s = ''
     if pretty_print:
         for nm in rc.dtype.names:
-            s+=string.rjust(nm, 11)
+            s+=str.rjust(nm, 11)
         s+='\n'
         for c in means:
-            s+=string.rjust('{:5g}'.format(c), 11)
+            s+=str.rjust('{:5g}'.format(c), 11)
         s+='\n'
         print(s)
     else:
@@ -878,10 +877,10 @@ def std(rc, pretty_print=False):
     # Print 
     if pretty_print:
         for nm in rc.dtype.names:
-            print(string.rjust(nm, 11), end=' ')
+            print(str.rjust(nm, 11), end=' ')
         print('')
         for c in stds:
-            print(string.rjust('{:5g}'.format(c), 11), end=' ')
+            print(str.rjust('{:5g}'.format(c), 11), end=' ')
         print('')
     else:
         return stds
