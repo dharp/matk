@@ -29,7 +29,7 @@ def tpl_write( pardict, f, outflnm ):
         with open( f, 'r') as fh:
             t = fh.read()
             fh.close()
-
+    print('test this shit!!!!!!!!!!!!!!!!!!')
     # Make sure file is PEST TPL file
     lh = t.split('\n')[0]
     k = lh.split()
