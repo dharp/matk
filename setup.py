@@ -1,4 +1,4 @@
-# PyTOUGH setup script
+# MATK setup script
 from setuptools import setup
 import os
 
