@@ -1,4 +1,5 @@
 ''' Utilities to handle reading and writing PEST files '''
+import io
 from .lmfit.asteval import Interpreter
 from glob import glob
 import re
@@ -19,7 +20,7 @@ def tpl_write( pardict, f, outflnm ):
         :type outflnm: str
     '''
     # Check if f is a string or file and read in lines
-    if isinstance( f, file ): 
+    if isinstance( f, io.IOBase ): 
         t = f.read()
         fnm = f.name
         f.close()
