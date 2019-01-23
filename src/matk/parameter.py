@@ -24,7 +24,8 @@ class Parameter(LMFitParameter):
         if len(discrete_vals):
             discrete_vals = numpy.array(discrete_vals)
             # Ensure probabilities sum to one
-            discrete_vals[1] /= numpy.sum(discrete_vals[1])
+            dv_sum = numpy.sum(discrete_vals[1])
+            discrete_vals[1] = discrete_vals[1] / dv_sum
             if min is not None: "WARNING: 'min' option will be ignored for discrete parameter"
             if max is not None: "WARNING: 'max' option will be ignored for discrete parameter"
             if expr is not None: "WARNING: 'expr' option will be ignored for discrete parameter"
