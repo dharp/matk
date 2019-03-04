@@ -38,7 +38,7 @@
     # Create observation names and set observation values to noisy data
     for i in range(len(data)):
         p.add_obs('obs'+str(i+1), value=data[i])
-        
+    
     # Create LHS sample
     ss1 = p.lhs(siz=1000)
     
@@ -49,14 +49,13 @@
     SS = ss1.rbd_fast()
 
 
-
 .. parsed-literal::
 
     Parameter First
-    amp       0.404636
-    decay     0.27488
-    shift     0.00879554
-    omega     0.0190217
+    amp       0.416543
+    decay     0.289382
+    shift     0.0286196
+    omega     0.0386413
 
 
 .. code:: ipython2
@@ -67,8 +66,5 @@
 
 .. parsed-literal::
 
-    [0.4046356655403508, 0.2748798363210822, 0.0087955380299460373, 0.019021699707899017]
+    [0.41654295222954379, 0.28938223959466058, 0.028619627269347119, 0.03864126571374104]
 
-
-The results indicate that the model is most sensitive to "amp" followed
-by "decay". The model is relatively insensitive to "shift" and "omega".

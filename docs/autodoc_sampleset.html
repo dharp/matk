@@ -93,7 +93,7 @@
 including parameter samples, associated responses, and sample indices</p>
 <dl class="method">
 <dt id="matk.sampleset.SampleSet.corner">
-<code class="descname">corner</code><span class="sig-paren">(</span><em>bins=20</em>, <em>range=None</em>, <em>weights=None</em>, <em>color=u'k'</em>, <em>smooth=None</em>, <em>smooth1d=None</em>, <em>labels=None</em>, <em>label_kwargs=None</em>, <em>show_titles=False</em>, <em>title_fmt=u'.2f'</em>, <em>title_kwargs=None</em>, <em>truths=None</em>, <em>truth_color=u'#4682b4'</em>, <em>scale_hist=False</em>, <em>quantiles=None</em>, <em>verbose=False</em>, <em>fig=None</em>, <em>max_n_ticks=5</em>, <em>top_ticks=False</em>, <em>use_math_text=False</em>, <em>hist_kwargs=None</em>, <em>**hist2d_kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.sampleset.SampleSet.corner" title="Permalink to this definition">¶</a></dt>
+<code class="descname">corner</code><span class="sig-paren">(</span><em>bins=20</em>, <em>range=None</em>, <em>weights=None</em>, <em>color='k'</em>, <em>smooth=None</em>, <em>smooth1d=None</em>, <em>labels=None</em>, <em>label_kwargs=None</em>, <em>show_titles=False</em>, <em>title_fmt='.2f'</em>, <em>title_kwargs=None</em>, <em>truths=None</em>, <em>truth_color='#4682b4'</em>, <em>scale_hist=False</em>, <em>quantiles=None</em>, <em>verbose=False</em>, <em>fig=None</em>, <em>max_n_ticks=5</em>, <em>top_ticks=False</em>, <em>use_math_text=False</em>, <em>hist_kwargs=None</em>, <em>**hist2d_kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.sampleset.SampleSet.corner" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot corner plot using the corner package written by Dan Foreman-Mackey (<a class="reference external" href="https://pypi.python.org/pypi/corner/1.0.0">https://pypi.python.org/pypi/corner/1.0.0</a>)</p>
 </dd></dl>
 
@@ -296,6 +296,7 @@ If samples are not specified, LHS samples are produced</p>
 <li><strong>outfile</strong> (<em>str</em>) – File to write results to</li>
 <li><strong>logfile</strong> (<em>str</em>) – File to write details of run to during execution</li>
 <li><strong>restart_logfile</strong> (<em>str</em>) – Existing logfile containing completed runs, used to complete an incomplete sampling; Warning: sample indices are expected to match!</li>
+<li><strong>verbose</strong> (<em>bool</em><em> or </em><em>str</em>) – Prints results as calculated if True and Display progress bar in console if ‘progress’</li>
 <li><strong>hosts</strong> (<em>lst</em><em>(</em><em>str</em><em>)</em>) – Option deprecated, use cpus instead</li>
 </ul>
 </td>
@@ -369,10 +370,18 @@ If samples are not specified, LHS samples are produced</p>
 </table>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="matk.sampleset.SampleSet.sse">
-<code class="descname">sse</code><a class="headerlink" href="#matk.sampleset.SampleSet.sse" title="Permalink to this definition">¶</a></dt>
+<code class="descname">sse</code><span class="sig-paren">(</span><em>group=None</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.sampleset.SampleSet.sse" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sum of squared errors (sse) for all samples</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>group</strong> (<em>str</em>) – Group name of observations; if not None, sse for observation group will be returned</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -415,7 +424,7 @@ If samples are not specified, LHS samples are produced</p>
 <dd><p>MATK DataSet class used by SampleSet class to store samples (parameter combinations; ‘SampleSet.samples’) and responses (model outputs; ‘SampleSet.responses’)</p>
 <dl class="method">
 <dt id="matk.sampleset.DataSet.corner">
-<code class="descname">corner</code><span class="sig-paren">(</span><em>bins=20</em>, <em>range=None</em>, <em>weights=None</em>, <em>color=u'k'</em>, <em>smooth=None</em>, <em>smooth1d=None</em>, <em>labels=None</em>, <em>label_kwargs=None</em>, <em>show_titles=False</em>, <em>title_fmt=u'.2f'</em>, <em>title_kwargs=None</em>, <em>truths=None</em>, <em>truth_color=u'#4682b4'</em>, <em>scale_hist=False</em>, <em>quantiles=None</em>, <em>verbose=False</em>, <em>fig=None</em>, <em>max_n_ticks=5</em>, <em>top_ticks=False</em>, <em>use_math_text=False</em>, <em>hist_kwargs=None</em>, <em>**hist2d_kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.sampleset.DataSet.corner" title="Permalink to this definition">¶</a></dt>
+<code class="descname">corner</code><span class="sig-paren">(</span><em>bins=20</em>, <em>range=None</em>, <em>weights=None</em>, <em>color='k'</em>, <em>smooth=None</em>, <em>smooth1d=None</em>, <em>labels=None</em>, <em>label_kwargs=None</em>, <em>show_titles=False</em>, <em>title_fmt='.2f'</em>, <em>title_kwargs=None</em>, <em>truths=None</em>, <em>truth_color='#4682b4'</em>, <em>scale_hist=False</em>, <em>quantiles=None</em>, <em>verbose=False</em>, <em>fig=None</em>, <em>max_n_ticks=5</em>, <em>top_ticks=False</em>, <em>use_math_text=False</em>, <em>hist_kwargs=None</em>, <em>**hist2d_kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.sampleset.DataSet.corner" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot corner plot using the corner package written by Dan Foreman-Mackey (<a class="reference external" href="https://pypi.python.org/pypi/corner/1.0.0">https://pypi.python.org/pypi/corner/1.0.0</a>)</p>
 </dd></dl>
 

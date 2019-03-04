@@ -132,7 +132,7 @@
 
 <dl class="method">
 <dt id="matk.matk.matk.add_obs">
-<code class="descname">add_obs</code><span class="sig-paren">(</span><em>name</em>, <em>sim=None</em>, <em>weight=1.0</em>, <em>value=None</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.matk.matk.add_obs" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add_obs</code><span class="sig-paren">(</span><em>name</em>, <em>sim=None</em>, <em>weight=1.0</em>, <em>value=None</em>, <em>group=None</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.matk.matk.add_obs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add observation to problem</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -143,6 +143,7 @@
 <li><strong>sim</strong> (<em>fl64</em>) – Simulated value</li>
 <li><strong>weight</strong> (<em>fl64</em>) – Observation weight</li>
 <li><strong>value</strong> (<em>fl64</em>) – Value of observation</li>
+<li><strong>group</strong> (<em>str</em>) – Name identifying group or type of observation</li>
 </ul>
 </td>
 </tr>
@@ -478,7 +479,7 @@ OptimizeResult also contains the <code class="docutils literal"><span class="pre
 <li><strong>workdir</strong> (<em>str</em>) – Name of directory to use for model runs, calibrated parameters will be run there after calibration</li>
 <li><strong>verbose</strong> (<em>bool</em>) – If true, print diagnostic information to the screen</li>
 <li><strong>difference_type</strong> (<em>str</em>) – Type of finite difference approximation, ‘forward’ or ‘central’</li>
-<li><strong>save_evals</strong> – If True, a MATK sampleset of calibration function evaluation parameters and responses will be returned</li>
+<li><strong>save_evals</strong> (<em>bool</em>) – If True, a MATK sampleset of calibration function evaluation parameters and responses will be returned</li>
 </ul>
 </td>
 </tr>
@@ -555,6 +556,12 @@ OptimizeResult also contains the <code class="docutils literal"><span class="pre
 <dt id="matk.matk.matk.nomvalues">
 <code class="descname">nomvalues</code><a class="headerlink" href="#matk.matk.matk.nomvalues" title="Permalink to this definition">¶</a></dt>
 <dd><p>Nominal parameter values used in info gap analyses</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="matk.matk.matk.obsgroups">
+<code class="descname">obsgroups</code><a class="headerlink" href="#matk.matk.matk.obsgroups" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get observation groups</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -654,10 +661,18 @@ OptimizeResult also contains the <code class="docutils literal"><span class="pre
 </table>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="matk.matk.matk.residuals">
-<code class="descname">residuals</code><a class="headerlink" href="#matk.matk.matk.residuals" title="Permalink to this definition">¶</a></dt>
+<code class="descname">residuals</code><span class="sig-paren">(</span><em>group=None</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.matk.matk.residuals" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get least squares values</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>group</strong> (<em>str</em>) – Group name of observations; if not None, only residuals in group will be returned</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="attribute">
@@ -711,10 +726,18 @@ OptimizeResult also contains the <code class="docutils literal"><span class="pre
 :returns: lst(fl64) – simulated values in order of matk.obs.keys()</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="matk.matk.matk.ssr">
-<code class="descname">ssr</code><a class="headerlink" href="#matk.matk.matk.ssr" title="Permalink to this definition">¶</a></dt>
+<code class="descname">ssr</code><span class="sig-paren">(</span><em>group=None</em><span class="sig-paren">)</span><a class="headerlink" href="#matk.matk.matk.ssr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sum of squared residuals</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>group</strong> (<em>str</em>) – Group name of observations; if not None, ssr for observation group will be returned</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="attribute">
