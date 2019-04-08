@@ -347,14 +347,14 @@ class SampleSet(object):
             samples = numpy.delete(samples,ir,0)
             indices = numpy.delete(indices,ir,0)
                 
-        if cpus > 0:
+        if isinstance(cpus,int) and cpus <= 0:
+            print('Error: number of cpus must be greater than zero')
+            return
+        else:
             out, retsamples = self._parent.parallel(samples, cpus, 
                  indices=indices, workdir_base=workdir_base, 
                  save=save, reuse_dirs=reuse_dirs, verbose=verbose, 
                  logfile=logfile)
-        else:
-            print('Error: number of cpus must be greater than zero')
-            return
 
         # If restart logfile provided, combine output
         if not restart_logfile is None:

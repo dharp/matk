@@ -24,7 +24,7 @@ def run_extern(params, hostname=None, processor=None):
 # Automatically determine the hostnames available on system using slurm resource manager
 # This will have to be modified for other resource managers
 hostnames = Popen(["scontrol","show","hostnames"],stdout=PIPE).communicate()[0]
-hostnames = hostnames.split('\n')[0:-1]
+hostnames = hostnames.decode().split('\n')[0:-1]
 host = os.environ['HOST'].split('.')[0]
 #hostnames.remove(host) # Remove host to use as designated master if desired
 
