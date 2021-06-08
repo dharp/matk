@@ -234,7 +234,7 @@ class matk(object):
         npar = len(self.pars)
         # If list, convert to ndarray
         if isinstance( samples, list ):
-            samples = numpy.array(samples)
+            samples = numpy.reshape(numpy.array(samples), (-1,1))
         if not samples.shape[1] == npar:
             print("Error: The number of columns in sample is not equal to the number of parameters in the problem")
             return 1
@@ -914,7 +914,7 @@ class matk(object):
     def parallel(self, parsets, cpus=1, workdir_base=None, save=True,
                 reuse_dirs=False, indices=None, verbose=True, logfile=None):
 
-        if not os.name is "posix":
+        if os.name != "posix":
             # Use freeze_support for PCs
             freeze_support()
 
