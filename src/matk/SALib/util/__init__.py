@@ -194,7 +194,7 @@ def read_param_file(filename, delimiter=None):
                 # the parameter name
                 if row['group'] is None:
                     groups.append(row['name'])
-                elif row['group'] is 'NA':
+                elif row['group'] == 'NA':
                     groups.append(row['name'])
                 else:
                     groups.append(row['group'])
@@ -246,7 +246,7 @@ def compute_groups_matrix(groups):
         return None
 
     num_vars = len(groups)
-    
+
     # Get a unique set of the group names
     unique_group_names = list(OrderedDict.fromkeys(groups))
     number_of_groups = len(unique_group_names)
